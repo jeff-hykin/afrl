@@ -127,7 +127,7 @@ def main(env_name, n_experiments=1, forecast_horizon=1, deltas=[0]):
     env = get_env(env_name)
     dynamics = DynamicsModel(obs_dim=env.observation_space.shape[0],
                              act_dim=env.action_space.shape[0],
-                             hidden_sizes=[64,64],
+                             hidden_sizes=[64,64,64,64],
                              lr=0.0001,
                              device='cpu')
 
@@ -155,22 +155,24 @@ settings = {
         'max_score': 70, # (discounted?) ep reward
         'min_score': -100,
         'horizons': {
-            0.1: 30,
-            0.01: 25,
-            0.001: 20
+            0.001: 3, 
+            0.0025: 5, 
+            0.005: 10, 
+            0.0075: 15, 
+            0.01: 20
         }
     }
 }
 
 if __name__ == '__main__':
     env = 'LunarLanderContinuous-v2'
-    multipliers = np.array([0.1, 0.01, 0.001])
+    multipliers = np.array([0.001, 0.0025, 0.005, 0.0075, 0.01])
     deltas = (settings[env]['max_score'] - settings[env]['min_score']) * multipliers
     horizons = [settings[env]['horizons'][mult] for mult in multipliers]
     df = main(env, 20, horizons, deltas=deltas)
     df = df.explode('forecast')
     print(df)
     results_folder = get_results_folder()
-    df.to_csv(results_folder + '/experiments.csv')
+    df.to_csv(f'{results_folder}/{env}/experiments.csv')
     # print(df.groupby('delta').forecast.mean())
     # print((df.groupby('delta').discounted_rewards.mean() - envs[env]['min']) / (envs[env]['max'] - envs[env]['min']))

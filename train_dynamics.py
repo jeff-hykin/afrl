@@ -94,7 +94,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
 
     dynamics = DynamicsModel(obs_dim=env.observation_space.shape[0], 
                              act_dim=env.action_space.shape[0],
-                             hidden_sizes=[64,64],
+                             hidden_sizes=[64,64,64,64],
                              lr=0.0001,
                              device='cpu')
 
@@ -121,4 +121,4 @@ def train(env_name, n_episodes=100, n_epochs=100):
 
 env_name = 'LunarLanderContinuous-v2'
 
-train(env_name, n_episodes=20, n_epochs=20)
+train(env_name, n_episodes=20, n_epochs=100)
