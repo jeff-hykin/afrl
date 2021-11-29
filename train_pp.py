@@ -1,14 +1,17 @@
 import os
+from copy import deepcopy
 
 import gym
 import numpy as np
 import pandas as pd
+import scipy.stats
 import stable_baselines3 as sb
 import torch
 from torch import FloatTensor as ft
+from torch.optim.adam import Adam
 from tqdm import tqdm
 
-from dynamics import DynamicsModel, RobustPredictivePolicy
+from dynamics import DynamicsModel
 
 env_name = 'LunarLanderContinuous-v2'
 env = gym.make(env_name)
@@ -20,15 +23,6 @@ dynamics = DynamicsModel(
     lr=0.0001,
     device='cpu')
 
-# todo: Seed with SAC policy
-predpolicy = RobustPredictivePolicy(
-    obs_dim=env.observation_space.shape[0],
-    act_dim=env.action_space.shape[0],
-    hidden_sizes=[64, 64, 64, 64],
-    lr=0.0001)
-
-dynamics.load_state_dict(torch.load(f'data/models/dynamics/{env_name}.pt'))
-
 
 def load_agent(env):
     agent_base_path = 'data/models/agents'
@@ -37,6 +31,13 @@ def load_agent(env):
 
 
 agent = load_agent(env_name)
+
+
+# todo: Seed with SAC policy
+predpolicy = deepcopy(agent.policy)
+optimizer = Adam(predpolicy.parameters(), lr=0.0001)
+
+dynamics.load_state_dict(torch.load(f'data/models/dynamics/{env_name}.pt'))
 
 
 def Q(agent, state: np.ndarray, action: np.ndarray):
@@ -57,58 +58,54 @@ def predict_future_state(state, horizon):
 
 
 def train(horizon, n_episodes):
-  pred_states = []
-  ep_loss = []
-  losses = []
-  for i in tqdm(list(range(n_episodes))):
-      done = False
-      state = env.reset()
+    pred_states = []
+    ep_loss = []
+    losses = []
+    for i in tqdm(list(range(n_episodes))):
+        done = False
+        state = env.reset()
 
-      while not done:
-          action = agent.predict(state, deterministic=True)[0]
-          state, reward, done, _ = env.step(action)
-          pred_s = predict_future_state(state, horizon)
-          pred_states.append(pred_s)
-          if len(pred_states) >= horizon:
-              loss = Q(agent, state, action) \
-                      -Q(agent, state, predpolicy.predict(ft([pred_states[-horizon]])))
-              losses.append(loss)
-              if len(losses) == 32:
-                # Optimize the predpolicy
-                predpolicy.optimizer.zero_grad()
-                loss = torch.stack(losses).mean()
-                loss.backward()
-                predpolicy.optimizer.step()
-                losses = []
-                ep_loss.append(round(loss.item(), 2))
+        while not done:
+            action = agent.predict(state, deterministic=True)[0]
+            state, reward, done, _ = env.step(action)
+            pred_s = predict_future_state(state, horizon)
+            pred_states.append(pred_s)
+            if len(pred_states) >= horizon:
+                loss = Q(agent, state, action) \
+                    - Q(agent, state, predpolicy(ft([pred_states[-horizon]])))
+                losses.append(loss)
+                if len(losses) == 32:
+                    # Optimize the predpolicy
+                    optimizer.zero_grad()
+                    loss = torch.stack(losses).mean()
+                    loss.backward()
+                    optimizer.step()
+                    losses = []
+                    ep_loss.append(round(loss.item(), 2))
 
-      if i % 50 == 0:
-          torch.save(predpolicy.state_dict(), f'data/models/agents/predpolicy/{env_name}.pt')
-          print(i, round(np.mean(ep_loss[:50]), 3), round(np.mean(ep_loss[-50:]), 3))
+        if i % 50 == 0:
+            # torch.save(predpolicy.state_dict(), f'data/models/agents/predpolicy/{env_name}.pt')
+            print(i, round(np.mean(ep_loss[:50]), 3), round(
+                np.mean(ep_loss[-50:]), 3))
 
-          import scipy.stats
-          eq_mean_test = scipy.stats.ttest_ind(ep_loss[:50], ep_loss[-50:], axis=0, equal_var=False)
-          print(eq_mean_test)
+            eq_mean_test = scipy.stats.ttest_ind(
+                ep_loss[:50], ep_loss[-50:], axis=0, equal_var=False)
+            print(eq_mean_test)
 
-  return ep_loss
+    return ep_loss
 
 
 def test(horizon):
-  pred_states = []
-  done = False
-  while not done:
-      if len(pred_states) >= horizon:
-          action = predpolicy(pred_states[-horizon])
-      else:
-          action = agent.predict(state, deterministic=False)[0]
-      state, reward, done, _ = env.step(action)
-      pred_s = predict_future_state(state, horizon)
-      pred_states.append(pred_s)
+    pred_states = []
+    done = False
+    while not done:
+        if len(pred_states) >= horizon:
+            action = predpolicy(pred_states[-horizon])
+        else:
+            action = agent.predict(state, deterministic=False)[0]
+        state, reward, done, _ = env.step(action)
+        pred_s = predict_future_state(state, horizon)
+        pred_states.append(pred_s)
 
 
-losses = train(horizon=1, n_episodes=5000)
-print(np.mean(losses[:50]), np.mean(losses[-50:]))
-
-import scipy.stats
-eq_mean_test = scipy.stats.ttest_ind(losses[:50], losses[-50:], axis=0, equal_var=False)
-print(eq_mean_test)
+losses = train(horizon=5, n_episodes=5000)

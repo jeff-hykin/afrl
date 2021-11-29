@@ -43,6 +43,12 @@ def get_dynamics_path(env):
     return os.path.join(base_path, env + '.pt')
 
 
+from copy import deepcopy
+predpolicy = deepcopy(agent.policy)
+
+predpolicy.load_state_dict(torch.load(f'data/models/agents/predpolicy/{env_name}.pt'))
+
+
 def replan(state: NDArray, old_plan: NDArray,
            forecast: List[int], delta: float,
            forecast_horizon: int, action_size: int,
@@ -67,7 +73,7 @@ def replan(state: NDArray, old_plan: NDArray,
 
     # produce new plan (replan)
     for i in range(k, forecast_horizon):
-        action = agent.predict(state, deterministic=True)[0]
+        action = predpolicy.predict(state, deterministic=True)[0]
         new_plan[i] = action
         with torch.no_grad():
             state = dynamics(state, action)
