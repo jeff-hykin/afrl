@@ -39,3 +39,17 @@ class DynamicsModel(nn.Module):
         # expecting obs and act to be on device
         # returns the predictions still on the device
         return self.model(th.cat((obs, act), -1))
+
+
+class RobustPredictivePolicy(nn.Module):
+    def __init__(self, obs_dim, act_dim, lr, hidden_sizes):
+        super().__init__()
+        self.model= mlp([obs_dim, *hidden_sizes,
+                         act_dim], nn.ReLU)
+        self.optimizer = Adam(self.model.parameters(), lr=lr)
+
+    def predict(self, obs: th.Tensor):
+        return self.model(obs)
+
+    def forward(self):
+        return self.predict(obs)
