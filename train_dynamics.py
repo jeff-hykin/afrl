@@ -6,7 +6,7 @@ import numpy as np
 import stable_baselines3 as sb
 import torch
 
-from dynamics import DynamicsModel
+from mlp import DynamicsModel
 
 
 def get_env(env_name):

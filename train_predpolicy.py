@@ -11,7 +11,7 @@ from torch import FloatTensor as ft
 from torch.optim.adam import Adam
 from tqdm import tqdm
 
-from dynamics import DynamicsModel
+from mlp import DynamicsModel
 
 env_name = 'LunarLanderContinuous-v2'
 env = gym.make(env_name)

@@ -1,5 +1,3 @@
-   
-"""Code specific for AFRL."""
 
 import numpy as np
 import torch as th
@@ -44,12 +42,12 @@ class DynamicsModel(nn.Module):
 class RobustPredictivePolicy(nn.Module):
     def __init__(self, obs_dim, act_dim, lr, hidden_sizes):
         super().__init__()
-        self.model= mlp([obs_dim, *hidden_sizes,
+        self.model = mlp([obs_dim, *hidden_sizes,
                          act_dim], nn.ReLU)
         self.optimizer = Adam(self.model.parameters(), lr=lr)
 
     def predict(self, obs: th.Tensor):
         return self.model(obs)
 
-    def forward(self):
+    def forward(self, obs):
         return self.predict(obs)
