@@ -12,7 +12,7 @@ from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch import FloatTensor as ft
 from tqdm import tqdm
 
-from dynamics import DynamicsModel
+from mlp import DynamicsModel
 
 
 def Q(agent, state: np.ndarray, action: np.ndarray):
