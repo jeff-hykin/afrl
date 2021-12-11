@@ -56,20 +56,21 @@ def replan(state: NDArray, old_plan: NDArray,
         replan_action = agent.predict(state, deterministic=True)[0]
         with torch.no_grad():
           replan_q = Q(agent, state, replan_action)
-        plan_q = Q(agent, state, action)
-        diff = - plan_q
+        plan_action = predpolicy(ft([state]))[0]
+        plan_q = Q(agent, state, plan_action)
+        diff = replan_q - plan_q
         losses.append(diff)
         if len(losses) == 32:
             optimizer.zero_grad()
-            loss = torch.stack(losses[-16:]).mean() # works with [-16:]. not without it.
+            loss = torch.stack(losses).mean()
             loss.backward()
             optimizer.step()
             losses = []
 
         if diff.item() > epsilon:
             break
-        new_plan.append(action)
-        state = dynamics(state, action)
+        new_plan.append(plan_action)
+        state = dynamics(state, plan_action)
         # for the stats... keep track of the forecast of this action
         forecast[k] = forecast[k+1] + 1
         k += 1
