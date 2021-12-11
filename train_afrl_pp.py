@@ -52,11 +52,11 @@ def replan(state: NDArray, old_plan: NDArray,
     k = 0  # used to keep track of forecast of the actions
 
     # reuse old plan (recycle)
-    for action in old_plan[1:]:
+    for (pred_state, action) in old_plan[1:]:
         replan_action = agent.predict(state, deterministic=True)[0]
         with torch.no_grad():
           replan_q = Q(agent, state, replan_action)
-        plan_action = predpolicy(ft([state]))[0]
+        plan_action = predpolicy(ft([pred_state]))[0]
         plan_q = Q(agent, state, plan_action)
         diff = replan_q - plan_q
         losses.append(diff)
@@ -69,7 +69,7 @@ def replan(state: NDArray, old_plan: NDArray,
 
         if diff.item() > epsilon:
             break
-        new_plan.append(plan_action)
+        new_plan.append((pred_state, plan_action))
         state = dynamics(state, plan_action)
         # for the stats... keep track of the forecast of this action
         forecast[k] = forecast[k+1] + 1
@@ -78,7 +78,7 @@ def replan(state: NDArray, old_plan: NDArray,
     # produce new plan (replan)
     for i in range(k, forecast_horizon):
         action = predpolicy(ft([state]))[0]
-        new_plan.append(action)
+        new_plan.append((state, action))
         with torch.no_grad():
             state = dynamics(state, action)
         forecast[i] = 0
@@ -98,7 +98,7 @@ def experience(epsilon: float, forecast_horizon: int, action_size: int,
         state, empty_plan, zero_forecasts, epsilon,
         forecast_horizon, action_size, agent, predpolicy, dynamics, optimizer)
     while not done:
-        action = plan[0]
+        action = plan[0][1]
         episode_forecast.append(forecasts[0])
         state, reward, done, _ = env.step(action.detach().numpy())
         rewards.append(reward)
@@ -129,7 +129,7 @@ def test_afrl(epsilons: List[float], forecast_horizon: int, action_size: int,
             v = get_discounted_rewards(rewards, agent.gamma)
             df = df.append(
                 dict(zip(cols, [epsilon, sum(rewards), v, forecast[horizon:]])), ignore_index=True)
-            print(epsilon, np.mean([np.mean(x) for x in df.forecast]))
+            print(epsilon, np.mean([np.mean(x) for x in df[df.epsilon == epsilon].forecast]))
     return df
 
 
