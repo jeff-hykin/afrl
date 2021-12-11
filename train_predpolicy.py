@@ -19,7 +19,7 @@ env = gym.make(env_name)
 dynamics = DynamicsModel(
     obs_dim=env.observation_space.shape[0],
     act_dim=env.action_space.shape[0],
-    hidden_sizes=[64, 64],
+    hidden_sizes=[64, 64, 64, 64],
     lr=0.0001,
     device='cpu')
 
