@@ -20,7 +20,7 @@
 
 # 
 # Complex packages
-# 
+#
     # things such as platform-specific packages,
     # loading from a git repository,
     # or if you find an online solution that involves native build inputs
@@ -39,24 +39,98 @@
 
 # [[ you can add tools for your project right here or at the bottom ]]
 
-[[packages]]
-load = [ "swig",] # needed by box2d-py
 
 [[packages]]
-load = [ "zellij",] # for long-running tasks (nohup)
+load = [ "nvidia-docker",]
+from = "860b56be91fb874d48e23a950815969a7b832fbc"
+
+[[packages]]
+load = [ "docker",]
+
+[[packages]]
+asNativeBuildInput = true
+load = [ "geos",] # for carla_env
+
+[[packages]]
+load = [ "zellij",]
 from = "c82b46413401efa740a0b994f52e9903a4f6dcd5"
 
-# 
-# Python
-# 
+[[packages]]
+load = [ "git-subrepo",]
+
+[[packages]] # for carla
+load = [ "llvmPackages","openmp",]
+
+[[packages]] # for carla
+load = [ "xdg-user-dirs",]
+
+[[packages]] # for carla
+load = [ "xdg-utils",]
+
+[[packages]] # for carla
+load = [ "xorg", "xhost",]
+
+[[packages]]
+load = [ "freetype",]
+
+[[packages]]
+load = [ "swig",]
+
+[[packages]]
+load = [ "mpi",] # for the spinningup AI repo 
+
+[[packages]]
+load = [ "curl",]
 
 [[packages]]
 load = [ "python38",]
 from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
 
 [[packages]]
+load = [ "python38Packages", "black",]
+from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
+
+[[packages]]
+load = [ "python38Packages", "poetry",]
+from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
+
+[[packages]]
 load = [ "python38Packages", "setuptools",]
 from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
+
+[[packages]]
+load = [ "python38Packages", "pybullet",]
+from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
+onlyIf = [ [ "stdenv", "isLinux",],]
+
+# [[packages]]
+# load = [ "python38Packages", "pytorchWithCuda",]
+# from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
+# onlyIf = [ [ "stdenv", "isLinux",],]
+
+[[packages]]
+load = [ "python38Packages", "pyopengl",]
+from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
+
+# 
+# Nvidia
+# 
+# [[packages]]
+# load = [ "nixGLNvidia",]
+# onlyIf = [ [ "stdenv", "isLinux",],]
+# # see https://discourse.nixos.org/t/opencv-with-cuda-in-nix-shell/7358/5
+# from = { fetchGit = { url = "https://github.com/guibou/nixGL", rev = "7d6bc1b21316bab6cf4a6520c2639a11c25a220e" }, }
+
+# 
+# opencv
+# 
+
+# [[packages]]
+# onlyIf = [ [ "stdenv", "isLinux",],]
+# load = [ "python38Packages", "opencv4",]
+# override = { enableGtk3 = true, enableFfmpeg = true, enableCuda = true, enableUnfree = true, }
+# see https://discourse.nixos.org/t/opencv-with-cuda-in-nix-shell/7358/5
+# from = { fetchGit = { url = "https://github.com/NixOS/nixpkgs/", rev = "c82b46413401efa740a0b994f52e9903a4f6dcd5" }, options = { config = { allowUnfree = true } }, }
 
 [[packages]]
 load = [ "python38Packages", "pip",]
@@ -71,7 +145,7 @@ load = [ "python38Packages", "wheel",]
 from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
 
 [[packages]]
-load = [ "poetry",]
+load = [ "python38Packages", "shap",]
 from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
 
 # 
@@ -82,7 +156,7 @@ from = "3f50332bc4913a56ad216ca01f5d0bd24277a6b2"
 onlyIf = [ [ "stdenv", "isLinux",],]
 load = [ "glib",]
 asNativeBuildInput = true
-from = "528d35bec0cb976a06cc0e8487c6e5136400b16b"
+from = "c82b46413401efa740a0b994f52e9903a4f6dcd5"
 
 [[packages]]
 onlyIf = [ [ "stdenv", "isLinux",],]
@@ -192,16 +266,14 @@ load = [ "libkrb5",]
 # 
 
 [[packages]]
+load = [ "fd",]
+
+[[packages]]
 load = [ "ncurses5",]
 
 [[packages]]
 load = [ "openssh",]
 
-# 
-# 
-# fancy command line tools
-# 
-# 
 [[packages]]
 load = [ "sd",]
 
@@ -237,10 +309,39 @@ load = [ "spaceship-prompt",]
 load = [ "nnn",]
 
 [[packages]]
-load = [ "jq",]
+load = [ "pkgconfig",]
+asNativeBuildInput = true
+onlyIf = [ [ "stdenv", "isLinux",],]
 
 [[packages]]
-load = [ "git-subrepo",]
+load = [ "libconfig",]
+asNativeBuildInput = true
+onlyIf = [ [ "stdenv", "isLinux",],]
+
+[[packages]]
+load = [ "cmake",]
+asNativeBuildInput = true
+onlyIf = [ [ "stdenv", "isLinux",],]
+
+[[packages]]
+load = [ "libGLU",]
+onlyIf = [ [ "stdenv", "isLinux",],]
+
+[[packages]]
+load = [ "xvfb-run",]
+onlyIf = [ [ "stdenv", "isLinux",],]
+
+# [[packages]]
+# load = [ "cudatoolkit",]
+# onlyIf = [ [ "stdenv", "isLinux",],]
+
+# [[packages]]
+# load = [ "linuxPackages", "nvidia_x11",]
+# onlyIf = [ [ "stdenv", "isLinux",],]
+
+[[packages]]
+load = [ "stdenv", "cc",]
+onlyIf = [ [ "stdenv", "isLinux",],]
 
 #
 #
@@ -377,6 +478,9 @@ load = [ "unixtools", "xxd",]
 [[packages]]
 load = [ "deno",]
 from = "c82b46413401efa740a0b994f52e9903a4f6dcd5"
+
+[[packages]]
+load = [ "jq",]
 
 [[packages]]
 load = [ "nix",]
