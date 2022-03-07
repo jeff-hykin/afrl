@@ -39,6 +39,13 @@
 
 # [[ you can add tools for your project right here or at the bottom ]]
 
+[[packages]]
+load = [ "swig",] # needed by box2d-py
+
+[[packages]]
+load = [ "zellij",] # for long-running tasks (nohup)
+from = "c82b46413401efa740a0b994f52e9903a4f6dcd5"
+
 # 
 # Python
 # 
