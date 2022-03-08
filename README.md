@@ -1,4 +1,4 @@
-- first, run train_agent.py to train the actor and critic
-- then, run train_dynamics.py to train the dynamics model
-- finally, run train_afrl.py to train the predictive policy
-- plot the results with plot_results.ipynb
+- first, `python train_agent.py` to train the actor and critic
+- then, run `python train_dynamics.py` to train the dynamics model
+- finally, `python train_afrl.py` to train the predictive policy
+- plot the results with `plot_results.ipynb`
