@@ -2,4 +2,5 @@ defaultFrom = "c82b46413401efa740a0b994f52e9903a4f6dcd5" # this is a commit hash
 
 [config]
 allowUnfree = true
+cudaSupport = true
 permittedInsecurePackages = [ "openssl-1.0.2u",]

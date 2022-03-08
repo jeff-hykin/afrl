@@ -38,6 +38,14 @@
             main
         );
         
+        # torch = (builtins.import
+        #     (fetchTarball "https://github.com/jeff-hykin/pytorch_nixpkg/archive/77961dce25528445a7e4e448652754079deb6f73.tar.gz")
+        #     {
+        #         pkgs = main.packages // {
+        #             cudnn_cudatoolkit_11_2 = main.packages.cudnn_cudatoolkit_11_2;
+        #         };
+        #     }
+        # );
         magma = (main.packages.magma.override
             ({
                 cudatoolkit = main.packages.cudaPackages.cudatoolkit_11_2;
@@ -51,18 +59,6 @@
             )
             ({})
         ).nccl_cudatoolkit_11;
-        pytorchWithCuda = (builtins.import
-            # 
-            # older version with pytorch 1.8.1: 141439f6f11537ee349a58aaf97a5a5fc072365c
-            # 
-            (builtins.fetchTarball 
-                ({
-                    url = "https://github.com/NixOS/nixpkgs/archive/141439f6f11537ee349a58aaf97a5a5fc072365c.tar.gz";
-                })
-            )
-            ({})
-            
-        ).python38Packages.pytorchWithCuda;
 
         
         # 
@@ -73,7 +69,7 @@
                 nixgl.auto.nixGLNvidia
                 main.packages.cudaPackages.cudatoolkit_11_2
                 main.packages.cudnn_cudatoolkit_11_2
-                (pytorchWithCuda.override 
+                (main.packages.python38Packages.pytorchWithCuda.override 
                     ({
                         cudaSupport = true;
                         cudatoolkit = main.packages.cudaPackages.cudatoolkit_11_2;
@@ -90,18 +86,18 @@
                 then
                     true # add important (LD_LIBRARY_PATH, PATH, etc) nix-Linux code here
                     export CUDA_PATH="${main.packages.cudaPackages.cudatoolkit_11_2}"
-                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.linuxPackages.nvidia_x11}/lib"
+                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.linuxPackages.nvidia_x11}/lib:${main.packages.ncurses5}/lib:/run/opengl-driver/lib"
                     export EXTRA_LDFLAGS="$EXTRA_CCFLAGS:-L/lib -L${main.packages.linuxPackages.nvidia_x11}/lib"
                     export LD_LIBRARY_PATH="$(${nixgl.auto.nixGLNvidia}/bin/nixGLNvidia-470.86 printenv LD_LIBRARY_PATH):$LD_LIBRARY_PATH"
                     export EXTRA_CCFLAGS="$EXTRA_CCFLAGS:-I/usr/include"
                     export LD_LIBRARY_PATH="${main.makeLibraryPath [ main.packages.glib ] }:$LD_LIBRARY_PATH"
-                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses5}/lib:/run/opengl-driver/lib"
+                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses}/lib:/run/opengl-driver/lib"
                     
                     export LD_LIBRARY_PATH="${main.packages.hdf5}:$LD_LIBRARY_PATH"
                     export LD_LIBRARY_PATH="${main.packages.openmpi}/lib:$LD_LIBRARY_PATH"
                     export LD_LIBRARY_PATH="${main.packages.python38}/lib:$LD_LIBRARY_PATH"
-                    export LD_LIBRARY_PATH="${main.packages.zlib}/lib:$LD_LIBRARY_PATH"
                     export LD_LIBRARY_PATH="${main.packages.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
+                    export LD_LIBRARY_PATH="${main.packages.zlib}/lib:$LD_LIBRARY_PATH"
 
                     # CUDA and magma path
                     export LD_LIBRARY_PATH="${main.packages.cudaPackages.cudatoolkit_11_2}/lib:${main.packages.cudnn_cudatoolkit_11_2}/lib:${magma}/lib:$LD_LIBRARY_PATH"
@@ -203,6 +199,10 @@
                 fi
                 ${linuxOnly.shellCode}
                 ${macOnly.shellCode}
+                
+                # provide access to ncurses for nice terminal interactions
+                export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses}/lib"
+                export LD_LIBRARY_PATH="${main.makeLibraryPath [ main.packages.glib ] }:$LD_LIBRARY_PATH"
                 
                 if [ "$FORNIX_DEBUG" = "true" ]; then
                     echo "finished: 'shellHook' inside the 'settings/extensions/nix/shell.nix' file"
