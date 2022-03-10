@@ -7,26 +7,12 @@ import stable_baselines3 as sb
 import torch
 
 from mlp import DynamicsModel
+from train_agent import load_agent
 from info import path_to, config
-
 
 def get_env(env_name):
     env = gym.make(env_name)
     return env
-
-
-def load_agent(env):
-    agent_path1 = os.path.join(path_to.folders.agent_models, env)
-    agent_path2 = os.path.join(path_to.folders.agent_models, env + ".zip")
-    try:
-        return sb.SAC.load(agent_path1, get_env(env), device=config.device)
-    except Exception as error:
-        return sb.SAC.load(agent_path2, get_env(env), device=config.device)
-
-
-def get_dynamics_path(env):
-    return os.path.join(path_to.folders.dynamics_models, env + ".pt")
-
 
 def train_dynamics_model(dynamics, s: torch.Tensor, a: torch.Tensor, s2: torch.Tensor):
     # Compute Huber loss (less sensitive to outliers)
@@ -129,7 +115,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
             f"Epoch {i+1}. Loss: {loss / np.ceil(len(states) / 32):.4f}, Test mse: {test_mse:.4f}"
         )
 
-    torch.save(dynamics.state_dict(), get_dynamics_path(env_name))
+    torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
 
 
 for each_env_name in config.env_names:
