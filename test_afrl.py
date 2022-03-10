@@ -12,13 +12,11 @@ from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch import FloatTensor as ft
 from tqdm import tqdm
 
-from dynamics import DynamicsModel
-
-
-def get_env(env_name):
-    env = gym.make(env_name)
-    return env
-
+from mlp import DynamicsModel
+from info import path_to, config
+from train_agent import load_agent
+from train_dynamics import load_dynamics
+from file_system import FS
 
 def Q(agent, state: np.ndarray, action: np.ndarray):
     state = ft([state]).to(agent.device)
@@ -27,21 +25,6 @@ def Q(agent, state: np.ndarray, action: np.ndarray):
         q = torch.cat(agent.critic_target(state, action), dim=1)
     q, _ = torch.min(q, dim=1, keepdim=True)
     return q.item()
-
-
-def load_agent(env):
-    if "Humanoid" in env:
-        agent_path = "log/best_model.zip"
-    else:
-        agent_base_path = "data/models/agents"
-        agent_path = os.path.join(agent_base_path, env + ".zip")
-    return sb.SAC.load(agent_path, get_env(env), device="cpu")
-
-
-def get_dynamics_path(env):
-    base_path = "data/models/dynamics"
-    return os.path.join(base_path, env + ".pt")
-
 
 def replan(
     state: NDArray,
@@ -158,16 +141,10 @@ def test_afrl(
 
 
 def main(env_name, n_experiments=1, forecast_horizon=1, deltas=[0]):
-    env = get_env(env_name)
-    dynamics = DynamicsModel(
-        obs_dim=env.observation_space.shape[0],
-        act_dim=env.action_space.shape[0],
-        hidden_sizes=[64, 64, 64, 64],
-        lr=0.0001,
-        device="cpu",
-    )
+    env = config.get_env(env_name)
+    dynamics = load_dynamics(env)
 
-    dynamics.load_state_dict(torch.load(get_dynamics_path(env_name)))
+    dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
     action_size = env.action_space.shape[0]
     agent = load_agent(env_name)
     # agent.gamma = 0.95

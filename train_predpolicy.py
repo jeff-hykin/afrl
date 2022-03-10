@@ -12,33 +12,22 @@ from torch.optim.adam import Adam
 from tqdm import tqdm
 
 from mlp import DynamicsModel
+from info import path_to, config
+from train_agent import load_agent
+from train_dynamics import load_dynamics
+from file_system import FS
 
 env_name = "LunarLanderContinuous-v2"
-env = gym.make(env_name)
-
-dynamics = DynamicsModel(
-    obs_dim=env.observation_space.shape[0],
-    act_dim=env.action_space.shape[0],
-    hidden_sizes=[64, 64, 64, 64],
-    lr=0.0001,
-    device="cpu",
-)
-
-
-def load_agent(env):
-    agent_base_path = "data/models/agents"
-    agent_path = os.path.join(agent_base_path, env + ".zip")
-    return sb.SAC.load(agent_path, gym.make(env_name), device="cpu")
-
-
 agent = load_agent(env_name)
+env = config.get_env(env_name)
 
+dynamics = load_dynamics(env)
 
 # todo: Seed with SAC policy
 predpolicy = deepcopy(agent.policy)
 optimizer = Adam(predpolicy.parameters(), lr=0.0001)
 
-dynamics.load_state_dict(torch.load(f"data/models/dynamics/{env_name}.pt"))
+dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
 
 
 def Q(agent, state: np.ndarray, action: np.ndarray):

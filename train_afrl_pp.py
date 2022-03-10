@@ -10,11 +10,14 @@ import torch
 from nptyping import NDArray
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch import FloatTensor as ft
+from torch.optim.adam import Adam
 from tqdm import tqdm
 
 from mlp import DynamicsModel
-from torch.optim.adam import Adam
-
+from info import path_to, config
+from train_agent import load_agent
+from train_dynamics import load_dynamics
+from file_system import FS
 
 def Q(agent, state: np.ndarray, action: np.ndarray):
     if torch.is_tensor(action):
@@ -25,23 +28,7 @@ def Q(agent, state: np.ndarray, action: np.ndarray):
     q, _ = torch.min(q, dim=1, keepdim=True)
     return q
 
-
-def load_agent(env):
-    if "Humanoid" in env:
-        agent_path = "log/best_model.zip"
-    else:
-        agent_base_path = "data/models/agents"
-        agent_path = os.path.join(agent_base_path, env + ".zip")
-    return sb.SAC.load(agent_path, gym.make(env), device="cpu")
-
-
-def get_dynamics_path(env):
-    base_path = "data/models/dynamics"
-    return os.path.join(base_path, env + ".pt")
-
-
 losses = []
-
 
 def replan(
     state: NDArray,
@@ -69,7 +56,7 @@ def replan(
         plan_q = Q(agent, state, plan_action)
         diff = replan_q - plan_q
         losses.append(diff)
-        if len(losses) == 32:
+        if len(losses) == 32: # QUESTION: what is this 32?? minibatch_size? or is the statement checking if training-mode vs testing-mode?
             optimizer.zero_grad()
             loss = torch.stack(losses).mean()
             loss.backward()
@@ -189,16 +176,10 @@ def test_afrl(
 
 
 def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
-    env = gym.make(env_name)
-    dynamics = DynamicsModel(
-        obs_dim=env.observation_space.shape[0],
-        act_dim=env.action_space.shape[0],
-        hidden_sizes=[64, 64, 64, 64],
-        lr=0.0001,
-        device="cpu",
-    )
+    env = config.get_env(env_name)
+    dynamics = load_dynamics(env)
 
-    dynamics.load_state_dict(torch.load(get_dynamics_path(env_name)))
+    dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
     action_size = env.action_space.shape[0]
     agent = load_agent(env_name)
     predpolicy = deepcopy(agent.policy)
@@ -221,38 +202,26 @@ def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
         optimizer,
     )
 
-
-def get_results_folder():
-    results_folder = os.path.join(f"data/results")
-    if not os.path.exists(results_folder):
-        os.makedirs(results_folder)
-    return results_folder
-
-
-settings = {
-    "LunarLanderContinuous-v2": {
-        "max_score": 70,  # discounted ep reward
-        "min_score": -100,
-        "horizons": {  # maps "epsilon coefficients" to horizons
-            0.001: 5,
-            0.0025: 5,
-            0.005: 10,
-            0.0075: 15,
-            0.01: 20,
-        },
-    }
-}
+settings = config.train_afrl.env_settings
 
 if __name__ == "__main__":
-    env = "LunarLanderContinuous-v2"
     from copy import deepcopy
-
-    multipliers = np.array(list(settings[env]["horizons"].keys()))
-    epsilons = (settings[env]["max_score"] - settings[env]["min_score"]) * multipliers
-    horizons = [settings[env]["horizons"][mult] for mult in multipliers]
-    df = main(env, 50, horizons, epsilons=epsilons)
-    df = df.explode("forecast")
-    results_folder = get_results_folder()
-    df.to_csv(f"{results_folder}/{env}/experiments_pp.csv")
-    # print(df.groupby('epsilon').forecast.mean())
-    # print((df.groupby('epsilon').discounted_rewards.mean() - envs[env]['min']) / (envs[env]['max'] - envs[env]['min']))
+    
+    for env_name in config.env_names:
+        multipliers = np.array(list(settings[env_name]["horizons"].keys()))
+        epsilons = (settings[env_name]["max_score"] - settings[env_name]["min_score"]) * multipliers
+        horizons = [settings[env_name]["horizons"][mult] for mult in multipliers]
+        
+        df = main(
+            env_name,
+            config.number_of_experiments,
+            horizons,
+            epsilons=epsilons,
+        ).explode("forecast")
+        df.to_csv(
+            FS.ensure_parent_folder_exists(
+                f"{path_to.folder.results}/{env_name}/experiments_pp.csv"
+            )
+        )
+        # print(df.groupby('epsilon').forecast.mean())
+        # print((df.groupby('epsilon').discounted_rewards.mean() - envs[env]['min']) / (envs[env]['max'] - envs[env]['min']))

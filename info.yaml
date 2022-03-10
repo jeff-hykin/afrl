@@ -3,9 +3,12 @@
 (project):
     # paths the code will probably need to use
     (path_to):
-        folders:
+        folder:
             agent_models: "./data/models/agents/"
             dynamics_models: "./data/models/dynamics/"
+            results: "./data/results"
+        file:
+            humanoid_agent_model: "./log/best_model.zip"
     
     # this is your local-machine config choices
     # (should point to a file that is git-ignored)
@@ -25,6 +28,20 @@
             train_dynamics:
                 number_of_episodes: 20
                 number_of_epochs: 100
+                train_test_split: 0.7
+                minibatch_size: 32
+            train_afrl:
+                number_of_experiments: 50
+                env_settings:
+                    LunarLanderContinuous-v2:
+                        max_score: 70  # discounted ep reward
+                        min_score: -100
+                        horizons: # maps "epsilon coefficients" to horizons
+                            0.001: 5
+                            0.0025: 5
+                            0.005: 10
+                            0.0075: 15
+                            0.01: 20
         
         GPU=NONE:
             has_gpu: false

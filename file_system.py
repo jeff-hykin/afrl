@@ -131,6 +131,7 @@ class FileSystem():
         directory = os.path.dirname(path)
         if directory == '': directory = '.'
         os.makedirs(directory, exist_ok=True)
+        return path
     
     @classmethod
     def dirname(self, path):

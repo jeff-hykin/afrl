@@ -10,9 +10,15 @@ from mlp import DynamicsModel
 from train_agent import load_agent
 from info import path_to, config
 
-def get_env(env_name):
-    env = gym.make(env_name)
-    return env
+def load_dynamics_model(env_obj):
+    env = env_obj
+    return DynamicsModel(
+        obs_dim=env.observation_space.shape[0],
+        act_dim=env.action_space.shape[0],
+        hidden_sizes=[64, 64, 64, 64],
+        lr=0.0001,
+        device=config.device,
+    )
 
 def train_dynamics_model(dynamics, s: torch.Tensor, a: torch.Tensor, s2: torch.Tensor):
     # Compute Huber loss (less sensitive to outliers)
@@ -72,7 +78,7 @@ def minibatch(batch_size, *data):
 
 
 def train(env_name, n_episodes=100, n_epochs=100):
-    env = get_env(env_name)
+    env = config.get_env(env_name)
     agent = load_agent(env_name)
 
     # Get experience from trained agent
@@ -86,13 +92,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
     )
     actions = torch.FloatTensor(flatten(actions))
 
-    dynamics = DynamicsModel(
-        obs_dim=env.observation_space.shape[0],
-        act_dim=env.action_space.shape[0],
-        hidden_sizes=[64, 64, 64, 64],
-        lr=0.0001,
-        device="cpu",
-    )
+    dynamics = load_dynamics_model(env)
 
     def train_test_split(data, indices, train_pct=0.66):
         div = int(len(data) * train_pct)
@@ -101,18 +101,20 @@ def train(env_name, n_episodes=100, n_epochs=100):
 
     indices = np.arange(len(states))
     np.random.shuffle(indices)
-    train_s, test_s = train_test_split(states, indices, 0.7)
-    train_a, test_a = train_test_split(actions, indices, 0.7)
-    train_s2, test_s2 = train_test_split(next_states, indices, 0.7)
-
+    train_s, test_s = train_test_split(states, indices, config.train_dynamics.train_test_split)
+    train_a, test_a = train_test_split(actions, indices, config.train_dynamics.train_test_split)
+    train_s2, test_s2 = train_test_split(next_states, indices, config.train_dynamics.train_test_split)
+    
+    minibatch_size = config.train_dynamics.minibatch_size
     for i in range(n_epochs):
         loss = 0
-        for s, a, s2 in minibatch(32, train_s, train_a, train_s2):
+        for s, a, s2 in minibatch(minibatch_size, train_s, train_a, train_s2):
             batch_loss = train_dynamics_model(dynamics, s, a, s2)
             loss += batch_loss
+        # BOOKMARK: test loss
         test_mse = ((dynamics.predict(test_s, test_a) - test_s2) ** 2).mean()
         print(
-            f"Epoch {i+1}. Loss: {loss / np.ceil(len(states) / 32):.4f}, Test mse: {test_mse:.4f}"
+            f"Epoch {i+1}. Loss: {loss / np.ceil(len(states) / minibatch_size):.4f}, Test mse: {test_mse:.4f}"
         )
 
     torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))

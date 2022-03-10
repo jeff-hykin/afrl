@@ -23,13 +23,19 @@ if config.has_gpu:
 # 
 # create any missing folders
 # 
-for each_name in path_to.folders:
-    each_path = path_to.folders[each_name]
+for each_name in path_to.folder:
+    each_path = path_to.folder[each_name]
     import os
     os.makedirs(each_path, exist_ok=True)
 
 # 
 # functional paths
 # 
-path_to.agent_model_for    = lambda env_name: f"{path_to.folders.agent_models}/{env_name}"
-path_to.dynamics_model_for =lambda env_name: f"{path_to.folders.dynamics_models}/{env_name}.pt"
+path_to.agent_model_for    = lambda env_name: f"{path_to.folder.agent_models}/{env_name}"
+path_to.dynamics_model_for = lambda env_name: f"{path_to.folder.dynamics_models}/{env_name}.pt"
+
+# 
+# env lookup
+# 
+import gym
+config.get_env = lambda env_name: gym.make(env_name) # might intercept this in the future 
