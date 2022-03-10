@@ -121,6 +121,14 @@ def train(env_name, n_episodes=100, n_epochs=100):
 
     torch.save(dynamics.state_dict(), get_dynamics_path(env_name))
 
-env_name = 'LunarLanderContinuous-v2'
-
-train(env_name, n_episodes=20, n_epochs=100)
+for each_env_name in config.env_names:
+    print(f"")
+    print(f"")
+    print(f"Training for {each_env_name}")
+    print(f"")
+    print(f"")
+    train(
+        each_env_name,
+        n_episodes=config.train_dynamics.number_of_episodes,
+        n_epochs=config.train_dynamics.number_of_epochs,
+    )
