@@ -20,6 +20,8 @@
             mode: development
             has_gpu: true
             env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+            train_agent:
+                iterations: 100000
         
         GPU=NONE:
             has_gpu: false
