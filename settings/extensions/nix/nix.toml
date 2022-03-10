@@ -269,7 +269,7 @@ load = [ "libkrb5",]
 load = [ "fd",]
 
 [[packages]]
-load = [ "ncurses",]
+load = [ "ncurses5",]
 
 [[packages]]
 load = [ "openssh",]

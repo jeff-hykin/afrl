@@ -91,7 +91,7 @@
                     export LD_LIBRARY_PATH="$(${nixgl.auto.nixGLNvidia}/bin/nixGLNvidia-470.86 printenv LD_LIBRARY_PATH):$LD_LIBRARY_PATH"
                     export EXTRA_CCFLAGS="$EXTRA_CCFLAGS:-I/usr/include"
                     export LD_LIBRARY_PATH="${main.makeLibraryPath [ main.packages.glib ] }:$LD_LIBRARY_PATH"
-                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses}/lib:/run/opengl-driver/lib"
+                    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses5}/lib:/run/opengl-driver/lib"
                     
                     export LD_LIBRARY_PATH="${main.packages.hdf5}:$LD_LIBRARY_PATH"
                     export LD_LIBRARY_PATH="${main.packages.openmpi}/lib:$LD_LIBRARY_PATH"
@@ -201,7 +201,7 @@
                 ${macOnly.shellCode}
                 
                 # provide access to ncurses for nice terminal interactions
-                export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses}/lib"
+                export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses5}/lib"
                 export LD_LIBRARY_PATH="${main.makeLibraryPath [ main.packages.glib ] }:$LD_LIBRARY_PATH"
                 
                 if [ "$FORNIX_DEBUG" = "true" ]; then
