@@ -1,0 +1,25 @@
+# NOTE: names in parentheses are special
+# all other names are not special
+(project):
+    # paths the code will probably need to use
+    (path_to):
+        folders:
+            agent_models: "./data/models/agents/"
+    
+    # this is your local-machine config choices
+    # (should point to a file that is git-ignored)
+    # (this file will be auto-generated with the correct format)
+    (configuration): ./configuration.ignore.yaml
+    
+    # below are options that the config file can choose
+    #     when multiple options are selected
+    #     their keys/values will be merged recursively
+    (configuration_options):
+        (default):
+            mode: development
+            has_gpu: true
+            env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+        
+        GPU=NONE:
+            has_gpu: false
+        
