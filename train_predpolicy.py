@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from mlp import DynamicsModel
 
-env_name = 'LunarLanderContinuous-v2'
+env_name = "LunarLanderContinuous-v2"
 env = gym.make(env_name)
 
 dynamics = DynamicsModel(
@@ -21,13 +21,14 @@ dynamics = DynamicsModel(
     act_dim=env.action_space.shape[0],
     hidden_sizes=[64, 64, 64, 64],
     lr=0.0001,
-    device='cpu')
+    device="cpu",
+)
 
 
 def load_agent(env):
-    agent_base_path = 'data/models/agents'
-    agent_path = os.path.join(agent_base_path, env + '.zip')
-    return sb.SAC.load(agent_path, gym.make(env_name), device='cpu')
+    agent_base_path = "data/models/agents"
+    agent_path = os.path.join(agent_base_path, env + ".zip")
+    return sb.SAC.load(agent_path, gym.make(env_name), device="cpu")
 
 
 agent = load_agent(env_name)
@@ -37,7 +38,7 @@ agent = load_agent(env_name)
 predpolicy = deepcopy(agent.policy)
 optimizer = Adam(predpolicy.parameters(), lr=0.0001)
 
-dynamics.load_state_dict(torch.load(f'data/models/dynamics/{env_name}.pt'))
+dynamics.load_state_dict(torch.load(f"data/models/dynamics/{env_name}.pt"))
 
 
 def Q(agent, state: np.ndarray, action: np.ndarray):
@@ -71,8 +72,9 @@ def train(horizon, n_episodes):
             pred_s = predict_future_state(state, horizon)
             pred_states.append(pred_s)
             if len(pred_states) >= horizon:
-                loss = Q(agent, state, action) \
-                    - Q(agent, state, predpolicy(ft([pred_states[-horizon]])))
+                loss = Q(agent, state, action) - Q(
+                    agent, state, predpolicy(ft([pred_states[-horizon]]))
+                )
                 losses.append(loss)
                 if len(losses) == 32:
                     # Optimize the predpolicy
@@ -85,11 +87,11 @@ def train(horizon, n_episodes):
 
         if i % 50 == 0:
             # torch.save(predpolicy.state_dict(), f'data/models/agents/predpolicy/{env_name}.pt')
-            print(i, round(np.mean(ep_loss[:50]), 3), round(
-                np.mean(ep_loss[-50:]), 3))
+            print(i, round(np.mean(ep_loss[:50]), 3), round(np.mean(ep_loss[-50:]), 3))
 
             eq_mean_test = scipy.stats.ttest_ind(
-                ep_loss[:50], ep_loss[-50:], axis=0, equal_var=False)
+                ep_loss[:50], ep_loss[-50:], axis=0, equal_var=False
+            )
             print(eq_mean_test)
 
     return ep_loss
