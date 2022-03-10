@@ -20,7 +20,7 @@ def load_agent(env_name):
 # train
 # 
 if __name__ == '__main__':
-    for env_name in config.env_names:
+    for env_name in config.default_env_names:
         SAC(
             "MlpPolicy",
             env_name,

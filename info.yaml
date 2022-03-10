@@ -22,7 +22,7 @@
         (default):
             mode: development
             has_gpu: true
-            env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+            default_env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"] # 'AntBulletEnv-v0', 'LunarLanderContinuous-v2', BipedalWalker-v3, 'HalfCheetahBulletEnv-v0'
             train_agent:
                 iterations: 100000
             train_dynamics:

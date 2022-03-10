@@ -120,7 +120,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
     torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
 
 
-for each_env_name in config.env_names:
+for each_env_name in config.default_env_names:
     print(f"")
     print(f"")
     print(f"Training for {each_env_name}")
