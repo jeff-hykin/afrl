@@ -12,6 +12,13 @@ configuration_options = info.configuration_options # the dictionary of all possi
 as_dict               = info.as_dict               # the dictionary to the whole file (info.yaml)
 
 # 
+# set device
+# 
+if config.has_gpu:
+    import torch
+    config.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+# 
 # create any missing folders
 # 
 for each_name in path_to.folders:

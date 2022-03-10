@@ -7,7 +7,7 @@ import stable_baselines3 as sb
 import torch
 
 from mlp import DynamicsModel
-
+from info import path_to, config
 
 def get_env(env_name):
     env = gym.make(env_name)
@@ -15,14 +15,16 @@ def get_env(env_name):
 
 
 def load_agent(env):
-    agent_base_path = 'data/models/agents'
-    agent_path = os.path.join(agent_base_path, env + '.zip')
-    return sb.SAC.load(agent_path, get_env(env), device='cpu')
+    agent_path1 = os.path.join(path_to.folders.agent_models, env)
+    agent_path2 = os.path.join(path_to.folders.agent_models, env + '.zip')
+    try:
+        return sb.SAC.load(agent_path1, get_env(env), device=config.device)
+    except Exception as error:
+        return sb.SAC.load(agent_path2, get_env(env), device=config.device)
 
 
 def get_dynamics_path(env):
-    base_path = 'data/models/dynamics'
-    return os.path.join(base_path, env + '.pt')
+    return os.path.join(path_to.folders.dynamics_models, env + '.pt')
 
 
 def train_dynamics_model(dynamics, s: torch.Tensor, a: torch.Tensor, s2: torch.Tensor):

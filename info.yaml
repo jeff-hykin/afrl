@@ -5,6 +5,7 @@
     (path_to):
         folders:
             agent_models: "./data/models/agents/"
+            dynamics_models: "./data/models/dynamics/"
     
     # this is your local-machine config choices
     # (should point to a file that is git-ignored)
