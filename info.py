@@ -40,4 +40,5 @@ path_to.experiment_csv_for = lambda env_name: f"{path_to.folder.results}/{env_na
 # env lookup
 # 
 import gym
+import pybullet_envs
 config.get_env = lambda env_name: gym.make(env_name) # might intercept this in the future 
