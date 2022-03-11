@@ -1,7 +1,6 @@
-# NOTE: names in parentheses are special
-# all other names are not special
 (project):
-    # paths the code will probably need to use
+
+    # a central place for filepaths
     (path_to):
         folder:
             agent_models: "./data/models/agents/"
@@ -9,19 +8,12 @@
             results: "./data/results"
         file:
             humanoid_agent_model: "./log/best_model.zip"
-    
-    # this is your local-machine config choices
-    # (should point to a file that is git-ignored)
-    # (this file will be auto-generated with the correct format)
-    (configuration): ./configuration.ignore.yaml
-    
-    # below are options that the config file can choose
-    #     when multiple options are selected
-    #     their keys/values will be merged recursively
-    (configuration_options):
+
+    (local_data): ./local_data.ignore.yaml
+    (profiles):
         (default):
             mode: development
-            has_gpu: true
+            has_gpu: false
             default_env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"] # 'AntBulletEnv-v0', 'LunarLanderContinuous-v2', BipedalWalker-v3, 'HalfCheetahBulletEnv-v0'
             train_agent:
                 iterations: 100000
@@ -45,4 +37,7 @@
         
         GPU=NONE:
             has_gpu: false
+        
+        GPU=CUDA:
+            has_gpu: true
         
