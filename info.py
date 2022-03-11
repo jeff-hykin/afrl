@@ -3,7 +3,12 @@ from quik_config import find_and_load, LazyDict
 # 
 # load the options
 # 
-info = find_and_load("info.yaml")
+info = find_and_load(
+    "info.yaml",
+    cd_to_filepath=True,
+    parse_args=True,
+    defaults_for_local_data=[ "ENVS=BASIC", ],
+)
 config                = info.config         # the resulting dictionary for all the selected options
 path_to               = info.path_to               # a dictionary of paths relative to the root_path
 absolute_path_to      = info.absolute_path_to      # same dictionary of paths, but made absolute
@@ -13,7 +18,7 @@ absolute_path_to      = info.absolute_path_to      # same dictionary of paths, b
 # 
 import torch
 config.device = torch.device('cpu')
-if config.has_gpu:
+if not config.force_cpu:
     config.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # 

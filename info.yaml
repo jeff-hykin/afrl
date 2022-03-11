@@ -13,7 +13,7 @@
     (profiles):
         (default):
             mode: development
-            has_gpu: false
+            force_cpu: false
             default_env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"] # 'AntBulletEnv-v0', 'LunarLanderContinuous-v2', BipedalWalker-v3, 'HalfCheetahBulletEnv-v0'
             train_agent:
                 iterations: 100000
@@ -34,10 +34,13 @@
                             0.005: 10
                             0.0075: 15
                             0.01: 20
+        ENVS=BASIC:
+            default_env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+        ENVS=HARD:
+            default_env_names: [ 'AntBulletEnv-v0', 'LunarLanderContinuous-v2', BipedalWalker-v3, 'HalfCheetahBulletEnv-v0' ]
+        ENVS=FULL:
+            default_env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0", 'AntBulletEnv-v0', 'LunarLanderContinuous-v2', BipedalWalker-v3, 'HalfCheetahBulletEnv-v0' ]
         
-        GPU=NONE:
-            has_gpu: false
-        
-        GPU=CUDA:
-            has_gpu: true
+        FORCE_CPU:
+            force_cpu: true
         
