@@ -3,3 +3,5 @@ export LD_LIBRARY_PATH="$("$__FORNIX_NIX_COMMANDS/lib_path_for" "cc"):$LD_LIBRAR
 # add these for opencv/numpy
 export LD_LIBRARY_PATH="$("$__FORNIX_NIX_COMMANDS/lib_path_for" libglvnd):$LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH="$("$__FORNIX_NIX_COMMANDS/lib_path_for" glib):$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$("$__FORNIX_NIX_COMMANDS/lib_path_for" libGLU):$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$("$__FORNIX_NIX_COMMANDS/lib_path_for" xorg.libX11):$LD_LIBRARY_PATH"
