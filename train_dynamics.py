@@ -10,7 +10,7 @@ from mlp import DynamicsModel
 from train_agent import load_agent
 from info import path_to, config
 
-def load_dynamics_model(env_obj):
+def load_dynamics(env_obj):
     env = env_obj
     return DynamicsModel(
         obs_dim=env.observation_space.shape[0],
@@ -93,7 +93,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
     )
     actions = torch.FloatTensor(flatten(actions))
 
-    dynamics = load_dynamics_model(env)
+    dynamics = load_dynamics(env)
 
     def train_test_split(data, indices, train_pct=0.66):
         div = int(len(data) * train_pct)
