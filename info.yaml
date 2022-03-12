@@ -35,6 +35,51 @@
                             0.005: 10
                             0.0075: 15
                             0.01: 20
+                    MountainCarContinuous-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                        max_score: 70
+                        min_score: -100
+                        horizons:
+                            0.001: 5
+                            0.0025: 5
+                            0.005: 10
+                            0.0075: 15
+                            0.01: 20
+                    AntBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                        max_score: 70
+                        min_score: -100
+                        horizons:
+                            0.001: 5
+                            0.0025: 5
+                            0.005: 10
+                            0.0075: 15
+                            0.01: 20
+                    HopperBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                        max_score: 70
+                        min_score: -100
+                        horizons:
+                            0.001: 5
+                            0.0025: 5
+                            0.005: 10
+                            0.0075: 15
+                            0.01: 20
+                    BipedalWalker-v3: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                        max_score: 70
+                        min_score: -100
+                        horizons:
+                            0.001: 5
+                            0.0025: 5
+                            0.005: 10
+                            0.0075: 15
+                            0.01: 20
+                    HalfCheetahBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                        max_score: 70
+                        min_score: -100
+                        horizons:
+                            0.001: 5
+                            0.0025: 5
+                            0.005: 10
+                            0.0075: 15
+                            0.01: 20
         
         FORCE_CPU:
             force_cpu: true
