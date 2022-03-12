@@ -45,21 +45,6 @@ load = [ "nvidia-docker",]
 from = "860b56be91fb874d48e23a950815969a7b832fbc"
 
 [[packages]]
-load = [ "xorg", "libX11" ] # for gym env
-
-[[packages]]
-load = [ "xorg", "xorgserver" ] # for gym env, to get Xvfb (not "xvcb-run")
-
-[[packages]]
-load = [ "xorg", "xdpyinfo" ]  # for gym env
-
-[[packages]]
-load = [ "xorg", "xauth" ]
-
-[[packages]]
-load = [ "xorg", "xeyes" ]
-
-[[packages]]
 load = [ "docker",]
 
 [[packages]]
