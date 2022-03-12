@@ -850,7 +850,7 @@ test = ["pytest"]
 
 [[package]]
 name = "trivial-torch-tools"
-version = "0.1.0"
+version = "0.2.1"
 description = "Decorators for reducing pytorch boilerplate"
 category = "main"
 optional = false
@@ -920,7 +920,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"
-content-hash = "117f66121c858bb624be908739477fffab97a01d12bb11dde4d66c15180edf6b"
+content-hash = "59b3685504d8aed2007db9703d398a03c50acde3461c38abe3cf3798ac8711c8"
 
 [metadata.files]
 appnope = [
@@ -1637,8 +1637,8 @@ traitlets = [
     {file = "traitlets-5.1.1.tar.gz", hash = "sha256:059f456c5a7c1c82b98c2e8c799f39c9b8128f6d0d46941ee118daace9eb70c7"},
 ]
 trivial-torch-tools = [
-    {file = "trivial_torch_tools-0.1.0-py3-none-any.whl", hash = "sha256:c46b63ef50d6309ad557f409232ad3fed6435580c847885fdbd7847df09ef646"},
-    {file = "trivial_torch_tools-0.1.0.tar.gz", hash = "sha256:89e7627a3e5565b18c575861f2276020c26f3ab4e39bcb749512dee8c9b1f969"},
+    {file = "trivial_torch_tools-0.2.1-py3-none-any.whl", hash = "sha256:317a229e21509bb039bdd92583b3af2866cd8c219f46b85c5a33ec87e74409e0"},
+    {file = "trivial_torch_tools-0.2.1.tar.gz", hash = "sha256:c0906f663fc68f8ab7a0a2caa6e08a843951f01f0a5e63b9f8ef7baeee5fdc65"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.1.1-py3-none-any.whl", hash = "sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2"},
