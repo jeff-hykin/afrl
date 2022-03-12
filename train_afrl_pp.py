@@ -9,7 +9,7 @@ import stable_baselines3 as sb
 import torch
 from nptyping import NDArray
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
-from torch import FloatTensor as ft
+from torch import FloatTensor
 from torch.optim.adam import Adam
 from tqdm import tqdm
 
@@ -19,9 +19,12 @@ from train_agent import load_agent
 from train_dynamics import load_dynamics
 from file_system import FS
 
+def ft(arg):
+    return FloatTensor([state]).to(config.device)
+
 def Q(agent, state: np.ndarray, action: np.ndarray):
     if torch.is_tensor(action):
-        action = torch.unsqueeze(action, 0)
+        action = torch.unsqueeze(action, 0).to(config.device)
     else:
         action = ft([action])
     q = torch.cat(agent.critic_target(ft([state]), action), dim=1)
@@ -214,7 +217,7 @@ if __name__ == "__main__":
         
         df = main(
             env_name,
-            config.number_of_experiments,
+            config.train_afrl.number_of_experiments,
             horizons,
             epsilons=epsilons,
         ).explode("forecast")
