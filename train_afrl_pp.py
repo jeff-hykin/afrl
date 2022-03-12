@@ -207,7 +207,7 @@ settings = config.train_afrl.env_settings
 if __name__ == "__main__":
     from copy import deepcopy
     
-    for env_name in config.default_env_names:
+    for env_name in config.env_names:
         multipliers = np.array(list(settings[env_name]["horizons"].keys()))
         epsilons = (settings[env_name]["max_score"] - settings[env_name]["min_score"]) * multipliers
         horizons = [settings[env_name]["horizons"][mult] for mult in multipliers]

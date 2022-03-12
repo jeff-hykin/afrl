@@ -20,9 +20,10 @@ def load_dynamics_model(env_obj):
         device=config.device,
     )
 
-def train_dynamics_model(dynamics, s: torch.Tensor, a: torch.Tensor, s2: torch.Tensor):
+
+def train_dynamics_model(dynamics, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
     # Compute Huber loss (less sensitive to outliers)
-    loss = ((dynamics.predict(s, a) - s2) ** 2).mean()
+    loss = dynamics.loss_function(dynamics.predict(state, action), next_state)
     # Optimize the dynamics model
     dynamics.optimizer.zero_grad()
     loss.backward()
@@ -111,8 +112,11 @@ def train(env_name, n_episodes=100, n_epochs=100):
         for s, a, s2 in minibatch(minibatch_size, train_s, train_a, train_s2):
             batch_loss = train_dynamics_model(dynamics, s, a, s2)
             loss += batch_loss
-        # BOOKMARK: test loss
-        test_mse = ((dynamics.predict(test_s, test_a) - test_s2) ** 2).mean()
+            
+        test_mse = dynamics.loss_function(
+            actual=dynamics.predict(test_s, test_a),
+            expected=test_s2,
+        )
         print(
             f"Epoch {i+1}. Loss: {loss / np.ceil(len(states) / minibatch_size):.4f}, Test mse: {test_mse:.4f}"
         )
@@ -120,7 +124,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
     torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
 
 
-for each_env_name in config.default_env_names:
+for each_env_name in config.env_names:
     print(f"")
     print(f"")
     print(f"Training for {each_env_name}")

@@ -3,6 +3,7 @@ import torch as torch
 from torch import FloatTensor as ft
 from torch import nn
 from torch.optim import Adam
+from trivial_torch_tools import Sequential, init, convert_each_arg
 
 from info import config
 
@@ -15,31 +16,40 @@ def mlp(sizes, activation=nn.Tanh, output_activation=nn.Identity):
         layers += [nn.Linear(sizes[j], sizes[j + 1]), act()]
     return nn.Sequential(*layers)
 
-
+# State transition dynamics model
 class DynamicsModel(nn.Module):
-    # State transition dynamics model
-    def __init__(self, obs_dim, act_dim, hidden_sizes, lr, device=config.device):
+    @init.save_and_load_methods(model_attributes=["model"], basic_attributes=["learning_rate"])
+    def __init__(self, obs_dim, act_dim, hidden_sizes, lr, device, **kwargs):
         super().__init__()
+        self.learning_rate = lr
         self.device = device
         self.model = mlp([obs_dim + act_dim, *hidden_sizes, obs_dim], nn.ReLU).to(
             self.device
         )
-        self.optimizer = Adam(self.model.parameters(), lr=lr)
+        self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
 
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
     def forward(self, obs: np.ndarray, act: np.ndarray):
-        # used for a single state and action
-        obs = ft(obs).to(self.device)
-        act = ft(act).to(self.device)
         with torch.no_grad():
             next_observation = self.model(torch.cat((obs, act), -1))
         return next_observation.cpu().numpy()
 
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
     def predict(self, obs: torch.Tensor, act: torch.Tensor):
         # used for batch predictions
         # expecting obs and act to be on device
         # returns the predictions still on the device
         return self.model(torch.cat((obs, act), -1).to(self.device))
 
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
+    def loss_function(self, actual: torch.Tensor, expected: torch.Tensor):
+        # BOOKMARK: loss
+        # Compute Huber loss (less sensitive to outliers) # QUESTION: this doesnt look like Huber loss to me
+        return ((actual - expected) ** 2).mean()
+        
 
 class RobustPredictivePolicy(nn.Module):
     def __init__(self, obs_dim, act_dim, lr, hidden_sizes):

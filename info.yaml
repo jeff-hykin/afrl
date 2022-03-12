@@ -14,7 +14,8 @@
         (default):
             mode: development
             force_cpu: false
-            default_env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"] # "AntBulletEnv-v0", "LunarLanderContinuous-v2", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
+            env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+            gamma: 0.98 # QUESTION: this is used in the .ipynb, but I don't know what its for exactly
             train_agent:
                 iterations: 100000
             train_dynamics:
@@ -34,17 +35,41 @@
                             0.005: 10
                             0.0075: 15
                             0.01: 20
-        ENVS=BASIC:
-            default_env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
-        ENVS=HARD:
-            default_env_names: [ "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
-        ENVS=FULL:
-            default_env_names: [ "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
-            # HopperBulletEnv
-            # HalfCheetahBulletEnv
-            # Walker2DBulletEnv
-            # AntBulletEnv
         
         FORCE_CPU:
             force_cpu: true
+        
+        ENVS=BASIC:
+            env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+        ENVS=HARD:
+            env_names: [ "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
+        ENVS=FULL:
+            env_names: [ "MountainCarContinuous-v0", "LunarLanderContinuous-v2", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
+            # inside the .ipynb:
+                # Lander
+                # Humanoid
+                # Hopper
+                # Cheetah
+                # Ant
+                # Walker
+            # Available: 
+                # Reacher-v2
+                # Pusher-v2
+                # Thrower-v2
+                # Striker-v2
+                # InvertedPendulum-v2
+                # InvertedDoublePendulum-v2
+                # HalfCheetah-v2
+                # HalfCheetah-v3
+                # Hopper-v2
+                # Hopper-v3
+                # Swimmer-v2
+                # Swimmer-v3
+                # Walker2d-v2
+                # Walker2d-v3
+                # Ant-v2
+                # Ant-v3
+                # Humanoid-v2
+                # Humanoid-v3
+                # HumanoidStandup-v2
         
