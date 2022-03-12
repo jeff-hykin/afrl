@@ -20,7 +20,7 @@ from train_dynamics import load_dynamics
 from file_system import FS
 
 def ft(arg):
-    return FloatTensor([state]).to(config.device)
+    return FloatTensor(arg).to(config.device)
 
 def Q(agent, state: np.ndarray, action: np.ndarray):
     if torch.is_tensor(action):
