@@ -116,7 +116,7 @@ def experience(
     while not done:
         action = plan[0][1]
         episode_forecast.append(forecasts[0])
-        state, reward, done, _ = env.step(action.detach().numpy())
+        state, reward, done, _ = env.step(action.detach().to(torch.device('cpu')).numpy())
         rewards.append(reward)
         plan, forecasts = replan(
             state,
@@ -184,9 +184,9 @@ def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
 
     dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
     action_size = env.action_space.shape[0]
-    agent = load_agent(env_name)
-    predpolicy = deepcopy(agent.policy)
-    optimizer = Adam(predpolicy.parameters(), lr=0.0001)
+    agent       = load_agent(env_name)
+    predpolicy  = deepcopy(agent.policy)
+    optimizer   = Adam(predpolicy.parameters(), lr=0.0001)
 
     # predpolicy.load_state_dict(torch.load(f'data/models/agents/predpolicy/{env_name}.pt'))
 
