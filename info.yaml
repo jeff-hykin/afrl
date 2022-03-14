@@ -1,4 +1,9 @@
 (project):
+    tasks/questions:
+        - How do I judge performance based on the graphs (figure out the metrics)
+        - Confirm the env_settings are correct for the 5 non-lunar lander env's
+        - Change the loss (search "BOOKMARK")
+        - rerun everything and evaluate
 
     # a central place for filepaths
     (path_to):
