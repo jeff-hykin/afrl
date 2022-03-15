@@ -472,6 +472,10 @@ load = [ "unixtools", "write",]
 [[packages]]
 load = [ "unixtools", "xxd",]
 
+[[packages]]
+load = [ "unixtools", "watch",]
+onlyIf = [["stdenv", "isLinux"]]
+
 # 
 # core
 # 
