@@ -24,18 +24,18 @@ def load_dynamics(env_obj):
 def train_dynamics_model(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
     from train_afrl_pp import Q
     
-    state = state.to(config.device)
-    action = action.to(config.device)
+    state      = state.to(config.device)
+    action     = action.to(config.device)
     next_state = next_state.to(config.device)
     
-    predicted_next_state = dynamics.predict(state, action)
-    predicted_action, _  = agent.predict(predicted_next_state, deterministic=True)
-    action, _            = agent.predict(next_state, deterministic=True)
+    predicted_next_state     = dynamics.predict(state, action)
+    predicted_next_action, _ = agent.predict(predicted_next_state, deterministic=True)
+    predicted_next_value     = Q(next_state, predicted_next_action)
     
-    loss = dynamics.loss_function(
-        actual=Q(next_state, predicted_action),
-        expected=Q(next_state, action),
-    )
+    best_next_action, _ = agent.predict(next_state, deterministic=True)
+    best_next_value     = Q(next_state, best_next_action)
+    
+    loss = best_next_value - predicted_next_value # when predicted_next_value is high, loss is low (negative)
     
     # Optimize the dynamics model
     dynamics.optimizer.zero_grad()
