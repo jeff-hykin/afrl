@@ -4,6 +4,18 @@
         - Confirm the env_settings are correct for the 5 non-lunar lander env's
         - Change the loss (search "BOOKMARK")
         - rerun everything and evaluate
+        - | 
+            Hey y'all, in our last conversation, we discussed changing the loss function for the dynamics model P to the following:
+            loss(P) = Q(s_{t+1}, \pi(P(s_t, a_t))) - Q(s_{t+1}, \pi(s_{t+1}))
+
+            Although in thinking about this a little more, I think the summands should be switched so it is 
+            loss(P) = Q(s_{t+1}, \pi(s_{t+1})) - Q(s_{t+1}, \pi(P(s_t, a_t)))
+
+            And in this case, I think we can drop the first summand since its differential wrt P is 0. so our loss becomes
+            loss(P) = - Q(s_{t+1}, \pi(P(s_t, a_t)))
+            loss = q_value(next_state, choose_action(predict_state(state, action)) )
+
+            Do you agree with this? Anyways, I did try this and while the Q(s_{t+1}, \pi(P(s_t, a_t))) does seem to increase over the training of P (eg it's learning), our AFRL prediction forecast does worse than baseline.
 
     # a central place for filepaths
     (path_to):
@@ -90,7 +102,7 @@
             force_cpu: true
         
         ENVS=BASIC:
-            env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+            env_names: ["MountainCarContinuous-v0", "LunarLanderContinuous-v2"]
         ENVS=HARD:
             env_names: [ "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
         ENVS=FULL:

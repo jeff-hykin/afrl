@@ -18,6 +18,10 @@ def mlp(sizes, activation=nn.Tanh, output_activation=nn.Identity):
 
 # State transition dynamics model
 class DynamicsModel(nn.Module):
+    """
+    The model of how the world works
+        (state) => (next_state)
+    """
     @init.save_and_load_methods(model_attributes=["model"], basic_attributes=["learning_rate"])
     def __init__(self, obs_dim, act_dim, hidden_sizes, lr, device, **kwargs):
         super().__init__()

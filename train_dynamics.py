@@ -21,9 +21,22 @@ def load_dynamics(env_obj):
     )
 
 
-def train_dynamics_model(dynamics, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-    # Compute Huber loss (less sensitive to outliers)
-    loss = dynamics.loss_function(dynamics.predict(state, action), next_state)
+def train_dynamics_model(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+    from train_afrl_pp import Q
+    
+    state = state.to(config.device)
+    action = action.to(config.device)
+    next_state = next_state.to(config.device)
+    
+    predicted_next_state = dynamics.predict(state, action)
+    predicted_action, _  = agent.predict(predicted_next_state, deterministic=True)
+    action, _            = agent.predict(next_state, deterministic=True)
+    
+    loss = dynamics.loss_function(
+        actual=Q(next_state, predicted_action),
+        expected=Q(next_state, action),
+    )
+    
     # Optimize the dynamics model
     dynamics.optimizer.zero_grad()
     loss.backward()
@@ -110,7 +123,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
     for i in range(n_epochs):
         loss = 0
         for s, a, s2 in minibatch(minibatch_size, train_s, train_a, train_s2):
-            batch_loss = train_dynamics_model(dynamics, s, a, s2)
+            batch_loss = train_dynamics_model(dynamics, agent, s, a, s2)
             loss += batch_loss
             
         test_mse = dynamics.loss_function(
@@ -124,14 +137,15 @@ def train(env_name, n_episodes=100, n_epochs=100):
     torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
 
 
-for each_env_name in config.env_names:
-    print(f"")
-    print(f"")
-    print(f"Training for {each_env_name}")
-    print(f"")
-    print(f"")
-    train(
-        each_env_name,
-        n_episodes=config.train_dynamics.number_of_episodes,
-        n_epochs=config.train_dynamics.number_of_epochs,
-    )
+if __name__ == '__main__':
+    for each_env_name in config.env_names:
+        print(f"")
+        print(f"")
+        print(f"Training for {each_env_name}")
+        print(f"")
+        print(f"")
+        train(
+            each_env_name,
+            n_episodes=config.train_dynamics.number_of_episodes,
+            n_epochs=config.train_dynamics.number_of_epochs,
+        )
