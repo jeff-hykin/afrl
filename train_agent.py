@@ -15,12 +15,14 @@ class Agent(SAC):
     def children(self):
         return [self.critic, self.actor]
     
-    def predict(self, *args, **kwargs):
+    def predict(self, state, **kwargs):
         """
             state: np.array().shape = (2,)
             @return: tuple(np.array().shape=(1,), None)
         """
-        return super().predict(*args, **kwargs)
+        if isinstance(state, torch.Tensor):
+            state = state.detach()
+        return super().predict(state, **kwargs)
     
     def make_decision(self, state, deterministic=True):
         state = to_tensor(state).to(self.device)

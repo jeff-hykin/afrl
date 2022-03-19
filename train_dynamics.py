@@ -44,7 +44,7 @@ class DynamicsModel(nn.Module):
         # expecting observations and actions to be on device
         # returns the predictions still on the device
         return self.model(torch.cat((observations, actions), -1).to(self.device))
-
+    
     def coach_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state   = dynamics.predict(state, action)
         predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
@@ -56,11 +56,10 @@ class DynamicsModel(nn.Module):
         
     def mse_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state = dynamics.predict(state, action)
-        predicted_action, _  = agent.predict(predicted_next_state, deterministic=True)
-        action, _            = agent.predict(next_state, deterministic=True)
         
-        actual = agent.value_of(next_state, predicted_action)
-        expected = agent.value_of(next_state, action)
+        actual = predicted_next_state
+        expected = next_state
+        
         return ((actual - expected) ** 2).mean()
     
     @convert_each_arg.to_tensor()
@@ -72,15 +71,14 @@ class DynamicsModel(nn.Module):
         state      = state.to(config.device)
         action     = action.to(config.device)
         next_state = next_state.to(config.device)
-        self.train()
         
         loss = self.mse_loss(agent, state, action, next_state)
-            
-        # Optimize the dynamics model
+        
+        # Optimize the self model
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-        
+
         return loss
 
 

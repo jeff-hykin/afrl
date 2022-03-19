@@ -122,7 +122,7 @@
             force_cpu: true
         
         ENVS=BASIC:
-            env_names: [ "MountainCarContinuous-v0", "LunarLanderContinuous-v2" ]
+            env_names: [ "LunarLanderContinuous-v2", "MountainCarContinuous-v0" ]
         ENVS=HARD:
             env_names: [ "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
         ENVS=FULL:
