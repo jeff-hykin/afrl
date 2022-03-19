@@ -61,7 +61,7 @@ class DynamicsModel(nn.Module):
         predicted_next_state   = dynamics.predict(state, action)
         agent.freeze()
         predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
-        predicted_next_value  = agent.value_of(next_state, predicted_next_action)
+        predicted_next_value  = agent.value_of(predicted_next_state, predicted_next_action)
         best_next_action = agent.make_decision(next_state, deterministic=True)
         best_next_value  = agent.value_of(next_state, best_next_action)
         
