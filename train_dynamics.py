@@ -45,38 +45,42 @@ class DynamicsModel(nn.Module):
         # returns the predictions still on the device
         return self.model(torch.cat((observations, actions), -1).to(self.device))
 
-    @convert_each_arg.to_tensor()
-    @convert_each_arg.to_device(device_attribute="device")
-    def loss_function(self, actual: torch.Tensor, expected: torch.Tensor):
-        # BOOKMARK: loss
-        # Compute Huber loss (less sensitive to outliers) # QUESTION: this doesnt look like Huber loss to me
-        return ((actual - expected) ** 2).mean()
-
-    
-    def apply_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        state      = state.to(config.device)
-        action     = action.to(config.device)
-        next_state = next_state.to(config.device)
-        
+    def coach_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state   = dynamics.predict(state, action)
-        agent.freeze()
         predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
-        # predicted_next_value  = agent.value_of(predicted_next_state, predicted_next_action)
         predicted_next_value  = agent.value_of(next_state, predicted_next_action)
-        # the alternative of: "predicted_next_value  = agent.value_of(next_state, predicted_next_action)" is up for debate/discussion
         best_next_action = agent.make_decision(next_state, deterministic=True)
         best_next_value  = agent.value_of(next_state, best_next_action)
         
-        print(f'''best_next_value - predicted_next_value = {best_next_value - predicted_next_value}''')
-        loss = (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
+        return (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
         
+    def mse_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        predicted_next_state = dynamics.predict(state, action)
+        predicted_action, _  = agent.predict(predicted_next_state, deterministic=True)
+        action, _            = agent.predict(next_state, deterministic=True)
+        
+        actual = agent.value_of(next_state, predicted_action)
+        expected = agent.value_of(next_state, action)
+        return ((actual - expected) ** 2).mean()
+    
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
+    def test_loss(self, actual, expected):
+        return ((actual - expected) ** 2).mean()
+        
+    def apply_loss(self, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        state      = state.to(config.device)
+        action     = action.to(config.device)
+        next_state = next_state.to(config.device)
+        self.train()
+        
+        loss = self.mse_loss(agent, state, action, next_state)
+            
         # Optimize the dynamics model
-        dynamics.optimizer.zero_grad()
+        self.optimizer.zero_grad()
         loss.backward()
-        dynamics.optimizer.step()
+        self.optimizer.step()
         
-        agent.unfreeze()
-
         return loss
 
 
@@ -174,7 +178,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
             batch_loss = dynamics.apply_loss(agent, s, a, s2)
             loss += batch_loss
             
-        test_mse = dynamics.loss_function(
+        test_mse = dynamics.test_loss(
             actual=dynamics.predict(test_s, test_a),
             expected=test_s2,
         )
