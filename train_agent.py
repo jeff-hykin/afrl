@@ -3,23 +3,17 @@ import numpy as np
 import torch
 import gym
 from stable_baselines3 import SAC
-from trivial_torch_tools import to_tensor
+from trivial_torch_tools import to_tensor, init
 
 from info import path_to, config
 
 class Agent(SAC):
+    @init.add_frozen_methods()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
-    def freeze(self):
-        for each in [self.critic, self.actor]:
-            for param in each.parameters():
-                param.requires_grad = False
-    
-    def unfreeze(self):
-        for each in [self.critic, self.actor]:
-            for param in each.parameters():
-                param.requires_grad = True
+    def children(self):
+        return [self.critic, self.actor]
     
     def predict(self, *args, **kwargs):
         """

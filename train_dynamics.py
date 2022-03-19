@@ -61,12 +61,13 @@ class DynamicsModel(nn.Module):
         predicted_next_state   = dynamics.predict(state, action)
         agent.freeze()
         predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
-        predicted_next_value  = agent.value_of(predicted_next_state, predicted_next_action)
+        # predicted_next_value  = agent.value_of(predicted_next_state, predicted_next_action)
+        predicted_next_value  = agent.value_of(next_state, predicted_next_action)
+        # the alternative of: "predicted_next_value  = agent.value_of(next_state, predicted_next_action)" is up for debate/discussion
         best_next_action = agent.make_decision(next_state, deterministic=True)
         best_next_value  = agent.value_of(next_state, best_next_action)
         
-        print(f'''best_next_value = {best_next_value}''')
-        print(f'''predicted_next_value = {predicted_next_value}''')
+        print(f'''best_next_value - predicted_next_value = {best_next_value - predicted_next_value}''')
         loss = (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
         
         # Optimize the dynamics model
