@@ -12,7 +12,7 @@ from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch import FloatTensor as ft
 from tqdm import tqdm
 
-from mlp import DynamicsModel
+from train_dynamics import DynamicsModel
 from info import path_to, config
 from train_agent import load_agent
 from train_dynamics import load_dynamics
