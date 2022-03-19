@@ -20,16 +20,8 @@ from train_dynamics import load_dynamics
 from file_system import FS
 
 def ft(arg):
+    print(f'''arg = {arg}''')
     return FloatTensor(arg).to(config.device)
-
-def Q(agent, state: np.ndarray, action: np.ndarray):
-    if torch.is_tensor(action):
-        action = torch.unsqueeze(action, 0).to(config.device)
-    else:
-        action = ft([action])
-    q = torch.cat(agent.critic_target(ft([state]), action), dim=1)
-    q, _ = torch.min(q, dim=1, keepdim=True)
-    return q
 
 losses = []
 
@@ -54,12 +46,12 @@ def replan(
     for (pred_state, action) in old_plan[1:]:
         replan_action = agent.predict(state, deterministic=True)[0]
         with torch.no_grad():
-            replan_q = Q(agent, state, replan_action)
+            replan_q = agent.value_of(state, replan_action)
         plan_action = predpolicy(ft([pred_state]))[0]
-        plan_q = Q(agent, state, plan_action)
+        plan_q = agent.value_of(state, plan_action)
         diff = replan_q - plan_q
         losses.append(diff)
-        if len(losses) == 32: # QUESTION: what is this 32?? minibatch_size? or is the statement checking if training-mode vs testing-mode?
+        if len(losses) == 32: # QUESTION: what is this 32? minibatch_size? or is the statement checking if training-mode vs testing-mode?
             optimizer.zero_grad()
             loss = torch.stack(losses).mean()
             loss.backward()

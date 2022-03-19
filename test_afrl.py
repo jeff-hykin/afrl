@@ -18,14 +18,6 @@ from train_agent import load_agent
 from train_dynamics import load_dynamics
 from file_system import FS
 
-def Q(agent, state: np.ndarray, action: np.ndarray):
-    state = ft([state]).to(agent.device)
-    action = ft([action]).to(agent.device)
-    with torch.no_grad():
-        q = torch.cat(agent.critic_target(state, action), dim=1)
-    q, _ = torch.min(q, dim=1, keepdim=True)
-    return q.item()
-
 def replan(
     state: NDArray,
     old_plan: NDArray,
@@ -44,8 +36,8 @@ def replan(
     for action in old_plan[1:]:
         with torch.no_grad():
             replan_action = agent.predict(state, deterministic=True)[0]
-            replan_q = Q(agent, state, replan_action)
-            plan_q = Q(agent, state, action)
+            replan_q = agent.value_of(state, replan_action)
+            plan_q = agent.value_of(state, action)
             if plan_q + delta < replan_q:
                 break
             new_plan[k] = action

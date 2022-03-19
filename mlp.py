@@ -35,17 +35,17 @@ class DynamicsModel(nn.Module):
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
     def forward(self, obs: np.ndarray, act: np.ndarray):
-        with torch.no_grad():
+        with torch.no_grad(): # QUESTION: this seems really strange, is a different forward-like method called when training the DynamicsModel?
             next_observation = self.model(torch.cat((obs, act), -1))
         return next_observation.cpu().numpy()
 
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def predict(self, obs: torch.Tensor, act: torch.Tensor):
+    def predict(self, observations: torch.Tensor, actions: torch.Tensor):
         # used for batch predictions
-        # expecting obs and act to be on device
+        # expecting observations and actions to be on device
         # returns the predictions still on the device
-        return self.model(torch.cat((obs, act), -1).to(self.device))
+        return self.model(torch.cat((observations, actions), -1).to(self.device))
 
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
@@ -53,7 +53,30 @@ class DynamicsModel(nn.Module):
         # BOOKMARK: loss
         # Compute Huber loss (less sensitive to outliers) # QUESTION: this doesnt look like Huber loss to me
         return ((actual - expected) ** 2).mean()
+
+    
+    def apply_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        state      = state.to(config.device)
+        action     = action.to(config.device)
+        next_state = next_state.to(config.device)
         
+        predicted_next_state   = dynamics.predict(state, action)
+        # FIXME: I bet with torch.no_grad(): is needed for some of these
+        predicted_next_action  = agent.make_decision(predicted_next_state, deterministic=True)
+        predicted_next_value   = agent.value_of(next_state, predicted_next_action)
+        
+        best_next_action    = agent.make_decision(next_state, deterministic=True)
+        best_next_value     = agent.value_of(next_state, best_next_action)
+        
+        loss = (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
+        
+        # Optimize the dynamics model
+        dynamics.optimizer.zero_grad()
+        loss.backward()
+        dynamics.optimizer.step()
+
+        return loss
+
 
 class RobustPredictivePolicy(nn.Module):
     def __init__(self, obs_dim, act_dim, lr, hidden_sizes):

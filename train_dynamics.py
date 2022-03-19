@@ -21,30 +21,6 @@ def load_dynamics(env_obj):
     )
 
 
-def train_dynamics_model(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-    from train_afrl_pp import Q
-    
-    state      = state.to(config.device)
-    action     = action.to(config.device)
-    next_state = next_state.to(config.device)
-    
-    predicted_next_state     = dynamics.predict(state, action)
-    predicted_next_action, _ = agent.predict(predicted_next_state, deterministic=True)
-    predicted_next_value     = Q(next_state, predicted_next_action)
-    
-    best_next_action, _ = agent.predict(next_state, deterministic=True)
-    best_next_value     = Q(next_state, best_next_action)
-    
-    loss = best_next_value - predicted_next_value # when predicted_next_value is high, loss is low (negative)
-    
-    # Optimize the dynamics model
-    dynamics.optimizer.zero_grad()
-    loss.backward()
-    dynamics.optimizer.step()
-
-    return loss
-
-
 def flatten(ys):
     return [x for xs in ys for x in xs]
 
@@ -63,7 +39,7 @@ def experience(env, agent, n_episodes):
         ep_reward = 0
         while not done:
             action, _ = agent.predict(obs, deterministic=True)  # False?
-            action = np.random.multivariate_normal(action, 0 * np.identity(len(action)))
+            action = np.random.multivariate_normal(action, 0 * np.identity(len(action))) # QUESTION: why sample from multivariate_normal?
             ep_actions.append(action)
             obs, reward, done, info = env.step(action)
             if i == 0:
@@ -120,10 +96,10 @@ def train(env_name, n_episodes=100, n_epochs=100):
     train_s2, test_s2 = train_test_split(next_states, indices, config.train_dynamics.train_test_split)
     
     minibatch_size = config.train_dynamics.minibatch_size
-    for i in range(n_epochs):
+    for epochs_index in range(n_epochs):
         loss = 0
         for s, a, s2 in minibatch(minibatch_size, train_s, train_a, train_s2):
-            batch_loss = train_dynamics_model(dynamics, agent, s, a, s2)
+            batch_loss = dynamics.apply_loss(agent, s, a, s2)
             loss += batch_loss
             
         test_mse = dynamics.loss_function(
@@ -131,7 +107,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
             expected=test_s2,
         )
         print(
-            f"Epoch {i+1}. Loss: {loss / np.ceil(len(states) / minibatch_size):.4f}, Test mse: {test_mse:.4f}"
+            f"Epoch {epochs_index+1}. Loss: {loss / np.ceil(len(states) / minibatch_size):.4f}, Test mse: {test_mse:.4f}"
         )
 
     torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))

@@ -42,3 +42,17 @@ path_to.experiment_csv_for = lambda env_name: f"{path_to.folder.results}/{env_na
 import gym
 import pybullet_envs
 config.get_env = lambda env_name: gym.make(env_name) # might intercept this in the future 
+
+# 
+# patch np.array
+# 
+from slick_siphon import siphon
+import torch
+import numpy as np
+# wrap to_torch_tensor with a siphon!
+# -> when the lambda returns true
+# -> the function below is run INSTEAD of the original to_torch_tensor()
+@siphon(when=(lambda *args, **kwargs: isinstance(args[0], torch.Tensor)), is_true_for=np.array)
+def custom_handler(tensor):
+    # always send to cpu first (otherwise it fails)
+    return tensor.cpu().detach().numpy()

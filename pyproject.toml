@@ -11,6 +11,7 @@ quik-config = "^1.2.0"
 notebook = "^6.4.8"
 PyVirtualDisplay = "^3.0"
 trivial-torch-tools = "0.2.1"
+slick-siphon = "^0.1.1"
 
 [tool.poetry.dev-dependencies]
 

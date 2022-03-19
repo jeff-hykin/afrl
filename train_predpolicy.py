@@ -30,14 +30,6 @@ optimizer = Adam(predpolicy.parameters(), lr=0.0001)
 dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
 
 
-def Q(agent, state: np.ndarray, action: np.ndarray):
-    state = ft([state]).to(agent.device)
-    if not torch.is_tensor(action):
-        action = ft([action]).to(agent.device)
-    # with torch.no_grad():
-    q = torch.cat(agent.critic_target(state, action), dim=1)
-    q, _ = torch.min(q, dim=1, keepdim=True)
-    return q
 
 
 def predict_future_state(state, horizon):
@@ -61,9 +53,7 @@ def train(horizon, n_episodes):
             pred_s = predict_future_state(state, horizon)
             pred_states.append(pred_s)
             if len(pred_states) >= horizon:
-                loss = Q(agent, state, action) - Q(
-                    agent, state, predpolicy(ft([pred_states[-horizon]]))
-                )
+                loss = agent.value_of(state, action) - agent.value_of(state, predpolicy(ft([pred_states[-horizon]])))
                 losses.append(loss)
                 if len(losses) == 32:
                     # Optimize the predpolicy
