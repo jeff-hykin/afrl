@@ -11,6 +11,16 @@ class Agent(SAC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
+    def freeze(self):
+        for each in [self.critic, self.actor]:
+            for param in each.parameters():
+                param.requires_grad = False
+    
+    def unfreeze(self):
+        for each in [self.critic, self.actor]:
+            for param in each.parameters():
+                param.requires_grad = True
+    
     def predict(self, *args, **kwargs):
         """
             state: np.array().shape = (2,)

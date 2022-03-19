@@ -61,19 +61,22 @@ class DynamicsModel(nn.Module):
         next_state = next_state.to(config.device)
         
         predicted_next_state   = dynamics.predict(state, action)
-        # FIXME: I bet with torch.no_grad(): is needed for some of these
-        predicted_next_action  = agent.make_decision(predicted_next_state, deterministic=True)
-        predicted_next_value   = agent.value_of(next_state, predicted_next_action)
+        agent.freeze()
+        predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
+        predicted_next_value  = agent.value_of(next_state, predicted_next_action)
+        best_next_action = agent.make_decision(next_state, deterministic=True)
+        best_next_value  = agent.value_of(next_state, best_next_action)
         
-        best_next_action    = agent.make_decision(next_state, deterministic=True)
-        best_next_value     = agent.value_of(next_state, best_next_action)
-        
+        print(f'''best_next_value = {best_next_value}''')
+        print(f'''predicted_next_value = {predicted_next_value}''')
         loss = (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
         
         # Optimize the dynamics model
         dynamics.optimizer.zero_grad()
         loss.backward()
         dynamics.optimizer.step()
+        
+        agent.unfreeze()
 
         return loss
 

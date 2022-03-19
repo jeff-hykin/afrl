@@ -126,7 +126,7 @@
         ENVS=HARD:
             env_names: [ "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
         ENVS=FULL:
-            env_names: [ "MountainCarContinuous-v0", "LunarLanderContinuous-v2", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
+            env_names: [ "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
             # inside the .ipynb:
                 # Lander
                 # Humanoid
