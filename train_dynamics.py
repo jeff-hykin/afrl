@@ -47,6 +47,7 @@ class DynamicsModel(nn.Module):
     
     def coach_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state   = dynamics.predict(state, action)
+        
         predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
         predicted_next_value  = agent.value_of(next_state, predicted_next_action)
         best_next_action = agent.make_decision(next_state, deterministic=True)
@@ -72,7 +73,7 @@ class DynamicsModel(nn.Module):
         action     = action.to(config.device)
         next_state = next_state.to(config.device)
         
-        loss = self.mse_loss(agent, state, action, next_state)
+        loss = self.coach_loss(agent, state, action, next_state)
         
         # Optimize the self model
         self.optimizer.zero_grad()
