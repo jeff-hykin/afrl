@@ -81,7 +81,7 @@ class DynamicsModel(nn.Module):
         action     = action.to(config.device)
         next_state = next_state.to(config.device)
         
-        loss = self.action_loss(agent, state, action, next_state)
+        loss = self.coach_loss(agent, state, action, next_state)
         
         # Optimize the self model
         self.optimizer.zero_grad()

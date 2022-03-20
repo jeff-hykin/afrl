@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+log_folder="logs.ignore/"
+main_log_file="$log_folder/recent.log"
+"$FORNIX_FOLDER/commands/project/run_all" &
+watch -n 1 tail -n 25 "$main_log_file"

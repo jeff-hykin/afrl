@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
 
+log_folder="logs.ignore/"
+main_log_file="$log_folder/recent.log"
+train_agent_log_file="$log_folder/train_agent.log"
+train_dynamics_log_file="$log_folder/train_dynamics.log"
+train_afrl_log_file="$log_folder/train_afrl.log"
+
+mkdir -p "$log_folder"
+
 echo ""
 echo "Running Train Agent"
 echo ""
-train_agent_log_file="train_agent_log.ignore.txt"
-python train_agent.py &> "$train_agent_log_file" &
-watch -n 1 tail -n 25 "$train_agent_log_file"
+python train_agent.py 2>&1 | tee "$main_log_file" "$train_agent_log_file"
 
 echo ""
 echo "Running Train Dynamics"
 echo ""
-train_dynamics_log_file="train_dynamics_log.ignore.txt"
-python train_dynamics.py &> "$train_dynamics_log_file" &
-watch -n 1 tail -n 25 "$train_dynamics_log_file"
+python train_dynamics.py 2>&1 | tee "$main_log_file" "$train_dynamics_log_file"
 
 
 echo ""
 echo "Running Train AFRL"
 echo ""
-train_afrl_log_file="train_afrl_log.ignore.txt"
-python train_afrl.py &> "$train_afrl_log_file" &
-watch -n 1 tail -n 25 "$train_afrl_log_file"
+python train_afrl.py 2>&1 | tee "$main_log_file" "$train_afrl_log_file"
