@@ -54,6 +54,14 @@ class DynamicsModel(nn.Module):
         best_next_value  = agent.value_of(next_state, best_next_action)
         
         return (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
+    
+    def action_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        predicted_next_state   = dynamics.predict(state, action)
+        
+        predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
+        best_next_action = agent.make_decision(next_state, deterministic=True)
+        
+        return ((best_next_action - predicted_next_action) ** 2).mean() # when action is very different, loss is high
         
     def mse_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state = dynamics.predict(state, action)
@@ -73,7 +81,7 @@ class DynamicsModel(nn.Module):
         action     = action.to(config.device)
         next_state = next_state.to(config.device)
         
-        loss = self.coach_loss(agent, state, action, next_state)
+        loss = self.action_loss(agent, state, action, next_state)
         
         # Optimize the self model
         self.optimizer.zero_grad()
@@ -145,6 +153,7 @@ def minibatch(batch_size, *data):
 def train(env_name, n_episodes=100, n_epochs=100):
     env = config.get_env(env_name)
     agent = load_agent(env_name)
+    agent.freeze()
 
     # Get experience from trained agent
     states, actions = experience(env, agent, n_episodes)

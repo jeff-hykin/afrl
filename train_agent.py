@@ -26,8 +26,12 @@ class Agent(SAC):
     
     def make_decision(self, state, deterministic=True):
         state = to_tensor(state).to(self.device)
-        a_tensor, _ = self.predict(state, deterministic=deterministic)
-        return a_tensor
+        # actions, values, log_prob
+        actions, *_ = self.actor.forward(state, deterministic=deterministic)
+        print(f'''actions.shape = {actions.shape}''')
+        help(self)
+        exit(0)
+        return actions
     
     def value_of(self, state, action):
         """
