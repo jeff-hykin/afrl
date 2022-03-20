@@ -153,7 +153,6 @@ def minibatch(batch_size, *data):
 def train(env_name, n_episodes=100, n_epochs=100):
     env = config.get_env(env_name)
     agent = load_agent(env_name)
-    agent.freeze()
 
     # Get experience from trained agent
     states, actions = experience(env, agent, n_episodes)

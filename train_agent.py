@@ -29,7 +29,7 @@ class Agent(SAC):
         # actions, values, log_prob
         actions, *_ = self.actor.forward(state, deterministic=deterministic)
         print(f'''actions.shape = {actions.shape}''')
-        help(self)
+        help(self.actor)
         exit(0)
         return actions
     
