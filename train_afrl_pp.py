@@ -20,7 +20,6 @@ from train_dynamics import load_dynamics
 from file_system import FS
 
 def ft(arg):
-    print(f'''arg = {arg}''')
     return FloatTensor(arg).to(config.device)
 
 losses = []

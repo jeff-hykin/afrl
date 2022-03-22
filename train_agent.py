@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import gym
 from stable_baselines3 import SAC
-from trivial_torch_tools import to_tensor, init
+from trivial_torch_tools import to_tensor, init, convert_each_arg
 
 from info import path_to, config
 
@@ -30,10 +30,12 @@ class Agent(SAC):
         actions = self.actor.forward(state, deterministic=deterministic)
         return actions
     
+    @convert_each_arg.to_batched_tensor(number_of_dimensions=2)
     def value_of(self, state, action):
         """
-            state.shape = torch.Size([32, 2])
-            action.shape = torch.Size([32, 1])
+            batched:
+                state.shape = torch.Size([32, 2])
+                action.shape = torch.Size([32, 1])
         """
         action = to_tensor(action).to(self.device)
         state = to_tensor(state).to(self.device)
