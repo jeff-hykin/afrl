@@ -32,10 +32,10 @@
             
     tasks/questions:
         - read the paper
-        - ask about env_settings for the 5 non-lunar lander env's
         - rerun everything and evaluate new loss
         - check: difference between testing/training loss
         - check: maybe use torch.no_grad for parts of the loss (when running data through agent)
+        - ask about env_settings for the 5 non-lunar lander env's
         - problem: SAC doesn't have a pytorch-trackable method (can't be used in a loss function)
 
     # a central place for filepaths
