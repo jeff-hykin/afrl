@@ -7,6 +7,7 @@ train_dynamics_log_file="$log_folder/train_dynamics.log"
 train_afrl_log_file="$log_folder/train_afrl.log"
 
 mkdir -p "$log_folder"
+rm -f  "$train_agent_log_file" "$train_dynamics_log_file" "$train_afrl_log_file"
 
 echo ""
 echo "Running Train Agent"
