@@ -15,7 +15,6 @@ from train_dynamics import DynamicsModel
 from info import path_to, config
 from train_agent import load_agent
 from train_dynamics import load_dynamics
-from file_system import FS
 
 env_name = "LunarLanderContinuous-v2"
 agent = load_agent(env_name)
@@ -34,6 +33,7 @@ dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
 
 def predict_future_state(state, horizon):
     for _ in range(horizon):
+        # BOOKMARK: why the new loss does poorly
         action = agent.predict(state, deterministic=False)[0]
         state = dynamics.forward(state, action)
     return state
