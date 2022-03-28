@@ -28,7 +28,7 @@ class Agent(SAC):
             )
 
     # add freeze methods (for when DynamicsModel uses agent)
-    @init.add_frozen_methods()
+    @init.freeze_tools()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     # this is for freeze()

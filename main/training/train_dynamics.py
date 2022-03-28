@@ -7,12 +7,13 @@ import stable_baselines3 as sb
 import torch
 from torch import nn
 from torch.optim import Adam
-from trivial_torch_tools import Sequential, init, convert_each_arg
+from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
+from trivial_torch_tools.generics import to_pure
 
 from mlp import mlp
 from info import path_to, config
 from main.training.train_agent import Agent
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split
 
 minibatch_size = config.train_dynamics.minibatch_size
 
@@ -71,14 +72,18 @@ class DynamicsModel(nn.Module):
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def testing_loss(self, actual, expected):
-        return ((actual - expected) ** 2).mean()
+    def testing_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
+        self.eval() # testing mode
+        loss_function = getattr(self, config.train_dynamics.loss_function)
+        loss = loss_function(state_batch, action_batch, next_state_batch)
+        return to_pure(loss)
         
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def training_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+    def training_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
+        self.train() # training mode
         loss_function = getattr(self, config.train_dynamics.loss_function)
-        loss = loss_function(state, action, next_state)
+        loss = loss_function(state_batch, action_batch, next_state_batch)
         
         # Optimize the self model
         self.optimizer.zero_grad()
@@ -118,28 +123,32 @@ class DynamicsModel(nn.Module):
         return ((actual - expected) ** 2).mean()
 
 def experience(env, agent, n_episodes):
-    actions, states = [], []
-    for i in range(n_episodes):
+    episodes = [None]*n_episodes
+    all_actions, all_curr_states, all_next_states = [], [], []
+    print(f'''Starting Experience Recording''')
+    for episode_index in range(n_episodes):
+        episode = Episode()
+        
+        state = env.reset()
+        episode.states.append(state)
+        episode.reward_total = 0
+        
         done = False
-        obs = env.reset()
-        ep_actions, ep_states = [], []
-        ep_states.append(obs)
-        ep_reward = 0
         while not done:
-            action, _ = agent.predict(obs, deterministic=True)  # False?
+            action, _ = agent.predict(state, deterministic=True)  # False?
             action = np.random.multivariate_normal(action, 0 * np.identity(len(action))) # QUESTION: why sample from multivariate_normal?
-            ep_actions.append(action)
-            obs, reward, done, info = env.step(action)
-            if i == 0:
-                # env.render()
-                pass
-            ep_states.append(obs)
-            ep_reward += reward
-        print(f"Episode: {i}, Reward: {ep_reward:.3f}")
-        states.append(ep_states)
-        actions.append(ep_actions)
+            episode.actions.append(action)
+            state, reward, done, info = env.step(action)
+            episode.states.append(state)
+            episode.reward_total += reward
+        
+        print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}")
+        episodes[episode_index] = episode
+        all_curr_states += episode.curr_states
+        all_actions     += episode.actions
+        all_next_states += episode.next_states
 
-    return states, actions
+    return episodes, all_actions, all_curr_states, all_next_states
 
 def train(env_name, n_episodes=100, n_epochs=100):
     dynamics = DynamicsModel.load_default_for(env_name, load_previous_weights = False)
@@ -147,34 +156,37 @@ def train(env_name, n_episodes=100, n_epochs=100):
     env      = config.get_env(env_name)
 
     # Get experience from trained agent
-    states, actions = experience(env, agent, n_episodes)
+    episodes, all_actions, all_curr_states, all_next_states = experience(env, agent, n_episodes)
+    print(f'''Starting Train/Test''')
+    states      = to_tensor(all_curr_states)
+    actions     = to_tensor(all_actions)
+    next_states = to_tensor(all_next_states)
 
-    next_states = torch.FloatTensor(flatten([[s for s in ep_states[1:  ]] for ep_states in states]) )
-    states      = torch.FloatTensor(flatten([[s for s in ep_states[: -1]] for ep_states in states]) )
-    actions     = torch.FloatTensor(flatten(actions))
-
-    def train_test_split(data, indices, train_pct=0.66):
-        div = int(len(data) * train_pct)
-        train, test = indices[:div], indices[div:]
-        return data[train], data[test]
-
-    indices = np.arange(len(states))
-    np.random.shuffle(indices)
-    train_states     , test_states      = train_test_split(states     , indices, config.train_dynamics.train_test_split)
-    train_actions    , test_actions     = train_test_split(actions    , indices, config.train_dynamics.train_test_split)
-    train_next_states, test_next_states = train_test_split(next_states, indices, config.train_dynamics.train_test_split)
+    (
+        (train_states     , test_states     ),
+        (train_actions    , test_actions    ),
+        (train_next_states, test_next_states),
+    ) = train_test_split(
+        states,
+        actions,
+        next_states,
+        split_proportion=config.train_dynamics.train_test_split,
+    )
     
     for epochs_index in range(n_epochs):
-        loss = 0
-        for state, action, next_state in minibatch(minibatch_size, train_states, train_actions, train_next_states):
-            batch_loss = dynamics.training_loss(state, action, next_state)
-            loss += batch_loss
-            
-        test_loss = dynamics.testing_loss(
-            actual=dynamics.predict(test_states, test_actions),
-            expected=test_next_states,
-        )
-        print(f"Epoch {epochs_index+1}. Train Loss: {loss / np.ceil(len(states) / minibatch_size):.4f}, Test Loss: {test_loss:.4f}")
+        # 
+        # training
+        # 
+        train_losses = []
+        for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
+            train_losses.append(dynamics.training_loss(state_batch, action_batch, next_state_batch))
+        
+        # 
+        # testing
+        # 
+        test_loss = dynamics.testing_loss(test_states, test_actions, test_next_states)
+        
+        print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
 
     torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
 

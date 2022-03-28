@@ -20,3 +20,35 @@ def ft(arg):
     from torch import FloatTensor
     from info import config
     return FloatTensor(arg).to(config.device)
+
+def train_test_split(*args, split_proportion):
+    import numpy as np
+    def split(data, indices, train_pct=0.66):
+        div = int(len(data) * train_pct)
+        train, test = indices[:div], indices[div:]
+        return data[train], data[test]
+    
+    indices = np.arange(len(args[0]))
+    np.random.shuffle(indices)
+    output = []
+    for each in args:
+        output.append(split(each, indices, split_proportion))
+    
+    return output
+
+
+from dataclasses import dataclass, field
+@dataclass
+class Episode:
+    states     : list = field(default_factory=list)
+    actions    : list = field(default_factory=list)
+    rewards    : list = field(default_factory=list)
+    reward_total: float = 0
+    
+    @property
+    def curr_states(self):
+        return [s for s in self.states[1:  ]]
+    
+    @property
+    def next_states(self):
+        return [s for s in self.states[: -1]]
