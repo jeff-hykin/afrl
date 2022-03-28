@@ -1,3 +1,17 @@
+def average(iterable):
+    from statistics import mean
+    from trivial_torch_tools.generics import to_pure
+    return mean(tuple(to_pure(each) for each in iterable))
+
+def to_numpy(value):
+    import torch
+    import numpy
+    from trivial_torch_tools.generics import to_pure
+    if isinstance(value, torch.Tensor):
+        return value.detach().cpu().numpy()
+    else:
+        return numpy.array(to_pure(value))
+
 def flatten(ys):
     return [x for xs in ys for x in xs]
 
