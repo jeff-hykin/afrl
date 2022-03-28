@@ -1,6 +1,7 @@
 import os
 from types import FunctionType
 from typing import List
+from copy import deepcopy
 
 import gym
 import numpy as np
@@ -69,8 +70,24 @@ class PredictiveTest():
         else:
             self.horizon += 1
 
-def setup_tools(dynamics, agent, actor_copy):
+loss_batch = []
+def replan(
+    intial_state: NDArray,
+    old_plan: NDArray,
+    forecast: List[int],
+    epsilon: float,
+    forecast_horizon: int,
+    action_size: int,
+    agent: OffPolicyAlgorithm,
+    dynamics: DynamicsModel,
+    actor_copy,
+    actor_copy_optimizer,
+):
+    global loss_batch
     
+    # 
+    # helpers
+    # 
     def get_actor_action_for(state):
         action, _ = agent.predict(state, deterministic=True)
         return action 
@@ -86,61 +103,62 @@ def setup_tools(dynamics, agent, actor_copy):
     def with_grad_get_value(state, action):
         return agent.value_of(state, action)
     
-    return get_actor_action_for, get_actor_copy_action_for, without_grad_get_value, with_grad_get_value
-    
-losses = []
-def replan(
-    intial_state: NDArray,
-    old_plan: NDArray,
-    forecast: List[int],
-    epsilon: float,
-    forecast_horizon: int,
-    action_size: int,
-    agent: OffPolicyAlgorithm,
-    dynamics: DynamicsModel,
-    actor_copy,
-    optimizer,
-):
-    global losses
-    
-    new_plan = []
-    k = 0  # used to keep track of forecast of the actions
-
-    # reuse old plan (recycle)
-    state = intial_state
-    for predicted_state, planned_action in old_plan[1:]: # NOTE: unsure if planned_action is indeed a planned action -- Jeff
-        replan_action, _     = agent.predict(state, deterministic=True)
-        plan_action          = actor_copy(to_tensor([predicted_state]))[0] # QUESTION: why is an actor copy needed if were not updating the weights of the agent
-        value_of_plan_action = agent.value_of(state, plan_action) # QUESTION: why is this one outside the torch.no_grad(), but the other is
-        with torch.no_grad():
-            value_of_replan_action = agent.value_of(state, replan_action)
-        loss = value_of_replan_action - value_of_plan_action
-        
-        losses.append(loss)
-        if len(losses) >= config.train_predictive.weight_update_frequency:
-            optimizer.zero_grad()
-            loss = torch.stack(losses).mean()
+    def run_backprop_if_ready():
+        if len(loss_batch) >= config.train_predictive.weight_update_frequency:
+            actor_copy_optimizer.zero_grad()
+            loss = torch.stack(loss_batch).mean()
             loss.backward()
-            optimizer.step()
-            losses = []
+            actor_copy_optimizer.step()
+            loss_batch = []
+    
+    # 
+    # runtime
+    # 
+    new_plan = []
 
+    state = intial_state
+    future_plan = old_plan[1:] # reuse old plan (recycle)
+    for forcast_index, (predicted_state, planned_action) in enumerate(future_plan):
+        forecast[forcast_index] = forecast[forcast_index+1] + 1 # for the stats... keep track of the forecast of this action
+        
+        # 
+        # inline loss
+        # 
+        replan_action = get_actor_action_for(     state)
+        plan_action   = get_actor_copy_action_for(state) # QUESTION: why actor copy (predpolicy) and not actor (agent)?
+        value_of_plan_action   = with_grad_get_value(   state, plan_action  )
+        value_of_replan_action = without_grad_get_value(state, replan_action) # QUESTION: why only this one without grad
+        loss = how_much_better_was_replanned_action = value_of_replan_action - value_of_plan_action
+        
+        # backprop
+        loss_batch.append(loss)
+        run_backprop_if_ready()
+        
+        # exit condition
         if to_pure(loss) > epsilon:
             break
         
         new_plan.append((predicted_state, plan_action))
-        # BOOKMARK: check this, seems fishy
-        state = dynamics(state, plan_action)
-        # for the stats... keep track of the forecast of this action
-        forecast[k] = forecast[k + 1] + 1
-        k += 1
-
-    # produce new plan (replan)
-    for i in range(k, forecast_horizon):
-        action = actor_copy(ft([state]))[0]
-        new_plan.append((state, action))
+        # BOOKMARK: check this, seems like it could be problematic (expanded from DynamicsModel.forward)
         with torch.no_grad():
-            state = dynamics(state, action)
-        forecast[i] = 0
+            # the likely reason this no_grad is here is 
+            # so that future states can be predicted 
+            # without penalizing the first one for +2 timestep-loss, +3 timestep loss, +4 timestep loss, etc
+            # just generate the state, then redo +1 timestep-loss only
+            state = dynamics.model(torch.cat((state, plan_action), -1)).cpu().numpy()
+        
+    # produce new plan (replan)
+    for index in range(forcast_index, forecast_horizon):
+        action = get_actor_copy_action_for(state)
+        new_plan.append((state, action))
+        
+        with torch.no_grad():
+            state = dynamics.model(torch.cat((state, action), -1)).cpu().numpy()
+        # Below is what used to be above
+        # with torch.no_grad(): # this is a double-no-grad cause there's already a no-grad inside dynamics.forward()
+        #     state = dynamics(state, action)
+        
+        forecast[index] = 0
 
     return new_plan, forecast
 
@@ -153,7 +171,7 @@ def experience(
     actor_copy,
     dynamics: DynamicsModel,
     env,
-    optimizer,
+    actor_copy_optimizer,
 ):
     episode_forecast = []
     rewards          = []
@@ -171,7 +189,7 @@ def experience(
         agent,
         actor_copy,
         dynamics,
-        optimizer,
+        actor_copy_optimizer,
     )
     done = False
     while not done:
@@ -189,7 +207,7 @@ def experience(
             agent,
             actor_copy,
             dynamics,
-            optimizer,
+            actor_copy_optimizer,
         )
     return rewards, episode_forecast
 
@@ -202,7 +220,7 @@ def test_afrl(
     dynamics: DynamicsModel,
     n_experiments: int,
     env,
-    optimizer,
+    actor_copy_optimizer,
 ):
     cols = ["epsilon", "rewards", "discounted_rewards", "forecast"]
     if isinstance(forecast_horizon, list):
@@ -220,7 +238,7 @@ def test_afrl(
                 actor_copy,
                 dynamics,
                 env,
-                optimizer,
+                actor_copy_optimizer,
             )
             v = get_discounted_rewards(rewards, agent.gamma)
             df = df.append(
@@ -240,8 +258,8 @@ def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
     env = config.get_env(env_name)
     
     action_size = env.action_space.shape[0]
-    actor_copy       = deepcopy(agent.policy)
-    optimizer   = Adam(actor_copy.parameters(), lr=0.0001) # QUESTION: why does the actor need an optimizer?
+    actor_copy           = deepcopy(agent.policy)
+    actor_copy_optimizer = Adam(actor_copy.parameters(), lr=0.0001) # QUESTION: why does the actor need an actor_copy_optimizer?
 
     # actor_copy.load_state_dict(torch.load(f'data/models/agents/actor_copy/{env_name}.pt'))
 
@@ -256,12 +274,10 @@ def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
         dynamics,
         n_experiments,
         env,
-        optimizer,
+        actor_copy_optimizer,
     )
 
 if __name__ == "__main__":
-    from copy import deepcopy
-    
     for env_name in config.env_names:
         multipliers = np.array(list(settings[env_name]["horizons"].keys()))
         epsilons = (settings[env_name]["max_score"] - settings[env_name]["min_score"]) * multipliers

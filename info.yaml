@@ -33,6 +33,7 @@
         - found another inline loss
         - found main issue, the inline loss was using an actor copy, and the copy wasnt being frozen
         - found core issue, how states are being sequentially predicted
+        - train_afrl seems to only update the actor, not the dynamics. Cant tell if thats intentional
         - note: epsilon plays a very different role now because its about how much worse the action is. If the actions were very different but had approximately the same value then planning will be viewed as successful
         - check: what if the prediction is only good because it doesn't matter what the agent does at those timesteps
     tasks/questions:
