@@ -13,6 +13,7 @@ trivial-torch-tools = "0.3.0"
 slick-siphon = "^0.1.1"
 notebook = "^6.4.8"
 jupyterthemes = "0.20.0"
+file-system-py = "^0.0.3"
 
 [tool.poetry.dev-dependencies]
 

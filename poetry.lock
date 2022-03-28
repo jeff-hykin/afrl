@@ -171,6 +171,14 @@ python-versions = ">=3.6"
 "ruamel.yaml" = "*"
 
 [[package]]
+name = "file-system-py"
+version = "0.0.3"
+description = "All-in-one file manipulation"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "fonttools"
 version = "4.31.2"
 description = "Tools to manipulate font files"
@@ -1046,7 +1054,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"
-content-hash = "5c908c5a7363efd74f839355ad1d2450c783274f78770f52e3e41b4a99f00f96"
+content-hash = "f6234f20e48a4ff8fcadd8177bb0eb8ce094a4c4b1204783f533f833a4d2ddd0"
 
 [metadata.files]
 appnope = [
@@ -1201,6 +1209,10 @@ entrypoints = [
 ez-yaml = [
     {file = "ez_yaml-1.2.0-py3-none-any.whl", hash = "sha256:429a0d7eee26b29de5a69937bceadc816210435cf4725bedaebb0025a2ce1d51"},
     {file = "ez_yaml-1.2.0.tar.gz", hash = "sha256:563d6b6d096e353b673d7884d779d3ea37a20377a4acc70e18ee2dcb95deacbe"},
+]
+file-system-py = [
+    {file = "file_system_py-0.0.3-py3-none-any.whl", hash = "sha256:3e45e9d006bc6a24f20112beccbc65c8df5a6eba48537d777d6392a03a3f99f5"},
+    {file = "file_system_py-0.0.3.tar.gz", hash = "sha256:64c61c94512a0e52e37098bb3bcceb6033efbaf9781366f6b2f5e0497bb44e8d"},
 ]
 fonttools = [
     {file = "fonttools-4.31.2-py3-none-any.whl", hash = "sha256:2df636a3f402ef14593c6811dac0609563b8c374bd7850e76919eb51ea205426"},

@@ -7,14 +7,13 @@ import pandas as pd
 import scipy.stats
 import stable_baselines3 as sb
 import torch
-from torch import FloatTensor as ft
 from torch.optim.adam import Adam
 from tqdm import tqdm
 
-from train_dynamics import DynamicsModel
 from info import path_to, config
-from train_agent import load_agent
-from train_dynamics import load_dynamics
+from main.training.train_agent import load_agent
+from main.training.train_dynamics import DynamicsModel, load_dynamics
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
 
 env_name = "LunarLanderContinuous-v2"
 agent = load_agent(env_name)

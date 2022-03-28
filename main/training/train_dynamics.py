@@ -6,13 +6,13 @@ import numpy as np
 import stable_baselines3 as sb
 import torch
 from torch import nn
-from torch import FloatTensor as ft
 from torch.optim import Adam
 from trivial_torch_tools import Sequential, init, convert_each_arg
 
 from mlp import mlp
-from train_agent import load_agent
 from info import path_to, config
+from main.training.train_agent import load_agent
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
 
 # State transition dynamics model
 class DynamicsModel(nn.Module):
@@ -20,14 +20,15 @@ class DynamicsModel(nn.Module):
     The model of how the world works
         (state) => (next_state)
     """
-    @init.save_and_load_methods(model_attributes=["model"], basic_attributes=["learning_rate"])
-    def __init__(self, obs_dim, act_dim, hidden_sizes, lr, device, **kwargs):
+    @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
+    def __init__(self, obs_dim, act_dim, hidden_sizes, lr, device, agent, **kwargs):
         super().__init__()
         self.learning_rate = lr
-        self.device = device
-        self.model = mlp([obs_dim + act_dim, *hidden_sizes, obs_dim], nn.ReLU).to(
-            self.device
-        )
+        self.device        = device
+        self.obs_dim       = obs_dim
+        self.act_dim       = act_dim
+        self.agent         = agent
+        self.model = mlp([obs_dim + act_dim, *hidden_sizes, obs_dim], nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
 
     @convert_each_arg.to_tensor()
@@ -45,43 +46,16 @@ class DynamicsModel(nn.Module):
         # returns the predictions still on the device
         return self.model(torch.cat((observations, actions), -1).to(self.device))
     
-    def coach_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = dynamics.predict(state, action)
-        
-        predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
-        predicted_next_value  = agent.value_of(next_state, predicted_next_action)
-        best_next_action = agent.make_decision(next_state, deterministic=True)
-        best_next_value  = agent.value_of(next_state, best_next_action)
-        
-        return (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
-    
-    def action_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = dynamics.predict(state, action)
-        
-        predicted_next_action = agent.make_decision(predicted_next_state, deterministic=True)
-        best_next_action = agent.make_decision(next_state, deterministic=True)
-        
-        return ((best_next_action - predicted_next_action) ** 2).mean() # when action is very different, loss is high
-        
-    def mse_loss(dynamics, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state = dynamics.predict(state, action)
-        
-        actual = predicted_next_state
-        expected = next_state
-        
-        return ((actual - expected) ** 2).mean()
-    
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
     def test_loss(self, actual, expected):
         return ((actual - expected) ** 2).mean()
         
-    def apply_loss(self, agent, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        state      = state.to(config.device)
-        action     = action.to(config.device)
-        next_state = next_state.to(config.device)
-        
-        loss = self.coach_loss(agent, state, action, next_state)
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
+    def compute_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        loss_function = getattr(self, config.train_dynamics.loss_function)
+        loss = loss_function(state, action, next_state)
         
         # Optimize the self model
         self.optimizer.zero_grad()
@@ -89,28 +63,47 @@ class DynamicsModel(nn.Module):
         self.optimizer.step()
 
         return loss
+    
+    # 
+    # Loss function options
+    # 
+    
+    def value_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        predicted_next_state   = self.predict(state, action)
+        
+        predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
+        predicted_next_value  = self.agent.value_of(next_state, predicted_next_action)
+        best_next_action = self.agent.make_decision(next_state, deterministic=True)
+        best_next_value  = self.agent.value_of(next_state, best_next_action)
+        
+        return (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
+    
+    def action_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        predicted_next_state   = self.predict(state, action)
+        
+        predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
+        best_next_action = self.agent.make_decision(next_state, deterministic=True)
+        
+        return ((best_next_action - predicted_next_action) ** 2).mean() # when action is very different, loss is high
+        
+    def state_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
+        predicted_next_state = self.predict(state, action)
+        
+        actual = predicted_next_state
+        expected = next_state
+        
+        return ((actual - expected) ** 2).mean()
 
-
-
-
-def load_dynamics(env_obj):
+def load_dynamics(env_obj, agent):
     env = env_obj
     return DynamicsModel(
         obs_dim=env.observation_space.shape[0],
         act_dim=env.action_space.shape[0],
         hidden_sizes=[64, 64, 64, 64],
         lr=0.0001,
+        agent=agent,
         device=config.device,
     )
-
-
-def flatten(ys):
-    return [x for xs in ys for x in xs]
-
-
-def get_discounted_rewards(gamma, rewards):
-    return sum([r * gamma ** t for t, r in enumerate(rewards)])
-
 
 def experience(env, agent, n_episodes):
     actions, states = [], []
@@ -136,36 +129,17 @@ def experience(env, agent, n_episodes):
 
     return states, actions
 
-
-def divide_chunks(l, n):
-    # looping till length l
-    for i in range(0, len(l), n):
-        yield l[i : i + n]
-
-
-def minibatch(batch_size, *data):
-    indices = np.arange(len(data[0]))
-    np.random.shuffle(indices)
-    for batch_ind in divide_chunks(indices, batch_size):
-        yield [datum[batch_ind] for datum in data]
-
-
 def train(env_name, n_episodes=100, n_epochs=100):
     env = config.get_env(env_name)
     agent = load_agent(env_name)
+    dynamics = load_dynamics(env, agent)
 
     # Get experience from trained agent
     states, actions = experience(env, agent, n_episodes)
 
-    next_states = torch.FloatTensor(
-        flatten([[s for s in ep_states[1:]] for ep_states in states])
-    )
-    states = torch.FloatTensor(
-        flatten([[s for s in ep_states[:-1]] for ep_states in states])
-    )
-    actions = torch.FloatTensor(flatten(actions))
-
-    dynamics = load_dynamics(env)
+    next_states = torch.FloatTensor(flatten([[s for s in ep_states[1:  ]] for ep_states in states]) )
+    states      = torch.FloatTensor(flatten([[s for s in ep_states[: -1]] for ep_states in states]) )
+    actions     = torch.FloatTensor(flatten(actions))
 
     def train_test_split(data, indices, train_pct=0.66):
         div = int(len(data) * train_pct)
@@ -182,7 +156,7 @@ def train(env_name, n_episodes=100, n_epochs=100):
     for epochs_index in range(n_epochs):
         loss = 0
         for s, a, s2 in minibatch(minibatch_size, train_s, train_a, train_s2):
-            batch_loss = dynamics.apply_loss(agent, s, a, s2)
+            batch_loss = dynamics.compute_loss(s, a, s2)
             loss += batch_loss
             
         test_mse = dynamics.test_loss(

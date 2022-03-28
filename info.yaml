@@ -61,63 +61,65 @@
                 number_of_epochs: 100
                 train_test_split: 0.7
                 minibatch_size: 32
-            train_afrl:
+                loss_function: value_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss" <- each is a method on class DynamicsModel
+            train_predictive:
                 number_of_experiments: 50
-                env_settings:
-                    LunarLanderContinuous-v2:
-                        max_score: 70  # discounted ep reward
-                        min_score: -100
-                        horizons: # maps "epsilon coefficients" to horizons
-                            0.001: 5
-                            0.0025: 5
-                            0.005: 10
-                            0.0075: 15
-                            0.01: 20
-                    MountainCarContinuous-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                        max_score: 70
-                        min_score: -100
-                        horizons:
-                            0.001: 5
-                            0.0025: 5
-                            0.005: 10
-                            0.0075: 15
-                            0.01: 20
-                    AntBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                        max_score: 70
-                        min_score: -100
-                        horizons:
-                            0.001: 5
-                            0.0025: 5
-                            0.005: 10
-                            0.0075: 15
-                            0.01: 20
-                    HopperBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                        max_score: 70
-                        min_score: -100
-                        horizons:
-                            0.001: 5
-                            0.0025: 5
-                            0.005: 10
-                            0.0075: 15
-                            0.01: 20
-                    BipedalWalker-v3: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                        max_score: 70
-                        min_score: -100
-                        horizons:
-                            0.001: 5
-                            0.0025: 5
-                            0.005: 10
-                            0.0075: 15
-                            0.01: 20
-                    HalfCheetahBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                        max_score: 70
-                        min_score: -100
-                        horizons:
-                            0.001: 5
-                            0.0025: 5
-                            0.005: 10
-                            0.0075: 15
-                            0.01: 20
+            
+            gym_env_settings:
+                LunarLanderContinuous-v2:
+                    max_score: 70  # discounted ep reward
+                    min_score: -100
+                    horizons: # maps "epsilon coefficients" to horizons
+                        0.001: 5
+                        0.0025: 5
+                        0.005: 10
+                        0.0075: 15
+                        0.01: 20
+                MountainCarContinuous-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                    max_score: 70
+                    min_score: -100
+                    horizons:
+                        0.001: 5
+                        0.0025: 5
+                        0.005: 10
+                        0.0075: 15
+                        0.01: 20
+                AntBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                    max_score: 70
+                    min_score: -100
+                    horizons:
+                        0.001: 5
+                        0.0025: 5
+                        0.005: 10
+                        0.0075: 15
+                        0.01: 20
+                HopperBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                    max_score: 70
+                    min_score: -100
+                    horizons:
+                        0.001: 5
+                        0.0025: 5
+                        0.005: 10
+                        0.0075: 15
+                        0.01: 20
+                BipedalWalker-v3: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                    max_score: 70
+                    min_score: -100
+                    horizons:
+                        0.001: 5
+                        0.0025: 5
+                        0.005: 10
+                        0.0075: 15
+                        0.01: 20
+                HalfCheetahBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
+                    max_score: 70
+                    min_score: -100
+                    horizons:
+                        0.001: 5
+                        0.0025: 5
+                        0.005: 10
+                        0.0075: 15
+                        0.01: 20
         
         FORCE_CPU:
             force_cpu: true

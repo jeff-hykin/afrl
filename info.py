@@ -34,7 +34,7 @@ for each_name in path_to.folder:
 # 
 path_to.agent_model_for    = lambda env_name: f"{path_to.folder.agent_models}/{env_name}"
 path_to.dynamics_model_for = lambda env_name: f"{path_to.folder.dynamics_models}/{env_name}.pt"
-path_to.experiment_csv_for = lambda env_name: f"{path_to.folder.results}/{env_name}/experiments_pp.csv"
+path_to.experiment_csv_for = lambda env_name: f"{path_to.folder.results}/{env_name}/experiments.csv"
 
 # 
 # env lookup

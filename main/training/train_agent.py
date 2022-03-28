@@ -8,6 +8,10 @@ from trivial_torch_tools import to_tensor, init, convert_each_arg
 from info import path_to, config
 
 class Agent(SAC):
+    # @classmethod
+    # def load_agent_for(env_name):
+    #     pass
+    
     @init.add_frozen_methods()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,12 +28,14 @@ class Agent(SAC):
             state = state.detach()
         return super().predict(state, **kwargs)
     
+    # Actor Policy
     def make_decision(self, state, deterministic=True):
         state = to_tensor(state).to(self.device)
         # must use forward instead of predict to preserve tensor tracking
         actions = self.actor.forward(state, deterministic=deterministic)
         return actions
     
+    # Q function
     @convert_each_arg.to_batched_tensor(number_of_dimensions=2)
     def value_of(self, state, action):
         """

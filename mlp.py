@@ -1,6 +1,5 @@
 import numpy as np
 import torch as torch
-from torch import FloatTensor as ft
 from torch import nn
 from torch.optim import Adam
 from trivial_torch_tools import Sequential, init, convert_each_arg
