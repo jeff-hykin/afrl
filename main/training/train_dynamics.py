@@ -61,6 +61,11 @@ class DynamicsModel(nn.Module):
         with torch.no_grad(): # QUESTION: this seems really strange, is a different forward-like method called when training the DynamicsModel?
             next_observation = self.model(torch.cat((obs, act), -1))
         return next_observation.cpu().numpy()
+    
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
+    def real_forward(self, state_batch, action_batch):
+        return self.model.forwards(torch.cat((state_batch, action_batch), -1))
 
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
@@ -83,7 +88,9 @@ class DynamicsModel(nn.Module):
     def training_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
         self.train() # training mode
         loss_function = getattr(self, config.train_dynamics.loss_function)
+        self.agent.freeze()
         loss = loss_function(state_batch, action_batch, next_state_batch)
+        self.agent.unfreeze()
         
         # Optimize the self model
         self.optimizer.zero_grad()
