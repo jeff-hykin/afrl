@@ -52,6 +52,7 @@ class DynamicsModel(nn.Module):
         self.obs_dim       = obs_dim
         self.act_dim       = act_dim
         self.agent         = agent
+        self.which_loss    = config.train_dynamics.loss_function
         self.model = mlp([obs_dim + act_dim, *hidden_sizes, obs_dim], nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
     
@@ -77,9 +78,29 @@ class DynamicsModel(nn.Module):
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
+    def create_forcast(self, observation: torch.Tensor, inital_action: torch.Tensor, length: int):
+        """
+        Return:
+            list of state-action pairs
+            all pairs are predictive
+        """
+        predictions = []
+        state = observation
+        action = inital_action
+        with self.agent.frozen() as agent:
+            for each in range(length):
+                predicted_state = self.predict(state, action)
+                predicted_action = agent.make_decision(state)
+                predictions.append(tuple(predicted_state, predicted_action))
+                state = predicted_state
+                action = predicted_action
+        return predictions
+    
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
     def testing_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
         self.eval() # testing mode
-        loss_function = getattr(self, config.train_dynamics.loss_function)
+        loss_function = getattr(self, self.which_loss)
         loss = loss_function(state_batch, action_batch, next_state_batch)
         return to_pure(loss)
         
@@ -87,7 +108,7 @@ class DynamicsModel(nn.Module):
     @convert_each_arg.to_device(device_attribute="device")
     def training_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
         self.train() # training mode
-        loss_function = getattr(self, config.train_dynamics.loss_function)
+        loss_function = getattr(self, self.which_loss)
         self.agent.freeze()
         loss = loss_function(state_batch, action_batch, next_state_batch)
         self.agent.unfreeze()
@@ -102,6 +123,15 @@ class DynamicsModel(nn.Module):
     # 
     # Loss function options
     # 
+    
+    def timestep_loss(self, timesteps):
+        predictions = self.create_forcast(observation, inital_action, len(timesteps.steps))
+        losses = []
+        for (predicted_next_state, predicted_action), real in zip(predictions, timesteps.steps):
+            predicted_value = self.agent.value_of(real.next_state, predicted_action)
+            actual_value    = self.agent.value_of(real.next_state, real.action)
+            losses.append(actual_value - predicted_value)
+        return torch.stack(losses).mean()
     
     def value_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state   = self.predict(state, action)
