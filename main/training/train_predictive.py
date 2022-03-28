@@ -12,15 +12,61 @@ from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch.optim.adam import Adam
 from tqdm import tqdm
 import file_system_py as FS
+from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
+from trivial_torch_tools.generics import to_pure
+from super_map import LazyDict
 
 from info import path_to, config
 from main.training.train_agent import Agent
 from main.training.train_dynamics import DynamicsModel
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries
 
 settings = config.gym_env_settings
 
-losses = []
+class PredictiveTest():
+
+    def __init__(self, env_name):
+        self.timesteps = TimestepSeries()
+        self.horizon = config.train_predictive.initial_horizon_size
+        self.loss_threshold = config.train_predictive.loss_threshold
+        self.record = LazyDict(
+            losses=[],
+            horizons=[],
+        )
+        # 
+        # load models
+        # 
+        self.dynamics = DynamicsModel.load_default_for(env_name)
+        self.dynamics.which_loss = "timestep_loss"
+        self.agent    = dynamics.agent
+        self.env = config.get_env(env_name)
+    
+    def run(self, env_name, number_of_epochs):
+        for epoch_index in range(number_of_epochs):
+            self.timesteps = TimestepSeries()
+            next_state = self.env.reset()
+            done = False
+            while not done:
+                state = next_state
+                action = self.agent.make_decision(state)
+                next_state, reward, done, _ = self.env.step(to_pure(action))
+                self.timesteps.add(state, action, reward, next_state)
+                self.check_forcast()
+    
+    def check_forcast(self):
+        # "what would have been predicted X horizon ago"
+        if len(self.timesteps.steps) > self.horizon:
+            time_slice = self.timesteps[-self.horizon:]
+            loss = self.dynamics.training_loss(time_slice)
+            self.record.losses.append(to_pure(loss))
+            self.record.horizons.append(self.horizon)
+            self.update_horizon()
+    
+    def update_horizon(self):
+        if self.record.losses[-1] < self.loss_threshold:
+            self.horizon -= 1
+        else:
+            self.horizon += 1
 
 def replan(
     state: NDArray,
