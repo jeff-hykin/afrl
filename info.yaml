@@ -29,7 +29,12 @@
             #    particularly for plotting the losses on a graph to see how 
             #    bad they are, while they're being measured against the Q val
             #    I don't think there's any computational savings as we should already have best_next_value
-            
+    meeting updates:
+        - found another inline loss
+        - found main issue, the inline loss was using an actor copy, and the copy wasnt being frozen
+        - found core issue, how states are being sequentially predicted
+        - note: epsilon plays a very different role now because its about how much worse the action is. If the actions were very different but had approximately the same value then planning will be viewed as successful
+        - check: what if the prediction is only good because it doesn't matter what the agent does at those timesteps
     tasks/questions:
         - temp:
             - when is dynamics.forward used? (why does it have no_grad)
@@ -67,6 +72,9 @@
                 loss_function: value_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss" <- each is a method on class DynamicsModel
             train_predictive:
                 number_of_experiments: 50
+                weight_update_frequency: 32 # every 32 replan iterations
+                initial_horizon_size: 5
+                loss_threshold: 0.5
             
             gym_env_settings:
                 LunarLanderContinuous-v2:
