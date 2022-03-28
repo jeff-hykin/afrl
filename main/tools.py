@@ -39,6 +39,58 @@ def train_test_split(*args, split_proportion):
 
 from dataclasses import dataclass, field
 @dataclass
+class Timestep:
+    index      : int
+    prev_state : None
+    action     : None
+    reward     : float
+    state      : None
+        
+class TimestepSeries:
+    def __init__(self, ):
+        self.index = 0
+        self.steps = []
+    
+    @property
+    def prev(self):
+        if self.index > 0:
+            return self.steps[-1]
+        else:
+            return None
+    
+    def next(self, prev_state, action, reward, state):
+        self.index += 1
+        self.steps.append(Timestep(self.index, prev_state, action, reward, state))
+    
+    def rewards(self):
+        return [ each.reward for each in self.steps ]
+    
+    def curr_and_next_states(self):
+        return [ each.prev_state for each in self.steps ], [ each.state for each in self.steps ]
+    
+    def items(self):
+        """
+        for index, state, action, reward, next_state in time_series.items():
+            pass
+        """
+        return ((each.index, each.prev_state, each.action, each.reward, each.state) for each in self.steps)
+    
+    def __getitem__(self, key):
+        time_slice =  TimestepSeries()
+        time_slice.index = self.index
+        time_slice.steps = self.steps[key]
+        return time_slice
+    
+    def __repr__(self):
+        string = "TimestepSeries(\n"
+        for index, state, action, reward, next_state in self.items():
+            string += f"    {index}, {state}, {action}, {reward}, {next_state}\n"
+        string += ")"
+        return string
+
+
+from dataclasses import dataclass, field
+@dataclass
 class Episode:
     states     : list = field(default_factory=list)
     actions    : list = field(default_factory=list)
