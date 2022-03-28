@@ -48,7 +48,7 @@ class Timestep:
         
 class TimestepSeries:
     def __init__(self, ):
-        self.index = 0
+        self.index = -1
         self.steps = []
     
     @property
@@ -58,15 +58,25 @@ class TimestepSeries:
         else:
             return None
     
-    def next(self, prev_state, action, reward, state):
+    def add(self, prev_state, action, reward, state):
         self.index += 1
         self.steps.append(Timestep(self.index, prev_state, action, reward, state))
     
+    @property
+    def states(self):
+        return [ each.prev_state for each in self.steps ]
+    
+    @property
+    def actions(self):
+        return [ each.action for each in self.steps ]
+    
+    @property
     def rewards(self):
         return [ each.reward for each in self.steps ]
     
-    def curr_and_next_states(self):
-        return [ each.prev_state for each in self.steps ], [ each.state for each in self.steps ]
+    @property
+    def next_states(self):
+        return [ each.state for each in self.steps ]
     
     def items(self):
         """
@@ -76,7 +86,7 @@ class TimestepSeries:
         return ((each.index, each.prev_state, each.action, each.reward, each.state) for each in self.steps)
     
     def __getitem__(self, key):
-        time_slice =  TimestepSeries()
+        time_slice = TimestepSeries()
         time_slice.index = self.index
         time_slice.steps = self.steps[key]
         return time_slice
