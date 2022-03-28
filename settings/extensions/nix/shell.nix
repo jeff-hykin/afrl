@@ -33,11 +33,6 @@
             shellCode = "";
         });
         
-        salt = (builtins.import
-            (./nixpkgs/salt.nix)
-            main
-        );
-        
         # torch = (builtins.import
         #     (fetchTarball "https://github.com/jeff-hykin/pytorch_nixpkg/archive/77961dce25528445a7e4e448652754079deb6f73.tar.gz")
         #     {
@@ -187,7 +182,7 @@
         # 
         main.packages.mkShell {
             # inside that shell, make sure to use these packages
-            buildInputs =  main.project.buildInputs ++ macOnly.buildInputs ++ linuxOnly.buildInputs ++ [ salt ];
+            buildInputs =  main.project.buildInputs ++ macOnly.buildInputs ++ linuxOnly.buildInputs;
             
             nativeBuildInputs =  main.project.nativeBuildInputs ++ macOnly.nativeBuildInputs ++ linuxOnly.nativeBuildInputs;
             
