@@ -50,11 +50,11 @@ class Agent(SAC):
     # 
     # Actor Policy
     # 
-    def make_decision(self, state, deterministic=True):
-        state = to_tensor(state).to(self.device)
+    def make_decision(self, state_batch, deterministic=True):
+        state_batch = to_tensor(state_batch).to(self.device)
         # must use forward instead of predict to preserve tensor tracking
-        actions = self.actor.forward(state, deterministic=deterministic)
-        return actions
+        action_batch = self.actor.forward(state_batch, deterministic=deterministic)
+        return action_batch
     
     # 
     # Q function
