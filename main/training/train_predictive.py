@@ -15,6 +15,7 @@ import file_system_py as FS
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure
 from super_map import LazyDict
+from simple_namespace import namespace
 
 from info import path_to, config
 from main.training.train_agent import Agent
@@ -68,8 +69,28 @@ class PredictiveTest():
         else:
             self.horizon += 1
 
+def setup_tools(dynamics, agent, actor_copy):
+    
+    def get_actor_action_for(state):
+        action, _ = agent.predict(state, deterministic=True)
+        return action 
+    
+    def get_actor_copy_action_for(state):
+        action = actor_copy(to_tensor([state]))[0]
+        return action 
+    
+    def without_grad_get_value(state, action):
+        with torch.no_grad():
+            return agent.value_of(state, action)
+    
+    def with_grad_get_value(state, action):
+        return agent.value_of(state, action)
+    
+    return get_actor_action_for, get_actor_copy_action_for, without_grad_get_value, with_grad_get_value
+    
+losses = []
 def replan(
-    state: NDArray,
+    intial_state: NDArray,
     old_plan: NDArray,
     forecast: List[int],
     epsilon: float,
@@ -77,33 +98,37 @@ def replan(
     action_size: int,
     agent: OffPolicyAlgorithm,
     dynamics: DynamicsModel,
-    predpolicy,
+    actor_copy,
     optimizer,
 ):
     global losses
-
+    
     new_plan = []
     k = 0  # used to keep track of forecast of the actions
 
     # reuse old plan (recycle)
-    for (pred_state, action) in old_plan[1:]:
-        replan_action = agent.predict(state, deterministic=True)[0]
+    state = intial_state
+    for predicted_state, planned_action in old_plan[1:]: # NOTE: unsure if planned_action is indeed a planned action -- Jeff
+        replan_action, _     = agent.predict(state, deterministic=True)
+        plan_action          = actor_copy(to_tensor([predicted_state]))[0] # QUESTION: why is an actor copy needed if were not updating the weights of the agent
+        value_of_plan_action = agent.value_of(state, plan_action) # QUESTION: why is this one outside the torch.no_grad(), but the other is
         with torch.no_grad():
-            replan_q = agent.value_of(state, replan_action)
-        plan_action = predpolicy(ft([pred_state]))[0]
-        plan_q = agent.value_of(state, plan_action)
-        diff = replan_q - plan_q
-        losses.append(diff)
-        if len(losses) == 32: # QUESTION: what is this 32? minibatch_size? or is the statement checking if training-mode vs testing-mode?
+            value_of_replan_action = agent.value_of(state, replan_action)
+        loss = value_of_replan_action - value_of_plan_action
+        
+        losses.append(loss)
+        if len(losses) >= config.train_predictive.weight_update_frequency:
             optimizer.zero_grad()
             loss = torch.stack(losses).mean()
             loss.backward()
             optimizer.step()
             losses = []
 
-        if diff.item() > epsilon:
+        if to_pure(loss) > epsilon:
             break
-        new_plan.append((pred_state, plan_action))
+        
+        new_plan.append((predicted_state, plan_action))
+        # BOOKMARK: check this, seems fishy
         state = dynamics(state, plan_action)
         # for the stats... keep track of the forecast of this action
         forecast[k] = forecast[k + 1] + 1
@@ -111,7 +136,7 @@ def replan(
 
     # produce new plan (replan)
     for i in range(k, forecast_horizon):
-        action = predpolicy(ft([state]))[0]
+        action = actor_copy(ft([state]))[0]
         new_plan.append((state, action))
         with torch.no_grad():
             state = dynamics(state, action)
@@ -125,17 +150,17 @@ def experience(
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
-    predpolicy,
+    actor_copy,
     dynamics: DynamicsModel,
     env,
     optimizer,
 ):
     episode_forecast = []
-    rewards = []
-    empty_plan = []
-    zero_forecasts = np.zeros(forecast_horizon, np.int8)
+    rewards          = []
+    empty_plan       = []
+    zero_forecasts   = np.zeros(forecast_horizon, np.int8)
+    
     state = env.reset()
-    done = False
     plan, forecasts = replan(
         state,
         empty_plan,
@@ -144,10 +169,11 @@ def experience(
         forecast_horizon,
         action_size,
         agent,
-        predpolicy,
+        actor_copy,
         dynamics,
         optimizer,
     )
+    done = False
     while not done:
         action = plan[0][1]
         episode_forecast.append(forecasts[0])
@@ -161,19 +187,18 @@ def experience(
             forecast_horizon,
             action_size,
             agent,
-            predpolicy,
+            actor_copy,
             dynamics,
             optimizer,
         )
     return rewards, episode_forecast
-
 
 def test_afrl(
     epsilons: List[float],
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
-    predpolicy,
+    actor_copy,
     dynamics: DynamicsModel,
     n_experiments: int,
     env,
@@ -192,7 +217,7 @@ def test_afrl(
                 horizon,
                 action_size,
                 agent,
-                predpolicy,
+                actor_copy,
                 dynamics,
                 env,
                 optimizer,
@@ -215,10 +240,10 @@ def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
     env = config.get_env(env_name)
     
     action_size = env.action_space.shape[0]
-    predpolicy  = deepcopy(agent.policy)
-    optimizer   = Adam(predpolicy.parameters(), lr=0.0001)
+    actor_copy       = deepcopy(agent.policy)
+    optimizer   = Adam(actor_copy.parameters(), lr=0.0001) # QUESTION: why does the actor need an optimizer?
 
-    # predpolicy.load_state_dict(torch.load(f'data/models/agents/predpolicy/{env_name}.pt'))
+    # actor_copy.load_state_dict(torch.load(f'data/models/agents/actor_copy/{env_name}.pt'))
 
     print("Gamma:", agent.gamma)
 
@@ -227,7 +252,7 @@ def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
         forecast_horizon,
         action_size,
         agent,
-        predpolicy,
+        actor_copy,
         dynamics,
         n_experiments,
         env,
