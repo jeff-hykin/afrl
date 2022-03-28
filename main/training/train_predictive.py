@@ -14,8 +14,8 @@ from tqdm import tqdm
 import file_system_py as FS
 
 from info import path_to, config
-from main.training.train_agent import load_agent
-from main.training.train_dynamics import DynamicsModel, load_dynamics
+from main.training.train_agent import Agent
+from main.training.train_dynamics import DynamicsModel
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
 
 settings = config.gym_env_settings
@@ -30,8 +30,8 @@ def replan(
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
-    predpolicy,
     dynamics: DynamicsModel,
+    predpolicy,
     optimizer,
 ):
     global losses
@@ -164,11 +164,10 @@ def test_afrl(
 
 
 def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
+    dynamics = DynamicsModel.load_default_for(env_name)
+    agent    = dynamics.agent
     env = config.get_env(env_name)
-    agent    = load_agent(env_name)
-    dynamics = load_dynamics(env, agent)
-
-    dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
+    
     action_size = env.action_space.shape[0]
     predpolicy  = deepcopy(agent.policy)
     optimizer   = Adam(predpolicy.parameters(), lr=0.0001)

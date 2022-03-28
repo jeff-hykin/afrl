@@ -8,17 +8,36 @@ from trivial_torch_tools import to_tensor, init, convert_each_arg
 from info import path_to, config
 
 class Agent(SAC):
-    # @classmethod
-    # def load_agent_for(env_name):
-    #     pass
-    
+    # 
+    # load
+    # 
+    @classmethod
+    def load_default_for(cls, env_name, *, load_previous_weights=True):
+        if load_previous_weights:
+            return Agent.load(
+                path_to.agent_model_for(env_name),
+                config.get_env(env_name),
+                device=config.device,
+            )
+        else:
+            return Agent(
+                "MlpPolicy",
+                env_name,
+                device=config.device,
+                verbose=2,
+            )
+
+    # add freeze methods (for when DynamicsModel uses agent)
     @init.add_frozen_methods()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    
+    # this is for freeze()
     def children(self):
         return [self.critic, self.actor]
     
+    # 
+    # predict
+    # 
     def predict(self, state, **kwargs):
         """
             state: np.array().shape = (2,)
@@ -28,14 +47,18 @@ class Agent(SAC):
             state = state.detach()
         return super().predict(state, **kwargs)
     
+    # 
     # Actor Policy
+    # 
     def make_decision(self, state, deterministic=True):
         state = to_tensor(state).to(self.device)
         # must use forward instead of predict to preserve tensor tracking
         actions = self.actor.forward(state, deterministic=deterministic)
         return actions
     
+    # 
     # Q function
+    # 
     @convert_each_arg.to_batched_tensor(number_of_dimensions=2)
     def value_of(self, state, action):
         """
@@ -50,47 +73,30 @@ class Agent(SAC):
         q, _ = torch.min(q, dim=1, keepdim=True)
         return q
     
-    # def Q(agent, state: np.ndarray, action: np.ndarray):
-    #     if torch.is_tensor(action):
-    #         action = torch.unsqueeze(action, 0).to(config.device)
-    #     else:
-    #         action = ft([action])
-    #     q = torch.cat(agent.critic_target(ft([state]), action), dim=1)
-    #     q, _ = torch.min(q, dim=1, keepdim=True)
-    #     return q
+    # alternative Q functions found in the code:
+        # def Q(agent, state: np.ndarray, action: np.ndarray):
+        #     if torch.is_tensor(action):
+        #         action = torch.unsqueeze(action, 0).to(config.device)
+        #     else:
+        #         action = ft([action])
+        #     q = torch.cat(agent.critic_target(ft([state]), action), dim=1)
+        #     q, _ = torch.min(q, dim=1, keepdim=True)
+        #     return q
 
-    # def Q(agent, state: np.ndarray, action: np.ndarray):
-    #     state = ft([state]).to(agent.device)
-    #     action = ft([action]).to(agent.device)
-    #     with torch.no_grad():
-    #         q = torch.cat(agent.critic_target(state, action), dim=1)
-    #     q, _ = torch.min(q, dim=1, keepdim=True)
-    #     return q.item()
+        # def Q(agent, state: np.ndarray, action: np.ndarray):
+        #     state = ft([state]).to(agent.device)
+        #     action = ft([action]).to(agent.device)
+        #     with torch.no_grad():
+        #         q = torch.cat(agent.critic_target(state, action), dim=1)
+        #     q, _ = torch.min(q, dim=1, keepdim=True)
+        #     return q.item()
     
-def load_agent(env_name):
-    if "Humanoid" in env_name:
-        agent_path = path_to.file.humanoid_agent_model
-    else:
-        agent_path = path_to.agent_model_for(env_name)
-    
-    return Agent.load(
-        agent_path,
-        config.get_env(env_name),
-        device=config.device,
-    )
 
 # 
 # train
 # 
 if __name__ == '__main__':
     for env_name in config.env_names:
-        Agent(
-            "MlpPolicy",
-            env_name,
-            device=config.device,
-            verbose=2
-        ).learn(
-            config.train_agent.iterations
-        ).save(
-            path_to.agent_model_for(env_name)
-        )
+        agent = Agent.load_default_for(env_name, load_previous_weights=False)
+        agent.learn(config.train_agent.iterations)
+        agent.save(path_to.agent_model_for(env_name))

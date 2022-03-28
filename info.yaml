@@ -31,11 +31,15 @@
             #    I don't think there's any computational savings as we should already have best_next_value
             
     tasks/questions:
-        - read the paper
-        - rerun everything and evaluate new loss
-        - check: difference between testing/training loss
+        - temp:
+            - when is dynamics.forward used? (why does it have no_grad)
+        - todo: read the paper
+        - todo: change the dynamics testing loss to match the training
+        - question: why does dynamics.forward have no_grad
+        - question: what should the env_settings be for the 5 non-lunar lander env's
+        - question: whats the difference between train_afrl.py and train_predpolicy.py
+        - question: whats the difference between the different Q functions
         - check: maybe use torch.no_grad for parts of the loss (when running data through agent)
-        - ask about env_settings for the 5 non-lunar lander env's
         - problem: SAC doesn't have a pytorch-trackable method (can't be used in a loss function)
 
     # a central place for filepaths
@@ -44,8 +48,6 @@
             agent_models: "./data/models/agents/"
             dynamics_models: "./data/models/dynamics/"
             results: "./data/results"
-        file:
-            humanoid_agent_model: "./log/best_model.zip"
 
     (local_data): ./local_data.ignore.yaml
     (profiles):

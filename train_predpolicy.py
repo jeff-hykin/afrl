@@ -11,23 +11,19 @@ from torch.optim.adam import Adam
 from tqdm import tqdm
 
 from info import path_to, config
-from main.training.train_agent import load_agent
-from main.training.train_dynamics import DynamicsModel, load_dynamics
+from main.training.train_agent import Agent
+from main.training.train_dynamics import DynamicsModel
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
 
 env_name = "LunarLanderContinuous-v2"
-agent = load_agent(env_name)
-env = config.get_env(env_name)
 
-dynamics = load_dynamics(env)
+dynamics = DynamicsModel.load_default_for(env_name)
+agent    = dynamics.agent
+env      = config.get_env(env_name)
 
 # todo: Seed with SAC policy
 predpolicy = deepcopy(agent.policy)
 optimizer = Adam(predpolicy.parameters(), lr=0.0001)
-
-dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
-
-
 
 
 def predict_future_state(state, horizon):
@@ -36,7 +32,6 @@ def predict_future_state(state, horizon):
         action = agent.predict(state, deterministic=False)[0]
         state = dynamics.forward(state, action)
     return state
-
 
 def train(horizon, n_episodes):
     pred_states = []

@@ -12,8 +12,8 @@ from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from tqdm import tqdm
 
 from info import path_to, config
-from main.training.train_agent import load_agent
-from main.training.train_dynamics import load_dynamics, DynamicsModel
+from main.training.train_agent import Agent
+from main.training.train_dynamics import DynamicsModel
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
 
 settings = config.gym_env_settings
@@ -128,13 +128,11 @@ def test_afrl(
 
 
 def main(env_name, n_experiments=1, forecast_horizon=1, deltas=[0]):
-    env = config.get_env(env_name)
-    agent = load_agent(env_name)
-    dynamics = load_dynamics(env, agent)
-
-    dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
+    dynamics = DynamicsModel.load_default_for(env_name)
+    agent    = dynamics.agent
+    env      = config.get_env(env_name)
+    
     action_size = env.action_space.shape[0]
-    # agent.gamma = 0.95
     print("Gamma:", agent.gamma)
 
     return test_afrl(
