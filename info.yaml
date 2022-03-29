@@ -38,15 +38,12 @@
         - note: epsilon plays a very different role now because its about how much worse the action is. If the actions were very different but had approximately the same value then planning will be viewed as successful
         - check: what if the prediction is only good because it doesn't matter what the agent does at those timesteps
     tasks/questions:
-        - temp:
-            - when is dynamics.forward used? (why does it have no_grad)
-        - todo: read the paper
-        - todo: change the dynamics testing loss to match the training
+        - todo: read the paper more
         - question: why does dynamics.forward have no_grad
+        - question: why set deterministic=True, and then sample from normal curve (dynamics experience function)
         - question: what should the env_settings be for the 5 non-lunar lander env's
         - question: whats the difference between train_afrl.py and train_predpolicy.py
         - question: whats the difference between the different Q functions
-        - question: why set deterministic=True, and then sample from normal curve (dynamics experience function)
         - check: maybe use torch.no_grad for parts of the loss (when running data through agent)
         - check: whats going on with the forecast indicies
         - problem: SAC doesn't have a pytorch-trackable method (can't be used in a loss function)
