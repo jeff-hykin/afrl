@@ -74,7 +74,7 @@ class DynamicsModel(nn.Module):
         # used for batch predictions
         # expecting observations and actions to be on device
         # returns the predictions still on the device
-        return self.model(torch.cat((observations, actions), -1).to(self.device))
+        return self.model(torch.cat((observations, actions), -1))
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")

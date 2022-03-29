@@ -30,13 +30,18 @@
             #    bad they are, while they're being measured against the Q val
             #    I don't think there's any computational savings as we should already have best_next_value
     meeting updates:
-        - found another inline loss
-        - found main issue, the inline loss was using an actor copy, and the copy wasnt being frozen
-        - found core issue, how states are being sequentially predicted
-        - train_afrl seems to only update the actor, not the dynamics. Cant tell if thats intentional
-        - note: afrl is never saved as a model even though it is trained
-        - note: epsilon plays a very different role now because its about how much worse the action is. If the actions were very different but had approximately the same value then planning will be viewed as successful
-        - check: what if the prediction is only good because it doesn't matter what the agent does at those timesteps
+        - two things:
+            - 1. found lots of problems:
+                - found another inline loss
+                - found main issue, the inline loss was using an actor copy, and the copy wasnt being frozen
+                - found core issue, how states are being sequentially predicted
+                - Kicker1: train_afrl seems to only update the actor, not the dynamics. Cant tell if thats intentional
+                - Kicker2: afrl is never saved as a model even though it is trained
+            - 2. found lots of solutions:
+                - could track grading across predicted losses (avoiding no_grad)
+                - alternative forecast loss (in train_predictive)
+                - note: either way epsilon plays a very different role now because its about how much worse the action is. If the actions were very different but had approximately the same value then planning will be viewed as successful
+                - check: what if the prediction is only good because it doesn't matter what the agent does at those timesteps (all actions equal value). This is fine for behavior, but might misleadingly make horizon very big
     tasks/questions:
         - todo: read the paper more
         - question: why does dynamics.forward have no_grad
@@ -44,9 +49,8 @@
         - question: what should the env_settings be for the 5 non-lunar lander env's
         - question: whats the difference between train_afrl.py and train_predpolicy.py
         - question: whats the difference between the different Q functions
-        - check: maybe use torch.no_grad for parts of the loss (when running data through agent)
+        - task: redo the dynamics.forward and .predict method (predict shouldnt have gradient tracking and forward should)
         - check: whats going on with the forecast indicies
-        - problem: SAC doesn't have a pytorch-trackable method (can't be used in a loss function)
 
     # a central place for filepaths
     (path_to):
