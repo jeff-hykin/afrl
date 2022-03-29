@@ -262,5 +262,3 @@ if __name__ == "__main__":
                 )
             )
         )
-        # print(df.groupby('epsilon').forecast.mean())
-        # print((df.groupby('epsilon').discounted_rewards.mean() - envs[env]['min']) / (envs[env]['max'] - envs[env]['min']))
