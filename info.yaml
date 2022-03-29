@@ -72,7 +72,7 @@
                 number_of_epochs: 100
                 train_test_split: 0.7
                 minibatch_size: 32
-                loss_function: value_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss" <- each is a method on class DynamicsModel
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss" <- each is a method on class DynamicsModel
             train_predictive:
                 weight_update_frequency: 32 # every 32 replan iterations
                 initial_horizon_size: 5
@@ -84,7 +84,7 @@
                     actor_copy_learning_rate: 0.0001
                     max_score: 70  # discounted ep reward
                     min_score: -100
-                    horizons: # maps "epsilon coefficients" to horizons
+                    horizons: # acceptability threshold (epsilon) => forecast length (horizon)
                         0.001: 5
                         0.0025: 5
                         0.005: 10
