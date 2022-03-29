@@ -216,6 +216,7 @@ def main(
     forecast_horizons     = list(settings.horizons.values())
     sccore_range          = settings.max_score - settings.min_score
     epsilons              = sccore_range * np.array(multipliers)
+    predictor.agent.gamma = settings.agent_gamma
 
     # define return value
     data = LazyDict(
