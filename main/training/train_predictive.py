@@ -177,9 +177,8 @@ def experience(
             forecast[forecast_index] = forecast[forecast_index+1] + 1 # for the stats... keep track of the forecast of this action
         
         #
-        # produce new plan (replan)
+        # for the part that wasnt in the old plan
         #
-        # QUESTION: is this replaning only specific parts? (e.g. why are there two loops both of which append to new_plan)
         for index in range(forecast_index, forecast_horizon):
             action = get_actor_copy_action_for(state)
             new_plan.append((state, action))
