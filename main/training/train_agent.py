@@ -101,5 +101,5 @@ if __name__ == '__main__':
         agent = Agent.load_default_for(env_name, load_previous_weights=False)
         agent.learn(config.train_agent.iterations)
         agent.save(
-            FS.clear_a_path_for(path_to.agent_model_for(env_name), overwrite=true)
+            FS.clear_a_path_for(path_to.agent_model_for(env_name), overwrite=True)
         )
