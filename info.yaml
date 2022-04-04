@@ -9,45 +9,20 @@
             - Larger forcast (the avergage length of predictions that were correct)
             - Rewards that are most similar to the optimial policy (green line in .ipynb graph)
         - What is the main loss function?: |
-            # given agent, coach, state, action, next_state
+            there's a few, and they're defined in main/training/train_dynamics.py on the DynamicsModel class
             
-            predicted_next_state  = coach.predict_state(state, action)
-            predicted_next_action = agent.choose_action(predicted_next_state)
-            predicted_next_value  = agent.value_estimate(next_state, predicted_next_action)
-            
-            best_next_action = agent.choose_action(next_state)
-            best_next_value = agent.value_estimate(next_state, best_next_action)
-            
-            coach.loss = best_next_value - predicted_next_value # when predicted_next_value is high, loss is low (negative)
-            
-            # which in theory, when differentiated simplifies to
-            - predicted_next_value
-            # TODO: I'm not yet convinced the simplification works.
-            # => Yes best_next_value is constant for a single update step of the coach
-            #    but with best_next_value changing and a replay buffer 
-            #    I'm inclined to think it would be safer to compute/store the difference
-            #    particularly for plotting the losses on a graph to see how 
-            #    bad they are, while they're being measured against the Q val
-            #    I don't think there's any computational savings as we should already have best_next_value
-    meeting updates:
-        - two things:
-            - 1. found lots of problems:
-                - found another inline loss
-                - found main issue, the inline loss was using an actor copy, and the copy wasnt being frozen
-                - found core issue, how states are being sequentially predicted
-                - Kicker1: train_afrl seems to only update the actor, not the dynamics. Cant tell if thats intentional
-                - Kicker2: afrl is never saved as a model even though it is trained
-            - 2. found lots of solutions:
-                - could track grading across predicted losses (avoiding no_grad)
-                - alternative forecast loss (in train_predictive)
-                - note: either way epsilon plays a very different role now because its about how much worse the action is. If the actions were very different but had approximately the same value then planning will be viewed as successful
-                - check: what if the prediction is only good because it doesn't matter what the agent does at those timesteps (all actions equal value). This is fine for behavior, but might misleadingly make horizon very big
     tasks/questions:
+        - question: what should the env_settings be for the 5 non-lunar lander env's
+        - question:
+            for predpolicy inside of train_afrl:
+                - why is it a copy of the actor?
+                - why is it being trained?
+                - why is it not saved?
         - question: why set deterministic=True, and then sample from normal curve (dynamics experience function)
         - question: whats the difference between train_afrl.py and train_predpolicy.py
-        - todo: read the paper more
         - question: why does dynamics.forward have no_grad
-        - question: what should the env_settings be for the 5 non-lunar lander env's
+        
+        - todo: read the paper more
         - question: whats the difference between the different Q functions
         - task: redo the dynamics.forward and .predict method (predict shouldnt have gradient tracking and forward should)
         - check: whats going on with the forecast indicies
