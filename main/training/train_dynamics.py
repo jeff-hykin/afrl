@@ -10,10 +10,9 @@ from torch.optim import Adam
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure
 
-from mlp import mlp
 from info import path_to, config
 from main.training.train_agent import Agent
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward
 
 minibatch_size = config.train_dynamics.minibatch_size
 
@@ -34,8 +33,8 @@ class DynamicsModel(nn.Module):
         dynamics = DynamicsModel(
             obs_dim=env.observation_space.shape[0],
             act_dim=env.action_space.shape[0],
-            hidden_sizes=[64, 64, 64, 64],
-            lr=0.0001,
+            hidden_sizes=gym_env_settings[env_name].dynamics.hidden_sizes,
+            learning_rate=gym_env_settings[env_name].dynamics.learning_rate,
             agent=agent,
             device=config.device,
         )
@@ -45,15 +44,15 @@ class DynamicsModel(nn.Module):
     
     # init
     @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
-    def __init__(self, obs_dim, act_dim, hidden_sizes, lr, device, agent, **kwargs):
+    def __init__(self, obs_dim, act_dim, hidden_sizes, learning_rate, device, agent, **kwargs):
         super().__init__()
-        self.learning_rate = lr
+        self.learning_rate = learning_rate
         self.device        = device
         self.obs_dim       = obs_dim
         self.act_dim       = act_dim
         self.agent         = agent
         self.which_loss    = config.train_dynamics.loss_function
-        self.model = mlp([obs_dim + act_dim, *hidden_sizes, obs_dim], nn.ReLU).to(self.device)
+        self.model = feed_forward(layer_sizes=[obs_dim + act_dim, *hidden_sizes, obs_dim], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
     
     @convert_each_arg.to_tensor()
