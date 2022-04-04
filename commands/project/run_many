@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-commands/project/run_all "state_loss_2" 'env_names:["LunarLanderContinuous-v2"]' train_dynamics:loss_style:batched loss_function:state_prediction_loss
-commands/project/run_all "state_loss_2" 'env_names:["MountainCarContinuous-v0"]' train_dynamics:loss_style:batched loss_function:state_prediction_loss
-commands/project/run_all "coach_loss_1" 'env_names:["LunarLanderContinuous-v2"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
-commands/project/run_all "coach_loss_1" 'env_names:["MountainCarContinuous-v0"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
-commands/project/run_all "coach_loss_2" 'env_names:["LunarLanderContinuous-v2"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
-commands/project/run_all "coach_loss_2" 'env_names:["MountainCarContinuous-v0"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
+commands/project/run_all data/logs/state_loss_2/LunarLanderContinuous-v2  experiment_name:state_loss_2 'env_names:["LunarLanderContinuous-v2"]' train_dynamics:loss_style:batched loss_function:state_prediction_loss
+commands/project/run_all data/logs/coach_loss_1/LunarLanderContinuous-v2  experiment_name:coach_loss_1 'env_names:["LunarLanderContinuous-v2"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
+commands/project/run_all data/logs/coach_loss_2/LunarLanderContinuous-v2  experiment_name:coach_loss_2 'env_names:["LunarLanderContinuous-v2"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
+
+commands/project/run_all data/logs/state_loss_2/MountainCarContinuous-v0  experiment_name:state_loss_2 'env_names:["MountainCarContinuous-v0"]' train_dynamics:loss_style:batched loss_function:state_prediction_loss
+commands/project/run_all data/logs/coach_loss_1/MountainCarContinuous-v0  experiment_name:coach_loss_1 'env_names:["MountainCarContinuous-v0"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
+commands/project/run_all data/logs/coach_loss_2/MountainCarContinuous-v0  experiment_name:coach_loss_2 'env_names:["MountainCarContinuous-v0"]' train_dynamics:loss_style:timestep loss_function:consistent_coach_loss
