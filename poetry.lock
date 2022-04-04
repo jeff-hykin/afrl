@@ -187,7 +187,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "file-system-py"
-version = "0.0.3"
+version = "0.0.4"
 description = "All-in-one file manipulation"
 category = "main"
 optional = false
@@ -1090,7 +1090,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"
-content-hash = "cc31edd8c687d5f945cb76b649d0881f02f8db02387e7b89377360605ae159c8"
+content-hash = "7e8051a1a0ba9cd1e7abcb11df04f4259a72a3ee8b30dc7d978cc3efd9753f05"
 
 [metadata.files]
 appnope = [
@@ -1248,8 +1248,8 @@ ez-yaml = [
     {file = "ez_yaml-1.2.0.tar.gz", hash = "sha256:563d6b6d096e353b673d7884d779d3ea37a20377a4acc70e18ee2dcb95deacbe"},
 ]
 file-system-py = [
-    {file = "file_system_py-0.0.3-py3-none-any.whl", hash = "sha256:3e45e9d006bc6a24f20112beccbc65c8df5a6eba48537d777d6392a03a3f99f5"},
-    {file = "file_system_py-0.0.3.tar.gz", hash = "sha256:64c61c94512a0e52e37098bb3bcceb6033efbaf9781366f6b2f5e0497bb44e8d"},
+    {file = "file_system_py-0.0.4-py3-none-any.whl", hash = "sha256:22ded8709facd9e76d9d34a7cec929c6f03c11ebee2610338ec340e001a946e3"},
+    {file = "file_system_py-0.0.4.tar.gz", hash = "sha256:58f485ea03f8da5776431768898437036e7526a495307832e93420560f28a248"},
 ]
 fonttools = [
     {file = "fonttools-4.31.2-py3-none-any.whl", hash = "sha256:2df636a3f402ef14593c6811dac0609563b8c374bd7850e76919eb51ea205426"},

@@ -31,7 +31,8 @@
         folder:
             agent_models: "./data/models/agents/"
             dynamics_models: "./data/models/dynamics/"
-            results: "./data/results"
+            results: "./data/results/"
+            visuals: "./visuals/"
 
     (local_data): ./local_data.ignore.yaml
     (profiles):

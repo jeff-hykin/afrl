@@ -24,3 +24,8 @@ echo ""
 echo "Running Train AFRL"
 echo ""
 python main/training/train_predictive.py 2>&1 | tee "$main_log_file" "$train_predictive_log_file"
+
+echo ""
+echo "Creating plots"
+echo ""
+python main/scripts/generate_training_graphs.py
