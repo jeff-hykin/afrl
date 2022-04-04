@@ -125,11 +125,7 @@ def experience(
             return predictor.agent.value_of(state, action)
         
         def get_predicted_next_state(state, action):
-            with torch.no_grad():
-                predicted_next_state = to_numpy(
-                    predictor.dynamics.model.forward(torch.cat((to_tensor(state), to_tensor(action)), -1))
-                )
-                return predicted_next_state
+            return predictor.dynamics.predict(state, action)
         
         def run_backprop_if_ready():
             if len(loss_batch) >= config.train_predictive.weight_update_frequency:

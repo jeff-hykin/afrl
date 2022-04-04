@@ -30,7 +30,7 @@ def predict_future_state(state, horizon):
     for _ in range(horizon):
         # BOOKMARK: why the new loss does poorly
         action = agent.predict(state, deterministic=False)[0]
-        state = dynamics.forward(state, action)
+        state = dynamics.predict(state, action)
     return state
 
 def train(horizon, n_episodes):

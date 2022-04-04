@@ -13,7 +13,7 @@ from trivial_torch_tools.generics import to_pure
 from mlp import mlp
 from info import path_to, config
 from main.training.train_agent import Agent
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy
 
 minibatch_size = config.train_dynamics.minibatch_size
 
@@ -70,11 +70,10 @@ class DynamicsModel(nn.Module):
 
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def predict(self, observations: torch.Tensor, actions: torch.Tensor):
-        # used for batch predictions
-        # expecting observations and actions to be on device
-        # returns the predictions still on the device
-        return self.model(torch.cat((observations, actions), -1))
+    def predict(self, obs: np.ndarray, act: np.ndarray):
+        with torch.no_grad():
+            next_observation = self.model(torch.cat((obs, act), -1))
+        return to_numpy(next_observation)
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
@@ -89,7 +88,7 @@ class DynamicsModel(nn.Module):
         action = inital_action
         with self.agent.frozen() as agent:
             for each in range(length):
-                predicted_state = self.predict(state, action)
+                predicted_state = self.real_forward(state, action)
                 predicted_action = agent.make_decision(state)
                 predictions.append(tuple(predicted_state, predicted_action))
                 state = predicted_state
@@ -154,7 +153,7 @@ class DynamicsModel(nn.Module):
         return torch.stack(losses).mean()
     
     def value_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = self.predict(state, action)
+        predicted_next_state   = self.real_forward(state, action)
         
         predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
         predicted_next_value  = self.agent.value_of(next_state, predicted_next_action)
@@ -164,7 +163,7 @@ class DynamicsModel(nn.Module):
         return (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
     
     def action_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = self.predict(state, action)
+        predicted_next_state   = self.real_forward(state, action)
         
         predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
         best_next_action = self.agent.make_decision(next_state, deterministic=True)
@@ -172,7 +171,7 @@ class DynamicsModel(nn.Module):
         return ((best_next_action - predicted_next_action) ** 2).mean() # when action is very different, loss is high
         
     def state_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state = self.predict(state, action)
+        predicted_next_state = self.real_forward(state, action)
         
         actual = predicted_next_state
         expected = next_state
