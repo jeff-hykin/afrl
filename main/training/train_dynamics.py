@@ -12,7 +12,7 @@ from trivial_torch_tools.generics import to_pure
 
 from info import path_to, config
 from main.training.train_agent import Agent
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
 
 minibatch_size = config.train_dynamics.minibatch_size
 
@@ -54,6 +54,7 @@ class DynamicsModel(nn.Module):
         self.which_loss    = config.train_dynamics.loss_function
         self.model = feed_forward(layer_sizes=[obs_dim + act_dim, *hidden_sizes, obs_dim], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
+        self.losses = []
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
@@ -89,51 +90,79 @@ class DynamicsModel(nn.Module):
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def testing_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
+    def timestep_testing_loss(self, indices: int, step_data: tuple):
+        self.eval() # testing mode
+        loss_function = getattr(self, self.which_loss)
+        loss = loss_function(indices, step_data)
+        return to_pure(loss)
+    
+    @convert_each_arg.to_tensor()
+    @convert_each_arg.to_device(device_attribute="device")
+    def batch_testing_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
         self.eval() # testing mode
         loss_function = getattr(self, self.which_loss)
         loss = loss_function(state_batch, action_batch, next_state_batch)
         return to_pure(loss)
         
+    def timestep_training_loss(self, indices: int, step_data: tuple):
+        self.train() # training mode
+        loss_function = getattr(self, self.which_loss)
+        
+        self.agent.freeze()
+        loss = loss_function(indices, step_data)
+        
+        # Optimize the self model
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        
+        self.agent.unfreeze()
+        return loss
+    
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def training_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
+    def batch_training_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
         self.train() # training mode
         loss_function = getattr(self, self.which_loss)
         self.agent.freeze()
         loss = loss_function(state_batch, action_batch, next_state_batch)
-        self.agent.unfreeze()
         
         # Optimize the self model
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
 
+        self.agent.unfreeze()
         return loss
     
     # 
     # Loss function options
     # 
-    
-    def consistent_coach_loss(self, timesteps: TimestepSeries):
-        step = timesteps[-1]
-        value_prediction_loss = self.value_prediction_loss(step.prev_state, step.action, step.state)
-        # need multiple to penalize the future
-        if len(timesteps) == 1:
-            return value_prediction_loss
+    def consistent_coach_loss(self, indices: int, step_data: tuple):
+        losses = []
+        for index in indices:
+            # need multiple to penalize the future
+            if index < 1:
+                continue
+            
+            state1, action1, state2 = step_data[index]
+            value_prediction_loss = self.value_prediction_loss(state1, action1, state2)
+            losses.append(value_prediction_loss)
+            
+            state1, action1, state2 = step_data[index-1]
+            state2, action2, state3 = step_data[index-0]
+            
+            # TODO: check how this is going to effect vectorization/batches
+            once_predicted_state2  = self.forward(state1               , action1)
+            twice_predicted_state3 = self.forward(once_predicted_state2, action2)
+            once_predicted_state3  = self.forward(state2               , action2)
+            
+            future_loss = (once_predicted_step3_state - twice_predicted_state3)**2
+            losses.append(future_loss)
         
-        step1 = timesteps[-2]
-        step2 = timesteps[-1]
-        
-        # TODO: check how this is going to effect vectorization/batches
-        once_predicted_step2_state  = self.forward(step1.prev_state,      step1.action)
-        twice_predicted_step3_state = self.forward(predicted_step2_state, step2.action)
-        once_predicted_step3_state  = self.forward(step2.prev_state,      step2.action)
-        
-        future_loss = (once_predicted_step3_state - twice_predicted_state3)**2
         # FIXME: there is a problem here, which is that these losses may be on totally different scales
         #       some kind of coefficent (ideal self-tuning coefficient) is needed here
-        return future_loss + value_prediction_loss
+        return torch.stack(losses).mean()
     
     def timestep_loss(self, timesteps):
         predictions = self.create_forcast(observation, inital_action, len(timesteps.steps))
@@ -198,7 +227,52 @@ def experience(env, agent, n_episodes):
 
     return episodes, all_actions, all_curr_states, all_next_states
 
-def train(env_name, n_episodes=100, n_epochs=100):
+def train_timesteps(env_name, n_episodes=100, n_epochs=100):
+    dynamics = DynamicsModel.load_default_for(env_name, load_previous_weights = False)
+    agent    = dynamics.agent
+    env      = config.get_env(env_name)
+
+    # Get experience from trained agent
+    episodes, all_actions, all_curr_states, all_next_states = experience(env, agent, n_episodes)
+    print(f'''Starting Train/Test''')
+    states      = to_tensor(all_curr_states)
+    actions     = to_tensor(all_actions)
+    next_states = to_tensor(all_next_states)
+
+    (
+        (train_states     , test_states     ),
+        (train_actions    , test_actions    ),
+        (train_next_states, test_next_states),
+    ) = train_test_split(
+        states,
+        actions,
+        next_states,
+        split_proportion=config.train_dynamics.train_test_split,
+    )
+    
+    training_data = tuple(zip(train_states, train_actions, train_next_states))
+    testing_data  = tuple(zip(test_states , test_actions , test_next_states ))
+    
+    for epochs_index in range(n_epochs):
+        # 
+        # training
+        # 
+        train_losses = []
+        for indicies in bundle(range(len(training_data)), bundle_size=minibatch_size):
+            # a size-of-one bundle would break one of the loss functions
+            if len(indices) < 2:
+                continue
+            train_losses.append(dynamics.timestep_training_loss(indicies, training_data))
+        # 
+        # testing
+        # 
+        test_loss = dynamics.timestep_testing_loss(range(len(training_data)), testing_data)
+        
+        print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
+
+    torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
+
+def train_batches(env_name, n_episodes=100, n_epochs=100):
     dynamics = DynamicsModel.load_default_for(env_name, load_previous_weights = False)
     agent    = dynamics.agent
     env      = config.get_env(env_name)
@@ -227,12 +301,12 @@ def train(env_name, n_episodes=100, n_epochs=100):
         # 
         train_losses = []
         for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
-            train_losses.append(dynamics.training_loss(state_batch, action_batch, next_state_batch))
+            train_losses.append(dynamics.batch_training_loss(state_batch, action_batch, next_state_batch))
         
         # 
         # testing
         # 
-        test_loss = dynamics.testing_loss(test_states, test_actions, test_next_states)
+        test_loss = dynamics.batch_testing_loss(test_states, test_actions, test_next_states)
         
         print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
 
@@ -246,7 +320,7 @@ if __name__ == '__main__':
         print(f"Training for {each_env_name}")
         print(f"")
         print(f"")
-        train(
+        train_timesteps(
             each_env_name,
             n_episodes=config.train_dynamics.number_of_episodes,
             n_epochs=config.train_dynamics.number_of_epochs,

@@ -30,6 +30,17 @@ def minibatch(batch_size, *data):
     for batch_ind in divide_chunks(indices, batch_size):
         yield [datum[batch_ind] for datum in data]
 
+def bundle(iterable, bundle_size):
+    next_bundle = []
+    for each in iterable:
+        next_bundle.append(each)
+        if len(next_bundle) >= bundle_size:
+            yield tuple(next_bundle)
+            next_bundle = []
+    # return any half-made bundles
+    if len(next_bundle) > 0:
+        yield tuple(next_bundle)
+
 def ft(arg):
     from torch import FloatTensor
     from info import config
