@@ -25,7 +25,6 @@
         - todo: read the paper more
         - question: whats the difference between the different Q functions
         - task: redo the dynamics.forward and .predict method (predict shouldnt have gradient tracking and forward should)
-        - check: whats going on with the forecast indicies
 
     # a central place for filepaths
     (path_to):
