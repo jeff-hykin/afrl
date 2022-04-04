@@ -320,8 +320,17 @@ if __name__ == '__main__':
         print(f"Training for {each_env_name}")
         print(f"")
         print(f"")
-        train_timesteps(
-            each_env_name,
-            n_episodes=config.train_dynamics.number_of_episodes,
-            n_epochs=config.train_dynamics.number_of_epochs,
-        )
+        if config.train_dynamics.loss_style == "timestep":
+            train_timesteps(
+                each_env_name,
+                n_episodes=config.train_dynamics.number_of_episodes,
+                n_epochs=config.train_dynamics.number_of_epochs,
+            )
+        elif config.train_dynamics.loss_style == "batched":
+            train_batches(
+                each_env_name,
+                n_episodes=config.train_dynamics.number_of_episodes,
+                n_epochs=config.train_dynamics.number_of_epochs,
+            )
+        else:
+            raise Exception(f'''unknown config.train_dynamics.loss_style: {config.train_dynamics.loss_style}''')

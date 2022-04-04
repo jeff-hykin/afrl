@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+experiment_name="$1"
+shift
+
 log_folder="data/logs/$1/"
 main_log_file="$log_folder/recent.log"
 train_agent_log_file="$log_folder/train_agent.log"
@@ -12,20 +15,20 @@ rm -f  "$train_agent_log_file" "$train_dynamics_log_file" "$train_predictive_log
 echo ""
 echo "Running Train Agent"
 echo ""
-python main/training/train_agent.py -- experiment_name:$1 2>&1 | tee "$main_log_file" "$train_agent_log_file"
+python main/training/train_agent.py -- experiment_name:$experiment_name "$@" 2>&1 | tee "$main_log_file" "$train_agent_log_file"
 
 echo ""
 echo "Running Train Dynamics"
 echo ""
-python main/training/train_dynamics.py -- experiment_name:$1 2>&1 | tee "$main_log_file" "$train_dynamics_log_file"
+python main/training/train_dynamics.py -- experiment_name:$experiment_name "$@" 2>&1 | tee "$main_log_file" "$train_dynamics_log_file"
 
 
 echo ""
 echo "Running Train AFRL"
 echo ""
-python main/training/train_predictive.py -- experiment_name:$1 2>&1 | tee "$main_log_file" "$train_predictive_log_file"
+python main/training/train_predictive.py -- experiment_name:$experiment_name "$@" 2>&1 | tee "$main_log_file" "$train_predictive_log_file"
 
 echo ""
 echo "Creating plots"
 echo ""
-python main/scripts/generate_training_graphs.py -- experiment_name:$1
+python main/scripts/generate_training_graphs.py -- experiment_name:$experiment_name "$@"
