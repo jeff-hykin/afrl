@@ -83,7 +83,14 @@ class TimestepSeries:
         else:
             return None
     
-    def add(self, prev_state, action, reward, state):
+    def add(self, prev_state, action=None, reward=None, state=None):
+        # if timestep, pull all the data out of the timestep
+        if isinstance(prev_state, Timestep):
+            action = prev_state.action
+            reward = prev_state.reward
+            state = prev_state.state
+            prev_state = prev_state.prev_state
+            
         self.index += 1
         self.steps.append(Timestep(self.index, prev_state, action, reward, state))
     
