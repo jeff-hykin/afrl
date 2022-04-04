@@ -99,6 +99,9 @@ class TimestepSeries:
         """
         return ((each.index, each.prev_state, each.action, each.reward, each.state) for each in self.steps)
     
+    def __len__(self):
+        return len(self.steps)
+        
     def __getitem__(self, key):
         time_slice = TimestepSeries()
         time_slice.index = self.index

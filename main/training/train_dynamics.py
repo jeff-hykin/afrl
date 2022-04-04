@@ -13,7 +13,7 @@ from trivial_torch_tools.generics import to_pure
 from mlp import mlp
 from info import path_to, config
 from main.training.train_agent import Agent
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries
 
 minibatch_size = config.train_dynamics.minibatch_size
 
@@ -123,6 +123,26 @@ class DynamicsModel(nn.Module):
     # 
     # Loss function options
     # 
+    
+    def consistent_coach_loss(self, timesteps: TimestepSeries):
+        step = timesteps[-1]
+        value_prediction_loss = self.value_prediction_loss(step.prev_state, step.action, step.state)
+        # need multiple to penalize the future
+        if len(timesteps) == 1:
+            return value_prediction_loss
+        
+        step1 = timesteps[-2]
+        step2 = timesteps[-1]
+        
+        # TODO: check how this is going to effect vectorization/batches
+        once_predicted_step2_state  = self.real_forward(step1.prev_state,      step1.action)
+        twice_predicted_step3_state = self.real_forward(predicted_step2_state, step2.action)
+        once_predicted_step3_state  = self.real_forward(step2.prev_state,      step2.action)
+        
+        future_loss = (once_predicted_step3_state - twice_predicted_state3)**2
+        # FIXME: there is a problem here, which is that these losses may be on totally different scales
+        #       some kind of coefficent (ideal self-tuning coefficient) is needed here
+        return future_loss + value_prediction_loss
     
     def timestep_loss(self, timesteps):
         predictions = self.create_forcast(observation, inital_action, len(timesteps.steps))

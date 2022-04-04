@@ -256,7 +256,7 @@ if __name__ == "__main__":
         
         # export to CSV
         pd.DataFrame(data).explode("forecast").to_csv(
-            FS.ensure_folder_exists(
+            FS.ensure_is_folder(
                 FS.parent_folder(
                     f"{path_to.folder.results}/{env_name}/experiments.csv"
                 )
