@@ -2,6 +2,7 @@
 import numpy as np
 import torch
 import gym
+import file_system_py as FS
 from stable_baselines3 import SAC
 from trivial_torch_tools import to_tensor, init, convert_each_arg
 
@@ -99,4 +100,6 @@ if __name__ == '__main__':
     for env_name in config.env_names:
         agent = Agent.load_default_for(env_name, load_previous_weights=False)
         agent.learn(config.train_agent.iterations)
-        agent.save(path_to.agent_model_for(env_name))
+        agent.save(
+            FS.clear_a_path_for(path_to.agent_model_for(env_name), overwrite=true)
+        )
