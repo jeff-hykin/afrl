@@ -36,6 +36,7 @@
     (local_data): ./local_data.ignore.yaml
     (profiles):
         (default):
+            experiment_name: null
             mode: development
             force_cpu: false
             env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]

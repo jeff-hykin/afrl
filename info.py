@@ -14,6 +14,12 @@ path_to               = info.path_to               # a dictionary of paths relat
 absolute_path_to      = info.absolute_path_to      # same dictionary of paths, but made absolute
 
 # 
+# get experiment name
+# 
+if not config.experiment_name:
+    raise Exception(f'''Please give an experiment name\nex:\n    python thing.py -- experiment_name:test1\n''')
+
+# 
 # set torch device
 # 
 import torch
@@ -32,9 +38,10 @@ for each_name in path_to.folder:
 # 
 # functional paths
 # 
-path_to.agent_model_for    = lambda env_name: f"{path_to.folder.agent_models}/{env_name}"
-path_to.dynamics_model_for = lambda env_name: f"{path_to.folder.dynamics_models}/{env_name}.pt"
-path_to.experiment_csv_for = lambda env_name: f"{path_to.folder.results}/{env_name}/experiments.csv"
+path_to.agent_model_for           = lambda env_name: f"{path_to.folder.agent_models}/{config.experiment_name}/{env_name}"
+path_to.dynamics_model_for        = lambda env_name: f"{path_to.folder.dynamics_models}/{config.experiment_name}/{env_name}.pt"
+path_to.experiment_csv_for        = lambda env_name: f"{path_to.folder.results}/{config.experiment_name}/{env_name}/experiments.csv"
+path_to.experiment_visuals_folder = lambda env_name: f"{path_to.folder.results}/{config.experiment_name}/{env_name}/"
 
 # 
 # env lookup
