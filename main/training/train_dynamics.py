@@ -58,14 +58,7 @@ class DynamicsModel(nn.Module):
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def forward(self, obs: np.ndarray, act: np.ndarray):
-        with torch.no_grad(): # QUESTION: this seems really strange, is a different forward-like method called when training the DynamicsModel?
-            next_observation = self.model(torch.cat((obs, act), -1))
-        return next_observation.cpu().numpy()
-    
-    @convert_each_arg.to_tensor()
-    @convert_each_arg.to_device(device_attribute="device")
-    def real_forward(self, state_batch, action_batch):
+    def forward(self, state_batch, action_batch):
         return self.model.forwards(torch.cat((state_batch, action_batch), -1))
 
     @convert_each_arg.to_tensor()
@@ -88,7 +81,7 @@ class DynamicsModel(nn.Module):
         action = inital_action
         with self.agent.frozen() as agent:
             for each in range(length):
-                predicted_state = self.real_forward(state, action)
+                predicted_state = self.forward(state, action)
                 predicted_action = agent.make_decision(state)
                 predictions.append(tuple(predicted_state, predicted_action))
                 state = predicted_state
@@ -134,9 +127,9 @@ class DynamicsModel(nn.Module):
         step2 = timesteps[-1]
         
         # TODO: check how this is going to effect vectorization/batches
-        once_predicted_step2_state  = self.real_forward(step1.prev_state,      step1.action)
-        twice_predicted_step3_state = self.real_forward(predicted_step2_state, step2.action)
-        once_predicted_step3_state  = self.real_forward(step2.prev_state,      step2.action)
+        once_predicted_step2_state  = self.forward(step1.prev_state,      step1.action)
+        twice_predicted_step3_state = self.forward(predicted_step2_state, step2.action)
+        once_predicted_step3_state  = self.forward(step2.prev_state,      step2.action)
         
         future_loss = (once_predicted_step3_state - twice_predicted_state3)**2
         # FIXME: there is a problem here, which is that these losses may be on totally different scales
@@ -153,7 +146,7 @@ class DynamicsModel(nn.Module):
         return torch.stack(losses).mean()
     
     def value_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = self.real_forward(state, action)
+        predicted_next_state   = self.forward(state, action)
         
         predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
         predicted_next_value  = self.agent.value_of(next_state, predicted_next_action)
@@ -163,7 +156,7 @@ class DynamicsModel(nn.Module):
         return (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
     
     def action_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = self.real_forward(state, action)
+        predicted_next_state   = self.forward(state, action)
         
         predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
         best_next_action = self.agent.make_decision(next_state, deterministic=True)
@@ -171,7 +164,7 @@ class DynamicsModel(nn.Module):
         return ((best_next_action - predicted_next_action) ** 2).mean() # when action is very different, loss is high
         
     def state_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state = self.real_forward(state, action)
+        predicted_next_state = self.forward(state, action)
         
         actual = predicted_next_state
         expected = next_state
