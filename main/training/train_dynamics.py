@@ -33,8 +33,8 @@ class DynamicsModel(nn.Module):
         dynamics = DynamicsModel(
             obs_dim=env.observation_space.shape[0],
             act_dim=env.action_space.shape[0],
-            hidden_sizes=gym_env_settings[env_name].dynamics.hidden_sizes,
-            learning_rate=gym_env_settings[env_name].dynamics.learning_rate,
+            hidden_sizes=config.gym_env_settings[env_name].dynamics.hidden_sizes,
+            learning_rate=config.gym_env_settings[env_name].dynamics.learning_rate,
             agent=agent,
             device=config.device,
         )
