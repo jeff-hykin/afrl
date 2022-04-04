@@ -255,6 +255,6 @@ if __name__ == "__main__":
         )
         
         # export to CSV
-        csv_path = f"{path_to.folder.results}/{env_name}/experiments.csv"
-        FS.ensure_is_folder(FS.parent_folder(csv_path)
+        csv_path = path_to.experiment_csv_for(env_name)
+        FS.ensure_is_folder(FS.parent_folder(csv_path))
         pd.DataFrame(data).explode("forecast").to_csv(csv_path)
