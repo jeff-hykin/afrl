@@ -48,6 +48,7 @@
                 number_of_epochs: 100
                 train_test_split: 0.7
                 minibatch_size: 32
+                loss_style: batched  # "timestep" or "batched" # loss functions are compatible with one or the other
                 loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class DynamicsModel
             train_predictive:
                 weight_update_frequency: 32 # every 32 replan iterations
