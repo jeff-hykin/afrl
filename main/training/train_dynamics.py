@@ -157,7 +157,7 @@ class DynamicsModel(nn.Module):
             twice_predicted_state3 = self.forward(once_predicted_state2, action2)
             once_predicted_state3  = self.forward(state2               , action2)
             
-            future_loss = (once_predicted_step3_state - twice_predicted_state3)**2
+            future_loss = (once_predicted_state3 - twice_predicted_state3)**2
             losses.append(future_loss)
         
         # FIXME: there is a problem here, which is that these losses may be on totally different scales
@@ -165,7 +165,7 @@ class DynamicsModel(nn.Module):
         return torch.stack(losses).mean()
     
     def timestep_loss(self, timesteps):
-        predictions = self.create_forcast(observation, inital_action, len(timesteps.steps))
+        predictions = self.create_forcast(timesteps.steps[0].prev_state, timesteps.steps[0].action, len(timesteps.steps))
         losses = []
         for (predicted_next_state, predicted_action), real in zip(predictions, timesteps.steps):
             predicted_value = self.agent.value_of(real.next_state, predicted_action)
@@ -260,7 +260,7 @@ def train_timesteps(env_name, n_episodes=100, n_epochs=100):
         train_losses = []
         for indicies in bundle(range(len(training_data)), bundle_size=minibatch_size):
             # a size-of-one bundle would break one of the loss functions
-            if len(indices) < 2:
+            if len(indicies) < 2:
                 continue
             train_losses.append(dynamics.timestep_training_loss(indicies, training_data))
         # 

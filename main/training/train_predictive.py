@@ -62,10 +62,10 @@ class PredictiveTest():
         # 
         self.dynamics            = DynamicsModel.load_default_for(env_name)
         self.dynamics.which_loss = "timestep_loss"
-        self.agent               = dynamics.agent
+        self.agent               = self.dynamics.agent
         self.env                 = config.get_env(env_name)
     
-    def run(self, env_name, number_of_epochs):
+    def run(self, number_of_epochs):
         for epoch_index in range(number_of_epochs):
             self.timesteps = TimestepSeries()
             next_state = self.env.reset()
