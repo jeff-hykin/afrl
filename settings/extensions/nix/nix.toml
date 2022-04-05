@@ -41,8 +41,7 @@
 
 
 [[packages]]
-load = [ "nvidia-docker",]
-from = "860b56be91fb874d48e23a950815969a7b832fbc"
+load = [ "screen",]
 
 [[packages]]
 load = [ "docker",]

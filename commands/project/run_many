@@ -13,3 +13,9 @@
 
 commands/project/run_all data/logs/state_loss_1/AntBulletEnv-v0  experiment_name:state_loss_1 'env_names:["AntBulletEnv-v0"]' train_dynamics:loss_style:batched train_dynamics:loss_function:state_prediction_loss
 commands/project/run_all data/logs/coach_loss_1/AntBulletEnv-v0  experiment_name:coach_loss_1 'env_names:["AntBulletEnv-v0"]' train_dynamics:loss_style:timestep train_dynamics:loss_function:consistent_coach_loss
+
+commands/project/run_all data/logs/state_loss_1/BipedalWalker-v3  experiment_name:state_loss_1 'env_names:["BipedalWalker-v3"]' train_dynamics:loss_style:batched train_dynamics:loss_function:state_prediction_loss
+commands/project/run_all data/logs/coach_loss_1/BipedalWalker-v3  experiment_name:coach_loss_1 'env_names:["BipedalWalker-v3"]' train_dynamics:loss_style:timestep train_dynamics:loss_function:consistent_coach_loss
+
+commands/project/run_all data/logs/state_loss_1/HalfCheetahBulletEnv-v0  experiment_name:state_loss_1 'env_names:["HalfCheetahBulletEnv-v0"]' train_dynamics:loss_style:batched train_dynamics:loss_function:state_prediction_loss
+commands/project/run_all data/logs/coach_loss_1/HalfCheetahBulletEnv-v0  experiment_name:coach_loss_1 'env_names:["HalfCheetahBulletEnv-v0"]' train_dynamics:loss_style:timestep train_dynamics:loss_function:consistent_coach_loss
