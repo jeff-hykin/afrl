@@ -98,6 +98,10 @@ class Agent(SAC):
 # 
 if __name__ == '__main__':
     for env_name in config.env_names:
+        # skip already-trained ones
+        if FS.exists(path_to.agent_model_for(env_name)+".zip"):
+            print(f'''model exists: {path_to.agent_model_for(env_name)}''')
+            continue
         agent = Agent.load_default_for(env_name, load_previous_weights=False)
         agent.learn(config.train_agent.iterations)
         agent.save(
