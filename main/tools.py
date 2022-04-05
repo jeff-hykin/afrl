@@ -64,6 +64,7 @@ def train_test_split(*args, split_proportion):
 
 from torch import nn
 def feed_forward(layer_sizes, activation=nn.Tanh, output_activation=nn.Identity):
+    from trivial_torch_tools import Sequential
     layers = []
     for index in range(len(layer_sizes) - 1):
         activation_class = activation if index < len(layer_sizes) - 2 else output_activation
@@ -71,7 +72,7 @@ def feed_forward(layer_sizes, activation=nn.Tanh, output_activation=nn.Identity)
             nn.Linear(layer_sizes[index], layer_sizes[index + 1]),
             activation_class(),
         ]
-    return nn.Sequential(*layers)
+    return Sequential(*layers)
 
 from dataclasses import dataclass, field
 @dataclass

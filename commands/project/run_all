@@ -14,18 +14,24 @@ rm -f  "$train_agent_log_file" "$train_dynamics_log_file" "$train_predictive_log
 echo ""
 echo "Running Train Agent"
 echo ""
+echo "start: $(date)" >> "$train_agent_log_file.times"
 python main/training/train_agent.py -- "$@" 2>&1 | tee "$main_log_file" "$train_agent_log_file"
+echo "end: $(date)" >> "$train_agent_log_file.times"
 
 echo ""
 echo "Running Train Dynamics"
 echo ""
+echo "start: $(date)" >> "$train_dynamics_log_file.times"
 python main/training/train_dynamics.py -- "$@" 2>&1 | tee "$main_log_file" "$train_dynamics_log_file"
+echo "end: $(date)" >> "$train_dynamics_log_file.times"
 
 
 echo ""
 echo "Running Train AFRL"
 echo ""
+echo "start: $(date)" >> "$train_predictive_log_file.times"
 python main/training/train_predictive.py -- "$@" 2>&1 | tee "$main_log_file" "$train_predictive_log_file"
+echo "end: $(date)" >> "$train_predictive_log_file.times"
 
 echo ""
 echo "Creating plots"

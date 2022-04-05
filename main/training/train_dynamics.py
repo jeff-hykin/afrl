@@ -5,6 +5,7 @@ import gym
 import numpy as np
 import stable_baselines3 as sb
 import torch
+import file_system_py as FS
 from torch import nn
 from torch.optim import Adam
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
@@ -59,7 +60,7 @@ class DynamicsModel(nn.Module):
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
     def forward(self, state_batch, action_batch):
-        return self.model.forwards(torch.cat((state_batch, action_batch), -1))
+        return self.model.forward(torch.cat((state_batch, action_batch), -1))
 
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
@@ -88,9 +89,7 @@ class DynamicsModel(nn.Module):
                 action = predicted_action
         return predictions
     
-    @convert_each_arg.to_tensor()
-    @convert_each_arg.to_device(device_attribute="device")
-    def timestep_testing_loss(self, indices: int, step_data: tuple):
+    def timestep_testing_loss(self, indices: list, step_data: tuple):
         self.eval() # testing mode
         loss_function = getattr(self, self.which_loss)
         loss = loss_function(indices, step_data)
@@ -104,7 +103,7 @@ class DynamicsModel(nn.Module):
         loss = loss_function(state_batch, action_batch, next_state_batch)
         return to_pure(loss)
         
-    def timestep_training_loss(self, indices: int, step_data: tuple):
+    def timestep_training_loss(self, indices: list, step_data: tuple):
         self.train() # training mode
         loss_function = getattr(self, self.which_loss)
         
@@ -138,7 +137,7 @@ class DynamicsModel(nn.Module):
     # 
     # Loss function options
     # 
-    def consistent_coach_loss(self, indices: int, step_data: tuple):
+    def consistent_coach_loss(self, indices: list, step_data: tuple):
         losses = []
         for index in indices:
             # need multiple to penalize the future
@@ -146,7 +145,7 @@ class DynamicsModel(nn.Module):
                 continue
             
             state1, action1, state2 = step_data[index]
-            value_prediction_loss = self.value_prediction_loss(state1, action1, state2)
+            value_prediction_loss = self.value_prediction_loss([state1], [action1], [state2])
             losses.append(value_prediction_loss)
             
             state1, action1, state2 = step_data[index-1]
@@ -157,7 +156,7 @@ class DynamicsModel(nn.Module):
             twice_predicted_state3 = self.forward(once_predicted_state2, action2)
             once_predicted_state3  = self.forward(state2               , action2)
             
-            future_loss = (once_predicted_state3 - twice_predicted_state3)**2
+            future_loss = ((once_predicted_state3 - twice_predicted_state3)**2).mean()
             losses.append(future_loss)
         
         # FIXME: there is a problem here, which is that these losses may be on totally different scales
@@ -173,6 +172,7 @@ class DynamicsModel(nn.Module):
             losses.append(actual_value - predicted_value)
         return torch.stack(losses).mean()
     
+    @convert_each_arg.to_tensor()
     def value_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state   = self.forward(state, action)
         
@@ -266,11 +266,11 @@ def train_timesteps(env_name, n_episodes=100, n_epochs=100):
         # 
         # testing
         # 
-        test_loss = dynamics.timestep_testing_loss(range(len(training_data)), testing_data)
+        test_loss = dynamics.timestep_testing_loss(range(len(testing_data)), testing_data)
         
         print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
-
-    torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
+    
+    torch.save(dynamics.state_dict(), FS.clear_a_path_for(path_to.dynamics_model_for(env_name), overwrite=True))
 
 def train_batches(env_name, n_episodes=100, n_epochs=100):
     dynamics = DynamicsModel.load_default_for(env_name, load_previous_weights = False)
@@ -310,7 +310,7 @@ def train_batches(env_name, n_episodes=100, n_epochs=100):
         
         print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
 
-    torch.save(dynamics.state_dict(), path_to.dynamics_model_for(env_name))
+    torch.save(dynamics.state_dict(), FS.clear_a_path_for(path_to.dynamics_model_for(env_name), overwrite=True))
 
 
 if __name__ == '__main__':

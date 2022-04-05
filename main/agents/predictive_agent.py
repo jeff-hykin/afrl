@@ -79,7 +79,7 @@ class CoachModel(nn.Module):
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="hardware")
     def forward(self, state_batch, action_batch):
-        return self.model.forwards(torch.cat((state_batch, action_batch), -1))
+        return self.model.forward(torch.cat((state_batch, action_batch), -1))
 
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="hardware")
@@ -243,7 +243,7 @@ class PredictiveAgent(Skeleton):
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device()
     def predict_state(self, state_batch, action_batch):
-        return self.coach.model.forwards(torch.cat((state_batch, action_batch), -1))
+        return self.coach.model.forward(torch.cat((state_batch, action_batch), -1))
     
     
     # 
