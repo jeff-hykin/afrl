@@ -99,107 +99,60 @@ def experience(
 ):
     episode_forecast = []
     rewards          = []
-    loss_batch       = []
+    empty_plan       = []
     state            = predictor.env.reset()
     forecast         = np.zeros(forecast_horizon+1, np.int8)
-    
-    # main helper
-    def replan(intial_state: NDArray, old_plan: NDArray,):
+    def replan(
+        intial_state: NDArray,
+        old_plan: NDArray,
+    ):
         nonlocal forecast
-        # 
-        # inner helpers
-        # 
-        def get_actor_action_for(state):
-            action, _ = predictor.agent.predict(state, deterministic=True)
-            return action 
         
-        def get_actor_copy_action_for(state):
-            action = predictor.actor_copy(to_tensor([state]))[0]
-            return action 
+        actor_action_for = lambda state: predictor.agent.predict(state, deterministic=True)[0]
         
-        def without_grad_get_value(state, action):
-            with torch.no_grad():
-                return predictor.agent.value_of(state, action)
-        
-        def with_grad_get_value(state, action):
-            return predictor.agent.value_of(state, action)
-        
-        def get_predicted_next_state(state, action):
-            return predictor.dynamics.predict(state, action)
-        
-        def run_backprop_if_ready():
-            if len(loss_batch) >= config.train_predictive.weight_update_frequency:
-                predictor.actor_copy_optimizer.zero_grad()
-                loss = torch.stack(loss_batch).mean()
-                loss.backward()
-                predictor.actor_copy_optimizer.step()
-                loss_batch.clear()
-        
-        # 
-        # replan core
-        # 
         new_plan = []
 
-        state = intial_state
-        future_plan = old_plan[1:] # reuse old plan (recycle)
         forecast_index = 0
-        for forecast_index, (predicted_state, planned_action) in enumerate(future_plan):
+        expected_state = initial_state
+        future_plan = old_plan[1:] # reuse old plan (recycle)
+        for forecast_index, action in enumerate(future_plan):
             # 
-            # inline loss
+            # stopping criteria
             # 
-            replan_action = get_actor_action_for(     state)
-            plan_action   = get_actor_copy_action_for(state) # QUESTION: why actor copy (predpolicy) and not actor (agent)?
-            value_of_plan_action   = with_grad_get_value(   state, plan_action  )
-            value_of_replan_action = without_grad_get_value(state, replan_action) # QUESTION: why only this one without grad
-            loss = how_much_better_was_replanned_action = value_of_replan_action - value_of_plan_action
-            
-            # backprop
-            loss_batch.append(loss)
-            run_backprop_if_ready()
-            
-            # exit condition
-            if to_pure(loss) > epsilon:
+            replan_action = actor_action_for(expected_state)
+            replan_q = predictor.agent.value_of(expected_state, replan_action)
+            plan_q   = predictor.agent.value_of(expected_state, action)
+            # if the planned action is significantly worse, then fail
+            if plan_q + epsilon < replan_q:
                 break
             
-            new_plan.append((predicted_state, plan_action))
-            # BOOKMARK: check this (the no_grad in the function call)
-            # #seems like it could be problematic (expanded from DynamicsModel.forward)
-            state = get_predicted_next_state(state, plan_action) # note use of plan_action
-            # the likely reason this no_grad is here is 
-            # so that future states can be predicted 
-            # without penalizing the first one for +2 timestep-loss, +3 timestep loss, +4 timestep loss, etc
-            # just generate the state, then redo +1 timestep-loss only
-            # except I cant find anywhere with grad for the dynamics model
-            forecast[forecast_index] = forecast[forecast_index+1] + 1 # for the stats... keep track of the forecast of this action
-        
+            # 
+            # compute next-step 
+            # 
+            expected_state = predictor.dynamics.predict(expected_state, action)
+            forecast[forecast_index] = forecast[forecast_index + 1] + 1 # for the stats... keep track of the forecast of this action
+            new_plan[forecast_index] = action
+
         #
         # for the part that wasnt in the old plan
         #
         for index in range(forecast_index, forecast_horizon):
-            action = get_actor_copy_action_for(state)
-            new_plan.append((state, action))
-            
-            state = get_predicted_next_state(state, action)
-            # # Below is what used to be ^
-            # with torch.no_grad(): # this is a double-no-grad cause there's already a no-grad inside dynamics.forward()
-            #     state = dynamics(state, action)
+            action = actor_action_for(expected_state)
+            expected_state = predictor.dynamics.predict(expected_state, action)
+            new_plan[index] = action
             forecast[index] = 0
 
         return new_plan, forecast
     
-    # 
-    # runtime
-    # 
     plan, forecast = replan(state, [])
     done = False
     while not done:
-        predicted_state, action = plan[0]
-        episode_forecast.append(forecast[0])
+        action = plan[0]
+        episode_forecast.append(forecasts[0])
         state, reward, done, _ = predictor.env.step(to_numpy(action))
         rewards.append(reward)
-        plan, forecast = replan(state, plan,)
+        plan, forecasts = replan(state, plan,)
     return rewards, episode_forecast
-
 
 def main(
     settings: LazyDict,
