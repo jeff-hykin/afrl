@@ -33,14 +33,16 @@ Example look at the `info.yaml` file:
             
             ###stuff###
             
-            train_agent:
-                iterations: 100000
+            train_dynamics:
+                number_of_epochs: 100
 ```
 
-Lets change the iterations from `100000` to `500000` in the command line.
+Lets change the iterations from `100` to `500` in the command line.
 
 ```sh
-python main/main.py -- experiment_name:experiment2 train_agent:iterations:500000
+python main/main.py -- \
+    experiment_name:experiment2 \
+    train_dynamics:number_of_epochs:500
 ```
 
 Thats all there is too it. Works with lists, strings and more advanced types. <br>
