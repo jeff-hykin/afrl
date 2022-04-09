@@ -1,6 +1,8 @@
 import os
 from types import FunctionType
 from typing import List
+from copy import deepcopy
+from dataclasses import dataclass
 
 import gym
 import numpy as np
@@ -9,20 +11,28 @@ import stable_baselines3 as sb
 import torch
 from nptyping import NDArray
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
+from torch.optim.adam import Adam
 from tqdm import tqdm
+import file_system_py as FS
+from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
+from trivial_torch_tools.generics import to_pure, flatten
+from super_map import LazyDict
+from simple_namespace import namespace
 
 from info import path_to, config
 from main.training.train_agent import Agent
 from main.training.train_dynamics import DynamicsModel
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft
+from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 
 settings = config.gym_env_settings
+
+
 
 def replan(
     state: NDArray,
     old_plan: NDArray,
     forecast: List[int],
-    delta: float,
+    epsilon: float,
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
@@ -38,7 +48,7 @@ def replan(
             replan_action = agent.predict(state, deterministic=True)[0]
             replan_q = agent.value_of(state, replan_action)
             plan_q = agent.value_of(state, action)
-            if plan_q + delta < replan_q:
+            if plan_q + epsilon < replan_q:
                 break
             new_plan[k] = action
             state = dynamics(state, action)
@@ -57,49 +67,8 @@ def replan(
     return new_plan, forecast
 
 
-def experience(
-    delta: float,
-    forecast_horizon: int,
-    action_size: int,
-    agent: OffPolicyAlgorithm,
-    dynamics: DynamicsModel,
-    env,
-):
-    episode_forecast = []
-    rewards = []
-    empty_plan = []
-    zero_forecasts = np.zeros(forecast_horizon, np.int8)
-    state = env.reset()
-    done = False
-    plan, forecasts = replan(
-        state,
-        empty_plan,
-        zero_forecasts,
-        delta,
-        forecast_horizon,
-        action_size,
-        agent,
-        dynamics,
-    )
-    while not done:
-        action = plan[0]
-        episode_forecast.append(forecasts[0])
-        state, reward, done, _ = env.step(action)
-        rewards.append(reward)
-        plan, forecasts = replan(
-            state,
-            plan,
-            forecasts,
-            delta,
-            forecast_horizon,
-            action_size,
-            agent,
-            dynamics,
-        )
-    return rewards, episode_forecast
-
 def test_afrl(
-    deltas: List[float],
+    epsilons: List[float],
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
@@ -107,27 +76,27 @@ def test_afrl(
     n_experiments: int,
     env,
 ):
-    cols = ["delta", "rewards", "discounted_rewards", "forecast"]
+    cols = ["epsilon", "rewards", "discounted_rewards", "forecast"]
     if isinstance(forecast_horizon, list):
-        assert len(forecast_horizon) == len(deltas)
+        assert len(forecast_horizon) == len(epsilons)
     else:
-        forecast_horizon = [forecast_horizon] * len(deltas)
+        forecast_horizon = [forecast_horizon] * len(epsilons)
     df = pd.DataFrame(columns=cols)
-    for delta, horizon in zip(deltas, forecast_horizon):
+    for epsilon, horizon in zip(epsilons, forecast_horizon):
         for _ in tqdm(range(n_experiments), disable=True):
             rewards, forecast = experience(
-                delta, horizon, action_size, agent, dynamics, env
+                epsilon, horizon, action_size, agent, dynamics, env
             )
             v = get_discounted_rewards(rewards, agent.gamma)
             df = df.append(
-                dict(zip(cols, [delta, sum(rewards), v, forecast[horizon:]])),
+                dict(zip(cols, [epsilon, sum(rewards), v, forecast[horizon:]])),
                 ignore_index=True,
             )
-            print(delta, np.mean([np.mean(x) for x in df[df.delta == delta].forecast]))
+            print(epsilon, np.mean([np.mean(x) for x in df[df.epsilon == epsilon].forecast]))
     return df
 
 
-def main(env_name, n_experiments=1, forecast_horizon=1, deltas=[0]):
+def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
     dynamics = DynamicsModel.load_default_for(env_name)
     agent    = dynamics.agent
     env      = config.get_env(env_name)
@@ -136,7 +105,7 @@ def main(env_name, n_experiments=1, forecast_horizon=1, deltas=[0]):
     print("Gamma:", agent.gamma)
 
     return test_afrl(
-        deltas, forecast_horizon, action_size, agent, dynamics, n_experiments, env
+        epsilons, forecast_horizon, action_size, agent, dynamics, n_experiments, env
     )
 
 
@@ -149,12 +118,12 @@ def get_results_folder():
 if __name__ == "__main__":
     env = "LunarLanderContinuous-v2"
     multipliers = np.array([0.001, 0.0025, 0.005, 0.0075, 0.01])
-    deltas = (settings[env]["max_score"] - settings[env]["min_score"]) * multipliers
+    epsilons = (settings[env]["max_score"] - settings[env]["min_score"]) * multipliers
     horizons = [settings[env]["horizons"][mult] for mult in multipliers]
-    df = main(env, 20, horizons, deltas=deltas)
+    df = main(env, 20, horizons, epsilons=epsilons)
     df = df.explode("forecast")
     print(df)
     results_folder = get_results_folder()
     df.to_csv(f"{results_folder}/{env}/experiments.csv")
-    # print(df.groupby('delta').forecast.mean())
-    # print((df.groupby('delta').discounted_rewards.mean() - envs[env]['min']) / (envs[env]['max'] - envs[env]['min']))
+    # print(df.groupby('epsilon').forecast.mean())
+    # print((df.groupby('epsilon').discounted_rewards.mean() - envs[env]['min']) / (envs[env]['max'] - envs[env]['min']))

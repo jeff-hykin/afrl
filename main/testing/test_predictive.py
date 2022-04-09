@@ -34,63 +34,7 @@ class PredictorEnv:
     env                  = None
     dynamics             = None
     agent                = None
-    actor_copy           = None
-    actor_copy_optimizer = None
-    
-    # default values:
-    def __init__(self, **kwargs):
-        for name, value in kwargs.items(): setattr(self, name, value)
-        if self.env_name:
-            if not self.env                  : self.env                  = config.get_env(self.env_name)
-            if not self.dynamics             : self.dynamics             = DynamicsModel.load_default_for(self.env_name)
-            if not self.agent                : self.agent                = self.dynamics.agent
-            if not self.actor_copy           : self.actor_copy           = deepcopy(self.agent.policy)
-            if not self.actor_copy_optimizer : self.actor_copy_optimizer = Adam(self.actor_copy.parameters(), lr=config.gym_env_settings[self.env_name].actor_copy_learning_rate) 
 
-class PredictiveTest():
-
-    def __init__(self, env_name):
-        self.timesteps = TimestepSeries()
-        self.horizon = config.train_predictive.initial_horizon_size
-        self.loss_threshold = config.train_predictive.loss_threshold
-        self.record = LazyDict(
-            losses=[],
-            horizons=[],
-        )
-        # 
-        # load models
-        # 
-        self.dynamics            = DynamicsModel.load_default_for(env_name)
-        self.dynamics.which_loss = "timestep_loss"
-        self.agent               = self.dynamics.agent
-        self.env                 = config.get_env(env_name)
-    
-    def run(self, number_of_epochs):
-        for epoch_index in range(number_of_epochs):
-            self.timesteps = TimestepSeries()
-            next_state = self.env.reset()
-            done = False
-            while not done:
-                state = next_state
-                action = self.agent.make_decision(state)
-                next_state, reward, done, _ = self.env.step(to_pure(action))
-                self.timesteps.add(state, action, reward, next_state)
-                self.check_forecast()
-    
-    def check_forecast(self):
-        # "what would have been predicted X horizon ago"
-        if len(self.timesteps.steps) > self.horizon:
-            time_slice = self.timesteps[-self.horizon:]
-            loss = self.dynamics.training_loss(time_slice)
-            self.record.losses.append(to_pure(loss))
-            self.record.horizons.append(self.horizon)
-            self.update_horizon()
-    
-    def update_horizon(self):
-        if self.record.losses[-1] < self.loss_threshold:
-            self.horizon -= 1
-        else:
-            self.horizon += 1
 
 def experience(
     epsilon: float,
@@ -195,15 +139,18 @@ def main(
             print(epsilon, grand_average_forecast)
     return data
 
-if __name__ == "__main__":
-    for env_name in config.env_names:
-        # compute data
-        data = main(
-            settings=config.gym_env_settings[env_name],
-            predictor=PredictorEnv(env_name=env_name),
-        )
-        
-        # export to CSV
-        csv_path = path_to.experiment_csv_for(env_name)
-        FS.ensure_is_folder(FS.parent_folder(csv_path))
-        pd.DataFrame(data).explode("forecast").to_csv(csv_path)
+def run_test(env_name, dynamics, csv_path):
+    # compute data
+    data = main(
+        settings=config.gym_env_settings[env_name],
+        predictor=PredictorEnv(
+            env_name=env_name,
+            dynamics=dynamics,
+            agent=dynamics.agent,
+        ),
+    )
+    
+    # export to CSV
+    FS.clear_a_path_for(csv_path, overwrite=True)
+    pd.DataFrame(data).explode("forecast").to_csv(csv_path)
+    return data

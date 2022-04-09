@@ -4,7 +4,13 @@ Everything is detailed in the `documentation/setup.md`!
 
 # Running Code
 
-- first, `python main/training/train_agent.py` to train the actor and critic
-- then, run `python main/training/train_dynamics.py` to train the dynamics model
-- finally, `python main/training/train_predictive.py` to train the predictive policy
-- plot the results with `plot_results.ipynb`
+- Run `python main/main.py -- experiment_name:experiment1` to 
+    - train the actor, critic
+    - followed by training the coach
+    - followed by testing them
+    - followed by running analysis, which saves images to the data/visuals folder
+
+
+To customize it, look at the `info.yaml` file. Find where it has `(default):` and all those are parameters that can be overridden.
+
+For example, lets change the number of training epochs for the coach (aka dynamics). <br>

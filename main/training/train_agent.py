@@ -13,6 +13,28 @@ class Agent(SAC):
     # load
     # 
     @classmethod
+    def smart_load(cls, env_name, *, path, iterations=config.train_agent.iterations, force_retrain=config.train_agent.force_retrain):
+        # skip already-trained ones
+        if not force_retrain:
+            if FS.exists(path+".zip"):
+                print(f'''model exists: {path}.zip, loading that instead of training it''')
+                return Agent.load(
+                    path,
+                    config.get_env(env_name),
+                    device=config.device,
+                )
+        
+        print(f'''training agent from scratch: {path}.zip''')
+        # train and return
+        agent = Agent("MlpPolicy", env_name, device=config.device, verbose=2,)
+        agent.learn(iterations)
+        agent.save(FS.clear_a_path_for(path_to.agent_model_for(env_name), overwrite=True))
+        return agent
+            
+    # 
+    # load
+    # 
+    @classmethod
     def load_default_for(cls, env_name, *, load_previous_weights=True):
         if load_previous_weights:
             return Agent.load(
@@ -91,19 +113,3 @@ class Agent(SAC):
         #         q = torch.cat(agent.critic_target(state, action), dim=1)
         #     q, _ = torch.min(q, dim=1, keepdim=True)
         #     return q.item()
-    
-
-# 
-# train
-# 
-if __name__ == '__main__':
-    for env_name in config.env_names:
-        # skip already-trained ones
-        if FS.exists(path_to.agent_model_for(env_name)+".zip"):
-            print(f'''model exists: {path_to.agent_model_for(env_name)}''')
-            continue
-        agent = Agent.load_default_for(env_name, load_previous_weights=False)
-        agent.learn(config.train_agent.iterations)
-        agent.save(
-            FS.clear_a_path_for(path_to.agent_model_for(env_name), overwrite=True)
-        )

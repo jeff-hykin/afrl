@@ -43,7 +43,10 @@
             env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
             train_agent:
                 iterations: 100000
+                force_retrain: false
+                model_name: sac_default_1
             train_dynamics:
+                force_retrain: false
                 number_of_episodes: 20
                 number_of_epochs: 100
                 train_test_split: 0.7

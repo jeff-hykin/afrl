@@ -28,30 +28,53 @@ class DynamicsModel(nn.Module):
     # load
     # 
     @classmethod
-    def load_default_for(cls, env_name, *, load_previous_weights=True, agent_load_previous_weights=True):
+    def smart_load(cls,
+        env_name,
+        *,
+        path,
+        agent,
+        force_train=config.train_dynamics.force_retrain,
+    ):
         env = config.get_env(env_name)
-        agent = Agent.load_default_for(env_name, load_previous_weights=agent_load_previous_weights)
         dynamics = DynamicsModel(
             obs_dim=env.observation_space.shape[0],
             act_dim=env.action_space.shape[0],
             hidden_sizes=config.gym_env_settings[env_name].dynamics.hidden_sizes,
             learning_rate=config.gym_env_settings[env_name].dynamics.learning_rate,
             agent=agent,
+            path=path,
             device=config.device,
         )
-        if load_previous_weights:
-            dynamics.load_state_dict(torch.load(path_to.dynamics_model_for(env_name)))
-        return dynamics
+        # load if exists
+        if not force_retrain:
+            if FS.exists(path):
+                dynamics.load_state_dict(torch.load(path))
+                return dynamics
+        
+        # 
+        # train
+        # 
+        train(
+            env_name,
+            agent=agent,
+            dynamics=dynamics,
+            loss_api=config.train_dynamics.loss_api,
+            n_episodes=config.train_dynamics.number_of_episodes,
+            n_epochs=config.train_dynamics.number_of_epochs,
+        )
+        
+        torch.save(dynamics.state_dict(), FS.clear_a_path_for(path, overwrite=True))
     
     # init
     @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
-    def __init__(self, obs_dim, act_dim, hidden_sizes, learning_rate, device, agent, **kwargs):
+    def __init__(self, obs_dim, act_dim, hidden_sizes, learning_rate, device, agent, path, **kwargs):
         super().__init__()
         self.learning_rate = learning_rate
         self.device        = device
         self.obs_dim       = obs_dim
         self.act_dim       = act_dim
         self.agent         = agent
+        self.path         = path
         self.which_loss    = config.train_dynamics.loss_function
         self.model = feed_forward(layer_sizes=[obs_dim + act_dim, *hidden_sizes, obs_dim], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
@@ -227,10 +250,8 @@ def experience(env, agent, n_episodes):
 
     return episodes, all_actions, all_curr_states, all_next_states
 
-def train_timesteps(env_name, n_episodes=100, n_epochs=100):
-    dynamics = DynamicsModel.load_default_for(env_name, load_previous_weights = False)
-    agent    = dynamics.agent
-    env      = config.get_env(env_name)
+def train(env_name, agent, dynamics, loss_api, n_episodes=100, n_epochs=100):
+    env = config.get_env(env_name)
 
     # Get experience from trained agent
     episodes, all_actions, all_curr_states, all_next_states = experience(env, agent, n_episodes)
@@ -250,87 +271,47 @@ def train_timesteps(env_name, n_episodes=100, n_epochs=100):
         split_proportion=config.train_dynamics.train_test_split,
     )
     
-    training_data = tuple(zip(train_states, train_actions, train_next_states))
-    testing_data  = tuple(zip(test_states , test_actions , test_next_states ))
+    # 
+    # timestep
+    # 
+    if loss_api == "timestep":
     
-    for epochs_index in range(n_epochs):
-        # 
-        # training
-        # 
-        train_losses = []
-        for indicies in bundle(range(len(training_data)), bundle_size=minibatch_size):
-            # a size-of-one bundle would break one of the loss functions
-            if len(indicies) < 2:
-                continue
-            train_losses.append(dynamics.timestep_training_loss(indicies, training_data))
-        # 
-        # testing
-        # 
-        test_loss = dynamics.timestep_testing_loss(range(len(testing_data)), testing_data)
+        training_data = tuple(zip(train_states, train_actions, train_next_states))
+        testing_data  = tuple(zip(test_states , test_actions , test_next_states ))
         
-        print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
-    
-    torch.save(dynamics.state_dict(), FS.clear_a_path_for(path_to.dynamics_model_for(env_name), overwrite=True))
-
-def train_batches(env_name, n_episodes=100, n_epochs=100):
-    dynamics = DynamicsModel.load_default_for(env_name, load_previous_weights = False)
-    agent    = dynamics.agent
-    env      = config.get_env(env_name)
-
-    # Get experience from trained agent
-    episodes, all_actions, all_curr_states, all_next_states = experience(env, agent, n_episodes)
-    print(f'''Starting Train/Test''')
-    states      = to_tensor(all_curr_states)
-    actions     = to_tensor(all_actions)
-    next_states = to_tensor(all_next_states)
-
-    (
-        (train_states     , test_states     ),
-        (train_actions    , test_actions    ),
-        (train_next_states, test_next_states),
-    ) = train_test_split(
-        states,
-        actions,
-        next_states,
-        split_proportion=config.train_dynamics.train_test_split,
-    )
-    
-    for epochs_index in range(n_epochs):
-        # 
-        # training
-        # 
-        train_losses = []
-        for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
-            train_losses.append(dynamics.batch_training_loss(state_batch, action_batch, next_state_batch))
-        
-        # 
-        # testing
-        # 
-        test_loss = dynamics.batch_testing_loss(test_states, test_actions, test_next_states)
-        
-        print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
-
-    torch.save(dynamics.state_dict(), FS.clear_a_path_for(path_to.dynamics_model_for(env_name), overwrite=True))
-
-
-if __name__ == '__main__':
-    for each_env_name in config.env_names:
-        print(f"")
-        print(f"")
-        print(f"Training for {each_env_name}")
-        print(f"")
-        print(f"")
-        if config.train_dynamics.loss_style == "timestep":
-            train_timesteps(
-                each_env_name,
-                n_episodes=config.train_dynamics.number_of_episodes,
-                n_epochs=config.train_dynamics.number_of_epochs,
-            )
-        elif config.train_dynamics.loss_style == "batched":
-            train_batches(
-                each_env_name,
-                n_episodes=config.train_dynamics.number_of_episodes,
-                n_epochs=config.train_dynamics.number_of_epochs,
-            )
-        else:
-            raise Exception(f'''unknown config.train_dynamics.loss_style: {config.train_dynamics.loss_style}''')
+        for epochs_index in range(n_epochs):
+            # 
+            # training
+            # 
+            train_losses = []
+            for indicies in bundle(range(len(training_data)), bundle_size=minibatch_size):
+                # a size-of-one bundle would break one of the loss functions
+                if len(indicies) < 2:
+                    continue
+                train_losses.append(dynamics.timestep_training_loss(indicies, training_data))
+            # 
+            # testing
+            # 
+            test_loss = dynamics.timestep_testing_loss(range(len(testing_data)), testing_data)
+            
+            print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
+    # 
+    # batched
+    # 
+    elif loss_api == "batched":
+        for epochs_index in range(n_epochs):
+            # 
+            # training
+            # 
+            train_losses = []
+            for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
+                train_losses.append(dynamics.batch_training_loss(state_batch, action_batch, next_state_batch))
+            
+            # 
+            # testing
+            # 
+            test_loss = dynamics.batch_testing_loss(test_states, test_actions, test_next_states)
+            
+            print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")    
+    else:
+        raise Exception(f'''unknown loss_api given to train dynamics:\n    was given: {config.train_dynamics.loss_api}\n    valid values: "batched", "timestep" ''')
