@@ -11,6 +11,38 @@ Everything is detailed in the `documentation/setup.md`!
     - followed by running analysis, which saves images to the data/visuals folder
 
 
-To customize it, look at the `info.yaml` file. Find where it has `(default):` and all those are parameters that can be overridden.
+# Customizing  Code
 
-For example, lets change the number of training epochs for the coach (aka dynamics). <br>
+As an example, lets change the number of training epochs for the dynamics model. 
+
+- Take a look at the `info.yaml` file.
+- Find where it has `(default):`
+
+Example look at the `info.yaml` file:
+
+```yaml
+(project):
+    
+    ###stuff###
+    
+    (profiles):
+        
+        ###stuff###
+        
+        (default):
+            
+            ###stuff###
+            
+            train_agent:
+                iterations: 100000
+```
+
+Lets change the iterations from `100000` to `500000` in the command line.
+
+```sh
+python main/main.py -- experiment_name:experiment2 train_agent:iterations:500000
+```
+
+Thats all there is too it. Works with lists, strings and more advanced types. <br>
+
+See more info at [Quik Config Python](https://github.com/jeff-hykin/quik_config_python#command-line-arguments)
