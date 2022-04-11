@@ -1,5 +1,4 @@
-import os
-from posixpath import basename
+import functools
 
 import gym
 import numpy as np
@@ -76,7 +75,7 @@ class DynamicsModel(nn.Module):
         # 
         # save
         # 
-        self.save(path)
+        dynamics.save(path)
     
     # init
     @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
@@ -271,6 +270,7 @@ class DynamicsModel(nn.Module):
         env      = config.get_env(env_name)
         card     = ss.DisplayCard("multiLine", dict(train=[], test=[])) if with_card else None
         recorder = RecordKeeper(
+            training_record=True,
             env_name=env_name,
             batch_size=minibatch_size,
             number_of_episodes=number_of_episodes,
@@ -329,6 +329,10 @@ class DynamicsModel(nn.Module):
                     train_loss=train_loss,
                     test_loss=test_loss,
                 )
+                if card: card.send(dict(
+                    train=[epochs_index, train_loss],
+                    test=[epochs_index, test_loss],
+                ))
         # 
         # batched
         # 
@@ -355,10 +359,21 @@ class DynamicsModel(nn.Module):
                     train_loss=train_loss,
                     test_loss=test_loss,
                 )
+                if card: card.send(dict(
+                    train=[epochs_index, train_loss],
+                    test=[epochs_index, test_loss],
+                ))
         else:
             raise Exception(f'''unknown loss_api given to train dynamics:\n    was given: {loss_api}\n    valid values: "batched", "timestep" ''')
         
         return recorder
+    
+    def generate_training_card(self):
+        training_records = tuple(each for each in self.records if each.get("training_record", False))
+        ss.DisplayCard("multiLine", dict(
+            train=[ each.epochs_index, each.train_loss for each in training_records ],
+            test=[ each.epochs_index, each.test_loss for each in training_records ],
+        ))
     
     def save(self, path=None):
         path = path or self.path
