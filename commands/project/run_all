@@ -19,7 +19,7 @@ python main/training/train_agent.py -- "$@" 2>&1 | tee "$main_log_file" "$train_
 echo "end: $(date)" >> "$train_agent_log_file.times"
 
 echo ""
-echo "Running Train Dynamics"
+echo "Running Train Coach"
 echo ""
 echo "start: $(date)" >> "$train_coach_log_file.times"
 python main/training/train_coach.py -- "$@" 2>&1 | tee "$main_log_file" "$train_coach_log_file"

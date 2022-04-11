@@ -30,7 +30,7 @@
     (path_to):
         folder:
             agent_models: "./data/models/agents/"
-            dynamics_models: "./data/models/coach/"
+            coach_models: "./data/models/coach/"
             results: "./data/results/"
             visuals: "./visuals/"
 

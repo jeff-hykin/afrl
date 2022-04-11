@@ -39,7 +39,7 @@ if __name__ == "__main__":
         full_run(
             env_name=env_name,
             agent_path=path_to.agent_model_for(env_name),
-            coach_path=path_to.dynamics_model_for(env_name),
+            coach_path=path_to.coach_model_for(env_name),
             csv_path=path_to.experiment_csv_for(env_name),
             visuals_path=path_to.experiment_visuals_folder(env_name),
         )

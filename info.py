@@ -39,7 +39,7 @@ for each_name in path_to.folder:
 # functional paths
 # 
 path_to.agent_model_for           = lambda env_name: f"{path_to.folder.agent_models}/{env_name}/{config.train_agent.model_name}"
-path_to.dynamics_model_for        = lambda env_name: f"{path_to.folder.dynamics_models}/{config.experiment_name}/{env_name}.pt"
+path_to.coach_model_for           = lambda env_name: f"{path_to.folder.coach_models}/{config.experiment_name}/{env_name}.pt"
 path_to.experiment_csv_for        = lambda env_name: f"{path_to.folder.results}/{config.experiment_name}/{env_name}/experiments.csv"
 path_to.experiment_visuals_folder = lambda env_name: f"{path_to.folder.visuals}/{config.experiment_name}/{env_name}/"
 

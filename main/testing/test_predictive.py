@@ -26,15 +26,15 @@ from main.training.train_coach import CoachClass
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 
 # 
-# combine Agent,Dynamics,Env so they dont get mis-matched
+# combine Agent,Coach,Env so they dont get mis-matched
 # 
 from dataclasses import dataclass
 @dataclass
 class PredictorEnv:
-    env_name             = None
-    env                  = None
-    coach             = None
-    agent                = None
+    env_name = None
+    env      = None
+    coach    = None
+    agent    = None
 
 
 def experience(
