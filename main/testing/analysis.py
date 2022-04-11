@@ -101,12 +101,12 @@ def generate_all_visuals(env_name, csv_path, output_folder):
     plot_epsilon_1(
         env_name=env_name,
         csv_path=csv_path,
-        output_folder=images_path,
+        output_folder=output_folder,
     )
     plot_epsilon_2(
         env_name=env_name,
         csv_path=csv_path,
-        output_folder=images_path,
+        output_folder=output_folder,
     )
-    print(f"all images saved in {images_path}")
+    print(f"All visuals saved in {output_folder}")
     

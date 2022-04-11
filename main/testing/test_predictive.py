@@ -87,10 +87,7 @@ def experience(
         plan, forecast = replan(state, plan,)
     return rewards, episode_forecast
 
-def main(
-    settings: LazyDict,
-    predictor,
-):
+def main(settings, predictor):
     # 
     # pull in settings
     # 
@@ -106,29 +103,38 @@ def main(
         rewards=[],
         discounted_rewards=[],
         forecast=[],
+        average_forecast=[],
     )
     # 
     # perform experiments with all epsilons
     # 
+    index = -1
     for epsilon, horizon in zip(epsilons, forecast_horizons):
-        for experiment_index in range(settings.number_of_experiments):
+        for episode_index in range(settings.number_of_episodes):
             rewards, forecast = experience(epsilon, horizon, predictor,)
+            index += 1
+            # NOTE: double averaging might not be the desired metric but its probably alright
             # save data
             data.epsilon.append(epsilon)
             data.rewards.append(sum(rewards))
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
-            data.forecast.append(forecast[horizon:])
+            data.forecast.append(forecast[horizon:]) # shouldn't this be forecast[:horizon] ? -- Jeff
             
-            # NOTE: double averaging might not be the desired metric but alright
             grand_average_forecast = average([
                 average(each_forecast)
                     for each_epsilon, each_forecast in zip(data.epsilon, data.forecast)
                         if each_epsilon == epsilon 
             ])
-            print(epsilon, grand_average_forecast)
+            
+            data.average_forecast.append(grand_average_forecast)
+            
+            print(f"    epsilon: {epsilon}, average_forecast:{grand_average_forecast}")
     return data
 
 def run_test(env_name, coach, csv_path):
+    print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
+    print(f''' Testing Agent+Coach''')
+    print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
     # compute data
     data = main(
         settings=config.gym_env_settings[env_name],
@@ -138,6 +144,11 @@ def run_test(env_name, coach, csv_path):
             agent=coach.agent,
         ),
     )
+    # ss.DisplayCard("multiLine", dict(
+    #     epsilon=tuple(each_index, each_reward for each_index, each_reward in enumerate( data.epsilon))
+    #     rewards
+    #     discounted_rewards
+    # ))
     
     # export to CSV
     FS.clear_a_path_for(csv_path, overwrite=True)
