@@ -45,6 +45,11 @@
                 agent_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
                 coach_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
             
+            agent_compare_test:
+                number_of_agents: 10
+                number_of_episodes: 20
+                base_name: default_sac
+            
             train_agent:
                 model_name: default_sac_1
                 iterations: 100000
