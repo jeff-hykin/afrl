@@ -21,7 +21,7 @@ from simple_namespace import namespace
 
 from info import path_to, config
 from main.training.train_agent import Agent
-from main.training.train_dynamics import DynamicsModel
+from main.training.train_coach import CoachClass
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 
 settings = config.gym_env_settings
@@ -36,7 +36,7 @@ def replan(
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
-    dynamics: DynamicsModel,
+    coach: CoachClass,
 ):
 
     new_plan = np.empty((forecast_horizon, action_size), dtype=np.float)
@@ -51,7 +51,7 @@ def replan(
             if plan_q + epsilon < replan_q:
                 break
             new_plan[k] = action
-            state = dynamics(state, action)
+            state = coach(state, action)
         # for the stats... keep track of the forecast of this action
         forecast[k] = forecast[k + 1] + 1
         k += 1
@@ -61,7 +61,7 @@ def replan(
         action = agent.predict(state, deterministic=True)[0]
         new_plan[i] = action
         with torch.no_grad():
-            state = dynamics(state, action)
+            state = coach(state, action)
         forecast[i] = 0
 
     return new_plan, forecast
@@ -72,7 +72,7 @@ def test_afrl(
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
-    dynamics: DynamicsModel,
+    coach: CoachClass,
     n_experiments: int,
     env,
 ):
@@ -85,7 +85,7 @@ def test_afrl(
     for epsilon, horizon in zip(epsilons, forecast_horizon):
         for _ in tqdm(range(n_experiments), disable=True):
             rewards, forecast = experience(
-                epsilon, horizon, action_size, agent, dynamics, env
+                epsilon, horizon, action_size, agent, coach, env
             )
             v = get_discounted_rewards(rewards, agent.gamma)
             df = df.append(
@@ -97,15 +97,15 @@ def test_afrl(
 
 
 def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
-    dynamics = DynamicsModel.load_default_for(env_name)
-    agent    = dynamics.agent
+    coach = CoachClass.load_default_for(env_name)
+    agent    = coach.agent
     env      = config.get_env(env_name)
     
     action_size = env.action_space.shape[0]
     print("Gamma:", agent.gamma)
 
     return test_afrl(
-        epsilons, forecast_horizon, action_size, agent, dynamics, n_experiments, env
+        epsilons, forecast_horizon, action_size, agent, coach, n_experiments, env
     )
 
 

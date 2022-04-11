@@ -22,7 +22,7 @@ from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
 from main.training.train_agent import Agent
-from main.training.train_dynamics import DynamicsModel
+from main.training.train_coach import CoachClass
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 
 # 
@@ -33,7 +33,7 @@ from dataclasses import dataclass
 class PredictorEnv:
     env_name             = None
     env                  = None
-    dynamics             = None
+    coach             = None
     agent                = None
 
 
@@ -74,7 +74,7 @@ def experience(
             # 
             # compute next-step 
             # 
-            expected_state = predictor.dynamics.predict(expected_state, action)
+            expected_state = predictor.coach.predict(expected_state, action)
             forecast[forecast_index] = forecast[forecast_index + 1] + 1 # for the stats... keep track of the forecast of this action
             new_plan[forecast_index] = action
 
@@ -83,7 +83,7 @@ def experience(
         #
         for index in range(forecast_index, forecast_horizon):
             action = actor_action_for(expected_state)
-            expected_state = predictor.dynamics.predict(expected_state, action)
+            expected_state = predictor.coach.predict(expected_state, action)
             new_plan[index] = action
             forecast[index] = 0
 
@@ -140,14 +140,14 @@ def main(
             print(epsilon, grand_average_forecast)
     return data
 
-def run_test(env_name, dynamics, csv_path):
+def run_test(env_name, coach, csv_path):
     # compute data
     data = main(
         settings=config.gym_env_settings[env_name],
         predictor=PredictorEnv(
             env_name=env_name,
-            dynamics=dynamics,
-            agent=dynamics.agent,
+            coach=coach,
+            agent=coach.agent,
         ),
     )
     

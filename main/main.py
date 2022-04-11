@@ -1,5 +1,5 @@
 from main.training.train_agent import Agent
-from main.training.train_dynamics import DynamicsModel as Coach
+from main.training.train_coach import CoachClass as Coach
 from main.testing.test_predictive import run_test
 from main.testing.analysis import generate_all_visuals
 
@@ -14,13 +14,13 @@ def full_run(env_name, agent_path, coach_path, csv_path, visuals_path):
     agent = Agent.smart_load(
         path=agent_path,
     )
-    dynamics = Coach.smart_load(
+    coach = Coach.smart_load(
         path=coach_path,
         agent=agent,
     )
     results = run_test(
         env_name,
-        dynamics=dynamics,
+        coach=coach,
         csv_path=csv_path,
     )
     generate_all_visuals(

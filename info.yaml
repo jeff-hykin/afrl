@@ -1,7 +1,7 @@
 (project):
     Q&A:
         - Whats the main idea(s)?:
-            - there are two models; the agent and the coach ("dynamics" in the code)
+            - there are two models; the agent and the coach
             - the agent is a SAC model that is pretty typical
             - the coach tries to forcast multiple steps into the future in a way that helps the model
         - How do I judge performance?:
@@ -9,7 +9,7 @@
             - Larger forcast (the avergage length of predictions that were correct)
             - Rewards that are most similar to the optimial policy (green line in .ipynb graph)
         - What is the main loss function?: |
-            there's a few, and they're defined in main/training/train_dynamics.py on the DynamicsModel class
+            there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
         - question: what should the env_settings be for the 5 non-lunar lander env's
@@ -18,19 +18,19 @@
                 - why is it a copy of the actor?
                 - why is it being trained?
                 - why is it not saved?
-        - question: why set deterministic=True, and then sample from normal curve (dynamics experience function)
+        - question: why set deterministic=True, and then sample from normal curve (coach experience function)
         - question: whats the difference between train_afrl.py and train_predpolicy.py
-        - question: why does dynamics.forward have no_grad
+        - question: why does coach.forward have no_grad
         
         - todo: read the paper more
         - question: whats the difference between the different Q functions
-        - task: redo the dynamics.forward and .predict method (predict shouldnt have gradient tracking and forward should)
+        - task: redo the coach.forward and .predict method (predict shouldnt have gradient tracking and forward should)
 
     # a central place for filepaths
     (path_to):
         folder:
             agent_models: "./data/models/agents/"
-            dynamics_models: "./data/models/dynamics/"
+            dynamics_models: "./data/models/coach/"
             results: "./data/results/"
             visuals: "./visuals/"
 
@@ -45,14 +45,14 @@
                 iterations: 100000
                 force_retrain: false
                 model_name: sac_default_1
-            train_dynamics:
+            train_coach:
                 force_retrain: false
                 number_of_episodes: 20
                 number_of_epochs: 100
                 train_test_split: 0.7
                 minibatch_size: 32
                 loss_style: batched  # "timestep" or "batched" # loss functions are compatible with one or the other
-                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class DynamicsModel
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class CoachClass
                 hidden_sizes: [64, 64, 64, 64]
                 learning_rate: 0.0001
                 with_card: True

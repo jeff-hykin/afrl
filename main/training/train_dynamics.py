@@ -16,7 +16,7 @@ from info import path_to, config
 from main.training.train_agent import Agent
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
 
-settings = config.train_dynamics
+settings = config.train_coach
 # contains:
     # learning_rate
     # hidden_sizes
@@ -26,8 +26,8 @@ settings = config.train_dynamics
     # loss_api
     # etc
 
-# State transition dynamics model
-class DynamicsModel(nn.Module):
+# State transition coach model
+class CoachClass(nn.Module):
     """
     The model of how the world works
         (state) => (next_state)
@@ -45,7 +45,7 @@ class DynamicsModel(nn.Module):
         force_train=settings.force_retrain,
     ):
         env = config.get_env(env_name)
-        dynamics = DynamicsModel(
+        coach = CoachClass(
             obs_dim=env.observation_space.shape[0],
             act_dim=env.action_space.shape[0],
             settings=settings.merge(settings.env_overrides.get(env_name, {}))
@@ -56,13 +56,13 @@ class DynamicsModel(nn.Module):
         # load if exists
         if not force_retrain:
             if FS.exists(path):
-                dynamics.load_state_dict(torch.load(path))
-                return dynamics
+                coach.load_state_dict(torch.load(path))
+                return coach
         
         # 
         # train
         # 
-        recorder = dynamics.train(
+        recorder = coach.train(
             env_name,
             agent=agent,
             loss_api=settings.loss_api,
@@ -75,7 +75,7 @@ class DynamicsModel(nn.Module):
         # 
         # save
         # 
-        dynamics.save(path)
+        coach.save(path)
     
     # init
     @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
@@ -364,7 +364,7 @@ class DynamicsModel(nn.Module):
                     test=[epochs_index, test_loss],
                 ))
         else:
-            raise Exception(f'''unknown loss_api given to train dynamics:\n    was given: {loss_api}\n    valid values: "batched", "timestep" ''')
+            raise Exception(f'''unknown loss_api given to train coach:\n    was given: {loss_api}\n    valid values: "batched", "timestep" ''')
         
         return recorder
     

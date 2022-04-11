@@ -13,7 +13,7 @@ Everything is detailed in the `documentation/setup.md`!
 
 # Customizing  Code
 
-As an example, lets change the number of training epochs for the dynamics model. 
+As an example, lets change the number of training epochs for the coach model. 
 
 - Take a look at the `info.yaml` file.
 - Find where it has `(default):`
@@ -33,7 +33,7 @@ Example look at the `info.yaml` file:
             
             ###stuff###
             
-            train_dynamics:
+            train_coach:
                 number_of_epochs: 100
 ```
 
@@ -42,7 +42,7 @@ Lets change the iterations from `100` to `500` in the command line.
 ```sh
 python main/main.py -- \
     experiment_name:experiment2 \
-    train_dynamics:number_of_epochs:500
+    train_coach:number_of_epochs:500
 ```
 
 Thats all there is too it. Works with lists, strings and more advanced types. <br>

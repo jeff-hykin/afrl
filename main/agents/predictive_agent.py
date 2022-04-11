@@ -15,11 +15,11 @@ from stable_baselines3 import SAC as BasicSAC
 
 from info import path_to, config
 from main.training.basic_agent import Agent
-from main.training.dynamics import DynamicsModel
+from main.training.coach import CoachClass
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, Timestep, to_numpy, feed_forward
 from main.agents.agent_skeleton import Skeleton
 
-minibatch_size = config.train_dynamics.minibatch_size
+minibatch_size = config.train_coach.minibatch_size
 
 class SAC(BasicSAC):
     @classmethod

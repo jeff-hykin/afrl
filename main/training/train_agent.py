@@ -50,7 +50,7 @@ class Agent(SAC):
                 verbose=2,
             )
 
-    # add freeze methods (for when DynamicsModel uses agent)
+    # add freeze methods (for when CoachClass uses agent)
     @init.freeze_tools()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
