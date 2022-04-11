@@ -47,4 +47,15 @@ python main/main.py -- \
 
 Thats all there is too it. Works with lists, strings and more advanced types. <br>
 
+Full example:
+
+```sh
+python main/main.py --                                            \
+    experiment_name:experiment3                                   \
+    env_name:AntBulletEnv-v0                                      \
+    agent_path:./data/models/agents/AntBulletEnv-v0/default_sac_1 \
+    train_coach:loss_style:timestep                               \
+    train_coach:loss_function:consistent_coach_loss               
+```
+
 #### See more info at [Quik Config Python](https://github.com/jeff-hykin/quik_config_python#command-line-arguments)

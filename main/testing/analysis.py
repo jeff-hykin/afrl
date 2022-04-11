@@ -12,7 +12,6 @@ from rigorous_recorder import RecordKeeper, ExperimentCollection
 from info import path_to, config
 import file_system_py as FS
 
-env_names = config.env_names
 settings = config.gym_env_settings
 
 sns.set_theme(style="whitegrid")

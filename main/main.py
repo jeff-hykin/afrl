@@ -16,6 +16,7 @@ def full_run(env_name, agent_path, coach_path, csv_path, visuals_path):
         path=agent_path,
     )
     coach = Coach.smart_load(
+        env_name=env_name,
         path=coach_path,
         agent=agent,
     )
@@ -36,11 +37,10 @@ def full_run(env_name, agent_path, coach_path, csv_path, visuals_path):
 # run for all envs 
 # 
 if __name__ == "__main__":
-    for env_name in config.env_names:
-        full_run(
-            env_name=env_name,
-            agent_path=path_to.agent_model_for(env_name),
-            coach_path=path_to.coach_model_for(env_name),
-            csv_path=path_to.experiment_csv_for(env_name),
-            visuals_path=path_to.experiment_visuals_folder(env_name),
-        )
+    full_run(
+        env_name=config.env_name,
+        agent_path=config.load.agent_path or path_to.agent_model_for(env_name),
+        coach_path=config.load.coach_path or path_to.coach_model_for(env_name),
+        csv_path=path_to.experiment_csv_for(env_name),
+        visuals_path=path_to.experiment_visuals_folder(env_name),
+    )

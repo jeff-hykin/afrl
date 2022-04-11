@@ -19,6 +19,10 @@ from training.coach import CoachClass
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, Timestep, to_numpy, feed_forward
 from agents.agent_skeleton import Skeleton
 
+# 
+# This is non-functioning WIP, just FYI
+# 
+
 minibatch_size = config.train_coach.minibatch_size
 
 class SAC(BasicSAC):

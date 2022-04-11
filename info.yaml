@@ -38,13 +38,18 @@
     (profiles):
         (default):
             experiment_name: null
-            mode: development
+            env_name: "LunarLanderContinuous-v2" # can be any of: "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
+            load:
+                agent_path: null
+                coach_path: null
             force_cpu: false
-            env_names: ["LunarLanderContinuous-v2", "MountainCarContinuous-v0"]
+            mode: development
+            
             train_agent:
                 iterations: 100000
                 force_retrain: false
                 model_name: sac_default_1
+            
             train_coach:
                 force_retrain: false
                 number_of_episodes: 20
@@ -61,10 +66,6 @@
                         # this is an example
                         hidden_sizes: [64, 64, 64, 64]
                         learning_rate: 0.0001
-            train_predictive:
-                weight_update_frequency: 32 # every 32 replan iterations
-                initial_horizon_size: 5
-                loss_threshold: 0.5
             
             gym_env_settings:
                 LunarLanderContinuous-v2:
@@ -139,41 +140,27 @@
                         0.005: 10
                         0.0075: 15
                         0.01: 20
+                # Available: 
+                    # Reacher-v2
+                    # Pusher-v2
+                    # Thrower-v2
+                    # Striker-v2
+                    # InvertedPendulum-v2
+                    # InvertedDoublePendulum-v2
+                    # HalfCheetah-v2
+                    # HalfCheetah-v3
+                    # Hopper-v2
+                    # Hopper-v3
+                    # Swimmer-v2
+                    # Swimmer-v3
+                    # Walker2d-v2
+                    # Walker2d-v3
+                    # Ant-v2
+                    # Ant-v3
+                    # Humanoid-v2
+                    # Humanoid-v3
+                    # HumanoidStandup-v2
         
         FORCE_CPU:
             force_cpu: true
-        
-        ENVS=BASIC:
-            env_names: [ "LunarLanderContinuous-v2", "MountainCarContinuous-v0" ]
-        ENVS=HARD:
-            env_names: [ "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
-        ENVS=FULL:
-            env_names: [ "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0" ]
-            # inside the .ipynb:
-                # Lander
-                # Humanoid
-                # Hopper
-                # Cheetah
-                # Ant
-                # Walker
-            # Available: 
-                # Reacher-v2
-                # Pusher-v2
-                # Thrower-v2
-                # Striker-v2
-                # InvertedPendulum-v2
-                # InvertedDoublePendulum-v2
-                # HalfCheetah-v2
-                # HalfCheetah-v3
-                # Hopper-v2
-                # Hopper-v3
-                # Swimmer-v2
-                # Swimmer-v3
-                # Walker2d-v2
-                # Walker2d-v3
-                # Ant-v2
-                # Ant-v3
-                # Humanoid-v2
-                # Humanoid-v3
-                # HumanoidStandup-v2
         
