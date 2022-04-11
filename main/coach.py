@@ -185,17 +185,18 @@ class CoachClass(nn.Module):
         return loss
     
     # 
-    # Loss function options
+    # Loss function options (loss_api=timestep)
     # 
     def consistent_coach_loss(self, indices: list, step_data: tuple):
         losses = []
+        scale_value_prediction = self.settings.consistent_coach_loss.scale_value_prediction
         for index in indices:
             # need multiple to penalize the future
             if index < 1:
                 continue
             
             state1, action1, state2 = step_data[index]
-            value_prediction_loss = self.value_prediction_loss([state1], [action1], [state2])
+            value_prediction_loss = self.value_prediction_loss([state1], [action1], [state2]) * scale_value_prediction
             losses.append(value_prediction_loss)
             
             state1, action1, state2 = step_data[index-1]
@@ -209,8 +210,6 @@ class CoachClass(nn.Module):
             future_loss = ((once_predicted_state3 - twice_predicted_state3)**2).mean()
             losses.append(future_loss)
         
-        # FIXME: there is a problem here, which is that these losses may be on totally different scales
-        #       some kind of coefficent (ideal self-tuning coefficient) is needed here
         return torch.stack(losses).mean()
     
     def timestep_loss(self, timesteps):
@@ -222,6 +221,9 @@ class CoachClass(nn.Module):
             losses.append(actual_value - predicted_value)
         return torch.stack(losses).mean()
     
+    # 
+    # Loss function options (loss_api=batched)
+    # 
     @convert_each_arg.to_tensor()
     def value_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state   = self.forward(state, action)

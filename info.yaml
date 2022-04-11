@@ -3,7 +3,7 @@
         - Whats the main idea(s)?:
             - there are two models; the agent and the coach
             - the agent is a SAC model that is pretty typical
-            - the coach tries to forcast multiple steps into the future in a way that helps the model
+            - the coach tries to forcast multiple steps into the future in a way that helps the agent
         - How do I judge performance?:
             - Smaller epsilon (lieniency of predicted_state ~~== actual_future_state)
             - Larger forcast (the avergage length of predictions that were correct)
@@ -57,14 +57,16 @@
             
             train_coach:
                 force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+                loss_api: batched  # "timestep" or "batched" # loss functions are exclusively compatible with one or the other (this should probably be handled internally)
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class CoachClass
+                consistent_coach_loss:
+                    scale_value_prediction: 1.0
                 number_of_episodes: 20
                 number_of_epochs: 100
                 train_test_split: 0.7
                 minibatch_size: 32
-                loss_api: batched  # "timestep" or "batched" # loss functions are exclusively compatible with one or the other (this should probably be handled internally)
-                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class CoachClass
-                hidden_sizes: [64, 64, 64, 64]
-                learning_rate: 0.0001
                 with_card: True
                 env_overrides:
                     LunarLanderContinuous-v2:
@@ -84,8 +86,8 @@
                     LunarLanderContinuous-v2:
                         number_of_episodes: 50
                         agent_discount_factor: 0.98
-                        max_score: 70
-                        min_score: -100
+                        max_score: 250 # probably higher
+                        min_score: -150
                 
             gym_env_settings:
                 LunarLanderContinuous-v2:

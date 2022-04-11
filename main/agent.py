@@ -9,7 +9,7 @@ from trivial_torch_tools import to_tensor, init, convert_each_arg
 
 from smart_cache import cache
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average
 
 class Agent(SAC):
     # 
@@ -38,7 +38,7 @@ class Agent(SAC):
         agent = Agent("MlpPolicy", env_name, device=config.device, verbose=2,)
         agent.learn(iterations)
         agent.path = path
-        agent.save(FS.clear_a_path_for(path_to.agent_model_for(env_name), overwrite=True))
+        agent.save(FS.clear_a_path_for(path, overwrite=True))
         return agent
             
     # add freeze methods (for when CoachClass uses agent)
@@ -129,7 +129,6 @@ class Agent(SAC):
                 episode.reward_total += reward
             
             reward_per_episode.append(episode.reward_total)
-            average_reward = total_reward/(episode_index+1)
             print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}, Average Reward: {average(reward_per_episode):.3f}")
             episodes[episode_index] = episode
             all_curr_states += episode.curr_states
