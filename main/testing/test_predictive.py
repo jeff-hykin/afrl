@@ -112,13 +112,14 @@ def main(settings, predictor):
     for epsilon, horizon in zip(epsilons, forecast_horizons):
         for episode_index in range(settings.number_of_episodes):
             rewards, forecast = experience(epsilon, horizon, predictor,)
+            average_reward = average(rewards)
             index += 1
             # NOTE: double averaging might not be the desired metric but its probably alright
             # save data
             data.epsilon.append(epsilon)
-            data.rewards.append(sum(rewards))
+            data.rewards.append(average_reward)
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
-            data.forecast.append(forecast[horizon:]) # shouldn't this be forecast[:horizon] ? -- Jeff
+            data.forecast.append(forecast[:horizon])
             
             grand_average_forecast = average([
                 average(each_forecast)
@@ -128,7 +129,7 @@ def main(settings, predictor):
             
             data.average_forecast.append(grand_average_forecast)
             
-            print(f"    epsilon: {epsilon}, average_forecast:{grand_average_forecast}")
+            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, average_reward: {average_reward:.2f}")
     return data
 
 def run_test(env_name, coach, csv_path):
