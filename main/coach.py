@@ -306,7 +306,7 @@ class CoachClass(nn.Module):
                 self.train(False)
                 test_loss = self.timestep_testing_loss(range(len(testing_data)), testing_data)
                 
-                print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
+                print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.8f}, Test Loss: {test_loss:.8f}")
                 recorder.push(
                     epochs_index=epochs_index,
                     train_loss=train_loss,

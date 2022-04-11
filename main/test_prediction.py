@@ -147,6 +147,14 @@ def main(settings, predictor):
             ))
             
             print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, average_reward: {average_reward:.2f}")
+    
+    # display one card at the end with the final data (the other data is transient)
+    ss.DisplayCard("multiLine", dict(
+        rewards=         [ (index, each) for index, each in enumerate(data.rewards)          ],
+        average_forecast=[ (index, each) for index, each in enumerate(data.average_forecast) ],
+        epsilon=         [ (index, each) for index, each in enumerate(data.epsilon)          ],
+        horizon=         [ (index, each) for index, each in enumerate(data.horizon)          ],
+    ))
     return data
 
 def run_test(env_name, coach, csv_path):

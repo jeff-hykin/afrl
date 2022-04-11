@@ -4,7 +4,7 @@ Everything is detailed in the `documentation/setup.md`!
 
 # Running Code
 
-- Run `python main/main.py -- experiment_name:experiment1` to 
+- Run `python main/run/full.py -- experiment_name:experiment1` to 
     - train the actor, critic
     - followed by training the coach
     - followed by testing them

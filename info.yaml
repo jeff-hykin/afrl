@@ -69,10 +69,18 @@
             test_predictor:
                 number_of_episodes: 50
                 agent_discount_factor: 0.98
+                horizons:
+                    0.001: 5
+                    0.0025: 5
+                    0.005: 10
+                    0.0075: 15
+                    0.01: 20
                 env_overrides:
                     LunarLanderContinuous-v2:
                         number_of_episodes: 50
                         agent_discount_factor: 0.98
+                        max_score: 70
+                        min_score: -100
                 
             gym_env_settings:
                 LunarLanderContinuous-v2:

@@ -71,7 +71,7 @@ def cache(folder=settings.default_folder):
                 return data.cache[arg_hash]
             result = input_func(*inner_func_args, **kwargs)
             data.cache[arg_hash] = result
-            q.put(data, block=False)
+            worker_que.put(data, block=False)
             return result
         return wrapper
     return real_decorator

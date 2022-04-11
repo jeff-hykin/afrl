@@ -1,6 +1,3 @@
-import sys
-print(f'''sys.path = {sys.path}''')
-
 from info import config, path_to
 from analysis import generate_all_visuals
 from main.agent import Agent

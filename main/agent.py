@@ -45,6 +45,7 @@ class Agent(SAC):
     @init.freeze_tools()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.average_reward = None
     # this is for freeze()
     def children(self):
         return [self.critic, self.actor]
@@ -108,6 +109,7 @@ class Agent(SAC):
     @cache()
     def gather_experience(self, env, number_of_episodes):
         episodes = [None]*number_of_episodes
+        reward_per_episode = []
         all_actions, all_curr_states, all_next_states = [], [], []
         print(f'''Starting Experience Recording''')
         for episode_index in range(number_of_episodes):
@@ -126,12 +128,18 @@ class Agent(SAC):
                 episode.states.append(state)
                 episode.reward_total += reward
             
-            print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}")
+            reward_per_episode.append(episode.reward_total)
+            average_reward = total_reward/(episode_index+1)
+            print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}, Average Reward: {average(reward_per_episode):.3f}")
             episodes[episode_index] = episode
             all_curr_states += episode.curr_states
             all_actions     += episode.actions
             all_next_states += episode.next_states
-
+        
+        self.average_reward = average(reward_per_episode)
+        print(f'''''')
+        print(f'''    Max Reward: {max(reward_per_episode)}''')
+        print(f'''    Min Reward: {min(reward_per_episode)}''')
         return episodes, all_actions, all_curr_states, all_next_states
     
     def __super_hash__(self):
