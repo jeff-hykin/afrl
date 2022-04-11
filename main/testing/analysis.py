@@ -6,6 +6,8 @@ import pandas as pd
 import pybullet_envs
 import scipy.stats as st
 import seaborn as sns
+import silver_spectacle as ss
+from rigorous_recorder import RecordKeeper, ExperimentCollection
 
 from info import path_to, config
 import file_system_py as FS
@@ -17,6 +19,13 @@ sns.set_theme(style="whitegrid")
 
 def confidence_interval(xs):
     return st.t.interval(0.95, len(xs)-1, loc=np.mean(xs), scale=st.sem(xs))
+
+def plot_coach_training(path_to_records):
+    records = RecordKeeper.load(path_to_records)
+    ss.DisplayCard("multiLine", dict(
+        train=[ each.epochs_index, each.train_loss for each in records ],
+        test=[ each.epochs_index, each.test_loss for each in records ],
+    ))
 
 def plot_epsilon_1(env_name, csv_path, output_folder):
     plt.figure(figsize=(5.5, 5.5))

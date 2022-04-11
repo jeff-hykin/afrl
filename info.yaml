@@ -53,6 +53,14 @@
                 minibatch_size: 32
                 loss_style: batched  # "timestep" or "batched" # loss functions are compatible with one or the other
                 loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class DynamicsModel
+                hidden_sizes: [64, 64, 64, 64]
+                learning_rate: 0.0001
+                with_card: True
+                env_overrides:
+                    LunarLanderContinuous-v2:
+                        # this is an example
+                        hidden_sizes: [64, 64, 64, 64]
+                        learning_rate: 0.0001
             train_predictive:
                 weight_update_frequency: 32 # every 32 replan iterations
                 initial_horizon_size: 5
@@ -71,9 +79,6 @@
                         0.005: 10
                         0.0075: 15
                         0.01: 20
-                    dynamics:
-                        hidden_sizes: [64, 64, 64, 64]
-                        learning_rate: 0.0001
                 MountainCarContinuous-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     number_of_experiments: 50
                     agent_discount_factor: 0.98
@@ -86,9 +91,6 @@
                         0.005: 10
                         0.0075: 15
                         0.01: 20
-                    dynamics:
-                        hidden_sizes: [64, 64, 64, 64]
-                        learning_rate: 0.0001
                 AntBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     number_of_experiments: 50
                     agent_discount_factor: 0.98
@@ -101,9 +103,6 @@
                         0.005: 10
                         0.0075: 15
                         0.01: 20
-                    dynamics:
-                        hidden_sizes: [64, 64, 64, 64]
-                        learning_rate: 0.0001
                 HopperBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     number_of_experiments: 50
                     agent_discount_factor: 0.98
@@ -116,9 +115,6 @@
                         0.005: 10
                         0.0075: 15
                         0.01: 20
-                    dynamics:
-                        hidden_sizes: [64, 64, 64, 64]
-                        learning_rate: 0.0001
                 BipedalWalker-v3: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     number_of_experiments: 50
                     agent_discount_factor: 0.98
@@ -131,9 +127,6 @@
                         0.005: 10
                         0.0075: 15
                         0.01: 20
-                    dynamics:
-                        hidden_sizes: [64, 64, 64, 64]
-                        learning_rate: 0.0001
                 HalfCheetahBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     number_of_experiments: 50
                     agent_discount_factor: 0.98
@@ -146,9 +139,6 @@
                         0.005: 10
                         0.0075: 15
                         0.01: 20
-                    dynamics:
-                        hidden_sizes: [64, 64, 64, 64]
-                        learning_rate: 0.0001
         
         FORCE_CPU:
             force_cpu: true

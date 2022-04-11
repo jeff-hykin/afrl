@@ -6,6 +6,7 @@ import numpy as np
 import stable_baselines3 as sb
 import torch
 import file_system_py as FS
+import silver_spectacle as ss
 from torch import nn
 from torch.optim import Adam
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
@@ -16,7 +17,15 @@ from info import path_to, config
 from main.training.train_agent import Agent
 from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
 
-minibatch_size = config.train_dynamics.minibatch_size
+settings = config.train_dynamics
+# contains:
+    # learning_rate
+    # hidden_sizes
+    # number_of_episodes
+    # number_of_epochs
+    # minibatch_size
+    # loss_api
+    # etc
 
 # State transition dynamics model
 class DynamicsModel(nn.Module):
@@ -34,14 +43,13 @@ class DynamicsModel(nn.Module):
         *,
         path,
         agent,
-        force_train=config.train_dynamics.force_retrain,
+        force_train=settings.force_retrain,
     ):
         env = config.get_env(env_name)
         dynamics = DynamicsModel(
             obs_dim=env.observation_space.shape[0],
             act_dim=env.action_space.shape[0],
-            hidden_sizes=config.gym_env_settings[env_name].dynamics.hidden_sizes,
-            learning_rate=config.gym_env_settings[env_name].dynamics.learning_rate,
+            settings=settings.merge(settings.env_overrides.get(env_name, {}))
             agent=agent,
             path=path,
             device=config.device,
@@ -55,33 +63,42 @@ class DynamicsModel(nn.Module):
         # 
         # train
         # 
-        recorder = train(
+        recorder = dynamics.train(
             env_name,
             agent=agent,
-            dynamics=dynamics,
-            loss_api=config.train_dynamics.loss_api,
-            n_episodes=config.train_dynamics.number_of_episodes,
-            n_epochs=config.train_dynamics.number_of_epochs,
+            loss_api=settings.loss_api,
+            number_of_episodes=settings.number_of_episodes,
+            number_of_epochs=settings.number_of_epochs,
+            with_card=settings.with_card,
+            minibatch_size=settings.minibatch_size,
         )
         
-        torch.save(dynamics.state_dict(), FS.clear_a_path_for(path, overwrite=True))
-        recorder.save_to(FS.clear_a_path_for(path+".records", overwrite=True))
+        # 
+        # save
+        # 
+        self.save(path)
     
     # init
     @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
-    def __init__(self, obs_dim, act_dim, hidden_sizes, learning_rate, device, agent, path, **kwargs):
+    def __init__(self, obs_dim, act_dim, settings, device, agent, path, **kwargs):
         super().__init__()
-        self.learning_rate = learning_rate
+        self.settings      = settings
+        self.learning_rate = self.settings.learning_rate
+        self.which_loss    = self.settings.loss_function
+        self.hidden_sizes  = self.settings.hidden_sizes
         self.device        = device
         self.obs_dim       = obs_dim
         self.act_dim       = act_dim
         self.agent         = agent
-        self.path         = path
-        self.which_loss    = config.train_dynamics.loss_function
+        self.path          = path
+        self.recorder      = RecordKeeper(
+            experiment_name=config.experiment_name,
+            model="coach",
+        )
         self.model = feed_forward(layer_sizes=[obs_dim + act_dim, *hidden_sizes, obs_dim], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
         self.losses = []
-    
+        
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
     def forward(self, state_batch, action_batch):
@@ -129,7 +146,6 @@ class DynamicsModel(nn.Module):
         return to_pure(loss)
         
     def timestep_training_loss(self, indices: list, step_data: tuple):
-        self.train() # training mode
         loss_function = getattr(self, self.which_loss)
         
         self.agent.freeze()
@@ -146,7 +162,6 @@ class DynamicsModel(nn.Module):
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
     def batch_training_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
-        self.train() # training mode
         loss_function = getattr(self, self.which_loss)
         self.agent.freeze()
         loss = loss_function(state_batch, action_batch, next_state_batch)
@@ -224,120 +239,128 @@ class DynamicsModel(nn.Module):
         
         return ((actual - expected) ** 2).mean()
 
-def experience(env, agent, n_episodes):
-    episodes = [None]*n_episodes
-    all_actions, all_curr_states, all_next_states = [], [], []
-    print(f'''Starting Experience Recording''')
-    for episode_index in range(n_episodes):
-        episode = Episode()
-        
-        state = env.reset()
-        episode.states.append(state)
-        episode.reward_total = 0
-        
-        done = False
-        while not done:
-            action, _ = agent.predict(state, deterministic=True)  # False?
-            action = np.random.multivariate_normal(action, 0 * np.identity(len(action))) # QUESTION: why sample from multivariate_normal?
-            episode.actions.append(action)
-            state, reward, done, info = env.step(action)
+    def experience(self, env, agent, number_of_episodes):
+        episodes = [None]*number_of_episodes
+        all_actions, all_curr_states, all_next_states = [], [], []
+        print(f'''Starting Experience Recording''')
+        for episode_index in range(number_of_episodes):
+            episode = Episode()
+            
+            state = env.reset()
             episode.states.append(state)
-            episode.reward_total += reward
+            episode.reward_total = 0
+            
+            done = False
+            while not done:
+                action, _ = agent.predict(state, deterministic=True)  # False?
+                action = np.random.multivariate_normal(action, 0 * np.identity(len(action))) # QUESTION: why sample from multivariate_normal?
+                episode.actions.append(action)
+                state, reward, done, info = env.step(action)
+                episode.states.append(state)
+                episode.reward_total += reward
+            
+            print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}")
+            episodes[episode_index] = episode
+            all_curr_states += episode.curr_states
+            all_actions     += episode.actions
+            all_next_states += episode.next_states
+
+        return episodes, all_actions, all_curr_states, all_next_states
+
+    def train(self, env_name, agent, loss_api, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
+        env      = config.get_env(env_name)
+        card     = ss.DisplayCard("multiLine", dict(train=[], test=[])) if with_card else None
+        recorder = RecordKeeper(
+            env_name=env_name,
+            batch_size=minibatch_size,
+            number_of_episodes=number_of_episodes,
+            number_of_epochs=number_of_epochs,
+            loss_api=loss_api,
+        ).set_parent(self.recorder)
+    
+        # Get experience from trained agent
+        episodes, all_actions, all_curr_states, all_next_states = self.experience(env, agent, number_of_episodes)
+        print(f'''Starting Train/Test''')
+        states      = to_tensor(all_curr_states)
+        actions     = to_tensor(all_actions)
+        next_states = to_tensor(all_next_states)
+
+        (
+            (train_states     , test_states     ),
+            (train_actions    , test_actions    ),
+            (train_next_states, test_next_states),
+        ) = train_test_split(
+            states,
+            actions,
+            next_states,
+            split_proportion=settings.train_test_split,
+        )
         
-        print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}")
-        episodes[episode_index] = episode
-        all_curr_states += episode.curr_states
-        all_actions     += episode.actions
-        all_next_states += episode.next_states
-
-    return episodes, all_actions, all_curr_states, all_next_states
-
-def train(env_name, agent, dynamics, loss_api, n_episodes=100, n_epochs=100):
-    env = config.get_env(env_name)
-    recorder = RecordKeeper(
-        experiment_name=config.experiment_name,
-        env_name=env_name,
-        model="coach",
-        batch_size=minibatch_size,
-        number_of_episodes=n_episodes,
-        number_of_epochs=n_epochs,
-        loss_api=loss_api,
-    )
-
-    # Get experience from trained agent
-    episodes, all_actions, all_curr_states, all_next_states = experience(env, agent, n_episodes)
-    print(f'''Starting Train/Test''')
-    states      = to_tensor(all_curr_states)
-    actions     = to_tensor(all_actions)
-    next_states = to_tensor(all_next_states)
-
-    (
-        (train_states     , test_states     ),
-        (train_actions    , test_actions    ),
-        (train_next_states, test_next_states),
-    ) = train_test_split(
-        states,
-        actions,
-        next_states,
-        split_proportion=config.train_dynamics.train_test_split,
-    )
-    
-    # 
-    # timestep
-    # 
-    if loss_api == "timestep":
-    
-        training_data = tuple(zip(train_states, train_actions, train_next_states))
-        testing_data  = tuple(zip(test_states , test_actions , test_next_states ))
+        # 
+        # timestep
+        # 
+        if loss_api == "timestep":
+            
+            training_data = tuple(zip(train_states, train_actions, train_next_states))
+            testing_data  = tuple(zip(test_states , test_actions , test_next_states ))
+            
+            for epochs_index in range(number_of_epochs):
+                # 
+                # training
+                # 
+                self.train(True)
+                train_losses = []
+                for indicies in bundle(range(len(training_data)), bundle_size=minibatch_size):
+                    # a size-of-one bundle would break one of the loss functions
+                    if len(indicies) < 2:
+                        continue
+                    train_losses.append(self.timestep_training_loss(indicies, training_data))
+                train_loss = to_tensor(train_losses).mean()
+                
+                # 
+                # testing
+                # 
+                self.train(False)
+                test_loss = self.timestep_testing_loss(range(len(testing_data)), testing_data)
+                
+                print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
+                recorder.push(
+                    epochs_index=epochs_index,
+                    train_loss=train_loss,
+                    test_loss=test_loss,
+                )
+        # 
+        # batched
+        # 
+        elif loss_api == "batched":
+            for epochs_index in range(number_of_epochs):
+                # 
+                # training
+                # 
+                self.train(True)
+                train_losses = []
+                for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
+                    train_losses.append(self.batch_training_loss(state_batch, action_batch, next_state_batch))
+                train_loss = to_tensor(train_losses).mean()
+                
+                # 
+                # testing
+                # 
+                self.train(False)
+                test_loss = self.batch_testing_loss(test_states, test_actions, test_next_states)
+                
+                print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
+                recorder.push(
+                    epochs_index=epochs_index,
+                    train_loss=train_loss,
+                    test_loss=test_loss,
+                )
+        else:
+            raise Exception(f'''unknown loss_api given to train dynamics:\n    was given: {loss_api}\n    valid values: "batched", "timestep" ''')
         
-        for epochs_index in range(n_epochs):
-            # 
-            # training
-            # 
-            train_losses = []
-            for indicies in bundle(range(len(training_data)), bundle_size=minibatch_size):
-                # a size-of-one bundle would break one of the loss functions
-                if len(indicies) < 2:
-                    continue
-                train_losses.append(dynamics.timestep_training_loss(indicies, training_data))
-            train_loss = to_tensor(train_losses).mean()
-            
-            # 
-            # testing
-            # 
-            test_loss = dynamics.timestep_testing_loss(range(len(testing_data)), testing_data)
-            
-            print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
-            recorder.push(
-                epochs_index=epochs_index,
-                train_loss=train_loss,
-                test_loss=test_loss,
-            )
-    # 
-    # batched
-    # 
-    elif loss_api == "batched":
-        for epochs_index in range(n_epochs):
-            # 
-            # training
-            # 
-            train_losses = []
-            for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
-                train_losses.append(dynamics.batch_training_loss(state_batch, action_batch, next_state_batch))
-            train_loss = to_tensor(train_losses).mean()
-            
-            # 
-            # testing
-            # 
-            test_loss = dynamics.batch_testing_loss(test_states, test_actions, test_next_states)
-            
-            print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
-            recorder.push(
-                epochs_index=epochs_index,
-                train_loss=train_loss,
-                test_loss=test_loss,
-            )
-    else:
-        raise Exception(f'''unknown loss_api given to train dynamics:\n    was given: {config.train_dynamics.loss_api}\n    valid values: "batched", "timestep" ''')
+        return recorder
     
-    return recorder
+    def save(self, path=None):
+        path = path or self.path
+        torch.save(self.state_dict(), FS.clear_a_path_for(path, overwrite=True))
+        self.recorder.save_to(FS.clear_a_path_for(path+".records", overwrite=True))
