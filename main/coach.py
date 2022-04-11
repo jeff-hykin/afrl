@@ -29,7 +29,7 @@ settings = config.train_coach
     # etc
 
 # State transition coach model
-class CoachClass(nn.Module):
+class Coach(nn.Module):
     """
     The model of how the world works
         (state) => (next_state)
@@ -49,7 +49,7 @@ class CoachClass(nn.Module):
         force_retrain=settings.force_retrain,
     ):
         env = config.get_env(env_name)
-        coach = CoachClass(
+        coach = Coach(
             state_size=env.observation_space.shape[0],
             action_size=env.action_space.shape[0],
             settings=settings.merge(settings.env_overrides.get(env_name, {})),
@@ -63,7 +63,7 @@ class CoachClass(nn.Module):
                 print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
                 print(f''' Coach Model Exists, loading: {path}''')
                 print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
-                path_to = CoachClass.internal_paths(path)
+                path_to = Coach.internal_paths(path)
                 coach.load_state_dict(torch.load(path_to.model))
                 return coach
         
@@ -351,6 +351,7 @@ class CoachClass(nn.Module):
         else:
             raise Exception(f'''unknown loss_api given to train coach:\n    was given: {loss_api}\n    valid values: "batched", "timestep" ''')
         
+        self.generate_training_card()
         return recorder
     
     def generate_training_card(self):
@@ -369,7 +370,7 @@ class CoachClass(nn.Module):
         )
     
     def save(self, path=None):
-        path_to = CoachClass.internal_paths(path or self.path)
+        path_to = Coach.internal_paths(path or self.path)
         
         basic_attribute_data = { each_attribute: getattr(self, each_attribute) for each_attribute in self.basic_attributes }
         
@@ -379,10 +380,10 @@ class CoachClass(nn.Module):
     
     @classmethod
     def load(cls, path, agent, device):
-        path_to = CoachClass.internal_paths(path)
+        path_to = Coach.internal_paths(path)
         
         basic_attribute_data = LazyDict(large_pickle_load(path_to.attributes))
-        coach = CoachClass(
+        coach = Coach(
             state_size=basic_attribute_data.state_size,
             action_size=basic_attribute_data.action_size,
             settings=basic_attribute_data.settings,

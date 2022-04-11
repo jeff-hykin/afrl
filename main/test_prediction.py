@@ -24,7 +24,7 @@ from rigorous_recorder import RecordKeeper
 from info import path_to, config
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 from main.agent import Agent
-from main.coach import CoachClass
+from main.coach import Coach
 
 settings = config.test_predictor
 

@@ -9,7 +9,7 @@
             - Larger forcast (the avergage length of predictions that were correct)
             - Rewards that are most similar to the optimial policy (green line in .ipynb graph)
         - What is the main loss function?: |
-            there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
+            there's a few, and they're defined in main/training/train_coach.py on the Coach class
             
     tasks/questions:
         - question: what should the env_settings be for the 5 non-lunar lander env's
@@ -51,7 +51,7 @@
                 base_name: default_sac
             
             train_agent:
-                model_name: default_sac_1
+                model_name: default_sac_4 # was the best (by far) out of 10
                 iterations: 100000
                 force_retrain: false
             
@@ -60,7 +60,7 @@
                 learning_rate: 0.0001
                 hidden_sizes: [64, 64, 64, 64]
                 loss_api: batched  # "timestep" or "batched" # loss functions are exclusively compatible with one or the other (this should probably be handled internally)
-                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class CoachClass
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
                 consistent_coach_loss:
                     scale_value_prediction: 1.0
                 number_of_episodes: 20
@@ -86,7 +86,7 @@
                     LunarLanderContinuous-v2:
                         number_of_episodes: 50
                         agent_discount_factor: 0.98
-                        max_score: 300
+                        max_score: 350  # idk what the max is  304.0547650001378 is largest I've seen
                         min_score: -750 # I'm not sure there is a min score (-701.2 is worst I've seen)
                         # min_score: -300 # probably
                 

@@ -41,7 +41,7 @@ class Agent(SAC):
         agent.save(FS.clear_a_path_for(path, overwrite=True))
         return agent
             
-    # add freeze methods (for when CoachClass uses agent)
+    # add freeze methods (for when Coach uses agent)
     @init.freeze_tools()
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -21,7 +21,7 @@ from simple_namespace import namespace
 
 from info import path_to, config
 from training.train_agent import Agent
-from training.train_coach import CoachClass
+from training.train_coach import Coach
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 
 settings = config.gym_env_settings
@@ -36,7 +36,7 @@ def replan(
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
-    coach: CoachClass,
+    coach: Coach,
 ):
 
     new_plan = np.empty((forecast_horizon, action_size), dtype=np.float)
@@ -72,7 +72,7 @@ def test_afrl(
     forecast_horizon: int,
     action_size: int,
     agent: OffPolicyAlgorithm,
-    coach: CoachClass,
+    coach: Coach,
     n_experiments: int,
     env,
 ):
@@ -97,7 +97,7 @@ def test_afrl(
 
 
 def main(env_name, n_experiments=1, forecast_horizon=1, epsilons=[0]):
-    coach = CoachClass.load_default_for(env_name)
+    coach = Coach.load_default_for(env_name)
     agent    = coach.agent
     env      = config.get_env(env_name)
     
