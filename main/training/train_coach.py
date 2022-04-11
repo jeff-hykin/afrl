@@ -11,6 +11,8 @@ from torch.optim import Adam
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure
 from rigorous_recorder import RecordKeeper
+from trivial_torch_tools.generics import large_pickle_load, large_pickle_save
+from super_map import LazyDict
 
 from info import path_to, config
 from training.train_agent import Agent
@@ -33,6 +35,8 @@ class CoachClass(nn.Module):
         (state) => (next_state)
     """
     
+    basic_attributes = [ "settings", "learning_rate", "which_loss", "hidden_sizes", "state_size", "action_size" ]
+    
     # 
     # load
     # 
@@ -42,12 +46,12 @@ class CoachClass(nn.Module):
         *,
         path,
         agent,
-        force_train=settings.force_retrain,
+        force_retrain=settings.force_retrain,
     ):
         env = config.get_env(env_name)
         coach = CoachClass(
-            obs_dim=env.observation_space.shape[0],
-            act_dim=env.action_space.shape[0],
+            state_size=env.observation_space.shape[0],
+            action_size=env.action_space.shape[0],
             settings=settings.merge(settings.env_overrides.get(env_name, {})),
             agent=agent,
             path=path,
@@ -56,13 +60,20 @@ class CoachClass(nn.Module):
         # load if exists
         if not force_retrain:
             if FS.exists(path):
-                coach.load_state_dict(torch.load(path))
+                print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
+                print(f''' Coach Model Exists, loading: {path}''')
+                print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
+                path_to = CoachClass.internal_paths(path)
+                coach.load_state_dict(torch.load(path_to.model))
                 return coach
         
+        print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
+        print(f''' Training Coach Model from scrach''')
+        print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
         # 
         # train
         # 
-        recorder = coach.train(
+        coach.train_with(
             env_name,
             agent=agent,
             loss_api=settings.loss_api,
@@ -76,25 +87,25 @@ class CoachClass(nn.Module):
         # save
         # 
         coach.save(path)
+        return coach
     
     # init
-    @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
-    def __init__(self, obs_dim, act_dim, settings, device, agent, path, **kwargs):
+    def __init__(self, state_size, action_size, settings, device, agent, path, **kwargs):
         super().__init__()
         self.settings      = settings
         self.learning_rate = self.settings.learning_rate
         self.which_loss    = self.settings.loss_function
         self.hidden_sizes  = self.settings.hidden_sizes
         self.device        = device
-        self.obs_dim       = obs_dim
-        self.act_dim       = act_dim
+        self.state_size       = state_size
+        self.action_size       = action_size
         self.agent         = agent
         self.path          = path
         self.recorder      = RecordKeeper(
             experiment_name=config.experiment_name,
             model="coach",
         )
-        self.model = feed_forward(layer_sizes=[obs_dim + act_dim, *hidden_sizes, obs_dim], activation=nn.ReLU).to(self.device)
+        self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
         self.losses = []
         
@@ -238,35 +249,7 @@ class CoachClass(nn.Module):
         
         return ((actual - expected) ** 2).mean()
 
-    def experience(self, env, agent, number_of_episodes):
-        episodes = [None]*number_of_episodes
-        all_actions, all_curr_states, all_next_states = [], [], []
-        print(f'''Starting Experience Recording''')
-        for episode_index in range(number_of_episodes):
-            episode = Episode()
-            
-            state = env.reset()
-            episode.states.append(state)
-            episode.reward_total = 0
-            
-            done = False
-            while not done:
-                action, _ = agent.predict(state, deterministic=True)  # False?
-                action = np.random.multivariate_normal(action, 0 * np.identity(len(action))) # QUESTION: why sample from multivariate_normal?
-                episode.actions.append(action)
-                state, reward, done, info = env.step(action)
-                episode.states.append(state)
-                episode.reward_total += reward
-            
-            print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}")
-            episodes[episode_index] = episode
-            all_curr_states += episode.curr_states
-            all_actions     += episode.actions
-            all_next_states += episode.next_states
-
-        return episodes, all_actions, all_curr_states, all_next_states
-
-    def train(self, env_name, agent, loss_api, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
+    def train_with(self, env_name, agent, loss_api, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
         env      = config.get_env(env_name)
         card     = ss.DisplayCard("multiLine", dict(train=[], test=[])) if with_card else None
         recorder = RecordKeeper(
@@ -279,7 +262,7 @@ class CoachClass(nn.Module):
         ).set_parent(self.recorder)
     
         # Get experience from trained agent
-        episodes, all_actions, all_curr_states, all_next_states = self.experience(env, agent, number_of_episodes)
+        episodes, all_actions, all_curr_states, all_next_states = agent.gather_experience(env, number_of_episodes)
         print(f'''Starting Train/Test''')
         states      = to_tensor(all_curr_states)
         actions     = to_tensor(all_actions)
@@ -375,7 +358,35 @@ class CoachClass(nn.Module):
             test=[ (each.epochs_index, each.test_loss) for each in training_records ],
         ))
     
+    @classmethod
+    def internal_paths(cls, path):
+        return LazyDict(
+            model      = f"{path}/model.pt",
+            attributes = f"{path}/attributes.pickle",
+            recorder   = f"{path}/recorder.pickle",
+        )
+    
     def save(self, path=None):
-        path = path or self.path
-        torch.save(self.state_dict(), FS.clear_a_path_for(path, overwrite=True))
-        self.recorder.save_to(FS.clear_a_path_for(path+".records", overwrite=True))
+        path_to = CoachClass.internal_paths(path or self.path)
+        
+        basic_attribute_data = { each_attribute: getattr(self, each_attribute) for each_attribute in self.basic_attributes }
+        
+        large_pickle_save(basic_attribute_data, path_to.attributes)
+        torch.save(self.state_dict(), FS.clear_a_path_for(path_to.model, overwrite=True))
+        self.recorder.save_to(FS.clear_a_path_for(path_to.recorder, overwrite=True))
+    
+    @classmethod
+    def load(cls, path, agent, device):
+        path_to = CoachClass.internal_paths(path)
+        
+        basic_attribute_data = LazyDict(large_pickle_load(path_to.attributes))
+        coach = CoachClass(
+            state_size=basic_attribute_data.state_size,
+            action_size=basic_attribute_data.action_size,
+            settings=basic_attribute_data.settings,
+            agent=agent,
+            path=path,
+            device=device,
+        )
+        coach.load_state_dict(torch.load(path_to.model))
+        coach.recorder = RecordKeeper.load(path_to.recorder)

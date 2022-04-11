@@ -1,3 +1,4 @@
+import itertools
 
 import numpy as np
 import torch
@@ -6,7 +7,9 @@ import file_system_py as FS
 from stable_baselines3 import SAC
 from trivial_torch_tools import to_tensor, init, convert_each_arg
 
+from smart_cache import cache
 from info import path_to, config
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
 
 class Agent(SAC):
     # 
@@ -17,41 +20,27 @@ class Agent(SAC):
         # skip already-trained ones
         if not force_retrain:
             if FS.exists(path+".zip"):
-                print(f'''model exists: {path}.zip, loading that instead of training it''')
-                return Agent.load(
+                print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
+                print(f''' Agent Model Exists, loading: {path}.zip''')
+                print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
+                agent = Agent.load(
                     path,
                     config.get_env(env_name),
                     device=config.device,
                 )
+                agent.path = path
+                return agent
         
         print(f'''\n\n-------------------------------------------------------''')
-        print(f''' training agent from scratch: {path}.zip''')
+        print(f''' Training Agent from scratch for {path}.zip''')
         print(f'''-------------------------------------------------------\n\n''')
         # train and return
         agent = Agent("MlpPolicy", env_name, device=config.device, verbose=2,)
         agent.learn(iterations)
+        agent.path = path
         agent.save(FS.clear_a_path_for(path_to.agent_model_for(env_name), overwrite=True))
         return agent
             
-    # 
-    # load
-    # 
-    @classmethod
-    def load_default_for(cls, env_name, *, load_previous_weights=True):
-        if load_previous_weights:
-            return Agent.load(
-                path_to.agent_model_for(env_name),
-                config.get_env(env_name),
-                device=config.device,
-            )
-        else:
-            return Agent(
-                "MlpPolicy",
-                env_name,
-                device=config.device,
-                verbose=2,
-            )
-
     # add freeze methods (for when CoachClass uses agent)
     @init.freeze_tools()
     def __init__(self, *args, **kwargs):
@@ -115,3 +104,35 @@ class Agent(SAC):
         #         q = torch.cat(agent.critic_target(state, action), dim=1)
         #     q, _ = torch.min(q, dim=1, keepdim=True)
         #     return q.item()
+    
+    @cache()
+    def gather_experience(self, env, number_of_episodes):
+        episodes = [None]*number_of_episodes
+        all_actions, all_curr_states, all_next_states = [], [], []
+        print(f'''Starting Experience Recording''')
+        for episode_index in range(number_of_episodes):
+            episode = Episode()
+            
+            state = env.reset()
+            episode.states.append(state)
+            episode.reward_total = 0
+            
+            done = False
+            while not done:
+                action, _ = self.predict(state, deterministic=True)  # False?
+                action = np.random.multivariate_normal(action, 0 * np.identity(len(action))) # QUESTION: why sample from multivariate_normal?
+                episode.actions.append(action)
+                state, reward, done, info = env.step(action)
+                episode.states.append(state)
+                episode.reward_total += reward
+            
+            print(f"    Episode: {episode_index}, Reward: {episode.reward_total:.3f}")
+            episodes[episode_index] = episode
+            all_curr_states += episode.curr_states
+            all_actions     += episode.actions
+            all_next_states += episode.next_states
+
+        return episodes, all_actions, all_curr_states, all_next_states
+    
+    def __super_hash__(self):
+        return self.path

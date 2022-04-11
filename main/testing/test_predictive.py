@@ -25,22 +25,10 @@ from training.train_agent import Agent
 from training.train_coach import CoachClass
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 
-# 
-# combine Agent,Coach,Env so they dont get mis-matched
-# 
-from dataclasses import dataclass
-@dataclass
-class PredictorEnv:
-    env_name = None
-    env      = None
-    coach    = None
-    agent    = None
-
-
 def experience(
     epsilon: float,
     forecast_horizon: int,
-    predictor: PredictorEnv,
+    predictor,
 ):
     episode_forecast = []
     rewards          = []
@@ -48,7 +36,7 @@ def experience(
     state            = predictor.env.reset()
     forecast         = np.zeros(forecast_horizon+1, np.int8)
     def replan(
-        intial_state: NDArray,
+        initial_state: NDArray,
         old_plan: NDArray,
     ):
         nonlocal forecast
@@ -76,7 +64,7 @@ def experience(
             # 
             expected_state = predictor.coach.predict(expected_state, action)
             forecast[forecast_index] = forecast[forecast_index + 1] + 1 # for the stats... keep track of the forecast of this action
-            new_plan[forecast_index] = action
+            new_plan.append(action)
 
         #
         # for the part that wasnt in the old plan
@@ -84,7 +72,7 @@ def experience(
         for index in range(forecast_index, forecast_horizon):
             action = actor_action_for(expected_state)
             expected_state = predictor.coach.predict(expected_state, action)
-            new_plan[index] = action
+            new_plan.append(action)
             forecast[index] = 0
 
         return new_plan, forecast
@@ -93,15 +81,15 @@ def experience(
     done = False
     while not done:
         action = plan[0]
-        episode_forecast.append(forecasts[0])
+        episode_forecast.append(forecast[0])
         state, reward, done, _ = predictor.env.step(to_numpy(action))
         rewards.append(reward)
-        plan, forecasts = replan(state, plan,)
+        plan, forecast = replan(state, plan,)
     return rewards, episode_forecast
 
 def main(
     settings: LazyDict,
-    predictor: PredictorEnv,
+    predictor,
 ):
     # 
     # pull in settings
@@ -144,8 +132,8 @@ def run_test(env_name, coach, csv_path):
     # compute data
     data = main(
         settings=config.gym_env_settings[env_name],
-        predictor=PredictorEnv(
-            env_name=env_name,
+        predictor=LazyDict(
+            env=config.get_env(env_name),
             coach=coach,
             agent=coach.agent,
         ),

@@ -9,7 +9,7 @@ python = ">=3.7,<3.10"
 pip = "20.1.1"
 quik-config = "^1.2.0"
 PyVirtualDisplay = "^3.0"
-trivial-torch-tools = "0.4.4"
+trivial-torch-tools = "0.5.0"
 slick-siphon = "^0.1.1"
 notebook = "^6.4.8"
 jupyterthemes = "0.20.0"
@@ -17,6 +17,7 @@ file-system-py = "^0.0.6"
 simple-namespace = "^1.0.0"
 rigorous-recorder = "1.0.2"
 silver-spectacle = "^0.7.1"
+super-hash = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 

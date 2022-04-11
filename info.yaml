@@ -39,16 +39,16 @@
         (default):
             experiment_name: null
             env_name: "LunarLanderContinuous-v2" # can be any of: "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
-            load:
-                agent_path: null
-                coach_path: null
             force_cpu: false
             mode: development
+            load:
+                agent_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
+                coach_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
             
             train_agent:
+                model_name: default_sac_1
                 iterations: 100000
                 force_retrain: false
-                model_name: sac_default_1
             
             train_coach:
                 force_retrain: false
@@ -56,7 +56,7 @@
                 number_of_epochs: 100
                 train_test_split: 0.7
                 minibatch_size: 32
-                loss_style: batched  # "timestep" or "batched" # loss functions are compatible with one or the other
+                loss_api: batched  # "timestep" or "batched" # loss functions are exclusively compatible with one or the other (this should probably be handled internally)
                 loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class CoachClass
                 hidden_sizes: [64, 64, 64, 64]
                 learning_rate: 0.0001

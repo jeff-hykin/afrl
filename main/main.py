@@ -37,8 +37,14 @@ def full_run(env_name, agent_path, coach_path, csv_path, visuals_path):
 # run for all envs 
 # 
 if __name__ == "__main__":
+    env_name = config.env_name
+    print(f'''\n\n-------------------------------------------------------''')
+    print(f'''''')
+    print(f''' Environment: {env_name}''')
+    print(f'''''')
+    print(f'''-------------------------------------------------------\n\n''')
     full_run(
-        env_name=config.env_name,
+        env_name=env_name,
         agent_path=config.load.agent_path or path_to.agent_model_for(env_name),
         coach_path=config.load.coach_path or path_to.coach_model_for(env_name),
         csv_path=path_to.experiment_csv_for(env_name),

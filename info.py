@@ -1,4 +1,5 @@
 from quik_config import find_and_load, LazyDict
+from super_hash import super_hash
 
 # 
 # load the options
@@ -7,7 +8,7 @@ info = find_and_load(
     "info.yaml",
     cd_to_filepath=True,
     parse_args=True,
-    defaults_for_local_data=[ "ENVS=BASIC", ],
+    defaults_for_local_data=[],
 )
 config                = info.config         # the resulting dictionary for all the selected options
 path_to               = info.path_to               # a dictionary of paths relative to the root_path
@@ -39,7 +40,7 @@ for each_name in path_to.folder:
 # functional paths
 # 
 path_to.agent_model_for           = lambda env_name: f"{path_to.folder.agent_models}/{env_name}/{config.train_agent.model_name}"
-path_to.coach_model_for           = lambda env_name: f"{path_to.folder.coach_models}/{config.experiment_name}/{env_name}.pt"
+path_to.coach_model_for           = lambda env_name: f"{path_to.folder.coach_models}/{env_name}/{config.experiment_name}/"
 path_to.experiment_csv_for        = lambda env_name: f"{path_to.folder.results}/{config.experiment_name}/{env_name}/experiments.csv"
 path_to.experiment_visuals_folder = lambda env_name: f"{path_to.folder.visuals}/{config.experiment_name}/{env_name}/"
 
@@ -54,6 +55,8 @@ def get_env(env_name):
     env.name = env_name
     return env
 config.get_env = get_env
+# tell super_hash that pandas dataframes should be converted to csv, then hashed
+super_hash.conversion_table[gym.Env] = lambda env : super_hash(env.name)
 
 # 
 # patch np.array

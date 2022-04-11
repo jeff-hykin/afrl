@@ -53,9 +53,11 @@ Full example:
 python main/main.py --                                            \
     experiment_name:experiment3                                   \
     env_name:AntBulletEnv-v0                                      \
-    agent_path:./data/models/agents/AntBulletEnv-v0/default_sac_1 \
-    train_coach:loss_style:timestep                               \
-    train_coach:loss_function:consistent_coach_loss               
+    train_agent:model_name:default_sac_2                          \
+    train_coach:loss_api:timestep                                 \
+    train_coach:loss_function:consistent_coach_loss
+    
+    # agent_path:./data/models/agents/AntBulletEnv-v0/default_sac_1 \
 ```
 
 #### See more info at [Quik Config Python](https://github.com/jeff-hykin/quik_config_python#command-line-arguments)
