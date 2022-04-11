@@ -47,7 +47,7 @@
             
             agent_compare_test:
                 number_of_agents: 10
-                number_of_episodes: 20
+                number_of_episodes: 10
                 base_name: default_sac
             
             train_agent:
@@ -86,8 +86,9 @@
                     LunarLanderContinuous-v2:
                         number_of_episodes: 50
                         agent_discount_factor: 0.98
-                        max_score: 250 # probably higher
-                        min_score: -150
+                        max_score: 300
+                        min_score: -750 # I'm not sure there is a min score
+                        # min_score: -300 # probably
                 
             gym_env_settings:
                 LunarLanderContinuous-v2:

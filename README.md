@@ -37,10 +37,10 @@ Example look at the `info.yaml` file:
                 number_of_epochs: 100
 ```
 
-Lets change the iterations from `100` to `500` in the command line.
+Lets change the number_of_epochs from `100` to `500` in the command line.
 
 ```sh
-python main/main.py -- \
+python main/run/full.py -- \
     experiment_name:experiment2 \
     train_coach:number_of_epochs:500
 ```
@@ -50,14 +50,12 @@ Thats all there is too it. Works with lists, strings and more advanced types. <b
 Full example:
 
 ```sh
-python main/main.py --                                            \
-    experiment_name:experiment3                                   \
-    env_name:AntBulletEnv-v0                                      \
-    train_agent:model_name:default_sac_2                          \
-    train_coach:loss_api:timestep                                 \
+python main/run/full.py --                            \
+    experiment_name:experiment3                       \
+    env_name:AntBulletEnv-v0                          \
+    train_agent:model_name:default_sac_2              \
+    train_coach:loss_api:timestep                     \
     train_coach:loss_function:consistent_coach_loss
-    
-    # agent_path:./data/models/agents/AntBulletEnv-v0/default_sac_1 \
 ```
 
 #### See more info at [Quik Config Python](https://github.com/jeff-hykin/quik_config_python#command-line-arguments)
