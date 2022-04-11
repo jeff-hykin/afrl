@@ -1,4 +1,4 @@
-from main.analysis import plot_epsilon_1, plot_epsilon_2
+from analysis import plot_epsilon_1, plot_epsilon_2
 from info import path_to, config
 
 env_names = config.env_names

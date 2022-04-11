@@ -21,9 +21,9 @@ from simple_namespace import namespace
 from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
-from main.training.train_agent import Agent
-from main.training.train_coach import CoachClass
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
+from training.train_agent import Agent
+from training.train_coach import CoachClass
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
 
 # 
 # combine Agent,Coach,Env so they dont get mis-matched

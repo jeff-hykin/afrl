@@ -13,8 +13,8 @@ from trivial_torch_tools.generics import to_pure
 from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
-from main.training.train_agent import Agent
-from main.tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
+from training.train_agent import Agent
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
 
 settings = config.train_coach
 # contains:
@@ -48,7 +48,7 @@ class CoachClass(nn.Module):
         coach = CoachClass(
             obs_dim=env.observation_space.shape[0],
             act_dim=env.action_space.shape[0],
-            settings=settings.merge(settings.env_overrides.get(env_name, {}))
+            settings=settings.merge(settings.env_overrides.get(env_name, {})),
             agent=agent,
             path=path,
             device=config.device,
@@ -371,8 +371,8 @@ class CoachClass(nn.Module):
     def generate_training_card(self):
         training_records = tuple(each for each in self.records if each.get("training_record", False))
         ss.DisplayCard("multiLine", dict(
-            train=[ each.epochs_index, each.train_loss for each in training_records ],
-            test=[ each.epochs_index, each.test_loss for each in training_records ],
+            train=[ (each.epochs_index, each.train_loss) for each in training_records ],
+            test=[ (each.epochs_index, each.test_loss) for each in training_records ],
         ))
     
     def save(self, path=None):

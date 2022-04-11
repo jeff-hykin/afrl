@@ -1,7 +1,7 @@
-from main.training.train_agent import Agent
-from main.training.train_coach import CoachClass as Coach
-from main.testing.test_predictive import run_test
-from main.testing.analysis import generate_all_visuals
+from training.train_agent import Agent
+from training.train_coach import CoachClass as Coach
+from testing.test_predictive import run_test
+from testing.analysis import generate_all_visuals
 
 from info import config, path_to
 
@@ -12,6 +12,7 @@ from info import config, path_to
 
 def full_run(env_name, agent_path, coach_path, csv_path, visuals_path):
     agent = Agent.smart_load(
+        env_name=env_name,
         path=agent_path,
     )
     coach = Coach.smart_load(

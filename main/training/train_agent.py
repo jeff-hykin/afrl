@@ -24,7 +24,9 @@ class Agent(SAC):
                     device=config.device,
                 )
         
-        print(f'''training agent from scratch: {path}.zip''')
+        print(f'''\n\n-------------------------------------------------------''')
+        print(f''' training agent from scratch: {path}.zip''')
+        print(f'''-------------------------------------------------------\n\n''')
         # train and return
         agent = Agent("MlpPolicy", env_name, device=config.device, verbose=2,)
         agent.learn(iterations)

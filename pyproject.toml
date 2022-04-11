@@ -15,7 +15,7 @@ notebook = "^6.4.8"
 jupyterthemes = "0.20.0"
 file-system-py = "^0.0.6"
 simple-namespace = "^1.0.0"
-rigorous-recorder = "^1.0.0"
+rigorous-recorder = "1.0.2"
 silver-spectacle = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
