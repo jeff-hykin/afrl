@@ -18,6 +18,7 @@ from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure, flatten
 from super_map import LazyDict
 from simple_namespace import namespace
+from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
 from main.training.train_agent import Agent

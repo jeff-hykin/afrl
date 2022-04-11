@@ -10,6 +10,7 @@ from torch import nn
 from torch.optim import Adam
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure
+from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
 from main.training.train_agent import Agent
@@ -54,7 +55,7 @@ class DynamicsModel(nn.Module):
         # 
         # train
         # 
-        train(
+        recorder = train(
             env_name,
             agent=agent,
             dynamics=dynamics,
@@ -64,6 +65,7 @@ class DynamicsModel(nn.Module):
         )
         
         torch.save(dynamics.state_dict(), FS.clear_a_path_for(path, overwrite=True))
+        recorder.save_to(FS.clear_a_path_for(path+".records", overwrite=True))
     
     # init
     @init.save_and_load_methods(model_attributes=["model"], basic_attributes=[ "hidden_sizes", "learning_rate", "obs_dim", "act_dim"])
@@ -252,6 +254,15 @@ def experience(env, agent, n_episodes):
 
 def train(env_name, agent, dynamics, loss_api, n_episodes=100, n_epochs=100):
     env = config.get_env(env_name)
+    recorder = RecordKeeper(
+        experiment_name=config.experiment_name,
+        env_name=env_name,
+        model="coach",
+        batch_size=minibatch_size,
+        number_of_episodes=n_episodes,
+        number_of_epochs=n_epochs,
+        loss_api=loss_api,
+    )
 
     # Get experience from trained agent
     episodes, all_actions, all_curr_states, all_next_states = experience(env, agent, n_episodes)
@@ -289,12 +300,19 @@ def train(env_name, agent, dynamics, loss_api, n_episodes=100, n_epochs=100):
                 if len(indicies) < 2:
                     continue
                 train_losses.append(dynamics.timestep_training_loss(indicies, training_data))
+            train_loss = to_tensor(train_losses).mean()
+            
             # 
             # testing
             # 
             test_loss = dynamics.timestep_testing_loss(range(len(testing_data)), testing_data)
             
-            print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")
+            print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
+            recorder.push(
+                epochs_index=epochs_index,
+                train_loss=train_loss,
+                test_loss=test_loss,
+            )
     # 
     # batched
     # 
@@ -306,12 +324,20 @@ def train(env_name, agent, dynamics, loss_api, n_episodes=100, n_epochs=100):
             train_losses = []
             for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
                 train_losses.append(dynamics.batch_training_loss(state_batch, action_batch, next_state_batch))
+            train_loss = to_tensor(train_losses).mean()
             
             # 
             # testing
             # 
             test_loss = dynamics.batch_testing_loss(test_states, test_actions, test_next_states)
             
-            print(f"    Epoch {epochs_index+1}. Train Loss: {to_tensor(train_losses).mean():.4f}, Test Loss: {test_loss:.4f}")    
+            print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
+            recorder.push(
+                epochs_index=epochs_index,
+                train_loss=train_loss,
+                test_loss=test_loss,
+            )
     else:
         raise Exception(f'''unknown loss_api given to train dynamics:\n    was given: {config.train_dynamics.loss_api}\n    valid values: "batched", "timestep" ''')
+    
+    return recorder
