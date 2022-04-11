@@ -9,11 +9,12 @@ import numpy as np
 import pandas as pd
 import stable_baselines3 as sb
 import torch
+import file_system_py as FS
+import silver_spectacle as ss
 from nptyping import NDArray
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch.optim.adam import Adam
 from tqdm import tqdm
-import file_system_py as FS
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure, flatten
 from super_map import LazyDict
@@ -24,6 +25,8 @@ from info import path_to, config
 from training.train_agent import Agent
 from training.train_coach import CoachClass
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
+
+settings = config.test_predictor
 
 def experience(
     epsilon: float,
@@ -96,7 +99,7 @@ def main(settings, predictor):
     sccore_range          = settings.max_score - settings.min_score
     epsilons              = sccore_range * np.array(multipliers)
     predictor.agent.gamma = settings.agent_discount_factor
-
+    
     # define return value
     data = LazyDict(
         epsilon=[],
@@ -104,7 +107,15 @@ def main(settings, predictor):
         discounted_rewards=[],
         forecast=[],
         average_forecast=[],
+        horizon=[],
     )
+    card = ss.DisplayCard("multiLine", dict(
+        rewards=[],
+        average_forecast=[],
+        epsilon=[],
+        horizon=[],
+    ))
+    
     # 
     # perform experiments with all epsilons
     # 
@@ -119,7 +130,7 @@ def main(settings, predictor):
             data.epsilon.append(epsilon)
             data.rewards.append(average_reward)
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
-            data.forecast.append(forecast[:horizon])
+            data.forecast.append(forecast[horizon:]) # BOOKMARK: I don't understand this part --Jeff
             
             grand_average_forecast = average([
                 average(each_forecast)
@@ -128,6 +139,12 @@ def main(settings, predictor):
             ])
             
             data.average_forecast.append(grand_average_forecast)
+            card.send(dict(
+                epsilon=[ index, epsilon ],
+                average_forecast=[index, grand_average_forecast],
+                rewards=[ index, average_reward ],
+                horizon=[ index, horizon ],
+            ))
             
             print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, average_reward: {average_reward:.2f}")
     return data
@@ -138,18 +155,13 @@ def run_test(env_name, coach, csv_path):
     print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
     # compute data
     data = main(
-        settings=config.gym_env_settings[env_name],
+        settings=settings.merge(settings.env_overrides[env_name]),
         predictor=LazyDict(
             env=config.get_env(env_name),
             coach=coach,
             agent=coach.agent,
         ),
     )
-    # ss.DisplayCard("multiLine", dict(
-    #     epsilon=tuple(each_index, each_reward for each_index, each_reward in enumerate( data.epsilon))
-    #     rewards
-    #     discounted_rewards
-    # ))
     
     # export to CSV
     FS.clear_a_path_for(csv_path, overwrite=True)

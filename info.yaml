@@ -76,8 +76,6 @@
                 
             gym_env_settings:
                 LunarLanderContinuous-v2:
-                    number_of_episodes: 50
-                    agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
                     max_score: 70  # discounted ep reward
                     min_score: -100
@@ -88,8 +86,6 @@
                         0.0075: 15
                         0.01: 20
                 MountainCarContinuous-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    number_of_episodes: 50
-                    agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
                     max_score: 70
                     min_score: -100
@@ -100,8 +96,6 @@
                         0.0075: 15
                         0.01: 20
                 AntBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    number_of_episodes: 50
-                    agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
                     max_score: 70
                     min_score: -100
@@ -112,8 +106,6 @@
                         0.0075: 15
                         0.01: 20
                 HopperBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    number_of_episodes: 50
-                    agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
                     max_score: 70
                     min_score: -100
@@ -124,8 +116,6 @@
                         0.0075: 15
                         0.01: 20
                 BipedalWalker-v3: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    number_of_episodes: 50
-                    agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
                     max_score: 70
                     min_score: -100
@@ -136,8 +126,6 @@
                         0.0075: 15
                         0.01: 20
                 HalfCheetahBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    number_of_episodes: 50
-                    agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
                     max_score: 70
                     min_score: -100
