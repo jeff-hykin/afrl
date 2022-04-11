@@ -22,6 +22,7 @@ def confidence_interval(xs):
 def plot_epsilon_1(env_name, csv_path, output_folder):
     plt.figure(figsize=(5.5, 5.5))
     
+    max_score = settings[env_name].max_score
     min_score = settings[env_name].min_score
     gamma     = settings[env_name].agent_discount_factor
     
@@ -29,18 +30,20 @@ def plot_epsilon_1(env_name, csv_path, output_folder):
         print(f"no data found for: {env_name}: {csv_path}")
         return
     
-    data_frame = pd.read_csv(csv_path).rename(columns={'discounted_rewards': 'V'})
+    data_frame = pd.read_csv(csv_path)
     
-    epsilon_low   = data_frame.eps.min() 
-    epsilon_high  = data_frame.eps.max()
-    epsilon_means = data_frame.groupby('eps').opt.mean()
-    epsilon_stdev = data_frame.groupby('eps').opt.std().values
-    max_score     = data_frame.groupby('epsilon').V.mean().values[0]
+    epsilon_low   = data_frame.epsilon.min() 
+    epsilon_high  = data_frame.epsilon.max()
+    score_range   = max_score - min_score
     
-    score_range = max_score - min_score
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_score) / score_range
+    data_frame['epsilon'] = data_frame.epsilon / score_range
     
-    data_frame['opt'] = (data_frame.V - min_score) / score_range
-    data_frame['eps'] = data_frame.epsilon / score_range
+    epsilon_means = data_frame.groupby('epsilon').normalized_rewards.mean()
+    epsilon_stdev = data_frame.groupby('epsilon').normalized_rewards.std().values
+    max_score     = data_frame.groupby('epsilon').discounted_rewards.mean().values[0]
+    
+    
     
     epsilon = np.linspace(0, epsilon_high, 2)
     subopt  = epsilon / (1 - gamma)
@@ -54,7 +57,7 @@ def plot_epsilon_1(env_name, csv_path, output_folder):
     plt.plot(epsilon, base_mean-subopt, color='orange', label='Perform. Bounds')
     plt.ylim(-0.1, 1.1)
     plt.xlabel('Epsilon Coefficient')
-    plt.fill_between(epsilon_means.index, epsilon_means-epsilon_stdev, epsilon_means+stdev, alpha=0.2, color='steelblue')
+    plt.fill_between(epsilon_means.index, epsilon_means-epsilon_stdev, epsilon_means+epsilon_stdev, alpha=0.2, color='steelblue')
     plt.hlines(base_mean, epsilon_low, epsilon_high, color='green', label='V^pi(s_0)')
     plt.plot([epsilon_low, epsilon_high], [0,0], color='red', label='V^{rand}(s_0)')
     plt.legend(loc='lower left', fontsize="x-small")
@@ -72,13 +75,13 @@ def plot_epsilon_2(env_name, csv_path, output_folder):
     max_score = settings[env_name]['max_score']
     min_score = settings[env_name]['min_score']
     
-    data_frame = pd.read_csv(csv_path).rename(columns={'discounted_rewards': 'V', 'Unnamed: 0': 'episode'})
-    forecast_means               = data_frame.groupby('eps').forecast.mean() + 1
-    forecast_standard_deviations = data_frame.groupby(['eps', 'episode']).forecast.mean().unstack().std(1)
+    data_frame = pd.read_csv(csv_path).rename(columns={'Unnamed: 0': 'episode'})
+    forecast_means               = data_frame.groupby('epsilon').forecast.mean() + 1
+    forecast_standard_deviations = data_frame.groupby(['epsilon', 'episode']).forecast.mean().unstack().std(1)
     
     score_range = max_score - min_score
-    data_frame['opt'] = (data_frame.V - min_score) / score_range
-    data_frame['eps'] = data_frame.epsilon / score_range
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_score) / score_range
+    data_frame['epsilon'] = data_frame.epsilon / score_range
     
     forecast_lows   = forecast_means + forecast_standard_deviations # NOTE: this seems backwards to me, not that the graph will look any different --Jeff
     forecasts_highs = forecast_means - forecast_standard_deviations

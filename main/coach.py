@@ -15,8 +15,8 @@ from trivial_torch_tools.generics import large_pickle_load, large_pickle_save
 from super_map import LazyDict
 
 from info import path_to, config
-from training.train_agent import Agent
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
+from main.agent import Agent
 
 settings = config.train_coach
 # contains:

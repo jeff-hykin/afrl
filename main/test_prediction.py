@@ -22,9 +22,9 @@ from simple_namespace import namespace
 from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
-from training.train_agent import Agent
-from training.train_coach import CoachClass
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
+from main.agent import Agent
+from main.coach import CoachClass
 
 settings = config.test_predictor
 
