@@ -87,7 +87,7 @@
                         number_of_episodes: 50
                         agent_discount_factor: 0.98
                         max_score: 300
-                        min_score: -750 # I'm not sure there is a min score
+                        min_score: -750 # I'm not sure there is a min score (-701.2 is worst I've seen)
                         # min_score: -300 # probably
                 
             gym_env_settings:
