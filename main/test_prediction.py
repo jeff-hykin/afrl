@@ -125,13 +125,13 @@ def main(settings, predictor):
             rewards, forecast = experience(epsilon, horizon, predictor,)
             average_reward = average(rewards)
             index += 1
-            # NOTE: double averaging might not be the desired metric but its probably alright
             # save data
             data.epsilon.append(epsilon)
             data.rewards.append(average_reward)
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
             data.forecast.append(forecast[horizon:]) # BOOKMARK: I don't understand this part --Jeff
             
+            # NOTE: double averaging might not be the desired metric but its probably alright
             grand_average_forecast = average([
                 average(each_forecast)
                     for each_epsilon, each_forecast in zip(data.epsilon, data.forecast)
@@ -142,7 +142,7 @@ def main(settings, predictor):
             card.send(dict(
                 epsilon=[ index, epsilon ],
                 average_forecast=[index, grand_average_forecast],
-                rewards=[ index, average_reward ],
+                rewards=[ index, average_reward*10 ],
                 horizon=[ index, horizon ],
             ))
             
