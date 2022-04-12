@@ -12,7 +12,7 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
-        - solve: why is per-timestep reward so low when logged from testing
+        - check: epsilon size compared to timestep q values for plan/replan (check as a percentage)
         - problem: epsilon is highly effected by max/min possible score. There's conflicting info on if min/max is supposed to be on a per-episode or per-timestep basis, and if its supposed to be discounted or not
         - solve: why slice [horizon:] instead of [:horizon], which of the two is correct
         - task: set env_settings be for the 5 non-lunar lander env's
