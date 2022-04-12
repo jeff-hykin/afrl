@@ -116,14 +116,14 @@ def main(settings, predictor):
         alt_forecast=[],
         average_forecast=[],
         alt_average_forecast=[],
-        median_failure_point=[],
+        average_failure_point=[],
         horizon=[],
     )
     card = ss.DisplayCard("multiLine", dict(
         rewards=[],
         average_forecast=[],
         alt_average_forecast=[],
-        median_failure_point=[],
+        average_failure_point=[],
         epsilon=[],
         horizon=[],
     ))
@@ -136,7 +136,7 @@ def main(settings, predictor):
         for episode_index in range(settings.number_of_episodes):
             rewards, forecast, failure_points = experience(epsilon, horizon, predictor,)
             normalized_rewards = normalize_rewards(rewards, settings.max_reward_single_timestep, settings.min_reward_single_timestep)
-            median_failure_point = median(failure_points)
+            average_failure_point = average(failure_points)
             normalized_episode_reward = sum(normalized_rewards)
             index += 1
             # save data
@@ -145,7 +145,7 @@ def main(settings, predictor):
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
             data.forecast.append(forecast[horizon:]) # BOOKMARK: I don't understand this part --Jeff
             data.alt_forecast.append(forecast[:horizon])
-            data.median_failure_point.append(median_failure_point)
+            data.average_failure_point.append(average_failure_point)
             data.horizon.append(horizon)
             
             # NOTE: double averaging might not be the desired metric but its probably alright
@@ -166,7 +166,7 @@ def main(settings, predictor):
                 epsilon=[ index, epsilon ],
                 average_forecast=[index, grand_average_forecast],
                 alt_average_forecast=[index, alt_average_forecast],
-                median_failure_point=[index, median_failure_point],
+                average_failure_point=[index, average_failure_point],
                 rewards=[ index, 10 * normalized_episode_reward/len(rewards) ], # averaging to fix the graph scale
                 horizon=[ index, horizon ],
             ))
@@ -175,12 +175,12 @@ def main(settings, predictor):
     
     # display one card at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
-        rewards=             [ (index, each) for index, each in enumerate(data.rewards)              ],
-        average_forecast=    [ (index, each) for index, each in enumerate(data.average_forecast)     ],
-        alt_average_forecast=[ (index, each) for index, each in enumerate(data.alt_average_forecast) ],
-        median_failure_point=[ (index, each) for index, each in enumerate(data.median_failure_point) ],
-        epsilon=             [ (index, each) for index, each in enumerate(data.epsilon)              ],
-        horizon=             [ (index, each) for index, each in enumerate(data.horizon)              ],
+        rewards=              [ (index, each) for index, each in enumerate(data.rewards)               ],
+        average_forecast=     [ (index, each) for index, each in enumerate(data.average_forecast)      ],
+        alt_average_forecast= [ (index, each) for index, each in enumerate(data.alt_average_forecast)  ],
+        average_failure_point=[ (index, each) for index, each in enumerate(data.average_failure_point) ],
+        epsilon=              [ (index, each) for index, each in enumerate(data.epsilon)               ],
+        horizon=              [ (index, each) for index, each in enumerate(data.horizon)               ],
     ))
     return data
 
