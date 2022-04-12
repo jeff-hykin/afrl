@@ -20,8 +20,8 @@ def confidence_interval(xs):
     return st.t.interval(0.95, len(xs)-1, loc=np.mean(xs), scale=st.sem(xs))
 
 def plot_epsilon_1(env_name, csv_path, output_folder):
-    max_score = settings[env_name].max_score
-    min_score = settings[env_name].min_score
+    max_reward_single_timestep = settings[env_name].max_reward_single_timestep
+    min_reward_single_timestep = settings[env_name].min_reward_single_timestep
     gamma     = settings[env_name].agent_discount_factor
     
     if not FS.exists(path_to.experiment_csv_for(env_name)):
@@ -30,9 +30,9 @@ def plot_epsilon_1(env_name, csv_path, output_folder):
     
     data_frame = pd.read_csv(csv_path)
     
-    max_score = data_frame.groupby('epsilon').discounted_rewards.mean().values[0]
-    score_range = max_score - min_score
-    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_score) / score_range
+    max_reward_single_timestep = data_frame.groupby('epsilon').discounted_rewards.mean().values[0]
+    score_range = max_reward_single_timestep - min_reward_single_timestep
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_reward_single_timestep) / score_range
     data_frame['epsilon_adjusted'] = data_frame.epsilon / score_range
     epsilon_means       = data_frame.groupby('epsilon_adjusted').normalized_rewards.mean()
     standard_deviations = data_frame.groupby('epsilon_adjusted').normalized_rewards.std().values
@@ -62,13 +62,13 @@ def plot_epsilon_1(env_name, csv_path, output_folder):
     )
 
 def plot_epsilon_2(env_name, csv_path, output_folder):
-    max_score = settings[env_name].max_score
-    min_score = settings[env_name].min_score
+    max_reward_single_timestep = settings[env_name].max_reward_single_timestep
+    min_reward_single_timestep = settings[env_name].min_reward_single_timestep
     gamma     = settings[env_name].agent_discount_factor
     
     data_frame = pd.read_csv(path_to.experiment_csv_for(env_name)).rename(columns={'Unnamed: 0': 'episode'})
-    score_range = max_score - min_score
-    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_score) / score_range
+    score_range = max_reward_single_timestep - min_reward_single_timestep
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_reward_single_timestep) / score_range
     data_frame['epsilon_adjusted']   = data_frame.epsilon / score_range
     forecast_means      = data_frame.groupby('epsilon_adjusted').forecast.mean() + 1
     standard_deviations = data_frame.groupby(['epsilon_adjusted', 'episode']).forecast.mean().unstack().std(1)

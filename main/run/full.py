@@ -9,7 +9,9 @@ from main.test_prediction import run_test
 #       for examples and explainations see:
 #       see: https://github.com/jeff-hykin/quik_config_python#command-line-arguments
 
+agent = None
 def full_run(env_name, agent_path, coach_path, csv_path, visuals_path):
+    global agent
     agent = Agent.smart_load(
         env_name=env_name,
         path=agent_path,
