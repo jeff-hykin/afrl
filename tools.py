@@ -3,6 +3,11 @@ def average(iterable):
     from trivial_torch_tools.generics import to_pure
     return mean(tuple(to_pure(each) for each in iterable))
 
+def median(iterable):
+    from statistics import median
+    from trivial_torch_tools.generics import to_pure
+    return median(tuple(to_pure(each) for each in iterable))
+
 def to_numpy(value):
     import torch
     import numpy
@@ -17,6 +22,10 @@ def flatten(ys):
 
 def get_discounted_rewards(rewards, gamma):
     return sum([r * gamma ** t for t, r in enumerate(rewards)])
+
+def normalize_rewards(rewards, max_reward_single_timestep, min_reward_single_timestep):
+    reward_range = min_reward_single_timestep - max_reward_single_timestep
+    return tuple((each - min_reward_single_timestep)/reward_range for each in rewards)
 
 def divide_chunks(l, n):
     # looping till length l

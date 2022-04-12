@@ -12,18 +12,11 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
-        - problem: epsilon is highly effected by max/min possible score. I'm unsure if min/max is supposed to be on a per-episode or per-timestep basis
-          discusson: |
-            because of spiking high values, this is not a good scaling metric.
-            Out of 99 values the min is -314, out of 100 its -701.2.
-            I know makes the math complicated but I think the only way to avoid 2 hyperparameters would be to have a multiplier
-        - solve: why is epsilon gigantic when printed
-        - solve: why slice [horizon:] instead of [:horizon]
+        - solve: why is per-timestep reward so low when logged from testing
+        - problem: epsilon is highly effected by max/min possible score. There's conflicting info on if min/max is supposed to be on a per-episode or per-timestep basis, and if its supposed to be discounted or not
+        - solve: why slice [horizon:] instead of [:horizon], which of the two is correct
         - task: set env_settings be for the 5 non-lunar lander env's
-        - question: why set deterministic=True, and then sample from normal curve (coach experience function)
-          answer: because of robustness and exploring states (good agents have a narrow path that doesnt sample the state space very well)
-        - todo: read the paper more
-        - question: whats the difference between the different Q functions
+        - todo: make sure the graphs are actually measuring the correct thing
 
     # a central place for filepaths
     (path_to):
