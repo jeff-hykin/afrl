@@ -35,7 +35,6 @@ def experience(
 ):
     episode_forecast = []
     rewards          = []
-    empty_plan       = []
     state            = predictor.env.reset()
     forecast         = np.zeros(forecast_horizon+1, np.int8)
     def replan(
@@ -59,7 +58,7 @@ def experience(
             replan_q = predictor.agent.value_of(expected_state, replan_action)
             plan_q   = predictor.agent.value_of(expected_state, action)
             # if the planned action is significantly worse, then fail
-            if plan_q + epsilon < replan_q:
+            if replan_q + epsilon < plan_q:
                 break
             
             # 
