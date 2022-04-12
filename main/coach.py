@@ -370,7 +370,9 @@ class Coach(nn.Module):
         )
     
     def save(self, path=None):
-        path_to = Coach.internal_paths(path or self.path)
+        path = path or self.path
+        print(f'''Saving Coach to: {path}''')
+        path_to = Coach.internal_paths(path)
         
         basic_attribute_data = { each_attribute: getattr(self, each_attribute) for each_attribute in self.basic_attributes }
         
