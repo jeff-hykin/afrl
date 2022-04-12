@@ -23,6 +23,10 @@ def flatten(ys):
 def get_discounted_rewards(rewards, gamma):
     return sum([r * gamma ** t for t, r in enumerate(rewards)])
 
+def normalize_rewards(rewards, max_reward_single_timestep, min_reward_single_timestep):
+    reward_range = min_reward_single_timestep - max_reward_single_timestep
+    return tuple((each - min_reward_single_timestep)/reward_range for each in rewards)
+
 def divide_chunks(l, n):
     # looping till length l
     for i in range(0, len(l), n):

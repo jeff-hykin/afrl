@@ -23,7 +23,7 @@ from simple_namespace import namespace
 from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize_rewards
 from main.agent import Agent
 from main.coach import Coach
 
@@ -135,13 +135,13 @@ def main(settings, predictor):
     for epsilon, horizon in zip(epsilons, forecast_horizons):
         for episode_index in range(settings.number_of_episodes):
             rewards, forecast, failure_points = experience(epsilon, horizon, predictor,)
-            average_reward = average(rewards)
+            normalized_rewards = normalize_rewards(rewards, settings.max_reward_single_timestep, settings.min_reward_single_timestep)
             median_failure_point = median(failure_points)
+            normalized_episode_reward = sum(normalized_rewards)
             index += 1
             # save data
             data.epsilon.append(epsilon)
-            data.rewards.append(average_reward)
-            data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
+            data.rewards.append(normalized_episode_reward)
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
             data.forecast.append(forecast[horizon:]) # BOOKMARK: I don't understand this part --Jeff
             data.alt_forecast.append(forecast[:horizon])
@@ -167,11 +167,11 @@ def main(settings, predictor):
                 average_forecast=[index, grand_average_forecast],
                 alt_average_forecast=[index, alt_average_forecast],
                 median_failure_point=[index, median_failure_point],
-                rewards=[ index, average_reward*10 ],
+                rewards=[ index, normalized_episode_reward ],
                 horizon=[ index, horizon ],
             ))
             
-            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, average_timestep_reward: {average_reward:.2f}, max_timestep_reward: {max(rewards)}, min_timestep_reward: {min(rewards)}")
+            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards)}, normalized_episode_rewards: {normalized_episode_reward:.2f}, max_timestep_reward: {max(normalize_rewards)}, min_timestep_reward: {min(normalize_rewards)}")
     
     # display one card at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
