@@ -63,7 +63,7 @@
                 consistent_coach_loss:
                     scale_value_prediction: 1.0
                 number_of_episodes: 20
-                number_of_epochs: 10 # should be 100
+                number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
                 minibatch_size: 32
                 with_card: True
