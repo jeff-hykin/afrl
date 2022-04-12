@@ -12,8 +12,8 @@ from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure
 from rigorous_recorder import RecordKeeper
 from trivial_torch_tools.generics import large_pickle_load, large_pickle_save
-from super_map import LazyDict
 
+from debug import debug
 from info import path_to, config
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
 from main.agent import Agent
@@ -191,27 +191,21 @@ class Coach(nn.Module):
     def consistent_coach_loss(self, indices: list, step_data: tuple):
         losses = []
         scale_value_prediction = self.settings.consistent_coach_loss.scale_value_prediction
-        for index in indices:
-            # need multiple to penalize the future
-            if index < 1:
-                continue
-            
-            state1, action1, state2 = step_data[index]
-            value_prediction_loss = self.value_prediction_loss([state1], [action1], [state2]) * scale_value_prediction
-            losses.append(value_prediction_loss)
-            
-            state1, action1, state2 = step_data[index-1]
-            state2, action2, state3 = step_data[index-0]
-            
-            # TODO: check how this is going to effect vectorization/batches
-            once_predicted_state2  = self.forward(state1               , action1)
-            twice_predicted_state3 = self.forward(once_predicted_state2, action2)
-            once_predicted_state3  = self.forward(state2               , action2)
-            
-            future_loss = ((once_predicted_state3 - twice_predicted_state3)**2).mean()
-            losses.append(future_loss)
+        indices = tuple(index for index in indices if index >= 1)
+        state_1s, action_1s, _ = zip(*(step_data[index-1] for index in indices))
+        state_2s, action_2s, state_3s = zip(*(step_data[index] for index in indices))
         
-        return torch.stack(losses).mean()
+        state_1s  = to_tensor(state_1s)
+        action_1s = to_tensor(action_1s)
+        state_2s  = to_tensor(state_2s)
+        action_2s = to_tensor(action_2s)
+        state_3s  = to_tensor(state_3s)
+        once_predicted_state_2s = self.forward(state_1s, action_1s)
+        once_predicted_state_3s = self.forward(state_2s, action_2s)
+        twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
+        future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean(dim=-1)
+        value_prediction_losses = self.value_prediction_loss(state_2s, action_2s, state_3s) * scale_value_prediction
+        return (future_loss.sum() + value_prediction_losses.sum())/(future_loss.shape[0] + value_prediction_losses.shape[0])
     
     def timestep_loss(self, timesteps):
         predictions = self.create_forcast(timesteps.steps[0].prev_state, timesteps.steps[0].action, len(timesteps.steps))
@@ -234,7 +228,7 @@ class Coach(nn.Module):
         best_next_action = self.agent.make_decision(next_state, deterministic=True)
         best_next_value  = self.agent.value_of(next_state, best_next_action)
         
-        return (best_next_value - predicted_next_value).mean() # when predicted_next_value is high, loss is low (negative)
+        return (best_next_value - predicted_next_value).mean(dim=-1) # when predicted_next_value is high, loss is low (negative)
     
     def action_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
         predicted_next_state   = self.forward(state, action)
