@@ -167,11 +167,11 @@ def main(settings, predictor):
                 average_forecast=[index, grand_average_forecast],
                 alt_average_forecast=[index, alt_average_forecast],
                 median_failure_point=[index, median_failure_point],
-                rewards=[ index, normalized_episode_reward/10 ], # 100 is only for visual scaling
+                rewards=[ index, 10 * normalized_episode_reward/len(rewards) ], # averaging to fix the graph scale
                 horizon=[ index, horizon ],
             ))
             
-            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_rewards: {normalized_episode_reward:.4f}, max_timestep_reward: {max(rewards):.2f}, min_timestep_reward: {min(rewards):.2f}")
+            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_reward: {normalized_episode_reward:.4f}, max_timestep_reward: {max(rewards):.2f}, min_timestep_reward: {min(rewards):.2f}")
     
     # display one card at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
