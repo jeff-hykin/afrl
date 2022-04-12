@@ -52,24 +52,24 @@ def experience(
         expected_state = initial_state
         future_plan = old_plan[1:] # reuse old plan (recycle)
         stopped_early = False
-        for forecast_index, action in enumerate(future_plan):
+        for forecast_index, old_plan_action in enumerate(future_plan):
             # 
             # stopping criteria
             # 
             replan_action = actor_action_for(expected_state)
-            replan_q = predictor.agent.value_of(expected_state, replan_action)
-            plan_q   = predictor.agent.value_of(expected_state, action)
-            # if the planned action is significantly worse, then fail
-            if replan_q + epsilon < plan_q:
+            replan_q      = predictor.agent.value_of(expected_state, replan_action)
+            old_plan_q    = predictor.agent.value_of(expected_state, old_plan_action)
+            # if the planned old_plan_action is significantly worse, then fail
+            if old_plan_q + epsilon < replan_q:
                 stopped_early = True
                 break
             
             # 
             # compute next-step 
             # 
-            expected_state = predictor.coach.predict(expected_state, action)
-            forecast[forecast_index] = forecast[forecast_index + 1] + 1 # for the stats... keep track of the forecast of this action
-            new_plan.append(action)
+            expected_state = predictor.coach.predict(expected_state, old_plan_action)
+            forecast[forecast_index] = forecast[forecast_index + 1] + 1 # for the stats... keep track of the forecast of this old_plan_action
+            new_plan.append(old_plan_action)
 
         if stopped_early:
             failure_points.append(forecast_index)
@@ -167,11 +167,11 @@ def main(settings, predictor):
                 average_forecast=[index, grand_average_forecast],
                 alt_average_forecast=[index, alt_average_forecast],
                 median_failure_point=[index, median_failure_point],
-                rewards=[ index, normalized_episode_reward ],
+                rewards=[ index, normalized_episode_reward/10 ], # 100 is only for visual scaling
                 horizon=[ index, horizon ],
             ))
             
-            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_rewards: {normalized_episode_reward:.4f}, max_timestep_reward: {max(normalized_rewards):.2f}, min_timestep_reward: {min(normalized_rewards):.2f}")
+            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_rewards: {normalized_episode_reward:.4f}, max_timestep_reward: {max(rewards):.2f}, min_timestep_reward: {min(rewards):.2f}")
     
     # display one card at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
