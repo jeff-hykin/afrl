@@ -9,7 +9,7 @@
             - Larger forcast (the avergage length of predictions that were correct)
             - Rewards that are most similar to the optimial policy (green line in .ipynb graph)
         - What is the main loss function?: |
-            there's a few, and they're defined in main/training/train_coach.py on the Coach class
+            there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
         - question: what should the env_settings be for the 5 non-lunar lander env's

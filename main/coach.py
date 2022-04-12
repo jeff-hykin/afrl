@@ -87,6 +87,7 @@ class Coach(nn.Module):
         # save
         # 
         coach.save(path)
+        if settings.with_card: coach.generate_training_card()
         return coach
     
     # init
@@ -351,11 +352,10 @@ class Coach(nn.Module):
         else:
             raise Exception(f'''unknown loss_api given to train coach:\n    was given: {loss_api}\n    valid values: "batched", "timestep" ''')
         
-        self.generate_training_card()
         return recorder
     
     def generate_training_card(self):
-        training_records = tuple(each for each in self.records if each.get("training_record", False))
+        training_records = tuple(each for each in self.recorder.records if each.get("training_record", False))
         ss.DisplayCard("multiLine", dict(
             train=[ (each.epochs_index, each.train_loss) for each in training_records ],
             test=[ (each.epochs_index, each.test_loss) for each in training_records ],
