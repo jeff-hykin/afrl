@@ -12,6 +12,7 @@ from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure
 from rigorous_recorder import RecordKeeper
 from trivial_torch_tools.generics import large_pickle_load, large_pickle_save
+from super_map import LazyDict
 
 from debug import debug
 from info import path_to, config
