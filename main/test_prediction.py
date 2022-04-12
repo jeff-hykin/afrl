@@ -106,12 +106,15 @@ def main(settings, predictor):
         rewards=[],
         discounted_rewards=[],
         forecast=[],
+        alt_forecast=[],
         average_forecast=[],
+        alt_average_forecast=[],
         horizon=[],
     )
     card = ss.DisplayCard("multiLine", dict(
         rewards=[],
         average_forecast=[],
+        alt_average_forecast=[],
         epsilon=[],
         horizon=[],
     ))
@@ -130,6 +133,8 @@ def main(settings, predictor):
             data.rewards.append(average_reward)
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
             data.forecast.append(forecast[horizon:]) # BOOKMARK: I don't understand this part --Jeff
+            data.alt_forecast.append(forecast[:horizon])
+            data.horizon.append(horizon)
             
             # NOTE: double averaging might not be the desired metric but its probably alright
             grand_average_forecast = average([
@@ -137,23 +142,31 @@ def main(settings, predictor):
                     for each_epsilon, each_forecast in zip(data.epsilon, data.forecast)
                         if each_epsilon == epsilon 
             ])
+            alt_average_forecast = average([
+                average(each_forecast)
+                    for each_epsilon, each_forecast in zip(data.epsilon, data.alt_forecast)
+                        if each_epsilon == epsilon 
+            ])
             
             data.average_forecast.append(grand_average_forecast)
+            data.alt_average_forecast.append(alt_average_forecast)
             card.send(dict(
                 epsilon=[ index, epsilon ],
                 average_forecast=[index, grand_average_forecast],
+                alt_average_forecast=[index, alt_average_forecast],
                 rewards=[ index, average_reward*10 ],
                 horizon=[ index, horizon ],
             ))
             
             print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, average_reward: {average_reward:.2f}")
     
-    # display one card at the end with the final data (the other data is transient)
+    # display one card at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
-        rewards=         [ (index, each) for index, each in enumerate(data.rewards)          ],
-        average_forecast=[ (index, each) for index, each in enumerate(data.average_forecast) ],
-        epsilon=         [ (index, each) for index, each in enumerate(data.epsilon)          ],
-        horizon=         [ (index, each) for index, each in enumerate(data.horizon)          ],
+        rewards=             [ (index, each) for index, each in enumerate(data.rewards)              ],
+        average_forecast=    [ (index, each) for index, each in enumerate(data.average_forecast)     ],
+        alt_average_forecast=[ (index, each) for index, each in enumerate(data.alt_average_forecast) ],
+        epsilon=             [ (index, each) for index, each in enumerate(data.epsilon)              ],
+        horizon=             [ (index, each) for index, each in enumerate(data.horizon)              ],
     ))
     return data
 
