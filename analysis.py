@@ -24,8 +24,8 @@ def plot_epsilon_1(env_name, csv_path, output_folder):
     min_reward_single_timestep = settings[env_name].min_reward_single_timestep
     gamma     = settings[env_name].agent_discount_factor
     
-    if not FS.exists(path_to.experiment_csv_for(env_name)):
-        print(f"no data found for: {env_name}: {path_to.experiment_csv_for(env_name)}")
+    if not FS.exists(csv_path):
+        print(f"no data found for: {env_name}: {csv_path}")
         return
     
     data_frame = pd.read_csv(csv_path)
@@ -66,7 +66,7 @@ def plot_epsilon_2(env_name, csv_path, output_folder):
     min_reward_single_timestep = settings[env_name].min_reward_single_timestep
     gamma     = settings[env_name].agent_discount_factor
     
-    data_frame = pd.read_csv(path_to.experiment_csv_for(env_name)).rename(columns={'Unnamed: 0': 'episode'})
+    data_frame = pd.read_csv(csv_path).rename(columns={'Unnamed: 0': 'episode'})
     score_range = max_reward_single_timestep - min_reward_single_timestep
     data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_reward_single_timestep) / score_range
     data_frame['epsilon_adjusted']   = data_frame.epsilon / score_range
