@@ -63,7 +63,7 @@
                 consistent_coach_loss:
                     scale_value_prediction: 1.0
                 number_of_episodes: 20
-                number_of_epochs: 50
+                number_of_epochs: 10 # should be 100
                 train_test_split: 0.7
                 minibatch_size: 32
                 with_card: True
@@ -94,7 +94,7 @@
                 LunarLanderContinuous-v2:
                     agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 70  # discounted ep reward
+                    max_reward_single_timestep: 100  # "discounted ep reward" was the comment, but I don't think thats right
                     min_reward_single_timestep: -100
                     horizons: # acceptability threshold (epsilon) => forecast length (horizon)
                         0.001: 5
@@ -105,7 +105,7 @@
                 MountainCarContinuous-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 70
+                    max_reward_single_timestep: 100
                     min_reward_single_timestep: -100
                     horizons:
                         0.001: 5
@@ -116,7 +116,7 @@
                 AntBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 70
+                    max_reward_single_timestep: 100
                     min_reward_single_timestep: -100
                     horizons:
                         0.001: 5
@@ -127,7 +127,7 @@
                 HopperBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 70
+                    max_reward_single_timestep: 100
                     min_reward_single_timestep: -100
                     horizons:
                         0.001: 5
@@ -138,7 +138,7 @@
                 BipedalWalker-v3: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 70
+                    max_reward_single_timestep: 100
                     min_reward_single_timestep: -100
                     horizons:
                         0.001: 5
@@ -149,7 +149,7 @@
                 HalfCheetahBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
                     agent_discount_factor: 0.98
                     actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 70
+                    max_reward_single_timestep: 100
                     min_reward_single_timestep: -100
                     horizons:
                         0.001: 5

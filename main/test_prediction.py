@@ -96,8 +96,8 @@ def main(settings, predictor):
     # 
     multipliers           = list(settings.horizons.keys())
     forecast_horizons     = list(settings.horizons.values())
-    sccore_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
-    epsilons              = sccore_range * np.array(multipliers)
+    reward_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
+    epsilons              = reward_range * np.array(multipliers)
     predictor.agent.gamma = settings.agent_discount_factor
     
     # define return value
