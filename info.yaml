@@ -12,19 +12,18 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
-        - question: what should the env_settings be for the 5 non-lunar lander env's
-        - question:
-            for predpolicy inside of train_afrl:
-                - why is it a copy of the actor?
-                - why is it being trained?
-                - why is it not saved?
+        - problem: epsilon is highly effected by max/min possible score. I'm unsure if min/max is supposed to be on a per-episode or per-timestep basis
+          discusson: |
+            because of spiking high values, this is not a good scaling metric.
+            Out of 99 values the min is -314, out of 100 its -701.2.
+            I know makes the math complicated but I think the only way to avoid 2 hyperparameters would be to have a multiplier
+        - solve: why is epsilon gigantic when printed
+        - solve: why slice [horizon:] instead of [:horizon]
+        - task: set env_settings be for the 5 non-lunar lander env's
         - question: why set deterministic=True, and then sample from normal curve (coach experience function)
-        - question: whats the difference between train_afrl.py and train_predpolicy.py
-        - question: why does coach.forward have no_grad
-        
+          answer: because of robustness and exploring states (good agents have a narrow path that doesnt sample the state space very well)
         - todo: read the paper more
         - question: whats the difference between the different Q functions
-        - task: redo the coach.forward and .predict method (predict shouldnt have gradient tracking and forward should)
 
     # a central place for filepaths
     (path_to):
@@ -64,7 +63,7 @@
                 consistent_coach_loss:
                     scale_value_prediction: 1.0
                 number_of_episodes: 20
-                number_of_epochs: 100
+                number_of_epochs: 50
                 train_test_split: 0.7
                 minibatch_size: 32
                 with_card: True
@@ -181,3 +180,7 @@
         FORCE_CPU:
             force_cpu: true
         
+        COACH_LOSS:
+            train_coach:
+                loss_api: timestep
+                loss_function: consistent_coach_loss 
