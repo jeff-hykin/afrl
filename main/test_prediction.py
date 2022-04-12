@@ -171,7 +171,7 @@ def main(settings, predictor):
                 horizon=[ index, horizon ],
             ))
             
-            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards)}, normalized_episode_rewards: {normalized_episode_reward:.2f}, max_timestep_reward: {max(normalize_rewards)}, min_timestep_reward: {min(normalize_rewards)}")
+            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_rewards: {normalized_episode_reward:.4f}, max_timestep_reward: {max(normalized_rewards):.2f}, min_timestep_reward: {min(normalized_rewards):.2f}")
     
     # display one card at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
