@@ -119,8 +119,10 @@ def main(settings, predictor):
         average_failure_point=[],
         horizon=[],
     )
-    card = ss.DisplayCard("multiLine", dict(
-        rewards=[],
+    reward_card = ss.DisplayCard("multiLine", dict(
+        rewards=[ (index, each) for index, each in enumerate(data.rewards)               ],
+    ))
+    prediction_card = ss.DisplayCard("multiLine", dict(
         average_forecast=[],
         alt_average_forecast=[],
         average_failure_point=[],
@@ -131,6 +133,7 @@ def main(settings, predictor):
     # 
     # perform experiments with all epsilons
     # 
+    reward_timestep_range = settings.max_reward_single_timestep - settings.min_reward_single_timestep
     index = -1
     for epsilon, horizon in zip(epsilons, forecast_horizons):
         for episode_index in range(settings.number_of_episodes):
@@ -138,6 +141,7 @@ def main(settings, predictor):
             normalized_rewards = normalize_rewards(rewards, settings.max_reward_single_timestep, settings.min_reward_single_timestep)
             average_failure_point = average(failure_points)
             normalized_episode_reward = sum(normalized_rewards)
+            episode_reward = sum(rewards)
             index += 1
             # save data
             data.epsilon.append(epsilon)
@@ -162,20 +166,24 @@ def main(settings, predictor):
             
             data.average_forecast.append(grand_average_forecast)
             data.alt_average_forecast.append(alt_average_forecast)
-            card.send(dict(
+            reward_card.send(dict(
+                rewards=[ index, episode_reward ],
+            ))
+            prediction_card.send(dict(
                 epsilon=[ index, epsilon ],
                 average_forecast=[index, grand_average_forecast],
                 alt_average_forecast=[index, alt_average_forecast],
                 average_failure_point=[index, average_failure_point],
-                rewards=[ index, 10 * normalized_episode_reward/len(rewards) ], # averaging to fix the graph scale
                 horizon=[ index, horizon ],
             ))
             
             print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_reward: {normalized_episode_reward:.4f}, max_timestep_reward: {max(rewards):.2f}, min_timestep_reward: {min(rewards):.2f}")
     
-    # display one card at the end with the final data (the other card is transient)
+    # display cards at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
-        rewards=              [ (index, each) for index, each in enumerate(data.rewards)               ],
+        rewards=[ (index, each) for index, each in enumerate(data.rewards)               ],
+    ))
+    ss.DisplayCard("multiLine", dict(
         average_forecast=     [ (index, each) for index, each in enumerate(data.average_forecast)      ],
         alt_average_forecast= [ (index, each) for index, each in enumerate(data.alt_average_forecast)  ],
         average_failure_point=[ (index, each) for index, each in enumerate(data.average_failure_point) ],
