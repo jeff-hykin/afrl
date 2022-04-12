@@ -3,6 +3,7 @@ from types import FunctionType
 from typing import List
 from copy import deepcopy
 from dataclasses import dataclass
+import math
 
 import gym
 import numpy as np
@@ -22,7 +23,7 @@ from simple_namespace import namespace
 from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median
 from main.agent import Agent
 from main.coach import Coach
 
@@ -30,13 +31,14 @@ settings = config.test_predictor
 
 def experience(
     epsilon: float,
-    forecast_horizon: int,
+    horizon: int,
     predictor,
 ):
     episode_forecast = []
     rewards          = []
+    failure_points   = []
     state            = predictor.env.reset()
-    forecast         = np.zeros(forecast_horizon+1, np.int8)
+    forecast         = np.zeros(horizon+1, np.int8) # TODO: check if that +1 is wrong
     def replan(
         initial_state: NDArray,
         old_plan: NDArray,
@@ -46,10 +48,10 @@ def experience(
         actor_action_for = lambda state: predictor.agent.predict(state, deterministic=True)[0]
         
         new_plan = []
-
         forecast_index = 0
         expected_state = initial_state
         future_plan = old_plan[1:] # reuse old plan (recycle)
+        stopped_early = False
         for forecast_index, action in enumerate(future_plan):
             # 
             # stopping criteria
@@ -59,6 +61,7 @@ def experience(
             plan_q   = predictor.agent.value_of(expected_state, action)
             # if the planned action is significantly worse, then fail
             if replan_q + epsilon < plan_q:
+                stopped_early = True
                 break
             
             # 
@@ -68,10 +71,15 @@ def experience(
             forecast[forecast_index] = forecast[forecast_index + 1] + 1 # for the stats... keep track of the forecast of this action
             new_plan.append(action)
 
+        if stopped_early:
+            failure_points.append(forecast_index)
+        else:
+            failure_points.append(horizon+1)
+        
         #
         # for the part that wasnt in the old plan
         #
-        for index in range(forecast_index, forecast_horizon):
+        for index in range(forecast_index, horizon):
             action = actor_action_for(expected_state)
             expected_state = predictor.coach.predict(expected_state, action)
             new_plan.append(action)
@@ -87,7 +95,7 @@ def experience(
         state, reward, done, _ = predictor.env.step(to_numpy(action))
         rewards.append(reward)
         plan, forecast = replan(state, plan,)
-    return rewards, episode_forecast
+    return rewards, episode_forecast, failure_points
 
 def main(settings, predictor):
     # 
@@ -108,12 +116,14 @@ def main(settings, predictor):
         alt_forecast=[],
         average_forecast=[],
         alt_average_forecast=[],
+        median_failure_point=[],
         horizon=[],
     )
     card = ss.DisplayCard("multiLine", dict(
         rewards=[],
         average_forecast=[],
         alt_average_forecast=[],
+        median_failure_point=[],
         epsilon=[],
         horizon=[],
     ))
@@ -124,15 +134,18 @@ def main(settings, predictor):
     index = -1
     for epsilon, horizon in zip(epsilons, forecast_horizons):
         for episode_index in range(settings.number_of_episodes):
-            rewards, forecast = experience(epsilon, horizon, predictor,)
+            rewards, forecast, failure_points = experience(epsilon, horizon, predictor,)
             average_reward = average(rewards)
+            median_failure_point = median(failure_points)
             index += 1
             # save data
             data.epsilon.append(epsilon)
             data.rewards.append(average_reward)
             data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
+            data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
             data.forecast.append(forecast[horizon:]) # BOOKMARK: I don't understand this part --Jeff
             data.alt_forecast.append(forecast[:horizon])
+            data.median_failure_point.append(median_failure_point)
             data.horizon.append(horizon)
             
             # NOTE: double averaging might not be the desired metric but its probably alright
@@ -153,17 +166,19 @@ def main(settings, predictor):
                 epsilon=[ index, epsilon ],
                 average_forecast=[index, grand_average_forecast],
                 alt_average_forecast=[index, alt_average_forecast],
+                median_failure_point=[index, median_failure_point],
                 rewards=[ index, average_reward*10 ],
                 horizon=[ index, horizon ],
             ))
             
-            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, average_reward: {average_reward:.2f}")
+            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, average_timestep_reward: {average_reward:.2f}, max_timestep_reward: {max(rewards)}, min_timestep_reward: {min(rewards)}")
     
     # display one card at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
         rewards=             [ (index, each) for index, each in enumerate(data.rewards)              ],
         average_forecast=    [ (index, each) for index, each in enumerate(data.average_forecast)     ],
         alt_average_forecast=[ (index, each) for index, each in enumerate(data.alt_average_forecast) ],
+        median_failure_point=[ (index, each) for index, each in enumerate(data.median_failure_point) ],
         epsilon=             [ (index, each) for index, each in enumerate(data.epsilon)              ],
         horizon=             [ (index, each) for index, each in enumerate(data.horizon)              ],
     ))

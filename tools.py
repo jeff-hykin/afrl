@@ -3,6 +3,11 @@ def average(iterable):
     from trivial_torch_tools.generics import to_pure
     return mean(tuple(to_pure(each) for each in iterable))
 
+def median(iterable):
+    from statistics import median
+    from trivial_torch_tools.generics import to_pure
+    return median(tuple(to_pure(each) for each in iterable))
+
 def to_numpy(value):
     import torch
     import numpy
