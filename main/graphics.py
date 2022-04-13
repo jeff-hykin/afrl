@@ -200,6 +200,58 @@ class Line(Element):
         # line.size = self.size*scale_size
         return line
 
+class TextInner(Element):
+    tag = "text"
+    def __init__(self, content, *, x, y, size=9, color="gray",):
+        super().__init__()
+        self.x = x
+        self.y = y
+        self.color = color
+        self.size  = size
+        self.content = content
+    
+    @property
+    def attributes(self):
+        return {
+            "x": f"{self.x}%",
+            "y": f"{self.y}%",
+            "color": self.color,
+            "style": f"font-size: {self.size}%",
+            # "rotate": f"180",
+        }
+    
+    def generate_children(self):
+        return self.children + [self.content]
+    
+    def transformed(self, scale_x=1, scale_y=1, scale_size=1, translate_x=0, translate_y=0,):
+        text = TextInner(
+            x=(self.x*scale_x)+translate_x,
+            y=(self.y*scale_y)+translate_y,
+            width=self.width,
+            color=self.color,
+            content=self.content,
+        )
+        text.size = self.size*scale_size
+        return text
+
+class Text(Element):
+    tag = "g"
+    attributes = dict(transform="scale(1,-1)")
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        kwargs["y"] = -kwargs.get("y", 0)
+        self.children = [ TextInner(*args, **kwargs) ]
+        self.args, self.kwargs = args, kwargs
+    
+    def transformed(self, scale_x=1, scale_y=1, scale_size=1, translate_x=0, translate_y=0,):
+        kwargs = dict(self.kwargs)
+        kwargs.update(dict(
+            x=(self.text.x*scale_x)+translate_x,
+            y=(self.text.y*scale_y)+translate_y,
+            size=self.text.size*scale_size,
+        ))
+        return Text(*self.args, **kwargs,)
+
 class Dot(Element):
     tag = "circle"
     cant_have_children = True
@@ -269,12 +321,15 @@ class Plot(GroupElement):
             new_children.append(
                 Line(
                     x1=percent * number,
-                    y1=self.padding/2,
+                    y1=padding/2,
                     x2=percent * number,
-                    y2=100-(self.padding/2),
+                    y2=100-(padding/2),
                     width=0.2,
                     color="lightgray",
                 )
+            )
+            new_children.append(
+                Text(x=percent*number, y=padding/6, content="Howdy")
             )
         # 
         # horizontal lines
@@ -284,9 +339,9 @@ class Plot(GroupElement):
         for number in range(1,number_of_horizontal_lines+1):
             new_children.append(
                 Line(
-                    x1=self.padding/2,
+                    x1=padding/2,
                     y1=percent * number,
-                    x2=100-(self.padding/2),
+                    x2=100-(padding/2),
                     y2=percent * number,
                     width=0.2,
                     color="lightgray",
@@ -320,6 +375,22 @@ class Plot(GroupElement):
             else:
                 new_children.append(each)
         
+        # GroupElement(layout_css="height: 100; justifyContent: center; flexDirection: column").add(
+        #     # Title
+        #     GroupElement(layout_css="height: 15; justifyContent: center; flexDirection: column").add(
+                
+        #     ),
+        #     # Body
+        #     GroupElement(layout_css="height: 70; justifyContent: center; flexDirection: column").add(
+        #         *new_children
+        #     ),
+        #     # Footer
+        #     GroupElement(layout_css="height: 15; justifyContent: center; flexDirection: column").add(
+                
+        #     ),
+        # )
+        # <g layout-css="height: 30; justifyContent: center; flexDirection: row">
+        
         # TODO: x label
         # TODO: y label
         # TODO: title
@@ -332,21 +403,6 @@ class Plot(GroupElement):
         svg = Document().add(self)
         return svg.save(*args, **kwargs)
 
-plot = Plot().add_points([[1,1],[2,2.5],[3,5]]).save("test.svg")
-
-
-
-def basic_shapes(name):
-    drawing = svgwrite.Drawing(filename=name, debug=True)
-    hlines = drawing.add(drawing.g(id='hlines', stroke='green'))
-    for y in range(20):
-        hlines.add(drawing.line(start=(2*cm, (2+y)*cm), end=(18*cm, (2+y)*cm)))
-    vlines = drawing.add(drawing.g(id='vline', stroke='blue'))
-    for x in range(17):
-        vlines.add(drawing.line(start=((2+x)*cm, 2*cm), end=((2+x)*cm, 21*cm)))
-    shapes = drawing.add(drawing.g(id='shapes', fill='red'))
-
-    # set presentation attributes at object creation as SVG-Attributes
-    circle = drawing.circle(center=(15*cm, 8*cm), r='2.5cm', stroke='blue', stroke_width=3)
-    circle['class'] = 'class1 class2'
-    shapes.add(circle)
+plot = Plot().add_points(
+    [[1,1],[2,2.5],[3,5]]
+).save("test.svg")
