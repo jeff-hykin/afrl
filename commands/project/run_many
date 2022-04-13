@@ -1,17 +1,76 @@
 #!/usr/bin/env bash
 
-python ./main/run/full.py -- experiment_name:state_loss_1_with_sac11 train_agent:model_name:default_sac_11
+# python ./main/run/full.py -- experiment_name:state_loss_1_with_sac11 train_agent:model_name:default_sac_11
 
-python ./main/run/full.py -- experiment_name:coach_loss_1_with_sac4_epochs100 train_coach:loss_api:timestep train_coach:loss_function:consistent_coach_loss 
+# python ./main/run/full.py -- experiment_name:coach_loss_1_with_sac4_epochs100 train_coach:loss_api:timestep train_coach:loss_function:consistent_coach_loss 
 
-# commands/project/run_all data/logs/state_loss_1/HopperBulletEnv-v0  experiment_name:state_loss_1 'env_name=HopperBulletEnv-v0' train_coach:loss_api:batched train_coach:loss_function:state_prediction_loss
-# commands/project/run_all data/logs/coach_loss_1/HopperBulletEnv-v0  experiment_name:coach_loss_1 'env_name=HopperBulletEnv-v0' train_coach:loss_api:timestep train_coach:loss_function:consistent_coach_loss
+# python ./main/run/full.py -- experiment_name:coach_loss_1_with_sac4_epochs100 train_coach:loss_api:timestep train_coach:loss_function:consistent_coach_loss 
 
-# commands/project/run_all data/logs/state_loss_1/AntBulletEnv-v0  experiment_name:state_loss_1 'env_name=AntBulletEnv-v0' train_coach:loss_api:batched train_coach:loss_function:state_prediction_loss
-# commands/project/run_all data/logs/coach_loss_1/AntBulletEnv-v0  experiment_name:coach_loss_1 'env_name=AntBulletEnv-v0' train_coach:loss_api:timestep train_coach:loss_function:consistent_coach_loss
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_0.1" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"0.1" 
+    # &
 
-# commands/project/run_all data/logs/state_loss_1/BipedalWalker-v3  experiment_name:state_loss_1 'env_name=BipedalWalker-v3' train_coach:loss_api:batched train_coach:loss_function:state_prediction_loss
-# commands/project/run_all data/logs/coach_loss_1/BipedalWalker-v3  experiment_name:coach_loss_1 'env_name=BipedalWalker-v3' train_coach:loss_api:timestep train_coach:loss_function:consistent_coach_loss
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_0.3" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"0.3" &
 
-# commands/project/run_all data/logs/state_loss_1/HalfCheetahBulletEnv-v0  experiment_name:state_loss_1 'env_name=HalfCheetahBulletEnv-v0' train_coach:loss_api:batched train_coach:loss_function:state_prediction_loss
-# commands/project/run_all data/logs/coach_loss_1/HalfCheetahBulletEnv-v0  experiment_name:coach_loss_1 'env_name=HalfCheetahBulletEnv-v0' train_coach:loss_api:timestep train_coach:loss_function:consistent_coach_loss
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_0.5" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"0.5" &
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_0.7" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"0.7" &
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_0.9" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"0.9" &
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_1.1" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"1.1" &
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_1.3" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"1.3" &
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_1.5" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"1.5" &
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_1.7" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"1.7" &
+
+# HopperBulletEnv-v0
+# AntBulletEnv-v0
+# BipedalWalker-v3
+# HalfCheetahBulletEnv-v0

@@ -19,7 +19,9 @@ class Agent(SAC):
     def smart_load(cls, env_name, *, path, iterations=config.train_agent.iterations, force_retrain=config.train_agent.force_retrain):
         # skip already-trained ones
         if not force_retrain:
-            if FS.exists(path+".zip"):
+            if ".zip" not in path:
+                path = f"{path}.zip"
+            if FS.exists(path):
                 print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
                 print(f''' Agent Model Exists, loading: {path}.zip''')
                 print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
@@ -27,6 +29,11 @@ class Agent(SAC):
                     path,
                     config.get_env(env_name),
                     device=config.device,
+                    custom_objects = { # a hack for loading from stable baselines: https://github.com/DLR-RM/stable-baselines3/pull/336
+                        "learning_rate": 0.0,
+                        "lr_schedule": lambda _: 0.0,
+                        "clip_range": lambda _: 0.0,
+                    },
                 )
                 agent.path = path
                 return agent
