@@ -118,11 +118,55 @@ class GroupElement(Element):
         super().__init__()
         self.attributes = attributes
 
+class RectangleElement(Element):
+    tag = "rect"
+    cant_have_children = True
+    def __init__(self, **attributes):
+        super().__init__()
+        self.attributes = attributes
+
+class Rectangle(Element):
+    tag = "rect"
+    cant_have_children = True
+    def __init__(self, *, x=0, y=0, color="cornflowerblue", width=10, height=10, roundedness=0):
+        super().__init__()
+        self.x           = x
+        self.y           = y
+        self.color       = color
+        self.width       = width
+        self.height      = height
+        self.roundedness = roundedness
+        self.size   = 1
+    
+    @property
+    def attributes(self):
+        return {
+            "x": f"{self.x}%",
+            "y": f"{self.y}%",
+            "width": f"{self.width * self.size}%",
+            "height": f"{self.height * self.size}%",
+            "rx": f"{self.roundedness}%",
+            "fill": str(self.color),
+            "stroke-width": "0",
+        }
+    
+    def transformed(self, scale_x=1, scale_y=1, scale_size=1, translate_x=0, translate_y=0,):
+        rectangle = Rectangle(
+            x=(self.x*scale_x)+translate_x,
+            y=(self.y*scale_y)+translate_y,
+            color=self.color,
+            width=self.width,
+            height=self.height,
+            roundedness=self.roundedness,
+        )
+        rectangle.size = self.size*scale_size
+        return rectangle
+
 class Dot(Element):
     tag = "circle"
     cant_have_children = True
     
-    def __init__(self, *, x=0, y=0, color="cornflowerblue", size=3):
+    def __init__(self, *, x=0, y=0, color="cornflowerblue", size=1.2):
         super().__init__()
         self.x     = x
         self.y     = y
@@ -144,13 +188,15 @@ class Dot(Element):
             x=(self.x*scale_x)+translate_x,
             y=(self.y*scale_y)+translate_y,
             size=self.size*scale_size,
+            color=self.color,
         )
 
 class Plot(GroupElement):
-    def __init__(self, padding=4):
+    def __init__(self, padding=4, background_color="whitesmoke", roundedness=2):
         super().__init__()
-        self.absolute_coordinates = dict()
         self.padding = padding
+        self.background_color = background_color
+        self.roundedness = roundedness
     
     def add_points(self, points, **attributes):
         for x,y in points:
@@ -162,11 +208,25 @@ class Plot(GroupElement):
     def generate_children(self):
         children = self.children
         padding = self.padding
+        new_children = []
+        
+        # 
+        # background
+        # 
+        new_children.append(
+            Rectangle(x=0, y=0, width=100, height=100, color=self.background_color, roundedness=self.roundedness)
+        )
+        
         padding_proportion = padding/100
         inner_as_proportion = (100 - (padding*2))/100.0
         x_stats = stats(each.x for each in children if each.x is not None)
         y_stats = stats(each.y for each in children if each.y is not None)
-        new_children = []
+        # TODO: x lines
+        # TODO: y lines
+        
+        # 
+        # normal children
+        # 
         for each in children:
             if hasattr(each, "transformed") and callable(getattr(each, "transformed")):
                 # normalize the values
@@ -190,15 +250,14 @@ class Plot(GroupElement):
                 new_children.append(new_child)
             else:
                 new_children.append(each)
+        
+        # TODO: x label
+        # TODO: y label
+        # TODO: title
+        
         return new_children
     
     
-    # TODO: background
-    # TODO: y lines
-    # TODO: x lines
-    # TODO: x label
-    # TODO: y label
-    # TODO: title
     
     def save(self, *args, **kwargs):
         svg = Document().add(self)
