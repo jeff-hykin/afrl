@@ -162,6 +162,44 @@ class Rectangle(Element):
         rectangle.size = self.size*scale_size
         return rectangle
 
+class Line(Element):
+    tag = "line"
+    cant_have_children = True
+    def __init__(self, *, x1, y1, x2, y2, width=1, color="cornflowerblue"):
+        super().__init__()
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        self.width = width
+        self.color = color
+        self.size  = 1
+    
+    @property
+    def attributes(self):
+        return {
+            "x1": f"{self.x1}%",
+            "y1": f"{self.y1}%",
+            "x2": f"{self.x2}%",
+            "y2": f"{self.y2}%",
+            "stroke": self.color,
+            "stroke-width": str(self.width),
+        }
+    
+    def transformed(self, scale_x=1, scale_y=1, scale_size=1, translate_x=0, translate_y=0,):
+        line = Line(
+            x1=(self.x1*scale_x)+translate_x,
+            y1=(self.y1*scale_y)+translate_y,
+            x2=(self.x2*scale_x)+translate_x,
+            y2=(self.y2*scale_y)+translate_y,
+            width=self.width,
+            color=self.color,
+        )
+        # TODO: size would need to adjust the x1,y1,x2,y2 and should do so by expanding around the center point
+        #       thats a chunk of math I'll do later
+        # line.size = self.size*scale_size
+        return line
+
 class Dot(Element):
     tag = "circle"
     cant_have_children = True
@@ -192,7 +230,7 @@ class Dot(Element):
         )
 
 class Plot(GroupElement):
-    def __init__(self, padding=4, background_color="whitesmoke", roundedness=2):
+    def __init__(self, padding=5, background_color="whitesmoke", roundedness=2):
         super().__init__()
         self.padding = padding
         self.background_color = background_color
@@ -221,8 +259,39 @@ class Plot(GroupElement):
         inner_as_proportion = (100 - (padding*2))/100.0
         x_stats = stats(each.x for each in children if each.x is not None)
         y_stats = stats(each.y for each in children if each.y is not None)
-        # TODO: x lines
-        # TODO: y lines
+        
+        # 
+        # vertical lines
+        # 
+        number_of_vertical_lines = 5
+        percent = 100/(number_of_vertical_lines+1)
+        for number in range(1,number_of_vertical_lines+1):
+            new_children.append(
+                Line(
+                    x1=percent * number,
+                    y1=self.padding/2,
+                    x2=percent * number,
+                    y2=100-(self.padding/2),
+                    width=0.2,
+                    color="lightgray",
+                )
+            )
+        # 
+        # horizontal lines
+        # 
+        number_of_horizontal_lines = 5
+        percent = 100/(number_of_horizontal_lines+1)
+        for number in range(1,number_of_horizontal_lines+1):
+            new_children.append(
+                Line(
+                    x1=self.padding/2,
+                    y1=percent * number,
+                    x2=100-(self.padding/2),
+                    y2=percent * number,
+                    width=0.2,
+                    color="lightgray",
+                )
+            )
         
         # 
         # normal children
