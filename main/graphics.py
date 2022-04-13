@@ -160,26 +160,32 @@ class Plot(GroupElement):
         return self
     
     def generate_children(self):
-        inner_as_proportion = (100 - (self.padding*2))/100.0
-        x_stats = stats(each.x for each in self.children if each.x is not None)
-        y_stats = stats(each.y for each in self.children if each.y is not None)
+        children = self.children
+        padding = self.padding
+        padding_proportion = padding/100
+        inner_as_proportion = (100 - (padding*2))/100.0
+        x_stats = stats(each.x for each in children if each.x is not None)
+        y_stats = stats(each.y for each in children if each.y is not None)
         new_children = []
-        for each in self.children:
+        for each in children:
             if hasattr(each, "transformed") and callable(getattr(each, "transformed")):
                 # normalize the values
                 new_child = each.transformed(
                     translate_x=-x_stats.min,
                     translate_y=-y_stats.min,
                 ).transformed(
-                    scale_x=1/x_stats.range,
-                    scale_y=1/y_stats.range,
-                # then add padding
-                ).transformed(
+                    scale_x=100/x_stats.range,
+                    scale_y=100/y_stats.range,
+                )
+                # then squish to fit inside the padding
+                new_child = new_child.transformed(
                     scale_x=inner_as_proportion,
                     scale_y=inner_as_proportion,
-                ).transformed(
-                    translate_x=self.padding,
-                    translate_y=self.padding,
+                )
+                # then add the padding
+                new_child = new_child.transformed(
+                    translate_x=padding,
+                    translate_y=padding,
                 )
                 new_children.append(new_child)
             else:
