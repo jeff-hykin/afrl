@@ -55,7 +55,6 @@
                         0.1: 26
                         0.01: 31
                         0.001: 21
-                        0.0: 0
                 
                 HopperBulletEnv-v0: 
                     reward_discount: 0.98
@@ -113,7 +112,6 @@
                         0.1: 26
                         0.01: 11
                         0.001: 5
-                        0.0: 0
                     hparams: 
                         learning_rate: 3e-4
                         buffer_size: 1000000
