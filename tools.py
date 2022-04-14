@@ -8,6 +8,45 @@ def median(iterable):
     from trivial_torch_tools.generics import to_pure
     return median(tuple(to_pure(each) for each in iterable))
 
+def stats(numbers):
+    import math
+    from super_map import LazyDict
+    from statistics import stdev, median, quantiles
+    
+    minimum = math.inf
+    maximum = -math.inf
+    total = 0
+    values = [] # for iterables that get consumed
+    for each in numbers:
+        values.append(each)
+        total += each
+        if each > maximum:
+            maximum = each
+        if each < minimum:
+            minimum = each
+    
+    count = len(values)
+    range = maximum-minimum
+    average     = total / count     if count != 0 else None
+    median      = median(values)    if count != 0 else None
+    stdev       = stdev(values)     if count  > 1 else None
+    normalized  = tuple((each-minimum)/range for each in values)
+    (q1,_,q3),_ = quantiles(values) if count  > 1 else (None,None,None),None
+    
+    return LazyDict(
+        max=maximum,
+        min=minimum,
+        range=range,
+        count=count,
+        sum=total,
+        average=average,
+        stdev=stdev,
+        median=median,
+        q1=q1,
+        q3=q3,
+        normalized=normalized,
+    )    
+
 def to_numpy(value):
     import torch
     import numpy

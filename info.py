@@ -66,7 +66,7 @@ import torch
 import numpy as np
 # wrap to_torch_tensor with a siphon!
 # -> when the lambda returns true
-# -> the function below is run INSTEAD of the original to_torch_tensor()
+# -> the function below is run INSTEAD of the original np.array()
 @siphon(when=(lambda *args, **kwargs: isinstance(args[0], torch.Tensor)), is_true_for=np.array)
 def custom_handler(tensor):
     # always send to cpu first (otherwise it fails)
