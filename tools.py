@@ -91,6 +91,43 @@ def train_test_split(*args, split_proportion):
     
     return output
 
+colors = dict(
+    yellow=       '#fec355',
+    light_yellow= '#ddd790',
+    lime=         '#c3e88d',
+    green=        '#4ec9b0',
+    light_blue=   '#89ddff',
+    blue=         '#82aaff',
+    deep_blue=    '#00aeff',
+    purple=       '#c792ea',
+    pink=         '#e57eb3',
+    red=          '#f07178',
+)
+def wrap_around_get(number, a_list):
+    list_length = len(a_list)
+    return a_list[((number % list_length) + list_length) % list_length]
+
+def get_color(index):
+    return wrap_around_get(index, list(colors.values()))
+
+def multi_line_plot(a_dict, path, x_axis_label, y_axis_label):
+    import matplotlib.pyplot as plt
+    plt.style.use('ggplot')
+    for index, (line_name, line_points) in enumerate(a_dict.items()):
+        x_values = tuple(x for x,y in line_points)
+        y_values = tuple(y for x,y in line_points)
+        color = get_color(index=index)
+        plt.plot(x_values, y_values, marker='.', color=color, label=line_name)
+    plt.xlabel(x_axis_label)
+    plt.ylabel(y_axis_label)
+    plt.legend()
+    plt.savefig(
+        FS.clear_a_path_for(
+            path,
+            overwrite=True
+        )
+    )
+    return plt
 
 from torch import nn
 def feed_forward(layer_sizes, activation=nn.Tanh, output_activation=nn.Identity):
