@@ -53,6 +53,24 @@ def bundle(iterable, bundle_size):
     if len(next_bundle) > 0:
         yield tuple(next_bundle)
 
+def rolling_average(a_list, window):
+    results = []
+    if len(a_list) < window * 2:
+        return a_list
+    near_the_end = len(a_list) - 1 - window 
+    for index, each in enumerate(a_list):
+        # at the start
+        if index < window:
+            average_items = a_list[0:index]+a_list[index:index+window]
+        # at the end
+        elif index > near_the_end:
+            average_items = a_list[index-window:index]+a_list[index:len(a_list)]
+        else:
+            # this could be done a lot more efficiently with a rolling sum, oh well! ¯\_(ツ)_/¯ 
+            average_items = a_list[index-window:index+window+1]
+        results.append(sum(average_items)/len(average_items))
+    return results
+
 def ft(arg):
     from torch import FloatTensor
     from info import config

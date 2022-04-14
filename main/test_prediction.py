@@ -23,7 +23,7 @@ from simple_namespace import namespace
 from rigorous_recorder import RecordKeeper
 
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize_rewards
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize_rewards, rolling_average
 from main.agent import Agent
 from main.coach import Coach
 
@@ -180,17 +180,17 @@ def main(settings, predictor):
             ))
             
             print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_reward: {normalized_episode_reward:.4f}, max_timestep_reward: {max(rewards):.2f}, min_timestep_reward: {min(rewards):.2f}")
-    
+    smoothing = settings.graph_smoothing
     # display cards at the end with the final data (the other card is transient)
     ss.DisplayCard("multiLine", dict(
-        rewards=[ (index, each) for index, each in enumerate(data.rewards)               ],
+        rewards=list(enumerate(rolling_average(data.rewards, smoothing))),
     ))
     ss.DisplayCard("multiLine", dict(
-        average_forecast=     [ (index, each) for index, each in enumerate(data.average_forecast)      ],
-        alt_average_forecast= [ (index, each) for index, each in enumerate(data.alt_average_forecast)  ],
-        average_failure_point=[ (index, each) for index, each in enumerate(data.average_failure_point) ],
-        epsilon=              [ (index, each) for index, each in enumerate(data.epsilon)               ],
-        horizon=              [ (index, each) for index, each in enumerate(data.horizon)               ],
+        average_forecast=      list(enumerate(rolling_average(data.average_forecast      , smoothing))),
+        alt_average_forecast=  list(enumerate(rolling_average(data.alt_average_forecast  , smoothing))),
+        average_failure_point= list(enumerate(rolling_average(data.average_failure_point , smoothing))),
+        epsilon=               list(enumerate(rolling_average(data.epsilon               , smoothing))),
+        horizon=               list(enumerate(rolling_average(data.horizon               , smoothing))),
     ))
     return data
 

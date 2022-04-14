@@ -51,10 +51,23 @@
                     max_reward_single_timestep: 70
                     min_reward_single_timestep: -100
                     number_of_timesteps: 200000
-                    horizons:
-                        0.1: 26
-                        0.01: 31
-                        0.001: 21
+                    # horizons: # <- from those settings
+                    #     0.1: 26  # epslion of 0.1 is really big. Causes major drop in rewards 
+                    #     0.01: 31 # <- out of order?
+                    #     0.001: 21
+                    # horizons: # <- what was in the codebase I had
+                    #     0.001: 5
+                    #     0.0025: 5
+                    #     0.005: 10
+                    #     0.0075: 15
+                    #     0.01: 20
+                    horizons:  # <- what I think makes the most sense
+                        0.0: 1
+                        0.001: 5
+                        0.0025: 8
+                        0.005: 10
+                        0.0075: 15
+                        0.01: 20
                 
                 HopperBulletEnv-v0: 
                     reward_discount: 0.98
@@ -165,7 +178,8 @@
                     *env_settings
     
             test_predictor:
-                number_of_episodes: 50
+                graph_smoothing: 3 # rolling average of 4 values
+                number_of_episodes: 20 # original value is 50 
                 reward_discount: 0.98
                 horizons:
                     0.001: 5
