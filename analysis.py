@@ -12,7 +12,6 @@ from rigorous_recorder import RecordKeeper, ExperimentCollection
 from info import path_to, config
 import file_system_py as FS
 
-settings = config.gym_env_settings
 
 sns.set_theme(style="whitegrid")
 
@@ -20,9 +19,9 @@ def confidence_interval(xs):
     return st.t.interval(0.95, len(xs)-1, loc=np.mean(xs), scale=st.sem(xs))
 
 def plot_epsilon_1(env_name, csv_path, output_folder):
-    max_reward_single_timestep = settings[env_name].max_reward_single_timestep
-    min_reward_single_timestep = settings[env_name].min_reward_single_timestep
-    gamma     = settings[env_name].agent_discount_factor
+    max_reward_single_timestep = config.train_coach.env_overrides[env_name].max_reward_single_timestep
+    min_reward_single_timestep = config.train_coach.env_overrides[env_name].min_reward_single_timestep
+    gamma     = config.train_agent.env_overrides[env_name].reward_discount
     
     if not FS.exists(csv_path):
         print(f"no data found for: {env_name}: {csv_path}")
@@ -62,9 +61,9 @@ def plot_epsilon_1(env_name, csv_path, output_folder):
     )
 
 def plot_epsilon_2(env_name, csv_path, output_folder):
-    max_reward_single_timestep = settings[env_name].max_reward_single_timestep
-    min_reward_single_timestep = settings[env_name].min_reward_single_timestep
-    gamma     = settings[env_name].agent_discount_factor
+    max_reward_single_timestep = config.train_coach.env_overrides[env_name].max_reward_single_timestep
+    min_reward_single_timestep = config.train_coach.env_overrides[env_name].min_reward_single_timestep
+    gamma     = config.train_agent.env_overrides[env_name].reward_discount
     
     data_frame = pd.read_csv(csv_path).rename(columns={'Unnamed: 0': 'episode'})
     score_range = max_reward_single_timestep - min_reward_single_timestep

@@ -12,7 +12,10 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
+        - task: make the agent stable (use external one)
+        - task: CANCELED, just use pretrained ones "gather min/max values for all env's"
         - check: epsilon size compared to timestep q values for plan/replan (check as a percentage)
+        - task: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
         - problem: epsilon is highly effected by max/min possible score. There's conflicting info on if min/max is supposed to be on a per-episode or per-timestep basis, and if its supposed to be discounted or not
         - solve: why slice [horizon:] instead of [:horizon], which of the two is correct
         - task: set env_settings be for the 5 non-lunar lander env's
@@ -42,114 +45,82 @@
                 number_of_episodes: 10
                 base_name: default_sac
             
-            train_agent:
-                model_name: default_sac_4 # was the best (by far) out of 10
-                iterations: 100000
-                force_retrain: false
-            
-            train_coach:
-                force_retrain: false
-                learning_rate: 0.0001
-                hidden_sizes: [64, 64, 64, 64]
-                loss_api: batched  # "timestep" or "batched" # loss functions are exclusively compatible with one or the other (this should probably be handled internally)
-                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
-                consistent_coach_loss:
-                    scale_value_prediction: 1.0
-                number_of_episodes: 20
-                number_of_epochs: 100 # should be 100
-                train_test_split: 0.7
-                minibatch_size: 32
-                with_card: True
-                env_overrides:
-                    LunarLanderContinuous-v2:
-                        # this is an example
-                        hidden_sizes: [64, 64, 64, 64]
-                        learning_rate: 0.0001
-            test_predictor:
-                number_of_episodes: 50
-                agent_discount_factor: 0.98
-                horizons:
-                    0.001: 5
-                    0.0025: 5
-                    0.005: 10
-                    0.0075: 15
-                    0.01: 20
-                env_overrides:
-                    LunarLanderContinuous-v2:
-                        number_of_episodes: 50
-                        agent_discount_factor: 0.98
-                        max_reward_single_timestep: 100
-                        min_reward_single_timestep: -100
-                        # max_reward_single_episode: 350  # 304.0547650001378 is largest I've seen
-                        # min_reward_single_episode: -1500 # -1210.429 is worst I've seen
+            gym_env_settings: &env_settings
+                LunarLanderContinuous-v2: 
+                    reward_discount: 0.98
+                    max_reward_single_timestep: 70
+                    min_reward_single_timestep: -100
+                    number_of_timesteps: 200000
+                    horizons:
+                        0.1: 26
+                        0.01: 31
+                        0.001: 21
                 
-            gym_env_settings:
-                LunarLanderContinuous-v2:
-                    agent_discount_factor: 0.98
-                    actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 100  # "discounted ep reward" was the comment, but I don't think thats right
-                    min_reward_single_timestep: -100
-                    horizons: # acceptability threshold (epsilon) => forecast length (horizon)
-                        0.001: 5
-                        0.0025: 5
-                        0.005: 10
-                        0.0075: 15
-                        0.01: 20
-                MountainCarContinuous-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    agent_discount_factor: 0.98
-                    actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 100
-                    min_reward_single_timestep: -100
+                HopperBulletEnv-v0: 
+                    reward_discount: 0.98
+                    max_reward_single_timestep: 110
+                    min_reward_single_timestep: 18
                     horizons:
-                        0.001: 5
-                        0.0025: 5
-                        0.005: 10
-                        0.0075: 15
-                        0.01: 20
-                AntBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    agent_discount_factor: 0.98
-                    actor_copy_learning_rate: 0.0001
+                        0.1: 26
+                        0.01: 16
+                        0.001: 11
+                
+                HalfCheetahBulletEnv-v0: 
+                    reward_discount: 0.98
                     max_reward_single_timestep: 100
-                    min_reward_single_timestep: -100
+                    min_reward_single_timestep: -60
+                    number_of_timesteps: 1000000
                     horizons:
-                        0.001: 5
-                        0.0025: 5
-                        0.005: 10
-                        0.0075: 15
-                        0.01: 20
-                HopperBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    agent_discount_factor: 0.98
-                    actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 100
-                    min_reward_single_timestep: -100
+                        0.1: 26
+                        0.01: 13
+                        0.001: 11
+                    hparams: 
+                        learning_rate: 7.3e-4
+                        buffer_size: 300000
+                        batch_size: 256
+                        ent_coef: auto
+                        gamma: 0.98
+                        tau: 0.02
+                        train_freq: 8
+                        gradient_steps: 8
+                        learning_starts: 10000
+                
+                BipedalWalker-v3: 
+                    reward_discount: 0.98
+                    max_reward_single_timestep: 5
+                    min_reward_single_timestep: -23
                     horizons:
-                        0.001: 5
-                        0.0025: 5
-                        0.005: 10
-                        0.0075: 15
-                        0.01: 20
-                BipedalWalker-v3: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    agent_discount_factor: 0.98
-                    actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 100
-                    min_reward_single_timestep: -100
+                        0.1: 26
+                        0.01: 16
+                        0.001: 11
+                
+                AntBulletEnv-v0: 
+                    reward_discount: 0.98
+                    max_reward_single_timestep: 105
+                    min_reward_single_timestep: 19
                     horizons:
-                        0.001: 5
-                        0.0025: 5
-                        0.005: 10
-                        0.0075: 15
-                        0.01: 20
-                HalfCheetahBulletEnv-v0: # FIXME: this is just a copy of LunarLanderContinuous-v2 to avoid the code throwing errors
-                    agent_discount_factor: 0.98
-                    actor_copy_learning_rate: 0.0001
-                    max_reward_single_timestep: 100
-                    min_reward_single_timestep: -100
+                        0.1: 26
+                        0.01: 16
+                        0.001: 4
+                
+                HumanoidBulletEnv-v0:
+                    reward_discount: 0.98
+                    max_reward_single_timestep: 113
+                    min_reward_single_timestep: -30
+                    number_of_timesteps: 3000000
                     horizons:
+                        0.1: 26
+                        0.01: 11
                         0.001: 5
-                        0.0025: 5
-                        0.005: 10
-                        0.0075: 15
-                        0.01: 20
+                    hparams: 
+                        learning_rate: 3e-4
+                        buffer_size: 1000000
+                        batch_size: 64
+                        ent_coef: auto
+                        train_freq: 1
+                        gradient_steps: 1
+                        learning_starts: 1000
+                
                 # Available: 
                     # Reacher-v2
                     # Pusher-v2
@@ -170,6 +141,41 @@
                     # Humanoid-v2
                     # Humanoid-v3
                     # HumanoidStandup-v2
+            train_agent:
+                model_name: default_sac_4 # was the best (by far) out of 10
+                iterations: 100000
+                force_retrain: false
+                env_overrides:
+                    *env_settings
+                    
+            train_coach:
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+                loss_api: batched  # "timestep" or "batched" # loss functions are exclusively compatible with one or the other (this should probably be handled internally)
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
+                consistent_coach_loss:
+                    scale_value_prediction: 1.0
+                number_of_episodes: 20
+                number_of_epochs: 100 # should be 100
+                train_test_split: 0.7
+                minibatch_size: 32
+                with_card: True
+                env_overrides:
+                    *env_settings
+    
+            test_predictor:
+                number_of_episodes: 50
+                reward_discount: 0.98
+                horizons:
+                    0.001: 5
+                    0.0025: 5
+                    0.005: 10
+                    0.0075: 15
+                    0.01: 20
+                env_overrides:
+                    *env_settings
+                
         
         FORCE_CPU:
             force_cpu: true

@@ -101,11 +101,13 @@ def main(settings, predictor):
     # 
     # pull in settings
     # 
-    multipliers           = list(settings.horizons.keys())
+    unscaled_epsilon      = list(settings.horizons.keys())
     forecast_horizons     = list(settings.horizons.values())
     reward_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
-    epsilons              = reward_range * np.array(multipliers)
-    predictor.agent.gamma = settings.agent_discount_factor
+    epsilons              = reward_range * np.array(unscaled_epsilon)
+    predictor.agent.gamma = config.train_agent.env_overrides[config.env_name].reward_discount
+    print(f'''unscaled_epsilon = {unscaled_epsilon}''')
+    print(f'''epsilons = {epsilons}''')
     
     # define return value
     data = LazyDict(
