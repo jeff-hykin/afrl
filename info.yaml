@@ -12,8 +12,7 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
-        - task: make the agent stable (use external one)
-        - task: CANCELED, just use pretrained ones "gather min/max values for all env's"
+        - task: graph a baseline using the state_prediction_loss with the good agent
         - check: epsilon size compared to timestep q values for plan/replan (check as a percentage)
         - task: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
         - problem: epsilon is highly effected by max/min possible score. There's conflicting info on if min/max is supposed to be on a per-episode or per-timestep basis, and if its supposed to be discounted or not
@@ -178,7 +177,7 @@
                     *env_settings
     
             test_predictor:
-                graph_smoothing: 3 # rolling average of 4 values
+                graph_smoothing: 3 # rolling average of _ number values
                 number_of_episodes: 20 # original value is 50 
                 reward_discount: 0.98
                 horizons:
