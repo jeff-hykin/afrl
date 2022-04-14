@@ -23,7 +23,7 @@ class Agent(SAC):
                 path = f"{path}.zip"
             if FS.exists(path):
                 print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
-                print(f''' Agent Model Exists, loading: {path}.zip''')
+                print(f''' Agent Model Exists, loading: {path}''')
                 print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
                 agent = Agent.load(
                     path,

@@ -105,7 +105,7 @@ def main(settings, predictor):
     forecast_horizons     = list(settings.horizons.values())
     reward_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
     epsilons              = reward_range * np.array(multipliers)
-    predictor.agent.gamma = settings.agent_discount_factor
+    predictor.agent.gamma = config.train_agent.env_overrides[config.env_name].reward_discount
     
     # define return value
     data = LazyDict(
