@@ -23,7 +23,7 @@ from simple_namespace import namespace
 from rigorous_recorder import Recorder
 
 from info import path_to, config
-from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize_rewards, rolling_average, key_prepend, simple_stats
+from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats
 from main.agent import Agent
 from main.coach import Coach
 
@@ -155,12 +155,12 @@ class Tester:
         # 
         # pull in settings
         # 
-        unscaled_epsilons     = tuple(settings.horizons.keys())
+        normal_epsilons     = tuple(settings.horizons.keys())
         forecast_horizons     = tuple(settings.horizons.values())
         reward_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
-        epsilons              = reward_range * np.array(unscaled_epsilons)
+        epsilons              = reward_range * np.array(normal_epsilons)
         predictor.agent.gamma = config.train_agent.env_overrides[config.env_name].reward_discount
-        print(f'''unscaled_epsilons = {unscaled_epsilons}''')
+        print(f'''normal_epsilons = {normal_epsilons}''')
         print(f'''epsilons = {epsilons}''')
         
         # define return value
@@ -175,12 +175,12 @@ class Tester:
         # perform experiments with all epsilons
         # 
         index = -1
-        for epsilon, horizon, unscaled_epsilon in zip(epsilons, forecast_horizons, unscaled_epsilons):
+        for epsilon, horizon, normal_epsilon in zip(epsilons, forecast_horizons, normal_epsilons):
             
             epoch_recorder = Recorder(
                 horizon=horizon,
                 scaled_epsilon=epsilon,
-                unscaled_epsilon=unscaled_epsilon,
+                normal_epsilon=normal_epsilon,
             ).set_parent(self.recorder)
             
             forecast_slices = []
@@ -195,26 +195,30 @@ class Tester:
                 failure_point_stats     = simple_stats(failure_points)
                 real_q_value_stats      = simple_stats(real_q_values)
                 
+                normalized_rewards = normalize(rewards, min=settings.min_reward_single_timestep, max=settings.max_reward_single_timestep)
+                
                 # 
                 # forecast stats
                 # 
                 forecast_slices.append(forecast[horizon:])
                 alt_forecast_slices.append(forecast)
                 # NOTE: double averaging might not be the desired metric but its probably alright
-                grand_average_forecast = average(average(each) for each in forecast_slices)
-                alt_average_forecast   = average(average(each) for each in alt_forecast_slices)
+                grand_forecast_average = average(average(each) for each in forecast_slices)
+                alt_forecast_average   = average(average(each) for each in alt_forecast_slices)
                 
                 # save self.csv_data
                 epoch_recorder.push(
                     episode_index=episode_index,
                     timestep_count=len(rewards),
-                    average_forecast=grand_average_forecast,
-                    alt_average_forecast=alt_average_forecast,
+                    forecast_average=grand_forecast_average,
+                    alt_forecast_average=alt_forecast_average,
+                    normalized_reward_average=simple_stats(normalized_rewards).average,
                     **key_prepend("reward", reward_stats), # reward_average, reward_median, reward_min, reward_max, etc
                     **key_prepend("discounted_reward", discounted_reward_stats), # discounted_reward_average, discounted_reward_median, discounted_reward_min, discounted_reward_max, etc
-                    **key_prepend("failure_points", failure_point_stats),
+                    **key_prepend("failure_point", failure_point_stats),
                     **key_prepend("q", real_q_value_stats),
                 )
+                self.increment_live_graphs() # uses latest record
                 
                 # record for CSV backwards compatibility
                 self.csv_data.epsilon.append(epsilon)
@@ -222,7 +226,7 @@ class Tester:
                 self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
                 self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
                 
-                print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
+                print(f"    epsilon: {epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
         
         # display cards at the end with the final self.csv_data (the other card is transient)
         self.generate_graphs() # uses self.recorder
@@ -235,49 +239,73 @@ class Tester:
     def generate_graphs(self):
         smoothing = self.settings.graph_smoothing
         
-        discounted_rewards     = []
+        timestep_reward_averages     = []
+        q_values               = []
         scaled_epsilons        = []
-        average_forecasts      = []
-        average_failure_points = []
+        forecasts_average      = []
+        failure_points_average = []
         horizons               = []
         
         # for each epsilon-horizon pair
         for each_recorder in self.recorder.sub_recorders:
-            discounted_rewards     += rolling_average(each_recorder.frame["discounted_reward"]    , smoothing)
-            average_forecasts      += rolling_average(each_recorder.frame["average_forecast"]     , smoothing)
-            average_failure_points += rolling_average(each_recorder.frame["average_failure_point"], smoothing)
-            scaled_epsilons        += [ each_recorder["scaled_epsilon"] ]*len(discounted_rewards)
-            horizons               += [ each_recorder["horizon"]        ]*len(discounted_rewards)
+            timestep_reward_averages     += rolling_average(each_recorder.frame["reward_average"]           , smoothing)
+            q_values               += rolling_average(each_recorder.frame["q_average"]                , smoothing)
+            forecasts_average      += rolling_average(each_recorder.frame["forecast_average"]         , smoothing)
+            failure_points_average += rolling_average(each_recorder.frame["failure_point_average"]    , smoothing)
+            scaled_epsilons        += [ each_recorder["scaled_epsilon"] ]*len(timestep_reward_averages)
+            horizons               += [ each_recorder["horizon"]        ]*len(timestep_reward_averages)
         
         # add indicies to all of them
-        discounted_rewards     = tuple(enumerate(discounted_rewards    ))
+        timestep_reward_averages     = tuple(enumerate(timestep_reward_averages    ))
+        q_values               = tuple(enumerate(q_values              ))
         scaled_epsilons        = tuple(enumerate(scaled_epsilons       ))
-        average_forecasts      = tuple(enumerate(average_forecasts     ))
-        average_failure_points = tuple(enumerate(average_failure_points))
+        forecasts_average      = tuple(enumerate(forecasts_average     ))
+        failure_points_average = tuple(enumerate(failure_points_average))
         horizons               = tuple(enumerate(horizons              ))
         
         # 
         # display the actual cards
         # 
         reward_card = ss.DisplayCard("multiLine", dict(
-            discounted_rewards=discounted_rewards,
             scaled_epsilon=scaled_epsilons,
+            timestep_reward_average=timestep_reward_averages,
+            timestep_q_average=q_values,
         ))
         prediction_card = ss.DisplayCard("multiLine", dict(
-            average_forecasts=average_forecasts,
-            average_failure_points=average_failure_points,
-            horizons=horizons,
+            forecast_average=forecasts_average,
+            average_failure_point=failure_points_average,
+            horizon=horizons,
         ))
+        text_card = ss.DisplayCard("quickMarkdown", f"""## {config.experiment_name}""")
     
-    def init_graphs(self):
+    def init_live_graphs(self):
         self.reward_card = ss.DisplayCard("multiLine", dict(
-            discounted_rewards=[],
             scaled_epsilon=[],
+            timestep_reward_average=[],
+            timestep_q_average=[],
         ))
         self.prediction_card = ss.DisplayCard("multiLine", dict(
-            average_forecasts=[],
-            average_failure_points=[],
-            horizons=[],
+            forecast_average=[],
+            average_failure_point=[],
+            horizon=[],
+        ))
+        self.text_card = ss.DisplayCard("quickMarkdown", f"""## {config.experiment_name}""")
+    
+    def increment_live_graphs(self):
+        if not self.reward_card: self.init_live_graphs()
+        
+        index = sum(len(each) for each in self.recorder.sub_recorders)
+        latest_record = self.recorder.sub_recorders[-1][-1]
+        
+        self.reward_card.send(dict(
+            timestep_reward_average=[index, latest_record["reward_average"] ],
+            timestep_q_average=[index, latest_record["q_average"] ],
+            scaled_epsilon=[index, latest_record["scaled_epsilon"] ],
+        ))
+        self.prediction_card.send(dict(
+            forecast_average=[index, latest_record["forecast_average"] ],
+            average_failure_point=[index, latest_record["average_failure_point"] ],
+            horizon=[index, latest_record["horizon"] ],
         ))
     
     def update_rolling_forecast(self, old_rolling_forecast, failure_point):

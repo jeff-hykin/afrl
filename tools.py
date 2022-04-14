@@ -103,12 +103,12 @@ def get_discounted_rewards(rewards, gamma):
     gammas    = to_tensor(gamma for each in timesteps)
     return rewards * (gammas ** timestep)
 
-def normalize_rewards(rewards, max_reward_single_timestep, min_reward_single_timestep):
+def normalize(values, max, min):
     """
     all elements of the output should be between 0 and 1
     """
-    reward_range = max_reward_single_timestep - min_reward_single_timestep
-    return tuple((each - min_reward_single_timestep)/reward_range for each in rewards)
+    reward_range = max - min
+    return tuple((each - min)/reward_range for each in values)
 
 def divide_chunks(l, n):
     # looping till length l
