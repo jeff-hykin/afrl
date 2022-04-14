@@ -18,7 +18,6 @@
         - task: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
         - problem: epsilon is highly effected by max/min possible score. There's conflicting info on if min/max is supposed to be on a per-episode or per-timestep basis, and if its supposed to be discounted or not
         - solve: why slice [horizon:] instead of [:horizon], which of the two is correct
-        - task: set env_settings be for the 5 non-lunar lander env's
         - todo: make sure the graphs are actually measuring the correct thing
 
     # a central place for filepaths
@@ -26,8 +25,7 @@
         folder:
             agent_models: "./data/models/agents/"
             coach_models: "./data/models/coach/"
-            results: "./data/results/"
-            visuals: "./visuals/"
+            results: "./results/"
 
     (local_data): ./local_data.ignore.yaml
     (profiles):
