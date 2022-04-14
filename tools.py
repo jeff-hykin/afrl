@@ -129,6 +129,15 @@ def multi_line_plot(a_dict, path, x_axis_label, y_axis_label):
     )
     return plt
 
+def crush_key(a_dict, key):
+    new_dict = dict(a_dict)
+    value = new_dict[key]
+    del new_dict[key]
+    for each_sub_key, each_sub_value in value.items():
+        new_key = f"{key}_{each_sub_key}"
+        new_dict[new_key] = each_sub_key
+    return new_dict
+
 from torch import nn
 def feed_forward(layer_sizes, activation=nn.Tanh, output_activation=nn.Identity):
     from trivial_torch_tools import Sequential
