@@ -273,7 +273,7 @@ class Tester:
         ))
         prediction_card = ss.DisplayCard("multiLine", dict(
             forecast_average=forecasts_average,
-            average_failure_point=failure_points_average,
+            failure_point_average=failure_points_average,
             horizon=horizons,
         ))
         text_card = ss.DisplayCard("quickMarkdown", f"""## {config.experiment_name}""")
@@ -286,7 +286,7 @@ class Tester:
         ))
         self.prediction_card = ss.DisplayCard("multiLine", dict(
             forecast_average=[],
-            average_failure_point=[],
+            failure_point_average=[],
             horizon=[],
         ))
         self.text_card = ss.DisplayCard("quickMarkdown", f"""## {config.experiment_name}""")
@@ -304,7 +304,7 @@ class Tester:
         ))
         self.prediction_card.send(dict(
             forecast_average=[index, latest_record["forecast_average"] ],
-            average_failure_point=[index, latest_record["average_failure_point"] ],
+            failure_point_average=[index, latest_record["failure_point_average"] ],
             horizon=[index, latest_record["horizon"] ],
         ))
     
@@ -345,7 +345,7 @@ class Tester:
             attribute_overrides=attributes,
         )
     
-    def save(self, path):
+    def save(self, path=None):
         path = path or self.path
         # save normal things
         for each_attribute_name in self.attributes_to_save:
