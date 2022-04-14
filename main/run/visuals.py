@@ -2,7 +2,7 @@ from info import config, path_to
 from analysis import generate_all_visuals
 from main.agent import Agent
 from main.coach import Coach as Coach
-from main.test_prediction import run_test
+from main.test_prediction import Tester
 
 # NOTE: almost all values are pulled from the info.yaml
 #       All values in the info.yaml can be overridden with command line arguments

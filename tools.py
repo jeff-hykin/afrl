@@ -8,17 +8,18 @@ def median(iterable):
     from trivial_torch_tools.generics import to_pure
     return median(tuple(to_pure(each) for each in iterable))
 
-def stats(numbers):
+def stats(number_iterator):
     import math
     from super_map import LazyDict
     from statistics import stdev, median, quantiles
+    from trivial_torch_tools.generics import to_pure
     
     minimum = math.inf
     maximum = -math.inf
     total = 0
     values = [] # for iterables that get consumed
-    for each in numbers:
-        values.append(each)
+    for each in number_iterator:
+        values.append(to_pure(each))
         total += each
         if each > maximum:
             maximum = each
@@ -47,6 +48,41 @@ def stats(numbers):
         normalized=normalized,
     )    
 
+def simple_stats(number_iterator):
+    import math
+    from super_map import LazyDict
+    from statistics import stdev, median, quantiles
+    from trivial_torch_tools.generics import to_pure
+    
+    minimum = math.inf
+    maximum = -math.inf
+    total = 0
+    values = [] # for iterables that get consumed
+    for each in number_iterator:
+        values.append(to_pure(each))
+        total += each
+        if each > maximum:
+            maximum = each
+        if each < minimum:
+            minimum = each
+    
+    count = len(values)
+    range = maximum-minimum
+    average     = total / count     if count != 0 else None
+    median      = median(values)    if count != 0 else None
+    stdev       = stdev(values)     if count  > 1 else None
+    
+    return LazyDict(
+        max=maximum,
+        min=minimum,
+        range=range,
+        count=count,
+        sum=total,
+        average=average,
+        stdev=stdev,
+        median=median,
+    )    
+
 def to_numpy(value):
     import torch
     import numpy
@@ -60,7 +96,12 @@ def flatten(ys):
     return [x for xs in ys for x in xs]
 
 def get_discounted_rewards(rewards, gamma):
-    return sum([r * gamma ** t for t, r in enumerate(rewards)])
+    import torch
+    from trivial_torch_tools import to_tensor
+    rewards   = to_tensor(rewards)
+    timesteps = to_tensor(range(len(rewards)))
+    gammas    = to_tensor(gamma for each in timesteps)
+    return rewards * (gammas ** timestep)
 
 def normalize_rewards(rewards, max_reward_single_timestep, min_reward_single_timestep):
     """
@@ -168,13 +209,17 @@ def multi_line_plot(a_dict, path, x_axis_label, y_axis_label):
     )
     return plt
 
-def crush_key(a_dict, key):
-    new_dict = dict(a_dict)
-    value = new_dict[key]
-    del new_dict[key]
-    for each_sub_key, each_sub_value in value.items():
-        new_key = f"{key}_{each_sub_key}"
-        new_dict[new_key] = each_sub_key
+def key_prepend(key, a_dict):
+    """
+    key_prepend("reward", stats(rewards))
+    # { "max": , "min": , ... }
+    # =>
+    # { "reward_max": , "reward_min": , ... }
+    """
+    new_dict = {}
+    for each_key, each_value in a_dict.items():
+        new_key = f"{key}_{each_key}"
+        new_dict[new_key] = each_value
     return new_dict
 
 from torch import nn

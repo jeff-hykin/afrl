@@ -17,198 +17,315 @@ from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch.optim.adam import Adam
 from tqdm import tqdm
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
-from trivial_torch_tools.generics import to_pure, flatten
+from trivial_torch_tools.generics import to_pure, flatten, large_pickle_load, large_pickle_save
 from super_map import LazyDict
 from simple_namespace import namespace
-from rigorous_recorder import RecordKeeper
+from rigorous_recorder import Recorder
 
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize_rewards, rolling_average
+from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize_rewards, rolling_average, key_prepend, simple_stats
 from main.agent import Agent
 from main.coach import Coach
 
-settings = config.test_predictor
-
-def experience(
-    epsilon: float,
-    horizon: int,
-    predictor,
-):
-    episode_forecast = []
-    rewards          = []
-    failure_points   = []
-    state            = predictor.env.reset()
-    forecast         = np.zeros(horizon+1, np.int8) # TODO: check if that +1 is wrong
-    def replan(
-        initial_state: NDArray,
-        old_plan: NDArray,
+class Tester:
+    def __init__(self, settings, predictor, path, csv_path, attribute_overrides={}):
+        self.settings = settings
+        self.predictor = predictor
+        self.path = path
+        self.csv_path = csv_path
+        self.csv_data = None
+        self.reward_card = None
+        self.prediction_card = None
+        # Data recording below is independent to reduce max file size (lets it sync to git)
+        self.recorder = Recorder()
+        self.rewards_per_episode_per_timestep            = [None] * settings.number_of_episodes
+        self.discounted_rewards_per_episode_per_timestep = [None] * settings.number_of_episodes
+        self.failure_points_per_episode_per_timestep     = [None] * settings.number_of_episodes
+        self.stopped_early_per_episode_per_timestep      = [None] * settings.number_of_episodes
+        self.real_q_values_per_episode_per_timestep      = [None] * settings.number_of_episodes
+        
+        # for loading from a file
+        for each_key, each_value in attribute_overrides.items():
+            setattr(self, each_key, each_value)
+    
+    # 
+    # core algorithm
+    # 
+    def experience_episode(
+        self,
+        epsilon: float,
+        horizon: int,
+        episode_index: int,
     ):
-        nonlocal forecast
+        # data recording
+        rewards_per_timestep            = []
+        discounted_rewards_per_timestep = []
+        failure_points_per_timestep     = []
+        stopped_early_per_timestep      = []
+        real_q_values_per_timestep      = []
         
-        actor_action_for = lambda state: predictor.agent.predict(state, deterministic=True)[0]
+        # setup shortcuts/naming
+        env                = self.predictor.env
+        predict_next_state = self.predictor.coach.predict
+        actor_model        = self.predictor.agent.predict
+        value_batch        = self.predictor.agent.value_of
+        choose_action      = lambda state: actor_model(state, deterministic=True)[0]
+        q_value_for        = lambda state, action: value_batch(state, action)[0][0]
+        reward_discount    = self.predictor.agent.gamma
         
-        new_plan = []
-        forecast_index = 0
-        expected_state = initial_state
-        future_plan = old_plan[1:] # reuse old plan (recycle)
-        stopped_early = False
-        for forecast_index, old_plan_action in enumerate(future_plan):
-            # 
-            # stopping criteria
-            # 
-            replan_action = actor_action_for(expected_state)
-            replan_q      = predictor.agent.value_of(expected_state, replan_action)
-            old_plan_q    = predictor.agent.value_of(expected_state, old_plan_action)
-            # if the planned old_plan_action is significantly worse, then fail
-            if old_plan_q + epsilon < replan_q:
-                stopped_early = True
-                break
+        # inline def so it has access to shortcuts above
+        def replan(initial_state, old_plan):
+            new_plan = []
+            forecast_index = 0
+            expected_state = initial_state
+            future_plan = old_plan[1:] # reuse old plan (recycle)
+            stopped_early = False
+            for forecast_index, old_plan_action in enumerate(future_plan):
+                # 
+                # stopping criteria
+                # 
+                replan_action = choose_action(expected_state)
+                replan_q      = q_value_for(expected_state, replan_action)
+                old_plan_q    = q_value_for(expected_state, old_plan_action)
+                # if the planned old_plan_action is significantly worse, then fail
+                if old_plan_q + epsilon < replan_q:
+                    stopped_early = True
+                    break
+                
+                # 
+                # compute next-step 
+                # 
+                expected_state = predict_next_state(expected_state, old_plan_action)
+                new_plan.append(old_plan_action)
             
-            # 
-            # compute next-step 
-            # 
-            expected_state = predictor.coach.predict(expected_state, old_plan_action)
-            forecast[forecast_index] = forecast[forecast_index + 1] + 1 # for the stats... keep track of the forecast of this old_plan_action
-            new_plan.append(old_plan_action)
+            failure_point = forecast_index
+            
+            #
+            # for the part that wasnt in the old plan
+            #
+            for index in range(forecast_index, horizon):
+                action = choose_action(expected_state)
+                expected_state = predict_next_state(expected_state, action)
+                new_plan.append(action)
 
-        if stopped_early:
-            failure_points.append(forecast_index)
-        else:
-            failure_points.append(horizon+1)
+            return new_plan, failure_point, stopped_early
         
-        #
-        # for the part that wasnt in the old plan
-        #
-        for index in range(forecast_index, horizon):
-            action = actor_action_for(expected_state)
-            expected_state = predictor.coach.predict(expected_state, action)
-            new_plan.append(action)
-            forecast[index] = 0
-
-        return new_plan, forecast
-    
-    plan, forecast = replan(state, [])
-    done = False
-    while not done:
-        action = plan[0]
-        episode_forecast.append(forecast[0])
-        state, reward, done, _ = predictor.env.step(to_numpy(action))
-        rewards.append(reward)
-        plan, forecast = replan(state, plan,)
-    return rewards, episode_forecast, failure_points
-
-def main(settings, predictor):
-    # 
-    # pull in settings
-    # 
-    unscaled_epsilon      = list(settings.horizons.keys())
-    forecast_horizons     = list(settings.horizons.values())
-    reward_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
-    epsilons              = reward_range * np.array(unscaled_epsilon)
-    predictor.agent.gamma = config.train_agent.env_overrides[config.env_name].reward_discount
-    print(f'''unscaled_epsilon = {unscaled_epsilon}''')
-    print(f'''epsilons = {epsilons}''')
-    
-    # define return value
-    data = LazyDict(
-        epsilon=[],
-        rewards=[],
-        discounted_rewards=[],
-        forecast=[],
-        alt_forecast=[],
-        average_forecast=[],
-        alt_average_forecast=[],
-        average_failure_point=[],
-        horizon=[],
-    )
-    reward_card = ss.DisplayCard("multiLine", dict(
-        rewards=[ (index, each) for index, each in enumerate(data.rewards)               ],
-    ))
-    prediction_card = ss.DisplayCard("multiLine", dict(
-        average_forecast=[],
-        alt_average_forecast=[],
-        average_failure_point=[],
-        epsilon=[],
-        horizon=[],
-    ))
-    
-    # 
-    # perform experiments with all epsilons
-    # 
-    reward_timestep_range = settings.max_reward_single_timestep - settings.min_reward_single_timestep
-    index = -1
-    for epsilon, horizon in zip(epsilons, forecast_horizons):
-        for episode_index in range(settings.number_of_episodes):
-            rewards, forecast, failure_points = experience(epsilon, horizon, predictor,)
-            normalized_rewards = normalize_rewards(rewards, settings.max_reward_single_timestep, settings.min_reward_single_timestep)
-            average_failure_point = average(failure_points)
-            normalized_episode_reward = sum(normalized_rewards)
-            episode_reward = sum(rewards)
-            index += 1
-            # save data
-            data.epsilon.append(epsilon)
-            data.rewards.append(normalized_episode_reward)
-            data.discounted_rewards.append(get_discounted_rewards(rewards, predictor.agent.gamma))
-            data.forecast.append(forecast[horizon:]) # BOOKMARK: I don't understand this part --Jeff
-            data.alt_forecast.append(forecast[:horizon])
-            data.average_failure_point.append(average_failure_point)
-            data.horizon.append(horizon)
+        # init values
+        done     = False
+        timestep = -1
+        state    = env.reset()
+        episode_forecast = []
+        rolling_forecast = [0]*(horizon+1) # TODO: check if that +1 is wrong (if right, removing should error)
+        rolling_forecast = self.update_rolling_forecast(rolling_forecast, horizon)
+        plan, failure_point, stopped_early = replan(state, [])
+        while not done:
+            timestep += 1
             
-            # NOTE: double averaging might not be the desired metric but its probably alright
-            grand_average_forecast = average([
-                average(each_forecast)
-                    for each_epsilon, each_forecast in zip(data.epsilon, data.forecast)
-                        if each_epsilon == epsilon 
-            ])
-            alt_average_forecast = average([
-                average(each_forecast)
-                    for each_epsilon, each_forecast in zip(data.epsilon, data.alt_forecast)
-                        if each_epsilon == epsilon 
-            ])
+            action = plan[0]
+            real_q_value = q_value_for(state, action)
+            episode_forecast.append(rolling_forecast[0])
             
-            data.average_forecast.append(grand_average_forecast)
-            data.alt_average_forecast.append(alt_average_forecast)
-            reward_card.send(dict(
-                rewards=[ index, episode_reward ],
-            ))
-            prediction_card.send(dict(
-                epsilon=[ index, epsilon ],
-                average_forecast=[index, grand_average_forecast],
-                alt_average_forecast=[index, alt_average_forecast],
-                average_failure_point=[index, average_failure_point],
-                horizon=[ index, horizon ],
-            ))
+            state, reward, done, _ = env.step(to_numpy(action))
+            plan, failure_point, stopped_early = replan(state, plan,)
+            rolling_forecast = self.update_rolling_forecast(rolling_forecast, failure_point)
             
-            print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{sum(rewards):.2f}, normalized_episode_reward: {normalized_episode_reward:.4f}, max_timestep_reward: {max(rewards):.2f}, min_timestep_reward: {min(rewards):.2f}")
-    smoothing = settings.graph_smoothing
-    # display cards at the end with the final data (the other card is transient)
-    ss.DisplayCard("multiLine", dict(
-        rewards=list(enumerate(rolling_average(data.rewards, smoothing))),
-    ))
-    ss.DisplayCard("multiLine", dict(
-        average_forecast=      list(enumerate(rolling_average(data.average_forecast      , smoothing))),
-        alt_average_forecast=  list(enumerate(rolling_average(data.alt_average_forecast  , smoothing))),
-        average_failure_point= list(enumerate(rolling_average(data.average_failure_point , smoothing))),
-        epsilon=               list(enumerate(rolling_average(data.epsilon               , smoothing))),
-        horizon=               list(enumerate(rolling_average(data.horizon               , smoothing))),
-    ))
-    return data
+            # record data
+            rewards_per_timestep.append(to_pure(reward))
+            discounted_rewards_per_timestep.append(to_pure(reward * (reward_discount ** timestep)))
+            failure_points_per_timestep.append(to_pure(failure_point))
+            stopped_early_per_timestep.append(to_pure(stopped_early))
+            real_q_values_per_timestep.append(to_pure(real_q_value))
+            
+        # data recording (and convert to tuple to reduce memory pressure)
+        rewards_per_timestep            = self.rewards_per_episode_per_timestep[episode_index]            = tuple(rewards_per_timestep)
+        discounted_rewards_per_timestep = self.discounted_rewards_per_episode_per_timestep[episode_index] = tuple(discounted_rewards_per_timestep)
+        failure_points_per_timestep     = self.failure_points_per_episode_per_timestep[episode_index]     = tuple(failure_points_per_timestep)
+        stopped_early_per_timestep      = self.stopped_early_per_episode_per_timestep[episode_index]      = tuple(stopped_early_per_timestep)
+        real_q_values_per_timestep      = self.real_q_values_per_episode_per_timestep[episode_index]      = tuple(real_q_values_per_timestep)
+        return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep
 
-def run_test(env_name, coach, csv_path):
-    print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
-    print(f''' Testing Agent+Coach''')
-    print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
-    # compute data
-    data = main(
-        settings=settings.merge(settings.env_overrides[env_name]),
-        predictor=LazyDict(
-            env=config.get_env(env_name),
-            coach=coach,
-            agent=coach.agent,
-        ),
-    )
+    # 
+    # setup for testing
+    # 
+    def run_all_episodes(self):
+        print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
+        print(f''' Testing Agent+Coach''')
+        print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
+        settings, predictor = self.settings, self.predictor
+        # 
+        # pull in settings
+        # 
+        unscaled_epsilons     = tuple(settings.horizons.keys())
+        forecast_horizons     = tuple(settings.horizons.values())
+        reward_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
+        epsilons              = reward_range * np.array(unscaled_epsilons)
+        predictor.agent.gamma = config.train_agent.env_overrides[config.env_name].reward_discount
+        print(f'''unscaled_epsilons = {unscaled_epsilons}''')
+        print(f'''epsilons = {epsilons}''')
+        
+        # define return value
+        self.csv_data = LazyDict(
+            epsilon=[],
+            rewards=[],
+            discounted_rewards=[],
+            forecast=[],
+        )
+        
+        # 
+        # perform experiments with all epsilons
+        # 
+        index = -1
+        for epsilon, horizon, unscaled_epsilon in zip(epsilons, forecast_horizons, unscaled_epsilons):
+            
+            epoch_recorder = Recorder(
+                horizon=horizon,
+                scaled_epsilon=epsilon,
+                unscaled_epsilon=unscaled_epsilon,
+            ).set_parent(self.recorder)
+            
+            forecast_slices = []
+            alt_forecast_slices = []
+            
+            for episode_index in range(settings.number_of_episodes):
+                index += 1
+                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values = self.experience_episode(epsilon, horizon, episode_index)
+                
+                reward_stats            = simple_stats(rewards)
+                discounted_reward_stats = simple_stats(discounted_rewards)
+                failure_point_stats     = simple_stats(failure_points)
+                real_q_value_stats      = simple_stats(real_q_values)
+                
+                # 
+                # forecast stats
+                # 
+                forecast_slices.append(forecast[horizon:])
+                alt_forecast_slices.append(forecast)
+                # NOTE: double averaging might not be the desired metric but its probably alright
+                grand_average_forecast = average(average(each) for each in forecast_slices)
+                alt_average_forecast   = average(average(each) for each in alt_forecast_slices)
+                
+                # save self.csv_data
+                epoch_recorder.push(
+                    episode_index=episode_index,
+                    timestep_count=len(rewards),
+                    average_forecast=grand_average_forecast,
+                    alt_average_forecast=alt_average_forecast,
+                    **key_prepend("reward", reward_stats), # reward_average, reward_median, reward_min, reward_max, etc
+                    **key_prepend("discounted_reward", discounted_reward_stats), # discounted_reward_average, discounted_reward_median, discounted_reward_min, discounted_reward_max, etc
+                    **key_prepend("failure_points", failure_point_stats),
+                    **key_prepend("q", real_q_value_stats),
+                )
+                
+                # record for CSV backwards compatibility
+                self.csv_data.epsilon.append(epsilon)
+                self.csv_data.rewards.append(reward_stats.sum)
+                self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
+                self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
+                
+                print(f"    epsilon: {epsilon:.4f}, average_forecast: {grand_average_forecast:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
+        
+        # display cards at the end with the final self.csv_data (the other card is transient)
+        self.generate_graphs() # uses self.recorder
+        
+        return self
+
+    # 
+    # misc helpers
+    # 
+    def generate_graphs(self):
+        smoothing = self.settings.graph_smoothing
+        
+        discounted_rewards     = []
+        scaled_epsilons        = []
+        average_forecasts      = []
+        average_failure_points = []
+        horizons               = []
+        
+        # for each epsilon-horizon pair
+        for each_recorder in self.recorder.sub_recorders:
+            discounted_rewards     += rolling_average(each_recorder.frame["discounted_reward"]    , smoothing)
+            average_forecasts      += rolling_average(each_recorder.frame["average_forecast"]     , smoothing)
+            average_failure_points += rolling_average(each_recorder.frame["average_failure_point"], smoothing)
+            scaled_epsilons        += [ each_recorder["scaled_epsilon"] ]*len(discounted_rewards)
+            horizons               += [ each_recorder["horizon"]        ]*len(discounted_rewards)
+        
+        # add indicies to all of them
+        discounted_rewards     = tuple(enumerate(discounted_rewards    ))
+        scaled_epsilons        = tuple(enumerate(scaled_epsilons       ))
+        average_forecasts      = tuple(enumerate(average_forecasts     ))
+        average_failure_points = tuple(enumerate(average_failure_points))
+        horizons               = tuple(enumerate(horizons              ))
+        
+        # 
+        # display the actual cards
+        # 
+        reward_card = ss.DisplayCard("multiLine", dict(
+            discounted_rewards=discounted_rewards,
+            scaled_epsilon=scaled_epsilons,
+        ))
+        prediction_card = ss.DisplayCard("multiLine", dict(
+            average_forecasts=average_forecasts,
+            average_failure_points=average_failure_points,
+            horizons=horizons,
+        ))
     
-    # export to CSV
-    FS.clear_a_path_for(csv_path, overwrite=True)
-    pd.DataFrame(data).explode("forecast").to_csv(csv_path)
-    return data
+    def init_graphs(self):
+        self.reward_card = ss.DisplayCard("multiLine", dict(
+            discounted_rewards=[],
+            scaled_epsilon=[],
+        ))
+        self.prediction_card = ss.DisplayCard("multiLine", dict(
+            average_forecasts=[],
+            average_failure_points=[],
+            horizons=[],
+        ))
+    
+    def update_rolling_forecast(self, old_rolling_forecast, failure_point):
+        pairwise = zip(old_rolling_forecast[0:-1], old_rolling_forecast[1:])
+        
+        # each = next+1
+        new_rolling_forecast = [ next+1 for current, next in pairwise ]
+        new_rolling_forecast.append(0) # pairwise is always 1 element shorter than original, so add missing element
+        # zero-out everything past the failure point
+        for index in range(failure_point, len(new_rolling_forecast)):
+            new_rolling_forecast[index] = 0
+            
+        return new_rolling_forecast
+    
+    # 
+    # save and load methods
+    # 
+    attributes_to_save = [
+        "settings",
+        "recorder",
+        "rewards_per_episode_per_timestep",
+        "discounted_rewards_per_episode_per_timestep",
+        "failure_points_per_episode_per_timestep",
+        "stopped_early_per_episode_per_timestep",
+        "real_q_values_per_episode_per_timestep",
+    ]
+    
+    @classmethod
+    def load(cls, path):
+        attributes = {}
+        for each_attribute_name in cls.attributes_to_save:
+            attributes[each_attribute_name] = large_pickle_load(f"{path}/{each}.pickle")
+        # create a tester with the loaded data
+        return Tester(
+            settings=attributes["settings"],
+            predictor=None,
+            attribute_overrides=attributes,
+        )
+    
+    def save(self, path):
+        path = path or self.path
+        # save normal things
+        for each_attribute_name in self.attributes_to_save:
+            each_path = f"{path}/{each}.pickle"
+            FS.clear_a_path_for(each_path, overwrite=True)
+            large_pickle_save(getattr(self, each_attribute_name, None), each_path)
+        # save csv
+        FS.clear_a_path_for(self.csv_path, overwrite=True)
+        pd.DataFrame(self.csv_data).explode("forecast").to_csv(csv_path)
+        return self
+            

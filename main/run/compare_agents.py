@@ -2,7 +2,6 @@ from info import config, path_to
 from analysis import generate_all_visuals
 from main.agent import Agent
 from main.coach import Coach as Coach
-from main.test_prediction import run_test
 
 
 settings = config.agent_compare_test
