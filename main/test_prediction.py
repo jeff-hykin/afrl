@@ -337,7 +337,7 @@ class Tester:
     def load(cls, path):
         attributes = {}
         for each_attribute_name in cls.attributes_to_save:
-            attributes[each_attribute_name] = large_pickle_load(f"{path}/{each}.pickle")
+            attributes[each_attribute_name] = large_pickle_load(f"{path}/{each_attribute_name}.pickle")
         # create a tester with the loaded data
         return Tester(
             settings=attributes["settings"],
@@ -349,7 +349,7 @@ class Tester:
         path = path or self.path
         # save normal things
         for each_attribute_name in self.attributes_to_save:
-            each_path = f"{path}/{each}.pickle"
+            each_path = f"{path}/{each_attribute_name}.pickle"
             FS.clear_a_path_for(each_path, overwrite=True)
             large_pickle_save(getattr(self, each_attribute_name, None), each_path)
         # save csv
