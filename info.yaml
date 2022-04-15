@@ -12,9 +12,12 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
-        - task: add graph of the average q-values so they can be compared as a percentage to the epsilon
-        - task: graph a baseline using the state_prediction_loss with the good agent
-        - check: epsilon size compared to timestep q values for plan/replan (check as a percentage)
+        - check: DONE; epsilon size compared to timestep q values for plan/replan (check as a percentage)
+        - task: DONE; add graph of the average q-values so they can be compared as a percentage to the epsilon
+        - task: DONE; graph a baseline using the state_prediction_loss with the good agent
+        - discuss: stable agent 
+        - discuss: loss function spread
+        - discuss: new loss function coach_value_predict
         - task: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
         - problem: epsilon is highly effected by max/min possible score. There's conflicting info on if min/max is supposed to be on a per-episode or per-timestep basis, and if its supposed to be discounted or not
         - solve: why slice [horizon:] instead of [:horizon], which of the two is correct
@@ -170,12 +173,13 @@
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
                 minibatch_size: 32
-                with_card: True
+                with_card: true
                 env_overrides:
                     *env_settings
     
             test_predictor:
-                graph_smoothing: 3 # rolling average of _ number values
+                force_recompute: false
+                graph_smoothing: 4 # rolling average of _ number values
                 number_of_episodes: 20 # original value is 50 
                 reward_discount: 0.98
                 horizons:

@@ -156,6 +156,13 @@ def ft(arg):
     from info import config
     return FloatTensor(arg).to(config.device)
 
+def log_scale(number):
+    import math
+    if number > 0:
+        return math.log(number+1)
+    else:
+        return -math.log((-number)+1)
+
 def train_test_split(*args, split_proportion):
     import numpy as np
     from trivial_torch_tools import to_tensor

@@ -24,6 +24,7 @@ def full_run(env_name, agent_path, coach_path):
         agent=agent,
     )
     results = Tester.smart_load(
+        force_recompute=config.test_predictor.force_recompute,
         settings=config.test_predictor.merge(
             config.test_predictor.env_overrides[env_name]
         ),
