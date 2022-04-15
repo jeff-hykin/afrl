@@ -26,7 +26,6 @@ settings = config.train_coach
     # number_of_episodes
     # number_of_epochs
     # minibatch_size
-    # loss_api
     # etc
 
 # State transition coach model
@@ -77,7 +76,6 @@ class Coach(nn.Module):
         coach.train_with(
             env_name,
             agent=agent,
-            loss_api=settings.loss_api,
             number_of_episodes=settings.number_of_episodes,
             number_of_epochs=settings.number_of_epochs,
             with_card=settings.with_card,
@@ -143,20 +141,15 @@ class Coach(nn.Module):
                 action = predicted_action
         return predictions
     
+    
+    # 
+    # Loss Application (boilerplate code)
+    # 
     def timestep_testing_loss(self, indices: list, step_data: tuple):
-        self.eval() # testing mode
         loss_function = getattr(self, self.which_loss)
         loss = loss_function(indices, step_data)
         return to_pure(loss)
     
-    @convert_each_arg.to_tensor()
-    @convert_each_arg.to_device(device_attribute="device")
-    def batch_testing_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
-        self.eval() # testing mode
-        loss_function = getattr(self, self.which_loss)
-        loss = loss_function(state_batch, action_batch, next_state_batch)
-        return to_pure(loss)
-        
     def timestep_training_loss(self, indices: list, step_data: tuple):
         loss_function = getattr(self, self.which_loss)
         
@@ -171,23 +164,8 @@ class Coach(nn.Module):
         self.agent.unfreeze()
         return loss
     
-    @convert_each_arg.to_tensor()
-    @convert_each_arg.to_device(device_attribute="device")
-    def batch_training_loss(self, state_batch: torch.Tensor, action_batch: torch.Tensor, next_state_batch: torch.Tensor):
-        loss_function = getattr(self, self.which_loss)
-        self.agent.freeze()
-        loss = loss_function(state_batch, action_batch, next_state_batch)
-        
-        # Optimize the self model
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-
-        self.agent.unfreeze()
-        return loss
-    
     # 
-    # Loss function options (loss_api=timestep)
+    # Loss functions
     # 
     def consistent_value_loss(self, indices: list, step_data: tuple):
         states, actions = step_data
@@ -220,64 +198,72 @@ class Coach(nn.Module):
         ]).mean()
     
     def consistent_coach_loss(self, indices: list, step_data: tuple):
-        losses = []
         scale_value_prediction = self.settings.consistent_coach_loss.scale_value_prediction
-        indices = tuple(index for index in indices if index >= 1)
-        state_1s, action_1s, _ = zip(*(step_data[index-1] for index in indices))
-        state_2s, action_2s, state_3s = zip(*(step_data[index] for index in indices))
+        states, actions = step_data
+        start = min(indicies)
+        end   = max(indices)
         
-        state_1s  = to_tensor(state_1s)
-        action_1s = to_tensor(action_1s)
-        state_2s  = to_tensor(state_2s)
-        action_2s = to_tensor(action_2s)
-        state_3s  = to_tensor(state_3s)
+        # sliders
+        #  [1,2,3,4,5]
+        #  =>
+        #  [1,2,3]
+        #    [2,3,4]
+        #      [3,4,5]
+        state_1s, action_1s = states[start+0:end-2], actions[start+0:end-2]
+        state_2s, action_2s = states[start+1:end-1], actions[start+1:end-1]
+        state_3s, action_3s = states[start+2:end  ], actions[start+2:end  ]
+        
         once_predicted_state_2s = self.forward(state_1s, action_1s)
         once_predicted_state_3s = self.forward(state_2s, action_2s)
         twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
         future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean(dim=-1)
-        value_prediction_losses = self.value_prediction_loss(state_2s, action_2s, state_3s) * scale_value_prediction
+        value_prediction_losses = self.value_prediction_loss(indices, step_data) * scale_value_prediction
         return (future_loss.sum() + value_prediction_losses.sum())/(future_loss.shape[0] + value_prediction_losses.shape[0])
     
-    def timestep_loss(self, timesteps):
-        predictions = self.create_forcast(timesteps.steps[0].prev_state, timesteps.steps[0].action, len(timesteps.steps))
-        losses = []
-        for (predicted_next_state, predicted_action), real in zip(predictions, timesteps.steps):
-            predicted_value = self.agent.value_of(real.next_state, predicted_action)
-            actual_value    = self.agent.value_of(real.next_state, real.action)
-            losses.append(actual_value - predicted_value)
-        return torch.stack(losses).mean()
-    
-    # 
-    # Loss function options (loss_api=batched)
-    # 
-    @convert_each_arg.to_tensor()
-    def value_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = self.forward(state, action)
+    def value_prediction_loss(self, indices: list, step_data: tuple):
+        states, actions = step_data
+        start = min(indicies)
+        end   = max(indices)
+        states     , actions      = states[start+0:end-1], actions[start+0:end-1]
+        next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
         
-        predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
-        predicted_next_value  = self.agent.value_of(next_state, predicted_next_action)
-        best_next_action = self.agent.make_decision(next_state, deterministic=True)
-        best_next_value  = self.agent.value_of(next_state, best_next_action)
+        predicted_next_states   = self.forward(states, actions)
+        
+        predicted_next_actions = self.agent.make_decision(predicted_next_states, deterministic=True)
+        predicted_next_value   = self.agent.value_of(next_states, predicted_next_actions)
+        best_next_value        = self.agent.value_of(next_states, next_actions)
         
         return (best_next_value - predicted_next_value).mean(dim=-1) # when predicted_next_value is high, loss is low (negative)
     
-    def action_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state   = self.forward(state, action)
+    def action_prediction_loss(self, indices: list, step_data: tuple):
+        states, actions = step_data
+        start = min(indicies)
+        end   = max(indices)
+        states     , actions      = states[start+0:end-1], actions[start+0:end-1]
+        next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
         
-        predicted_next_action = self.agent.make_decision(predicted_next_state, deterministic=True)
-        best_next_action = self.agent.make_decision(next_state, deterministic=True)
+        predicted_next_states  = self.forward(states, actions)
+        predicted_next_actions = self.agent.make_decision(predicted_next_states, deterministic=True)
         
-        return ((best_next_action - predicted_next_action) ** 2).mean() # when action is very different, loss is high
+        return ((next_actions - predicted_next_actions) ** 2).mean() # when action is very different, loss is high
         
-    def state_prediction_loss(self, state: torch.Tensor, action: torch.Tensor, next_state: torch.Tensor):
-        predicted_next_state = self.forward(state, action)
+    def state_prediction_loss(self, indices: list, step_data: tuple):
+        states, actions = step_data
+        start = min(indicies)
+        end   = max(indices)
+        states     , actions      = states[start+0:end-1], actions[start+0:end-1]
+        next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
         
-        actual = predicted_next_state
-        expected = next_state
+        predicted_next_states = self.forward(states, actions)
         
-        return ((actual - expected) ** 2).mean()
-
-    def train_with(self, env_name, agent, loss_api, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
+        return ((predicted_next_states - next_states) ** 2).mean()
+    
+    # 
+    # 
+    # main training loop
+    # 
+    # 
+    def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
         env      = config.get_env(env_name)
         card     = ss.DisplayCard("multiLine", dict(train=[], test=[])) if with_card else None
         recorder = RecordKeeper(
@@ -286,7 +272,6 @@ class Coach(nn.Module):
             batch_size=minibatch_size,
             number_of_episodes=number_of_episodes,
             number_of_epochs=number_of_epochs,
-            loss_api=loss_api,
         ).set_parent(self.recorder)
     
         # Get experience from trained agent
@@ -294,88 +279,49 @@ class Coach(nn.Module):
         print(f'''Starting Train/Test''')
         states      = to_tensor(all_curr_states)
         actions     = to_tensor(all_actions)
-        next_states = to_tensor(all_next_states)
 
         (
-            (train_states     , test_states     ),
-            (train_actions    , test_actions    ),
-            (train_next_states, test_next_states),
+            (train_states , test_states),
+            (train_actions, test_actions),
         ) = train_test_split(
             states,
             actions,
-            next_states,
             split_proportion=settings.train_test_split,
         )
         
         # 
         # timestep
         # 
-        if loss_api == "timestep":
+        for epochs_index in range(number_of_epochs):
+            # 
+            # training
+            # 
+            self.train(True)
+            train_losses = []
+            indicies = range(len(train_states))
+            for indicies_bundle in bundle(indicies, bundle_size=minibatch_size):
+                # a tiny bundles would break some of the loss functions (because they look ahead/behind)
+                if len(indicies_bundle) < 3:
+                    continue
+                train_losses.append(self.timestep_training_loss(indicies_bundle, tuple(train_states, train_actions)))
+            train_loss = to_tensor(train_losses).mean()
             
-            training_data = tuple(zip(train_states, train_actions, train_next_states))
-            testing_data  = tuple(zip(test_states , test_actions , test_next_states ))
+            # 
+            # testing
+            # 
+            self.train(False)
+            test_loss = self.timestep_testing_loss(range(len(testing_data)), testing_data)
             
-            for epochs_index in range(number_of_epochs):
-                # 
-                # training
-                # 
-                self.train(True)
-                train_losses = []
-                for indicies in bundle(range(len(training_data)), bundle_size=minibatch_size):
-                    # a size-of-one bundle would break one of the loss functions
-                    if len(indicies) < 2:
-                        continue
-                    train_losses.append(self.timestep_training_loss(indicies, training_data))
-                train_loss = to_tensor(train_losses).mean()
-                
-                # 
-                # testing
-                # 
-                self.train(False)
-                test_loss = self.timestep_testing_loss(range(len(testing_data)), testing_data)
-                
-                print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.8f}, Test Loss: {test_loss:.8f}")
-                recorder.push(
-                    epochs_index=epochs_index,
-                    train_loss=train_loss,
-                    test_loss=test_loss,
-                )
-                if card: card.send(dict(
-                    train=[epochs_index, train_loss],
-                    test=[epochs_index, test_loss],
-                ))
-        # 
-        # batched
-        # 
-        elif loss_api == "batched":
-            for epochs_index in range(number_of_epochs):
-                # 
-                # training
-                # 
-                self.train(True)
-                train_losses = []
-                for state_batch, action_batch, next_state_batch in minibatch(minibatch_size, train_states, train_actions, train_next_states):
-                    train_losses.append(self.batch_training_loss(state_batch, action_batch, next_state_batch))
-                train_loss = to_tensor(train_losses).mean()
-                
-                # 
-                # testing
-                # 
-                self.train(False)
-                test_loss = self.batch_testing_loss(test_states, test_actions, test_next_states)
-                
-                print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
-                recorder.push(
-                    epochs_index=epochs_index,
-                    train_loss=train_loss,
-                    test_loss=test_loss,
-                )
-                if card: card.send(dict(
-                    train=[epochs_index, train_loss],
-                    test=[epochs_index, test_loss],
-                ))
-        else:
-            raise Exception(f'''unknown loss_api given to train coach:\n    was given: {loss_api}\n    valid values: "batched", "timestep" ''')
+            print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.8f}, Test Loss: {test_loss:.8f}")
+            recorder.push(
+                epochs_index=epochs_index,
+                train_loss=train_loss,
+                test_loss=test_loss,
+            )
+            if card: card.send(dict(
+                train=[epochs_index, train_loss],
+                test=[epochs_index, test_loss],
+            ))
         
         return recorder
     
@@ -420,3 +366,4 @@ class Coach(nn.Module):
         )
         coach.load_state_dict(torch.load(path_to.model))
         coach.recorder = RecordKeeper.load(path_to.recorder)
+        return coach

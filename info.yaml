@@ -163,7 +163,6 @@
                 force_retrain: false
                 learning_rate: 0.0001
                 hidden_sizes: [64, 64, 64, 64]
-                loss_api: batched  # "timestep" or "batched" # loss functions are exclusively compatible with one or the other (this should probably be handled internally)
                 loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
                 consistent_coach_loss:
                     scale_value_prediction: 1.0
@@ -192,7 +191,3 @@
         FORCE_CPU:
             force_cpu: true
         
-        COACH_LOSS:
-            train_coach:
-                loss_api: timestep
-                loss_function: consistent_coach_loss 

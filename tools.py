@@ -158,10 +158,11 @@ def ft(arg):
 
 def train_test_split(*args, split_proportion):
     import numpy as np
+    from trivial_torch_tools import to_tensor
     def split(data, indices, train_pct=0.66):
         div = int(len(data) * train_pct)
         train, test = indices[:div], indices[div:]
-        return data[train], data[test]
+        return to_tensor(data[train]), to_tensor(data[test])
     
     indices = np.arange(len(args[0]))
     np.random.shuffle(indices)
