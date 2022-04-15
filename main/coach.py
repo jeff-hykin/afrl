@@ -15,7 +15,7 @@ from super_map import LazyDict
 
 from debug import debug
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average
 from main.agent import Agent
 
 settings = config.train_coach
@@ -106,6 +106,10 @@ class Coach(nn.Module):
             model="coach",
         )
         self.episode_recorder = None
+        self.named_losses = LazyDict(
+            future_loss=[],
+            q_loss=[],
+        )
         self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
         self.losses = []
@@ -217,10 +221,8 @@ class Coach(nn.Module):
         twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
         future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean(dim=-1)
         q_loss = self.value_prediction_loss(indices, states, actions) * scale_value_prediction
-        self.episode_recorder.add(
-            future_loss=to_pure(future_loss),
-            q_loss=to_pure(q_loss),
-        )
+        self.named_losses.future_loss.append(to_pure(future_loss.mean()))
+        self.named_losses.q_loss.append(to_pure(q_loss.mean()))
         return (future_loss.sum() + q_loss.sum())/(future_loss.shape[0] + q_loss.shape[0])
     
     def value_prediction_loss(self, indices: list, states, actions):
@@ -265,7 +267,13 @@ class Coach(nn.Module):
     # 
     def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
         env      = config.get_env(env_name)
-        card     = ss.DisplayCard("multiLine", dict(train=[], test=[])) if with_card else None
+        card     = ss.DisplayCard("multiLine", dict(
+            train=[],
+            test=[],
+            **{
+                key:[] for key in self.named_losses.keys()
+            },
+        )) if with_card else None
         self.episode_recorder = Recorder(
             training_record=True,
             env_name=env_name,
@@ -302,28 +310,42 @@ class Coach(nn.Module):
             self.train(True)
             train_losses = []
             indicies = range(len(train_states))
+            self.named_losses = LazyDict(
+                future_loss=[],
+                q_loss=[],
+            )
             for indicies_bundle in bundle(indicies, bundle_size=minibatch_size):
                 # a tiny bundles would break some of the loss functions (because they look ahead/behind)
                 if len(indicies_bundle) < 3:
                     continue
                 train_losses.append(self.apply_training_loss(indicies_bundle, train_states, train_actions))
-            train_loss = to_tensor(train_losses).mean()
+            train_loss = to_pure(to_tensor(train_losses).mean())
             
             # 
             # testing
             # 
             self.train(False)
-            test_loss = self.apply_testing_loss(range(len(test_states)), test_states, test_actions)
+            test_loss = to_pure(self.apply_testing_loss(range(len(test_states)), test_states, test_actions))
             
             print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.8f}, Test Loss: {test_loss:.8f}")
             self.episode_recorder.push(
                 epochs_index=epochs_index,
-                train_loss=to_pure(train_loss),
-                test_loss=to_pure(test_loss),
+                train_loss=train_loss,
+                test_loss=test_loss,
+                **{
+                    each_key: average(each_value)
+                        for each_key, each_value in self.named_losses.items()
+                            if len(each_value) > 0
+                }
             )
             if card: card.send(dict(
                 train=[epochs_index, train_loss],
                 test=[epochs_index, test_loss],
+                **{
+                    each_key: [ epochs_index, average(each_value)]
+                        for each_key, each_value in self.named_losses.items()
+                            if len(each_value) > 0
+                }
             ))
         
         return self.episode_recorder
@@ -334,10 +356,14 @@ class Coach(nn.Module):
         # add the future_loss
         # add the q_value_loss
         records = tuple(self.recorder.all_records)
-        training_records = tuple(each for each in self.recorder.all_records if each.get("training_record", False))
+        training_records = tuple(each for each in records if each.get("training_record", False))
+        special_records = tuple(each for each in records if each.get("future_loss", False) )
         ss.DisplayCard("multiLine", dict(
             train=[ (each["epochs_index"], each["train_loss"]) for each in training_records ],
-            test=[ (each["epochs_index"], each["test_loss"]) for each in training_records ],
+            test= [ (each["epochs_index"], each["test_loss"] ) for each in training_records ],
+            
+            future_loss= [ (each["epochs_index"], each["future_loss"] ) for each in special_records ],
+            q_loss= [ (each["epochs_index"], each["q_loss"] ) for each in special_records ],
         ))
         return self
     
@@ -359,7 +385,6 @@ class Coach(nn.Module):
         large_pickle_save(basic_attribute_data, path_to.attributes)
         torch.save(self.state_dict(), FS.clear_a_path_for(path_to.model, overwrite=True))
         self.recorder.save_to(FS.clear_a_path_for(path_to.recorder, overwrite=True))
-        print(f'''Saved Records to: {path_to.recorder}''')
     
     @classmethod
     def load(cls, path, agent, device):

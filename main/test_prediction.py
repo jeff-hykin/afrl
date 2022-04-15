@@ -269,8 +269,8 @@ class Tester:
         
         # for each epsilon-horizon pair
         for each_recorder in self.recorder.sub_recorders:
-            discounted_rewards       += rolling_average(each_recorder.frame["reward_sum"]               , smoothing)
-            rewards                  += rolling_average(each_recorder.frame["discounted_reward_sum"]    , smoothing)
+            discounted_rewards       += rolling_average(each_recorder.frame["discounted_reward_sum"]    , smoothing)
+            rewards                  += rolling_average(each_recorder.frame["reward_sum"]               , smoothing)
             q_values                 += rolling_average(each_recorder.frame["q_average"]                , smoothing)
             q_final_gaps_average     += rolling_average(each_recorder.frame["q_final_gaps_average"]     , smoothing)
             q_gaps_average           += rolling_average(each_recorder.frame["q_gaps_average"]           , smoothing)
