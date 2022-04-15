@@ -54,7 +54,6 @@ python main/run/full.py --                            \
     experiment_name:experiment3                       \
     env_name:AntBulletEnv-v0                          \
     train_agent:model_name:default_sac_2              \
-    train_coach:loss_api:timestep                     \
     train_coach:loss_function:consistent_coach_loss
 ```
 

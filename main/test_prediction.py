@@ -23,18 +23,19 @@ from simple_namespace import namespace
 from rigorous_recorder import Recorder
 
 from info import path_to, config
-from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats
+from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale
 from main.agent import Agent
 from main.coach import Coach
 
 class Tester:
-    def __init__(self, settings, predictor, path, csv_path, attribute_overrides={}):
+    def __init__(self, settings, predictor, path, attribute_overrides={}):
         self.settings = settings
         self.predictor = predictor
         self.path = path
-        self.csv_path = csv_path
+        self.csv_path = f"{path}/experiments.csv"
+        self.agent_reward_discount = self.predictor.agent.gamma if self.predictor else None
         self.csv_data = None
-        self.reward_card = None
+        self.threshold_card = None
         self.prediction_card = None
         # Data recording below is independent to reduce max file size (lets it sync to git)
         self.recorder = Recorder()
@@ -43,6 +44,7 @@ class Tester:
         self.failure_points_per_episode_per_timestep     = [None] * settings.number_of_episodes
         self.stopped_early_per_episode_per_timestep      = [None] * settings.number_of_episodes
         self.real_q_values_per_episode_per_timestep      = [None] * settings.number_of_episodes
+        self.q_value_gaps_per_episode_per_timestep       = [None] * settings.number_of_episodes
         
         # for loading from a file
         for each_key, each_value in attribute_overrides.items():
@@ -63,6 +65,7 @@ class Tester:
         failure_points_per_timestep     = []
         stopped_early_per_timestep      = []
         real_q_values_per_timestep      = []
+        q_value_gaps_per_timestep       = []
         
         # setup shortcuts/naming
         env                = self.predictor.env
@@ -80,6 +83,7 @@ class Tester:
             expected_state = initial_state
             future_plan = old_plan[1:] # reuse old plan (recycle)
             stopped_early = False
+            q_value_gaps = []
             for forecast_index, old_plan_action in enumerate(future_plan):
                 # 
                 # stopping criteria
@@ -87,8 +91,18 @@ class Tester:
                 replan_action = choose_action(expected_state)
                 replan_q      = q_value_for(expected_state, replan_action)
                 old_plan_q    = q_value_for(expected_state, old_plan_action)
+                q_value_gap = to_pure(replan_q - old_plan_q)
+                q_value_gaps.append(q_value_gap)
+                if q_value_gap is None:
+                    raise Exception(f'''
+                        replan_q: {replan_q}
+                        old_plan_q: {old_plan_q}
+                        replan_q - old_plan_q: {replan_q - old_plan_q}
+                        to_pure(replan_q - old_plan_q): {to_pure(replan_q - old_plan_q)}
+                        q_value_gaps: {q_value_gaps}
+                    ''')
                 # if the planned old_plan_action is significantly worse, then fail
-                if old_plan_q + epsilon < replan_q:
+                if q_value_gap > epsilon:
                     stopped_early = True
                     break
                 
@@ -108,7 +122,7 @@ class Tester:
                 expected_state = predict_next_state(expected_state, action)
                 new_plan.append(action)
 
-            return new_plan, failure_point, stopped_early
+            return new_plan, failure_point, stopped_early, tuple(q_value_gaps)
         
         # init values
         done     = False
@@ -117,7 +131,7 @@ class Tester:
         episode_forecast = []
         rolling_forecast = [0]*(horizon+1) # TODO: check if that +1 is wrong (if right, removing should error)
         rolling_forecast = self.update_rolling_forecast(rolling_forecast, horizon)
-        plan, failure_point, stopped_early = replan(state, [])
+        plan, failure_point, stopped_early, q_value_gaps = replan(state, [])
         while not done:
             timestep += 1
             
@@ -126,7 +140,7 @@ class Tester:
             episode_forecast.append(rolling_forecast[0])
             
             state, reward, done, _ = env.step(to_numpy(action))
-            plan, failure_point, stopped_early = replan(state, plan,)
+            plan, failure_point, stopped_early, q_value_gaps = replan(state, plan,)
             rolling_forecast = self.update_rolling_forecast(rolling_forecast, failure_point)
             
             # record data
@@ -135,6 +149,7 @@ class Tester:
             failure_points_per_timestep.append(to_pure(failure_point))
             stopped_early_per_timestep.append(to_pure(stopped_early))
             real_q_values_per_timestep.append(to_pure(real_q_value))
+            q_value_gaps_per_timestep.append(q_value_gaps)
             
         # data recording (and convert to tuple to reduce memory pressure)
         rewards_per_timestep            = self.rewards_per_episode_per_timestep[episode_index]            = tuple(rewards_per_timestep)
@@ -142,7 +157,8 @@ class Tester:
         failure_points_per_timestep     = self.failure_points_per_episode_per_timestep[episode_index]     = tuple(failure_points_per_timestep)
         stopped_early_per_timestep      = self.stopped_early_per_episode_per_timestep[episode_index]      = tuple(stopped_early_per_timestep)
         real_q_values_per_timestep      = self.real_q_values_per_episode_per_timestep[episode_index]      = tuple(real_q_values_per_timestep)
-        return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep
+        q_value_gaps_per_timestep       = self.q_value_gaps_per_episode_per_timestep[episode_index]       = tuple(q_value_gaps_per_timestep)
+        return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
 
     # 
     # setup for testing
@@ -188,7 +204,7 @@ class Tester:
             
             for episode_index in range(settings.number_of_episodes):
                 index += 1
-                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values = self.experience_episode(epsilon, horizon, episode_index)
+                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(epsilon, horizon, episode_index)
                 
                 reward_stats            = simple_stats(rewards)
                 discounted_reward_stats = simple_stats(discounted_rewards)
@@ -217,6 +233,8 @@ class Tester:
                     **key_prepend("discounted_reward", discounted_reward_stats), # discounted_reward_average, discounted_reward_median, discounted_reward_min, discounted_reward_max, etc
                     **key_prepend("failure_point", failure_point_stats),
                     **key_prepend("q", real_q_value_stats),
+                    **key_prepend("q_gaps", simple_stats(flatten(q_value_gaps) or [0])),
+                    **key_prepend("q_final_gaps", simple_stats([each[-1] for each in q_value_gaps if len(each) > 0] or [0])),
                 )
                 self.increment_live_graphs() # uses latest record
                 
@@ -228,9 +246,7 @@ class Tester:
                 
                 print(f"    epsilon: {epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
         
-        # display cards at the end with the final self.csv_data (the other card is transient)
-        self.generate_graphs() # uses self.recorder
-        
+        self.save()
         return self
 
     # 
@@ -239,8 +255,13 @@ class Tester:
     def generate_graphs(self):
         smoothing = self.settings.graph_smoothing
         
-        timestep_reward_averages = []
+        discounted_rewards       = []
+        rewards                  = []
         q_values                 = []
+        q_final_gaps_average     = []
+        q_gaps_average           = []
+        q_gaps_min               = []
+        q_gaps_max               = []
         scaled_epsilons          = []
         forecasts_average        = []
         failure_points_average   = []
@@ -248,8 +269,13 @@ class Tester:
         
         # for each epsilon-horizon pair
         for each_recorder in self.recorder.sub_recorders:
-            timestep_reward_averages += rolling_average(each_recorder.frame["reward_average"]           , smoothing)
+            discounted_rewards       += rolling_average(each_recorder.frame["discounted_reward_sum"]    , smoothing)
+            rewards                  += rolling_average(each_recorder.frame["reward_sum"]               , smoothing)
             q_values                 += rolling_average(each_recorder.frame["q_average"]                , smoothing)
+            q_final_gaps_average     += rolling_average(each_recorder.frame["q_final_gaps_average"]     , smoothing)
+            q_gaps_average           += rolling_average(each_recorder.frame["q_gaps_average"]           , smoothing)
+            q_gaps_min               += rolling_average(each_recorder.frame["q_gaps_min"]               , smoothing)
+            q_gaps_max               += rolling_average(each_recorder.frame["q_gaps_max"]               , smoothing)
             forecasts_average        += rolling_average(each_recorder.frame["forecast_average"]         , smoothing)
             failure_points_average   += rolling_average(each_recorder.frame["failure_point_average"]    , smoothing)
             
@@ -258,8 +284,13 @@ class Tester:
             horizons        += [ each_recorder["horizon"]        ]*count
         
         # add indicies to all of them
-        timestep_reward_averages = tuple(enumerate(timestep_reward_averages ))
+        discounted_rewards       = tuple(enumerate(discounted_rewards       ))
+        rewards                  = tuple(enumerate(rewards                  ))
         q_values                 = tuple(enumerate(q_values                 ))
+        q_final_gaps_average     = tuple(enumerate(q_final_gaps_average     ))
+        q_gaps_average           = tuple(enumerate(q_gaps_average           ))
+        q_gaps_min               = tuple(enumerate(q_gaps_min               ))
+        q_gaps_max               = tuple(enumerate(q_gaps_max               ))
         scaled_epsilons          = tuple(enumerate(scaled_epsilons          ))
         forecasts_average        = tuple(enumerate(forecasts_average        ))
         failure_points_average   = tuple(enumerate(failure_points_average   ))
@@ -269,8 +300,16 @@ class Tester:
         # display the actual cards
         # 
         reward_card = ss.DisplayCard("multiLine", dict(
+            discounted_reward=discounted_rewards,
+            reward=rewards,
+        ))
+        
+        threshold_card = ss.DisplayCard("multiLine", dict(
             scaled_epsilon=scaled_epsilons,
-            timestep_reward_average=timestep_reward_averages,
+            q_final_gaps_average=q_final_gaps_average,
+            q_gaps_average=q_gaps_average,
+            # q_gaps_min=q_gaps_min,
+            # q_gaps_max=q_gaps_max,
             # timestep_q_average=q_values,
         ))
         prediction_card = ss.DisplayCard("multiLine", dict(
@@ -278,36 +317,66 @@ class Tester:
             failure_point_average=failure_points_average,
             horizon=horizons,
         ))
-        text_card = ss.DisplayCard("quickMarkdown", f"""## experiment_name:{config.experiment_name}""")
+        text_card = ss.DisplayCard("quickMarkdown", f"""## Experiment: {config.experiment_name}""")
+        
+        # 
+        # save plots
+        # 
+        plot_kwargs = dict(
+            csv_path=self.csv_path,
+            output_folder=f"{self.path}/visuals",
+            reward_discount=self.agent_reward_discount,
+            min_reward_single_timestep=self.settings.min_reward_single_timestep,
+            max_reward_single_timestep=self.settings.max_reward_single_timestep,
+        )
+        plot_epsilon_1(**plot_kwargs)
+        plot_epsilon_2(**plot_kwargs)
+        
+        return self
     
     def init_live_graphs(self):
         self.reward_card = ss.DisplayCard("multiLine", dict(
+            discounted_reward=[],
+            reward=[],
+        ))
+        
+        self.threshold_card = ss.DisplayCard("multiLine", dict(
             scaled_epsilon=[],
-            timestep_reward_average=[],
-            timestep_q_average=[],
+            q_final_gaps_average=[],
+            q_gaps_average=[],
+            # q_gaps_log_min=[],
+            # q_gaps_log_max=[],
+            # timestep_q_average=[],
         ))
         self.prediction_card = ss.DisplayCard("multiLine", dict(
             forecast_average=[],
             failure_point_average=[],
             horizon=[],
         ))
-        self.text_card = ss.DisplayCard("quickMarkdown", f"""## experiment_name:{config.experiment_name}""")
+        self.text_card = ss.DisplayCard("quickMarkdown", f"""## Experiment: {config.experiment_name}""")
     
     def increment_live_graphs(self):
-        if not self.reward_card: self.init_live_graphs()
+        if not self.threshold_card: self.init_live_graphs()
         
         index = sum(len(each) for each in self.recorder.sub_recorders)
         latest_record = self.recorder.sub_recorders[-1][-1]
         
         self.reward_card.send(dict(
-            timestep_reward_average=[index, latest_record["reward_average"] ],
-            timestep_q_average=[index, latest_record["q_average"] ],
-            scaled_epsilon=[index, latest_record["scaled_epsilon"] ],
+            discounted_reward=[ index, latest_record["discounted_reward_sum"]],
+            reward=           [ index, latest_record["reward_sum"]],
+        ))
+        self.threshold_card.send(dict(
+            scaled_epsilon=          [ index,           latest_record["scaled_epsilon"]       ],
+            q_final_gaps_average=    [ index,           latest_record["q_final_gaps_average"] ],
+            q_gaps_average=          [ index,           latest_record["q_gaps_average"]       ],
+            # q_gaps_log_min=          [ index, log_scale(latest_record["q_gaps_min"])          ],
+            # q_gaps_log_max=          [ index, log_scale(latest_record["q_gaps_max"])          ],
+            # timestep_q_average=      [index, latest_record["q_average"] ],
         ))
         self.prediction_card.send(dict(
-            forecast_average=[index, latest_record["forecast_average"] ],
-            failure_point_average=[index, latest_record["failure_point_average"] ],
-            horizon=[index, latest_record["horizon"] ],
+            forecast_average=      [index, latest_record["forecast_average"] ],
+            failure_point_average= [index, latest_record["failure_point_average"] ],
+            horizon=               [index, latest_record["horizon"] ],
         ))
     
     def update_rolling_forecast(self, old_rolling_forecast, failure_point):
@@ -328,36 +397,126 @@ class Tester:
     attributes_to_save = [
         "settings",
         "recorder",
+        "agent_reward_discount",
         "rewards_per_episode_per_timestep",
         "discounted_rewards_per_episode_per_timestep",
         "failure_points_per_episode_per_timestep",
         "stopped_early_per_episode_per_timestep",
         "real_q_values_per_episode_per_timestep",
+        "q_value_gaps_per_episode_per_timestep",
     ]
     
     @classmethod
-    def load(cls, path, csv_path):
+    def smart_load(cls, path, settings, predictor, force_recompute=False):
+        if not force_recompute and all(
+            FS.is_file(f"{path}/serial_data/{each_attribute_name}.pickle")
+                for each_attribute_name in cls.attributes_to_save
+        ):
+            return cls.load(
+                path=path,
+                settings=settings,
+                predictor=predictor,
+            ).generate_graphs()
+        return Tester(
+            path=path,
+            settings=settings,
+            predictor=predictor,
+        ).run_all_episodes().generate_graphs()
+        
+    @classmethod
+    def load(cls, path, settings={}, predictor=None):
         attributes = {}
         for each_attribute_name in cls.attributes_to_save:
-            attributes[each_attribute_name] = large_pickle_load(f"{path}/{each_attribute_name}.pickle")
+            attributes[each_attribute_name] = large_pickle_load(f"{path}/serial_data/{each_attribute_name}.pickle")
+        attributes["settings"].update(settings)
         # create a tester with the loaded data
         return Tester(
             settings=attributes["settings"],
-            predictor=None,
+            predictor=predictor,
             attribute_overrides=attributes,
             path=path,
-            csv_path=csv_path,
         )
     
     def save(self, path=None):
         path = path or self.path
         # save normal things
         for each_attribute_name in self.attributes_to_save:
-            each_path = f"{path}/{each_attribute_name}.pickle"
+            each_path = f"{path}/serial_data/{each_attribute_name}.pickle"
             FS.clear_a_path_for(each_path, overwrite=True)
             large_pickle_save(getattr(self, each_attribute_name, None), each_path)
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)
         pd.DataFrame(self.csv_data).explode("forecast").to_csv(self.csv_path)
         return self
-            
+
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+sns.set_theme(style="whitegrid")
+
+def plot_epsilon_1(csv_path, output_folder, max_reward_single_timestep, min_reward_single_timestep, reward_discount):
+    if not FS.exists(csv_path):
+        print(f"no data found for: {csv_path}")
+        return
+    
+    data_frame = pd.read_csv(csv_path)
+    
+    max_reward_single_timestep = data_frame.groupby('epsilon').discounted_rewards.mean().values[0]
+    score_range = max_reward_single_timestep - min_reward_single_timestep
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_reward_single_timestep) / score_range
+    data_frame['epsilon_adjusted'] = data_frame.epsilon / score_range
+    epsilon_means       = data_frame.groupby('epsilon_adjusted').normalized_rewards.mean()
+    standard_deviations = data_frame.groupby('epsilon_adjusted').normalized_rewards.std().values
+    epsilon_low         = data_frame.epsilon_adjusted.min()
+    epsilon_high        = data_frame.epsilon_adjusted.max()
+    epsilon             = np.linspace(0, epsilon_high, 2)
+    subopt              = epsilon / (1 - reward_discount)
+    base_mean           = 1
+    
+    plt.figure(figsize=(5.5, 5.5))
+    plt.plot(epsilon, base_mean-subopt, color='orange', label='Perform. Bounds')
+    epsilon_means.plot(label='V^{PAC}(s_0)', marker='o', ax=plt.subplot(1,1,1), color='steelblue')
+    plt.ylim(-0.1, 1.1)
+    plt.xlabel('Epsilon Coefficient')
+    plt.fill_between(epsilon_means.index, epsilon_means-standard_deviations, epsilon_means+standard_deviations, alpha=0.2, color='steelblue')
+    plt.hlines(base_mean, epsilon_low, epsilon_high, color='green', label='V^pi(s_0)')
+    plt.plot([epsilon_low, epsilon_high], [0,0], color='red', label='V^{rand}(s_0)')
+    plt.legend(loc='lower left', fontsize="x-small")
+    plt.tight_layout()
+    
+    plt.savefig(
+        FS.clear_a_path_for(
+            f"{output_folder}/epsilon_1",
+            overwrite=True
+        )
+    )
+
+def plot_epsilon_2(csv_path, output_folder, max_reward_single_timestep, min_reward_single_timestep, reward_discount):
+    if not FS.exists(csv_path):
+        print(f"no data found for: {csv_path}")
+        return
+    
+    data_frame = pd.read_csv(csv_path).rename(columns={'Unnamed: 0': 'episode'})
+    score_range = max_reward_single_timestep - min_reward_single_timestep
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_reward_single_timestep) / score_range
+    data_frame['epsilon_adjusted']   = data_frame.epsilon / score_range
+    forecast_means      = data_frame.groupby('epsilon_adjusted').forecast.mean() + 1
+    standard_deviations = data_frame.groupby(['epsilon_adjusted', 'episode']).forecast.mean().unstack().std(1)
+    forecast_low  = forecast_means + standard_deviations
+    forecast_high = forecast_means - standard_deviations
+    
+    plt.figure(figsize=(5.5, 5.5))
+    forecast_means.plot(marker='o', label='V^F(s_0)', color='steelblue')
+    plt.fill_between(forecast_means.index, np.where(forecast_low < 0, 0, forecast_low), forecast_high, alpha=0.2, color='steelblue')
+    plt.xlabel('Epsilon Coefficient')
+    plt.ylabel('Forecast')
+    plt.savefig(
+        FS.clear_a_path_for(
+            f"{output_folder}/epsilon_2",
+            overwrite=True
+        )
+    )

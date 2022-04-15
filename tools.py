@@ -156,12 +156,20 @@ def ft(arg):
     from info import config
     return FloatTensor(arg).to(config.device)
 
+def log_scale(number):
+    import math
+    if number > 0:
+        return math.log(number+1)
+    else:
+        return -math.log((-number)+1)
+
 def train_test_split(*args, split_proportion):
     import numpy as np
+    from trivial_torch_tools import to_tensor
     def split(data, indices, train_pct=0.66):
         div = int(len(data) * train_pct)
         train, test = indices[:div], indices[div:]
-        return data[train], data[test]
+        return to_tensor(data[train]), to_tensor(data[test])
     
     indices = np.arange(len(args[0]))
     np.random.shuffle(indices)
@@ -233,6 +241,49 @@ def feed_forward(layer_sizes, activation=nn.Tanh, output_activation=nn.Identity)
             activation_class(),
         ]
     return Sequential(*layers)
+
+def log_graph(data):
+    import silver_spectacle as ss
+    colors = [
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+    ]
+    ss.DisplayCard("chartjs", {
+        "type": 'line',
+        "data": {
+            "datasets": [
+                {
+                    "label": each_key,
+                    "data": ({"x":x, "y":y} for x,y in each_value),
+                    "tension": 0.1,
+                    "backgroundColor": colors.pop(),
+                }
+                    for each_key, each_value in data.items()
+            ]
+        },
+        "options": {
+            "pointRadius": 3, # the size of the dots
+            "scales": {
+                "y": {
+                    "type": "logarithmic",
+                },
+            }
+        }
+    })
 
 from dataclasses import dataclass, field
 @dataclass

@@ -41,9 +41,7 @@ for each_name in path_to.folder:
 # 
 path_to.agent_model_for           = lambda env_name: f"{path_to.folder.agent_models}/{env_name}/{config.train_agent.model_name}"
 path_to.coach_model_for           = lambda env_name: f"{path_to.folder.coach_models}/{env_name}/{config.experiment_name}/"
-path_to.test_results              = lambda env_name: f"{path_to.folder.results}/{config.experiment_name}/{env_name}/test_data/"
-path_to.experiment_csv_for        = lambda env_name: f"{path_to.test_results(env_name)}/experiments.csv"
-path_to.experiment_visuals_folder = lambda env_name: f"{path_to.folder.results}/{config.experiment_name}/{env_name}/visuals/"
+path_to.test_results              = lambda env_name: f"{path_to.folder.results}/{config.experiment_name}/{env_name}/"
 
 # 
 # env lookup
