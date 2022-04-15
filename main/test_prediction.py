@@ -28,11 +28,12 @@ from main.agent import Agent
 from main.coach import Coach
 
 class Tester:
-    def __init__(self, settings, predictor, path, csv_path, attribute_overrides={}):
+    def __init__(self, settings, predictor, path, attribute_overrides={}):
         self.settings = settings
         self.predictor = predictor
         self.path = path
-        self.csv_path = csv_path
+        self.csv_path = f"{path}/experiments.csv"
+        self.agent_reward_discount = self.predictor.agent.gamma if self.predictor else None
         self.csv_data = None
         self.reward_card = None
         self.prediction_card = None
@@ -228,9 +229,6 @@ class Tester:
                 
                 print(f"    epsilon: {epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
         
-        # display cards at the end with the final self.csv_data (the other card is transient)
-        self.generate_graphs() # uses self.recorder
-        
         return self
 
     # 
@@ -279,6 +277,21 @@ class Tester:
             horizon=horizons,
         ))
         text_card = ss.DisplayCard("quickMarkdown", f"""## experiment_name:{config.experiment_name}""")
+        
+        # 
+        # save plots
+        # 
+        plot_kwargs = dict(
+            csv_path=self.csv_path,
+            output_folder=f"{self.path}/visuals",
+            reward_discount=self.agent_reward_discount,
+            min_reward_single_timestep=self.settings.min_reward_single_timestep,
+            max_reward_single_timestep=self.settings.max_reward_single_timestep,
+        )
+        plot_epsilon_1(**plot_kwargs)
+        plot_epsilon_2(**plot_kwargs)
+        
+        return self
     
     def init_live_graphs(self):
         self.reward_card = ss.DisplayCard("multiLine", dict(
@@ -328,6 +341,7 @@ class Tester:
     attributes_to_save = [
         "settings",
         "recorder",
+        "agent_reward_discount",
         "rewards_per_episode_per_timestep",
         "discounted_rewards_per_episode_per_timestep",
         "failure_points_per_episode_per_timestep",
@@ -336,28 +350,116 @@ class Tester:
     ]
     
     @classmethod
-    def load(cls, path, csv_path):
+    def smart_load(cls, path, settings, predictor):
+        if all(
+            FS.is_file(f"{path}/serial_data/{each_attribute_name}.pickle")
+                for each_attribute_name in cls.attributes_to_save
+        ):
+            return cls.load(
+                path=path,
+                settings=settings,
+                predictor=predictor,
+            ).generate_graphs()
+        return Tester(
+            path=path,
+            settings=settings,
+            predictor=predictor,
+        ).run_all_episodes().generate_graphs()
+        
+    @classmethod
+    def load(cls, path, settings={}, predictor=None):
         attributes = {}
         for each_attribute_name in cls.attributes_to_save:
-            attributes[each_attribute_name] = large_pickle_load(f"{path}/{each_attribute_name}.pickle")
+            attributes[each_attribute_name] = large_pickle_load(f"{path}/serial_data/{each_attribute_name}.pickle")
+        attributes["settings"].update(settings)
         # create a tester with the loaded data
         return Tester(
             settings=attributes["settings"],
-            predictor=None,
+            predictor=predictor,
             attribute_overrides=attributes,
             path=path,
-            csv_path=csv_path,
         )
     
     def save(self, path=None):
         path = path or self.path
         # save normal things
         for each_attribute_name in self.attributes_to_save:
-            each_path = f"{path}/{each_attribute_name}.pickle"
+            each_path = f"{path}/serial_data/{each_attribute_name}.pickle"
             FS.clear_a_path_for(each_path, overwrite=True)
             large_pickle_save(getattr(self, each_attribute_name, None), each_path)
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)
         pd.DataFrame(self.csv_data).explode("forecast").to_csv(self.csv_path)
         return self
-            
+
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+sns.set_theme(style="whitegrid")
+
+def plot_epsilon_1(csv_path, output_folder, max_reward_single_timestep, min_reward_single_timestep, reward_discount):
+    if not FS.exists(csv_path):
+        print(f"no data found for: {csv_path}")
+        return
+    
+    data_frame = pd.read_csv(csv_path)
+    
+    max_reward_single_timestep = data_frame.groupby('epsilon').discounted_rewards.mean().values[0]
+    score_range = max_reward_single_timestep - min_reward_single_timestep
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_reward_single_timestep) / score_range
+    data_frame['epsilon_adjusted'] = data_frame.epsilon / score_range
+    epsilon_means       = data_frame.groupby('epsilon_adjusted').normalized_rewards.mean()
+    standard_deviations = data_frame.groupby('epsilon_adjusted').normalized_rewards.std().values
+    epsilon_low         = data_frame.epsilon_adjusted.min()
+    epsilon_high        = data_frame.epsilon_adjusted.max()
+    epsilon             = np.linspace(0, epsilon_high, 2)
+    subopt              = epsilon / (1 - reward_discount)
+    base_mean           = 1
+    
+    plt.figure(figsize=(5.5, 5.5))
+    plt.plot(epsilon, base_mean-subopt, color='orange', label='Perform. Bounds')
+    epsilon_means.plot(label='V^{PAC}(s_0)', marker='o', ax=plt.subplot(1,1,1), color='steelblue')
+    plt.ylim(-0.1, 1.1)
+    plt.xlabel('Epsilon Coefficient')
+    plt.fill_between(epsilon_means.index, epsilon_means-standard_deviations, epsilon_means+standard_deviations, alpha=0.2, color='steelblue')
+    plt.hlines(base_mean, epsilon_low, epsilon_high, color='green', label='V^pi(s_0)')
+    plt.plot([epsilon_low, epsilon_high], [0,0], color='red', label='V^{rand}(s_0)')
+    plt.legend(loc='lower left', fontsize="x-small")
+    plt.tight_layout()
+    
+    plt.savefig(
+        FS.clear_a_path_for(
+            f"{output_folder}/epsilon_1",
+            overwrite=True
+        )
+    )
+
+def plot_epsilon_2(csv_path, output_folder, max_reward_single_timestep, min_reward_single_timestep, reward_discount):
+    if not FS.exists(csv_path):
+        print(f"no data found for: {csv_path}")
+        return
+    
+    data_frame = pd.read_csv(csv_path).rename(columns={'Unnamed: 0': 'episode'})
+    score_range = max_reward_single_timestep - min_reward_single_timestep
+    data_frame['normalized_rewards'] = (data_frame.discounted_rewards - min_reward_single_timestep) / score_range
+    data_frame['epsilon_adjusted']   = data_frame.epsilon / score_range
+    forecast_means      = data_frame.groupby('epsilon_adjusted').forecast.mean() + 1
+    standard_deviations = data_frame.groupby(['epsilon_adjusted', 'episode']).forecast.mean().unstack().std(1)
+    forecast_low  = forecast_means + standard_deviations
+    forecast_high = forecast_means - standard_deviations
+    
+    plt.figure(figsize=(5.5, 5.5))
+    forecast_means.plot(marker='o', label='V^F(s_0)', color='steelblue')
+    plt.fill_between(forecast_means.index, np.where(forecast_low < 0, 0, forecast_low), forecast_high, alpha=0.2, color='steelblue')
+    plt.xlabel('Epsilon Coefficient')
+    plt.ylabel('Forecast')
+    plt.savefig(
+        FS.clear_a_path_for(
+            f"{output_folder}/epsilon_2",
+            overwrite=True
+        )
+    )

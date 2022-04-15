@@ -86,7 +86,7 @@ class Coach(nn.Module):
         # save
         # 
         coach.save(path)
-        if settings.with_card: coach.generate_training_card()
+        if settings.with_card: coach.generate_graphs()
         return coach
     
     # init
@@ -325,12 +325,13 @@ class Coach(nn.Module):
         
         return recorder
     
-    def generate_training_card(self):
+    def generate_graphs(self):
         training_records = tuple(each for each in self.recorder.records if each.get("training_record", False))
         ss.DisplayCard("multiLine", dict(
             train=[ (each.epochs_index, each.train_loss) for each in training_records ],
             test=[ (each.epochs_index, each.test_loss) for each in training_records ],
         ))
+        return self
     
     @classmethod
     def internal_paths(cls, path):

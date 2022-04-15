@@ -26,13 +26,6 @@ python ./main/run/full.py -- \
 
 python ./main/run/full.py -- \
     env_name:"LunarLanderContinuous-v2" \
-    train_coach:loss_function:"consistent_coach_loss" \
-    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
-    experiment_name:"find_best_coefficient_0.1" \
-    train_coach:consistent_coach_loss:scale_value_prediction:"0.1" &
-
-python ./main/run/full.py -- \
-    env_name:"LunarLanderContinuous-v2" \
     train_coach:loss_function:"consistent_coach_loss"  \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
     experiment_name:"find_best_coefficient_0.3" \
