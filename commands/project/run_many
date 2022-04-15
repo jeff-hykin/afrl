@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 
-python ./main/run/test_visuals.py -- \
+python ./main/run/full.py -- \
     env_name:"LunarLanderContinuous-v2" \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
     experiment_name:"best_state_loss" 
 
-python ./main/run/full.py -- \
+python ./main/run/test_visuals.py -- \
     env_name:"LunarLanderContinuous-v2" \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
     experiment_name:"best_state_loss" 
@@ -16,6 +16,14 @@ python ./main/run/full.py -- \
 # python ./main/run/full.py -- experiment_name:coach_loss_1_with_sac4_epochs100 train_coach:loss_api:timestep train_coach:train_coach:loss_function:consistent_coach_loss 
 
 # python ./main/run/full.py -- experiment_name:coach_loss_1_with_sac4_epochs100 train_coach:loss_api:timestep train_coach:train_coach:loss_function:consistent_coach_loss 
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" \
+    train_coach:loss_function:"consistent_coach_loss" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_0.1" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"0.1" &
 
 python ./main/run/full.py -- \
     env_name:"LunarLanderContinuous-v2" \
@@ -80,6 +88,13 @@ python ./main/run/full.py -- \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
     experiment_name:"find_best_coefficient_1.7" \
     train_coach:consistent_coach_loss:scale_value_prediction:"1.7" &
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:loss_api:"timestep" train_coach:loss_function:"consistent_coach_loss"  \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_1.9" \
+    train_coach:consistent_coach_loss:scale_value_prediction:"1.9" &
 
 # HopperBulletEnv-v0
 # AntBulletEnv-v0
