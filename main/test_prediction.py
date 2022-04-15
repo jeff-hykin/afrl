@@ -239,29 +239,31 @@ class Tester:
     def generate_graphs(self):
         smoothing = self.settings.graph_smoothing
         
-        timestep_reward_averages     = []
-        q_values               = []
-        scaled_epsilons        = []
-        forecasts_average      = []
-        failure_points_average = []
-        horizons               = []
+        timestep_reward_averages = []
+        q_values                 = []
+        scaled_epsilons          = []
+        forecasts_average        = []
+        failure_points_average   = []
+        horizons                 = []
         
         # for each epsilon-horizon pair
         for each_recorder in self.recorder.sub_recorders:
-            timestep_reward_averages     += rolling_average(each_recorder.frame["reward_average"]           , smoothing)
-            q_values               += rolling_average(each_recorder.frame["q_average"]                , smoothing)
-            forecasts_average      += rolling_average(each_recorder.frame["forecast_average"]         , smoothing)
-            failure_points_average += rolling_average(each_recorder.frame["failure_point_average"]    , smoothing)
-            scaled_epsilons        += [ each_recorder["scaled_epsilon"] ]*len(timestep_reward_averages)
-            horizons               += [ each_recorder["horizon"]        ]*len(timestep_reward_averages)
+            timestep_reward_averages += rolling_average(each_recorder.frame["reward_average"]           , smoothing)
+            q_values                 += rolling_average(each_recorder.frame["q_average"]                , smoothing)
+            forecasts_average        += rolling_average(each_recorder.frame["forecast_average"]         , smoothing)
+            failure_points_average   += rolling_average(each_recorder.frame["failure_point_average"]    , smoothing)
+            
+            count = len(each_recorder.frame["reward_average"])
+            scaled_epsilons += [ each_recorder["scaled_epsilon"] ]*count
+            horizons        += [ each_recorder["horizon"]        ]*count
         
         # add indicies to all of them
-        timestep_reward_averages     = tuple(enumerate(timestep_reward_averages    ))
-        q_values               = tuple(enumerate(q_values              ))
-        scaled_epsilons        = tuple(enumerate(scaled_epsilons       ))
-        forecasts_average      = tuple(enumerate(forecasts_average     ))
-        failure_points_average = tuple(enumerate(failure_points_average))
-        horizons               = tuple(enumerate(horizons              ))
+        timestep_reward_averages = tuple(enumerate(timestep_reward_averages ))
+        q_values                 = tuple(enumerate(q_values                 ))
+        scaled_epsilons          = tuple(enumerate(scaled_epsilons          ))
+        forecasts_average        = tuple(enumerate(forecasts_average        ))
+        failure_points_average   = tuple(enumerate(failure_points_average   ))
+        horizons                 = tuple(enumerate(horizons                 ))
         
         # 
         # display the actual cards
@@ -269,14 +271,14 @@ class Tester:
         reward_card = ss.DisplayCard("multiLine", dict(
             scaled_epsilon=scaled_epsilons,
             timestep_reward_average=timestep_reward_averages,
-            timestep_q_average=q_values,
+            # timestep_q_average=q_values,
         ))
         prediction_card = ss.DisplayCard("multiLine", dict(
             forecast_average=forecasts_average,
             failure_point_average=failure_points_average,
             horizon=horizons,
         ))
-        text_card = ss.DisplayCard("quickMarkdown", f"""## {config.experiment_name}""")
+        text_card = ss.DisplayCard("quickMarkdown", f"""## experiment_name:{config.experiment_name}""")
     
     def init_live_graphs(self):
         self.reward_card = ss.DisplayCard("multiLine", dict(
@@ -289,7 +291,7 @@ class Tester:
             failure_point_average=[],
             horizon=[],
         ))
-        self.text_card = ss.DisplayCard("quickMarkdown", f"""## {config.experiment_name}""")
+        self.text_card = ss.DisplayCard("quickMarkdown", f"""## experiment_name:{config.experiment_name}""")
     
     def increment_live_graphs(self):
         if not self.reward_card: self.init_live_graphs()
@@ -334,7 +336,7 @@ class Tester:
     ]
     
     @classmethod
-    def load(cls, path):
+    def load(cls, path, csv_path):
         attributes = {}
         for each_attribute_name in cls.attributes_to_save:
             attributes[each_attribute_name] = large_pickle_load(f"{path}/{each_attribute_name}.pickle")
@@ -343,6 +345,8 @@ class Tester:
             settings=attributes["settings"],
             predictor=None,
             attribute_overrides=attributes,
+            path=path,
+            csv_path=csv_path,
         )
     
     def save(self, path=None):
@@ -354,6 +358,6 @@ class Tester:
             large_pickle_save(getattr(self, each_attribute_name, None), each_path)
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)
-        pd.DataFrame(self.csv_data).explode("forecast").to_csv(csv_path)
+        pd.DataFrame(self.csv_data).explode("forecast").to_csv(self.csv_path)
         return self
             
