@@ -109,6 +109,7 @@ class Coach(nn.Module):
         self.named_losses = LazyDict(
             future_loss=[],
             q_loss=[],
+            state_loss=[],
         )
         self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
@@ -219,13 +220,16 @@ class Coach(nn.Module):
         once_predicted_state_2s = self.forward(state_1s, action_1s)
         once_predicted_state_3s = self.forward(state_2s, action_2s)
         twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
-        future_loss = (((once_predicted_state_3s - twice_predicted_state_3s)**2).mean(dim=-1) * scale_future_state_loss)
-        future_loss = ((future_loss.mean()+1)**5-1)
+        future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean() * scale_future_state_loss
         q_loss = self.value_prediction_loss(indices, states, actions).mean()
+        state_loss = self.state_prediction_loss(indices, states, actions)
         self.named_losses.future_loss.append(to_pure(future_loss))
         self.named_losses.q_loss.append(to_pure(q_loss))
+        self.named_losses.state_loss.append(to_pure(state_loss))
+        # BOOKMARK
+        # future_loss + q_loss +
+        return future_loss + q_loss # self.state_prediction_loss(indices, states, actions)
         # return (future_loss.sum() + q_loss.sum())/(future_loss.shape[0] + q_loss.shape[0])
-        return future_loss + q_loss
     
     def value_prediction_loss(self, indices: list, states, actions):
         start = min(indices)
@@ -239,7 +243,7 @@ class Coach(nn.Module):
         predicted_next_value   = self.agent.value_of(next_states, predicted_next_actions)
         best_next_value        = self.agent.value_of(next_states, next_actions)
         
-        return (best_next_value - predicted_next_value).mean(dim=-1) # when predicted_next_value is high, loss is low (negative)
+        return ((best_next_value - predicted_next_value)**2).mean()
     
     def action_prediction_loss(self, indices: list, states, actions):
         start = min(indices)
@@ -260,6 +264,7 @@ class Coach(nn.Module):
         
         predicted_next_states = self.forward(curr_states, curr_actions)
         
+        q_error = self.action_prediction_loss(indices, states, actions)
         return ((predicted_next_states - next_states) ** 2).mean()
     
     # 
@@ -315,6 +320,7 @@ class Coach(nn.Module):
             self.named_losses = LazyDict(
                 future_loss=[],
                 q_loss=[],
+                state_loss=[],
             )
             for indicies_bundle in bundle(indicies, bundle_size=minibatch_size):
                 # a tiny bundles would break some of the loss functions (because they look ahead/behind)
@@ -361,12 +367,13 @@ class Coach(nn.Module):
         records = tuple(self.recorder.all_records)
         training_records = tuple(each for each in records if each.get("training_record", False))
         special_records = tuple(each for each in records if each.get("future_loss", False) )
-        log_graph(dict(
+        ss.DisplayCard("multiLine", dict(
             train=[ (each["epochs_index"], each["train_loss"]) for each in training_records ],
             test= [ (each["epochs_index"], each["test_loss"] ) for each in training_records ],
             
             future_loss= [ (each["epochs_index"], each["future_loss"] ) for each in special_records ],
             q_loss= [ (each["epochs_index"], each["q_loss"] ) for each in special_records ],
+            state_loss= [ (each["epochs_index"], each["state_loss"] ) for each in special_records ],
         ))
         return self
     
