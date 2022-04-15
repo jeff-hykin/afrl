@@ -8,10 +8,9 @@ import file_system_py as FS
 import silver_spectacle as ss
 from torch import nn
 from torch.optim import Adam
+from rigorous_recorder import Recorder
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
-from trivial_torch_tools.generics import to_pure
-from rigorous_recorder import RecordKeeper
-from trivial_torch_tools.generics import large_pickle_load, large_pickle_save
+from trivial_torch_tools.generics import large_pickle_load, large_pickle_save, to_pure
 from super_map import LazyDict
 
 from debug import debug
@@ -65,6 +64,7 @@ class Coach(nn.Module):
                 print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
                 path_to = Coach.internal_paths(path)
                 coach.load_state_dict(torch.load(path_to.model))
+                coach.recorder = Recorder.load_from(path_to.recorder)
                 return coach
         
         print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
@@ -101,10 +101,11 @@ class Coach(nn.Module):
         self.action_size       = action_size
         self.agent         = agent
         self.path          = path
-        self.recorder      = RecordKeeper(
+        self.recorder      = Recorder(
             experiment_name=config.experiment_name,
             model="coach",
         )
+        self.episode_recorder = None
         self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
         self.losses = []
@@ -145,16 +146,16 @@ class Coach(nn.Module):
     # 
     # Loss Application (boilerplate code)
     # 
-    def timestep_testing_loss(self, indices: list, step_data: tuple):
+    def apply_testing_loss(self, indices: list, states, actions):
         loss_function = getattr(self, self.which_loss)
-        loss = loss_function(indices, step_data)
+        loss = loss_function(indices, states, actions)
         return to_pure(loss)
     
-    def timestep_training_loss(self, indices: list, step_data: tuple):
+    def apply_training_loss(self, indices: list, states, actions):
         loss_function = getattr(self, self.which_loss)
         
         self.agent.freeze()
-        loss = loss_function(indices, step_data)
+        loss = loss_function(indices, states, actions)
         
         # Optimize the self model
         self.optimizer.zero_grad()
@@ -167,9 +168,8 @@ class Coach(nn.Module):
     # 
     # Loss functions
     # 
-    def consistent_value_loss(self, indices: list, step_data: tuple):
-        states, actions = step_data
-        start = min(indicies)
+    def consistent_value_loss(self, indices: list, states, actions):
+        start = min(indices)
         end   = max(indices)
         
         # sliders
@@ -197,10 +197,9 @@ class Coach(nn.Module):
             ((predicted_once - predicted_twice)**2).mean(dim=-1),
         ]).mean()
     
-    def consistent_coach_loss(self, indices: list, step_data: tuple):
+    def consistent_coach_loss(self, indices: list, states, actions):
         scale_value_prediction = self.settings.consistent_coach_loss.scale_value_prediction
-        states, actions = step_data
-        start = min(indicies)
+        start = min(indices)
         end   = max(indices)
         
         # sliders
@@ -217,17 +216,20 @@ class Coach(nn.Module):
         once_predicted_state_3s = self.forward(state_2s, action_2s)
         twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
         future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean(dim=-1)
-        value_prediction_losses = self.value_prediction_loss(indices, step_data) * scale_value_prediction
-        return (future_loss.sum() + value_prediction_losses.sum())/(future_loss.shape[0] + value_prediction_losses.shape[0])
+        q_loss = self.value_prediction_loss(indices, states, actions) * scale_value_prediction
+        self.episode_recorder.add(
+            future_loss=to_pure(future_loss),
+            q_loss=to_pure(q_loss),
+        )
+        return (future_loss.sum() + q_loss.sum())/(future_loss.shape[0] + q_loss.shape[0])
     
-    def value_prediction_loss(self, indices: list, step_data: tuple):
-        states, actions = step_data
-        start = min(indicies)
+    def value_prediction_loss(self, indices: list, states, actions):
+        start = min(indices)
         end   = max(indices)
-        states     , actions      = states[start+0:end-1], actions[start+0:end-1]
+        curr_states, curr_actions = states[start+0:end-1], actions[start+0:end-1]
         next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
         
-        predicted_next_states   = self.forward(states, actions)
+        predicted_next_states   = self.forward(curr_states, curr_actions)
         
         predicted_next_actions = self.agent.make_decision(predicted_next_states, deterministic=True)
         predicted_next_value   = self.agent.value_of(next_states, predicted_next_actions)
@@ -235,26 +237,24 @@ class Coach(nn.Module):
         
         return (best_next_value - predicted_next_value).mean(dim=-1) # when predicted_next_value is high, loss is low (negative)
     
-    def action_prediction_loss(self, indices: list, step_data: tuple):
-        states, actions = step_data
-        start = min(indicies)
+    def action_prediction_loss(self, indices: list, states, actions):
+        start = min(indices)
         end   = max(indices)
-        states     , actions      = states[start+0:end-1], actions[start+0:end-1]
+        curr_states, curr_actions = states[start+0:end-1], actions[start+0:end-1]
         next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
         
-        predicted_next_states  = self.forward(states, actions)
+        predicted_next_states  = self.forward(curr_states, curr_actions)
         predicted_next_actions = self.agent.make_decision(predicted_next_states, deterministic=True)
         
         return ((next_actions - predicted_next_actions) ** 2).mean() # when action is very different, loss is high
         
-    def state_prediction_loss(self, indices: list, step_data: tuple):
-        states, actions = step_data
-        start = min(indicies)
+    def state_prediction_loss(self, indices: list, states, actions):
+        start = min(indices)
         end   = max(indices)
-        states     , actions      = states[start+0:end-1], actions[start+0:end-1]
+        curr_states, curr_actions = states[start+0:end-1], actions[start+0:end-1]
         next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
         
-        predicted_next_states = self.forward(states, actions)
+        predicted_next_states = self.forward(curr_states, curr_actions)
         
         return ((predicted_next_states - next_states) ** 2).mean()
     
@@ -266,7 +266,7 @@ class Coach(nn.Module):
     def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
         env      = config.get_env(env_name)
         card     = ss.DisplayCard("multiLine", dict(train=[], test=[])) if with_card else None
-        recorder = RecordKeeper(
+        self.episode_recorder = Recorder(
             training_record=True,
             env_name=env_name,
             batch_size=minibatch_size,
@@ -288,6 +288,9 @@ class Coach(nn.Module):
             actions,
             split_proportion=settings.train_test_split,
         )
+        # send to cuda if needed
+        train_states , test_states  = train_states.to(self.device) , test_states.to(self.device)
+        train_actions, test_actions = train_actions.to(self.device), test_actions.to(self.device)
         
         # 
         # timestep
@@ -303,33 +306,38 @@ class Coach(nn.Module):
                 # a tiny bundles would break some of the loss functions (because they look ahead/behind)
                 if len(indicies_bundle) < 3:
                     continue
-                train_losses.append(self.timestep_training_loss(indicies_bundle, tuple(train_states, train_actions)))
+                train_losses.append(self.apply_training_loss(indicies_bundle, train_states, train_actions))
             train_loss = to_tensor(train_losses).mean()
             
             # 
             # testing
             # 
             self.train(False)
-            test_loss = self.timestep_testing_loss(range(len(testing_data)), testing_data)
+            test_loss = self.apply_testing_loss(range(len(test_states)), test_states, test_actions)
             
             print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.8f}, Test Loss: {test_loss:.8f}")
-            recorder.push(
+            self.episode_recorder.push(
                 epochs_index=epochs_index,
-                train_loss=train_loss,
-                test_loss=test_loss,
+                train_loss=to_pure(train_loss),
+                test_loss=to_pure(test_loss),
             )
             if card: card.send(dict(
                 train=[epochs_index, train_loss],
                 test=[epochs_index, test_loss],
             ))
         
-        return recorder
+        return self.episode_recorder
     
     def generate_graphs(self):
-        training_records = tuple(each for each in self.recorder.records if each.get("training_record", False))
+        # y axis of loss
+        # add the state_loss 
+        # add the future_loss
+        # add the q_value_loss
+        records = tuple(self.recorder.all_records)
+        training_records = tuple(each for each in self.recorder.all_records if each.get("training_record", False))
         ss.DisplayCard("multiLine", dict(
-            train=[ (each.epochs_index, each.train_loss) for each in training_records ],
-            test=[ (each.epochs_index, each.test_loss) for each in training_records ],
+            train=[ (each["epochs_index"], each["train_loss"]) for each in training_records ],
+            test=[ (each["epochs_index"], each["test_loss"]) for each in training_records ],
         ))
         return self
     
@@ -351,6 +359,7 @@ class Coach(nn.Module):
         large_pickle_save(basic_attribute_data, path_to.attributes)
         torch.save(self.state_dict(), FS.clear_a_path_for(path_to.model, overwrite=True))
         self.recorder.save_to(FS.clear_a_path_for(path_to.recorder, overwrite=True))
+        print(f'''Saved Records to: {path_to.recorder}''')
     
     @classmethod
     def load(cls, path, agent, device):
@@ -366,5 +375,5 @@ class Coach(nn.Module):
             device=device,
         )
         coach.load_state_dict(torch.load(path_to.model))
-        coach.recorder = RecordKeeper.load(path_to.recorder)
+        coach.recorder = Recorder.load_from(path_to.recorder)
         return coach

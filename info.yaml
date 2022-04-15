@@ -12,6 +12,7 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
+        - task: log the losses independently and graph them
         - check: DONE; epsilon size compared to timestep q values for plan/replan (check as a percentage)
         - task: DONE; add graph of the average q-values so they can be compared as a percentage to the epsilon
         - task: DONE; graph a baseline using the state_prediction_loss with the good agent
@@ -49,8 +50,8 @@
             gym_env_settings: &env_settings
                 LunarLanderContinuous-v2: 
                     reward_discount: 0.98
-                    max_reward_single_timestep: 70
                     min_reward_single_timestep: -100
+                    max_reward_single_timestep: 70
                     number_of_timesteps: 200000
                     # horizons: # <- from those settings
                     #     0.1: 26  # epslion of 0.1 is really big. Causes major drop in rewards 
@@ -72,8 +73,8 @@
                 
                 HopperBulletEnv-v0: 
                     reward_discount: 0.98
-                    max_reward_single_timestep: 110
                     min_reward_single_timestep: 18
+                    max_reward_single_timestep: 110
                     horizons:
                         0.1: 26
                         0.01: 16
@@ -81,8 +82,8 @@
                 
                 HalfCheetahBulletEnv-v0: 
                     reward_discount: 0.98
-                    max_reward_single_timestep: 100
                     min_reward_single_timestep: -60
+                    max_reward_single_timestep: 100
                     number_of_timesteps: 1000000
                     horizons:
                         0.1: 26
@@ -101,8 +102,8 @@
                 
                 BipedalWalker-v3: 
                     reward_discount: 0.98
-                    max_reward_single_timestep: 5
                     min_reward_single_timestep: -23
+                    max_reward_single_timestep: 5
                     horizons:
                         0.1: 26
                         0.01: 16
@@ -110,8 +111,8 @@
                 
                 AntBulletEnv-v0: 
                     reward_discount: 0.98
-                    max_reward_single_timestep: 105
                     min_reward_single_timestep: 19
+                    max_reward_single_timestep: 105
                     horizons:
                         0.1: 26
                         0.01: 16
@@ -119,8 +120,8 @@
                 
                 HumanoidBulletEnv-v0:
                     reward_discount: 0.98
-                    max_reward_single_timestep: 113
                     min_reward_single_timestep: -30
+                    max_reward_single_timestep: 113
                     number_of_timesteps: 3000000
                     horizons:
                         0.1: 26

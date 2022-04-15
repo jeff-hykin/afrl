@@ -22,7 +22,7 @@ def full_run(env_name, agent_path, coach_path):
         env_name=env_name,
         path=coach_path,
         agent=agent,
-    )
+    ).generate_graphs()
     results = Tester.smart_load(
         force_recompute=config.test_predictor.force_recompute,
         settings=config.test_predictor.merge(
