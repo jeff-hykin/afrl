@@ -6,11 +6,34 @@ python ./main/run/full.py -- \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
     experiment_name:"best_state_loss" 
 
-python ./main/run/test_visuals.py -- \
+python ./main/run/full.py -- \
     env_name:"LunarLanderContinuous-v2" \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
     experiment_name:"best_state_loss" 
 
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"best_state_loss_1" 
+
+python ./main/run/full.py -- \
+    train_coach:force_retrain:"false" \
+    test_predictor:force_recompute:"false" \
+    train_coach:loss_function:"state_prediction_loss" \
+    train_coach:number_of_epochs:"50" \
+    experiment_name:"best_state_loss_1" \
+    env_name:"LunarLanderContinuous-v2" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" 
+
+python ./main/run/full.py -- \
+    train_coach:force_retrain:"false" \
+    test_predictor:force_recompute:"false" \
+    train_coach:loss_function:"state_prediction_loss" \
+    train_coach:number_of_epochs:"50" \
+    experiment_name:"best_state_loss_2" \
+    env_name:"LunarLanderContinuous-v2" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" 
+                
 # python ./main/run/full.py -- experiment_name:state_loss_1_with_sac11 train_agent:model_name:default_sac_11
 
 # python ./main/run/full.py -- experiment_name:coach_loss_1_with_sac4_epochs100  train_coach:train_coach:loss_function:consistent_coach_loss 
@@ -100,10 +123,53 @@ python ./main/run/full.py -- \
 # HalfCheetahBulletEnv-v0
 
 
- python ./main/run/full.py -- \
+python ./main/run/full.py -- \
+    experiment_name:"consistent_value_loss_1" \
+    env_name:"LunarLanderContinuous-v2" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    train_coach:force_retrain:false train_coach:loss_function:"consistent_value_loss" \
+    train_coach:number_of_epochs:50 \
+    test_predictor:force_recompute:false \
+    train_coach:consistent_coach_loss:scale_future_state_loss:"10000000"
+
+python ./main/run/full.py -- \
     env_name:"LunarLanderContinuous-v2" \
     train_coach:force_retrain:false train_coach:loss_function:"consistent_coach_loss" \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
-    experiment_name:"find_best_coefficient_10000000" \
-    test_predictor:force_recompute:true \
-    train_coach:consistent_coach_loss:scale_future_state_loss:"10000000"
+    experiment_name:"find_best_coefficient_0" \
+    test_predictor:force_recompute:false \
+    train_coach:consistent_coach_loss:scale_future_state_loss:"0"
+
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:force_retrain:false train_coach:loss_function:"consistent_coach_loss" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"find_best_coefficient_1_multiply" \
+    test_predictor:force_recompute:false \
+    train_coach:consistent_coach_loss:scale_future_state_loss:"1"
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:force_retrain:false train_coach:loss_function:"value_prediction_loss" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"value_predict" \
+    test_predictor:force_recompute:false 
+
+python ./main/run/full.py -- \
+    env_name:"LunarLanderContinuous-v2" \
+    train_coach:force_retrain:false train_coach:loss_function:"value_prediction_loss" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"value_predict" \
+    test_predictor:force_recompute:false 
+
+
+
+python ./main/run/full.py -- \
+    train_coach:force_retrain:true \
+    test_predictor:force_recompute:false \
+    train_coach:loss_function:"consistent_coach_loss" \
+    experiment_name:"find_best_coefficient_1_all_three" \
+    train_coach:consistent_coach_loss:scale_future_state_loss:"1" \
+    env_name:"LunarLanderContinuous-v2" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" 
