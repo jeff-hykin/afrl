@@ -189,6 +189,36 @@ class Coach(nn.Module):
     # 
     # Loss function options (loss_api=timestep)
     # 
+    def consistent_value_loss(self, indices: list, step_data: tuple):
+        states, actions = step_data
+        start = min(indicies)
+        end   = max(indices)
+        
+        # sliders
+        #  [1,2,3,4,5]
+        #  =>
+        #  [1,2,3]
+        #    [2,3,4]
+        #      [3,4,5]
+        state_1s, action_1s = states[start+0:end-2], actions[start+0:end-2]
+        state_2s, action_2s = states[start+1:end-1], actions[start+1:end-1]
+        state_3s, action_3s = states[start+2:end  ], actions[start+2:end  ]
+        
+        # action(#) is the action taken when state(#) is given to the actor
+        
+        once_predicted_state_2s  = self.forward(state_1s, action_1s)
+        once_predicted_state_3s  = self.forward(state_2s, action_2s)
+        twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
+        
+        actual_value    = self.agent.value_of(state_3s, action_3s)
+        predicted_once  = self.agent.value_of(once_predicted_state_3s, action_3s)
+        predicted_twice = self.agent.value_of(twice_predicted_state_3s, action_3s)
+        
+        return torch.stack([
+            ((actual_value   - predicted_once )**2).mean(dim=-1),
+            ((predicted_once - predicted_twice)**2).mean(dim=-1),
+        ]).mean()
+    
     def consistent_coach_loss(self, indices: list, step_data: tuple):
         losses = []
         scale_value_prediction = self.settings.consistent_coach_loss.scale_value_prediction
