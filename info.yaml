@@ -52,7 +52,7 @@
                     reward_discount: 0.98
                     min_reward_single_timestep: -100
                     max_reward_single_timestep: 70
-                    number_of_timesteps: 200000
+                    number_of_timesteps: 2000000
                     # horizons: # <- from those settings
                     #     0.1: 26  # epslion of 0.1 is really big. Causes major drop in rewards 
                     #     0.01: 31 # <- out of order?
@@ -65,10 +65,10 @@
                     #     0.01: 20
                     horizons:  # <- what I think makes the most sense
                         0.0: 1
-                        0.001: 5
-                        0.0025: 8
-                        0.005: 10
-                        0.0075: 15
+                        # 0.001: 5
+                        # 0.0025: 8
+                        # 0.005: 10
+                        # 0.0075: 15
                         0.01: 20
                 
                 HopperBulletEnv-v0: 
@@ -169,9 +169,9 @@
                 hidden_sizes: [64, 64, 64, 64]
                 loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
                 consistent_coach_loss:
-                    scale_value_prediction: 1.0
+                    scale_future_state_loss: 1000000
                 number_of_episodes: 20
-                number_of_epochs: 100 # should be 100
+                number_of_epochs: 1000 # should be 100
                 train_test_split: 0.7
                 minibatch_size: 32
                 with_card: true

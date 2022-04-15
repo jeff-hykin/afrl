@@ -15,7 +15,7 @@ from super_map import LazyDict
 
 from debug import debug
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average, log_graph
 from main.agent import Agent
 
 settings = config.train_coach
@@ -202,7 +202,7 @@ class Coach(nn.Module):
         ]).mean()
     
     def consistent_coach_loss(self, indices: list, states, actions):
-        scale_value_prediction = self.settings.consistent_coach_loss.scale_value_prediction
+        scale_future_state_loss = self.settings.consistent_coach_loss.scale_future_state_loss
         start = min(indices)
         end   = max(indices)
         
@@ -219,11 +219,13 @@ class Coach(nn.Module):
         once_predicted_state_2s = self.forward(state_1s, action_1s)
         once_predicted_state_3s = self.forward(state_2s, action_2s)
         twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
-        future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean(dim=-1)
-        q_loss = self.value_prediction_loss(indices, states, actions) * scale_value_prediction
-        self.named_losses.future_loss.append(to_pure(future_loss.mean()))
-        self.named_losses.q_loss.append(to_pure(q_loss.mean()))
-        return (future_loss.sum() + q_loss.sum())/(future_loss.shape[0] + q_loss.shape[0])
+        future_loss = (((once_predicted_state_3s - twice_predicted_state_3s)**2).mean(dim=-1) * scale_future_state_loss)
+        future_loss = ((future_loss.mean()+1)**5-1)
+        q_loss = self.value_prediction_loss(indices, states, actions).mean()
+        self.named_losses.future_loss.append(to_pure(future_loss))
+        self.named_losses.q_loss.append(to_pure(q_loss))
+        # return (future_loss.sum() + q_loss.sum())/(future_loss.shape[0] + q_loss.shape[0])
+        return future_loss + q_loss
     
     def value_prediction_loss(self, indices: list, states, actions):
         start = min(indices)
@@ -351,6 +353,7 @@ class Coach(nn.Module):
         return self.episode_recorder
     
     def generate_graphs(self):
+        
         # y axis of loss
         # add the state_loss 
         # add the future_loss
@@ -358,7 +361,7 @@ class Coach(nn.Module):
         records = tuple(self.recorder.all_records)
         training_records = tuple(each for each in records if each.get("training_record", False))
         special_records = tuple(each for each in records if each.get("future_loss", False) )
-        ss.DisplayCard("multiLine", dict(
+        log_graph(dict(
             train=[ (each["epochs_index"], each["train_loss"]) for each in training_records ],
             test= [ (each["epochs_index"], each["test_loss"] ) for each in training_records ],
             

@@ -242,6 +242,49 @@ def feed_forward(layer_sizes, activation=nn.Tanh, output_activation=nn.Identity)
         ]
     return Sequential(*layers)
 
+def log_graph(data):
+    import silver_spectacle as ss
+    colors = [
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+        'rgb(75, 192, 192, 0.5)',
+        'rgb(0, 292, 192, 0.5)',
+        'rgb(0, 92, 192, 0.5)',
+        'rgb(190, 92, 192, 0.5)',
+    ]
+    ss.DisplayCard("chartjs", {
+        "type": 'line',
+        "data": {
+            "datasets": [
+                {
+                    "label": each_key,
+                    "data": ({"x":x, "y":y} for x,y in each_value),
+                    "tension": 0.1,
+                    "backgroundColor": colors.pop(),
+                }
+                    for each_key, each_value in data.items()
+            ]
+        },
+        "options": {
+            "pointRadius": 3, # the size of the dots
+            "scales": {
+                "y": {
+                    "type": "logarithmic",
+                },
+            }
+        }
+    })
+
 from dataclasses import dataclass, field
 @dataclass
 class Timestep:
