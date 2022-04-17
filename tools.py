@@ -379,7 +379,7 @@ class WeightUpdate(object):
     with WeightUpdate(optimizer=self.optimizer) as step:
         step.loss = self.loss_function()
     """
-    def __init__(*, optimizer):
+    def __init__(self, *, optimizer):
         self.optimizer = optimizer
         self.loss = None
     
@@ -393,6 +393,6 @@ class WeightUpdate(object):
             
         if self.optimizer:
             self.optimizer.zero_grad()
-            if self.loss not is None:
+            if not (self.loss is None):
                 self.loss.backward()
             self.optimizer.step()

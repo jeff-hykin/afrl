@@ -165,7 +165,7 @@ class Coach(nn.Module):
             index = indices.pop()
             try:
                 items = []
-                for each_offset in range(lookahead):
+                for each_offset in range(lookahead+1):
                     for each_data_source in data:
                         items.append(each_data_source[index+each_offset])
                 sideways_batch.append(tuple(items))
@@ -206,8 +206,9 @@ class Coach(nn.Module):
     def consistent_coach_loss(self):
         output = LossObject()
         
-        state_prediction_loss = self.state_prediction_loss.function
-        value_prediction_loss = self.value_prediction_loss.function
+        state_prediction_loss = self.state_prediction_loss().function
+        value_prediction_loss = self.value_prediction_loss().function
+        scale_future_state_loss = self.settings.consistent_coach_loss.scale_future_state_loss
         def actual_loss_function(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_):
             once_predicted_state_2s  = self.forward(state_1s, action_1s)
             once_predicted_state_3s  = self.forward(state_2s, action_2s)
@@ -259,10 +260,11 @@ class Coach(nn.Module):
     def state_prediction_loss(self):
         output = LossObject()
             
+        value_prediction_loss = self.value_prediction_loss().function
         def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
             predicted_state_2s = self.forward(state_1s, action_1s)
             
-            q_error = self.action_prediction_loss(indices, states, actions)
+            q_error = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, *_)
             output.loss_value = ((predicted_state_2s - state_2s) ** 2).mean()
             return output.loss_value
             
@@ -277,7 +279,10 @@ class Coach(nn.Module):
     # 
     def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
         env      = config.get_env(env_name)
-        card     = None if not with_card else ss.DisplayCard("multiLine", { name: [] for name in self.loss_objects })
+        card     = None if not with_card else ss.DisplayCard("multiLine", {
+            **{ f"train_{name}": [] for name in self.loss_objects },
+            **{ f"test_{name}" : [] for name in self.loss_objects },
+        })
         self.episode_recorder = Recorder(
             training_record=True,
             env_name=env_name,
@@ -319,7 +324,7 @@ class Coach(nn.Module):
                 # 
                 self.train(True)
                 indices = list(range(len(train_data[0])))
-                per_batch_data = defaultdict(default=lambda *_: [])
+                per_batch_data = defaultdict(lambda *_: [])
                 shuffle(indices)
                 while len(indices) > minibatch_size:
                     # dynamicly shape batch dependong on lookahead
@@ -358,7 +363,7 @@ class Coach(nn.Module):
                 self.train(False)
                 # one giant batch
                 batch = self.create_next_batch(
-                    indices=tuple(range(len(test_data[0]))),
+                    indices=list(range(len(test_data[0]))),
                     minibatch_size=len(test_data[0]),
                     lookahead=max(each_loss_object.lookahead for each_loss_object in self.loss_objects.values()),
                     data=test_data,
@@ -372,14 +377,15 @@ class Coach(nn.Module):
                 # 
                 # wrap up
                 # 
-                this_record = self.episode_recorder.pending_record 
                 self.episode_recorder.push() # commits data record
                 # graph all the losses
                 if card: card.send({
                     each_key: [ epochs_index, each_value ]
-                        for each_key, each_value in this_record.items()
+                        for each_key, each_value in self.episode_recorder[-1].items()
                             if "loss" in each_key
                 })
+                
+                print(f'''    Epoch: {epochs_index}''')
                 
         return self.episode_recorder
     
