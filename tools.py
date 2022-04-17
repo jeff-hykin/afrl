@@ -372,3 +372,27 @@ class Episode:
     @property
     def next_states(self):
         return [s for s in self.states[: -1]]
+
+
+class WeightUpdate(object):
+    """
+    with WeightUpdate(optimizer=self.optimizer) as step:
+        step.loss = self.loss_function()
+    """
+    def __init__(*, optimizer):
+        self.optimizer = optimizer
+        self.loss = None
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, _, error, traceback):
+        if error is not None:
+            # error cleanup HERE
+            raise error
+            
+        if self.optimizer:
+            self.optimizer.zero_grad()
+            if self.loss not is None:
+                self.loss.backward()
+            self.optimizer.step()

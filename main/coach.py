@@ -1,4 +1,8 @@
 import functools
+from dataclasses import dataclass
+from types import *
+from random import random, sample, choices, shuffle
+from collections import defaultdict
 
 import gym
 import numpy as np
@@ -6,7 +10,7 @@ import stable_baselines3 as sb
 import torch
 import file_system_py as FS
 import silver_spectacle as ss
-from torch import nn
+from torch import nn, Tensor
 from torch.optim import Adam
 from rigorous_recorder import Recorder
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
@@ -15,7 +19,7 @@ from super_map import LazyDict
 
 from debug import debug
 from info import path_to, config
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average, log_graph
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average, log_graph, WeightUpdate
 from main.agent import Agent
 
 settings = config.train_coach
@@ -106,14 +110,18 @@ class Coach(nn.Module):
             model="coach",
         )
         self.episode_recorder = None
-        self.named_losses = LazyDict(
-            future_loss=[],
-            q_loss=[],
-            state_loss=[],
-        )
         self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
         self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
-        self.losses = []
+        self.loss_objects = LazyDict({
+            each.__name__ : each()
+                for each in [
+                    self.consistent_value_loss,
+                    self.consistent_coach_loss,
+                    self.value_prediction_loss,
+                    self.action_prediction_loss,
+                    self.state_prediction_loss,
+                ]
+        })
         
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
@@ -149,123 +157,118 @@ class Coach(nn.Module):
     
     
     # 
-    # Loss Application (boilerplate code)
+    # Loss Helpers
     # 
-    def apply_testing_loss(self, indices: list, states, actions):
-        loss_function = getattr(self, self.which_loss)
-        loss = loss_function(indices, states, actions)
-        return to_pure(loss)
-    
-    def apply_training_loss(self, indices: list, states, actions):
-        loss_function = getattr(self, self.which_loss)
+    def create_next_batch(self, indices, minibatch_size, lookahead, data):
+        sideways_batch = []
+        for count in range(minibatch_size):
+            index = indices.pop()
+            try:
+                items = []
+                for each_offset in range(lookahead):
+                    for each_data_source in data:
+                        items.append(each_data_source[index+each_offset])
+                sideways_batch.append(tuple(items))
+            # skip any index where lookahead isnt possible
+            except IndexError as error:
+                pass
         
-        self.agent.freeze()
-        loss = loss_function(indices, states, actions)
-        
-        # Optimize the self model
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-        
-        self.agent.unfreeze()
-        return loss
+        # for example return: "state_1s, action_1s, state_2s, action_2s" each as a tensor
+        return tuple(to_tensor(each) for each in zip(*sideways_batch))
+                    
     
     # 
     # Loss functions
     # 
-    def consistent_value_loss(self, indices: list, states, actions):
-        start = min(indices)
-        end   = max(indices)
+    def consistent_value_loss(self):
+        output = LossObject()
         
-        # sliders
-        #  [1,2,3,4,5]
-        #  =>
-        #  [1,2,3]
-        #    [2,3,4]
-        #      [3,4,5]
-        state_1s, action_1s = states[start+0:end-2], actions[start+0:end-2]
-        state_2s, action_2s = states[start+1:end-1], actions[start+1:end-1]
-        state_3s, action_3s = states[start+2:end  ], actions[start+2:end  ]
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_):
+            once_predicted_state_2s  = self.forward(state_1s, action_1s)
+            once_predicted_state_3s  = self.forward(state_2s, action_2s)
+            twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
+            
+            actual_value    = self.agent.value_of(state_3s, action_3s)
+            predicted_once  = self.agent.value_of(once_predicted_state_3s, action_3s)
+            predicted_twice = self.agent.value_of(twice_predicted_state_3s, action_3s)
+            
+            output.loss_value = torch.stack([
+                ((actual_value   - predicted_once )**2).mean(dim=-1),
+                ((predicted_once - predicted_twice)**2).mean(dim=-1),
+            ]).mean()
+            
+            return output.loss_value
         
-        # action(#) is the action taken when state(#) is given to the actor
-        
-        once_predicted_state_2s  = self.forward(state_1s, action_1s)
-        once_predicted_state_3s  = self.forward(state_2s, action_2s)
-        twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
-        
-        actual_value    = self.agent.value_of(state_3s, action_3s)
-        predicted_once  = self.agent.value_of(once_predicted_state_3s, action_3s)
-        predicted_twice = self.agent.value_of(twice_predicted_state_3s, action_3s)
-        
-        return torch.stack([
-            ((actual_value   - predicted_once )**2).mean(dim=-1),
-            ((predicted_once - predicted_twice)**2).mean(dim=-1),
-        ]).mean()
+        output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
     
-    def consistent_coach_loss(self, indices: list, states, actions):
-        scale_future_state_loss = self.settings.consistent_coach_loss.scale_future_state_loss
-        start = min(indices)
-        end   = max(indices)
+    def consistent_coach_loss(self):
+        output = LossObject()
         
-        # sliders
-        #  [1,2,3,4,5]
-        #  =>
-        #  [1,2,3]
-        #    [2,3,4]
-        #      [3,4,5]
-        state_1s, action_1s = states[start+0:end-2], actions[start+0:end-2]
-        state_2s, action_2s = states[start+1:end-1], actions[start+1:end-1]
-        state_3s, action_3s = states[start+2:end  ], actions[start+2:end  ]
+        state_prediction_loss = self.state_prediction_loss.function
+        value_prediction_loss = self.value_prediction_loss.function
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_):
+            once_predicted_state_2s  = self.forward(state_1s, action_1s)
+            once_predicted_state_3s  = self.forward(state_2s, action_2s)
+            twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
+            
+            future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean() * scale_future_state_loss
+            q_loss     = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
+            state_loss = state_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
+            # BOOKMARK
+            output.loss_value = future_loss + q_loss
+            return output.loss_value
         
-        once_predicted_state_2s = self.forward(state_1s, action_1s)
-        once_predicted_state_3s = self.forward(state_2s, action_2s)
-        twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
-        future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean() * scale_future_state_loss
-        q_loss = self.value_prediction_loss(indices, states, actions).mean()
-        state_loss = self.state_prediction_loss(indices, states, actions)
-        self.named_losses.future_loss.append(to_pure(future_loss))
-        self.named_losses.q_loss.append(to_pure(q_loss))
-        self.named_losses.state_loss.append(to_pure(state_loss))
-        # BOOKMARK
-        # future_loss + q_loss +
-        return future_loss + q_loss # self.state_prediction_loss(indices, states, actions)
-        # return (future_loss.sum() + q_loss.sum())/(future_loss.shape[0] + q_loss.shape[0])
+        output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
     
-    def value_prediction_loss(self, indices: list, states, actions):
-        start = min(indices)
-        end   = max(indices)
-        curr_states, curr_actions = states[start+0:end-1], actions[start+0:end-1]
-        next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
-        
-        predicted_next_states   = self.forward(curr_states, curr_actions)
-        
-        predicted_next_actions = self.agent.make_decision(predicted_next_states, deterministic=True)
-        predicted_next_value   = self.agent.value_of(next_states, predicted_next_actions)
-        best_next_value        = self.agent.value_of(next_states, next_actions)
-        
-        return ((best_next_value - predicted_next_value)**2).mean()
+    def value_prediction_loss(self):
+        output = LossObject()
+            
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
+            predicted_state_2s   = self.forward(state_1s, action_1s)
+            
+            predicted_action_2s = self.agent.make_decision(predicted_state_2s, deterministic=True)
+            predicted_value_2s  = self.agent.value_of(state_2s, predicted_action_2s)
+            best_value_2s       = self.agent.value_of(state_2s, action_2s)
+            
+            return ((best_value_2s - predicted_value_2s)**2).mean()
+            
+        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
     
-    def action_prediction_loss(self, indices: list, states, actions):
-        start = min(indices)
-        end   = max(indices)
-        curr_states, curr_actions = states[start+0:end-1], actions[start+0:end-1]
-        next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
+    def action_prediction_loss(self):
+        output = LossObject()
+            
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
+            predicted_state_2s  = self.forward(state_1s, action_1s)
+            predicted_action_2s = self.agent.make_decision(predicted_state_2s, deterministic=True)
+            
+            output.loss_value = ((action_2s - predicted_action_2s) ** 2).mean() # when action is very different, loss is high
+            
+            return output.loss_value
+            
+        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
         
-        predicted_next_states  = self.forward(curr_states, curr_actions)
-        predicted_next_actions = self.agent.make_decision(predicted_next_states, deterministic=True)
         
-        return ((next_actions - predicted_next_actions) ** 2).mean() # when action is very different, loss is high
-        
-    def state_prediction_loss(self, indices: list, states, actions):
-        start = min(indices)
-        end   = max(indices)
-        curr_states, curr_actions = states[start+0:end-1], actions[start+0:end-1]
-        next_states, next_actions = states[start+1:end  ], actions[start+1:end  ]
-        
-        predicted_next_states = self.forward(curr_states, curr_actions)
-        
-        q_error = self.action_prediction_loss(indices, states, actions)
-        return ((predicted_next_states - next_states) ** 2).mean()
+    def state_prediction_loss(self):
+        output = LossObject()
+            
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
+            predicted_state_2s = self.forward(state_1s, action_1s)
+            
+            q_error = self.action_prediction_loss(indices, states, actions)
+            output.loss_value = ((predicted_state_2s - state_2s) ** 2).mean()
+            return output.loss_value
+            
+        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
     
     # 
     # 
@@ -274,13 +277,7 @@ class Coach(nn.Module):
     # 
     def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
         env      = config.get_env(env_name)
-        card     = ss.DisplayCard("multiLine", dict(
-            train=[],
-            test=[],
-            **{
-                key:[] for key in self.named_losses.keys()
-            },
-        )) if with_card else None
+        card     = None if not with_card else ss.DisplayCard("multiLine", { name: [] for name in self.loss_objects })
         self.episode_recorder = Recorder(
             training_record=True,
             env_name=env_name,
@@ -304,58 +301,86 @@ class Coach(nn.Module):
             split_proportion=settings.train_test_split,
         )
         # send to cuda if needed
-        train_states , test_states  = train_states.to(self.device) , test_states.to(self.device)
-        train_actions, test_actions = train_actions.to(self.device), test_actions.to(self.device)
+        train_data = train_states.to(self.device), train_actions.to(self.device)
+        test_data  = test_states.to(self.device) , test_actions.to(self.device)
         
-        # 
-        # timestep
-        # 
-        for epochs_index in range(number_of_epochs):
+        with self.agent.frozen:
             # 
-            # training
+            # epochs
             # 
-            self.train(True)
-            train_losses = []
-            indicies = range(len(train_states))
-            self.named_losses = LazyDict(
-                future_loss=[],
-                q_loss=[],
-                state_loss=[],
-            )
-            for indicies_bundle in bundle(indicies, bundle_size=minibatch_size):
-                # a tiny bundles would break some of the loss functions (because they look ahead/behind)
-                if len(indicies_bundle) < 3:
-                    continue
-                train_losses.append(self.apply_training_loss(indicies_bundle, train_states, train_actions))
-            train_loss = to_pure(to_tensor(train_losses).mean())
-            
-            # 
-            # testing
-            # 
-            self.train(False)
-            test_loss = to_pure(self.apply_testing_loss(range(len(test_states)), test_states, test_actions))
-            
-            print(f"    Epoch {epochs_index+1}. Train Loss: {train_loss:.8f}, Test Loss: {test_loss:.8f}")
-            self.episode_recorder.push(
-                epochs_index=epochs_index,
-                train_loss=train_loss,
-                test_loss=test_loss,
-                **{
-                    each_key: average(each_value)
-                        for each_key, each_value in self.named_losses.items()
-                            if len(each_value) > 0
-                }
-            )
-            if card: card.send(dict(
-                train=[epochs_index, train_loss],
-                test=[epochs_index, test_loss],
-                **{
-                    each_key: [ epochs_index, average(each_value)]
-                        for each_key, each_value in self.named_losses.items()
-                            if len(each_value) > 0
-                }
-            ))
-        
+            for epochs_index in range(number_of_epochs):
+                self.episode_recorder.add(
+                    epochs_index=epochs_index,
+                )
+                # 
+                # 
+                # training
+                # 
+                # 
+                self.train(True)
+                indices = list(range(len(train_data[0])))
+                per_batch_data = defaultdict(default=lambda *_: [])
+                shuffle(indices)
+                while len(indices) > minibatch_size:
+                    # dynamicly shape batch dependong on lookahead
+                    batch = self.create_next_batch(
+                        indices=indices,
+                        minibatch_size=minibatch_size,
+                        lookahead=max(each_loss_object.lookahead for each_loss_object in self.loss_objects.values()),
+                        data=train_data,
+                    )
+                    
+                    #
+                    # run minibatch
+                    #
+                    with WeightUpdate(optimizer=self.optimizer) as backprop:
+                        # run all of them for logging purposes
+                        for name, loss_object in self.loss_objects.items():
+                            loss = loss_object.function(*batch)
+                            
+                            # if its the main/selected loss, backpropogate the output
+                            if name == self.which_loss:
+                                backprop.loss = loss
+                            
+                            # log data
+                            per_batch_data["train_"+name].append(to_pure(loss))
+                
+                # record the averge for each loss function
+                self.episode_recorder.add({
+                    each_key: average(batch_values)
+                        for each_key, batch_values in per_batch_data.items()
+                            if len(batch_values) > 0
+                })
+              
+                # 
+                # testing
+                # 
+                self.train(False)
+                # one giant batch
+                batch = self.create_next_batch(
+                    indices=tuple(range(len(test_data[0]))),
+                    minibatch_size=len(test_data[0]),
+                    lookahead=max(each_loss_object.lookahead for each_loss_object in self.loss_objects.values()),
+                    data=test_data,
+                )
+                for name, loss_object in self.loss_objects.items():
+                    self.episode_recorder.add({
+                        "test_"+name : to_pure( loss_object.function(*batch) ) 
+                    })
+                
+                
+                # 
+                # wrap up
+                # 
+                this_record = self.episode_recorder.pending_record 
+                self.episode_recorder.push() # commits data record
+                # graph all the losses
+                if card: card.send({
+                    each_key: [ epochs_index, each_value ]
+                        for each_key, each_value in this_record.items()
+                            if "loss" in each_key
+                })
+                
         return self.episode_recorder
     
     def generate_graphs(self):
@@ -412,3 +437,13 @@ class Coach(nn.Module):
         coach.load_state_dict(torch.load(path_to.model))
         coach.recorder = Recorder.load_from(path_to.recorder)
         return coach
+
+@dataclass
+class LossObject:
+    function: FunctionType = lambda : 0  # the actual loss function
+    loss_value: Tensor = None      # optional, the most-recently calculated loss value
+    lookahead: int = 0
+    # "state, action" when lookahead = 0
+    # "state, action, next_state, next_actoin" when lookahead = 1
+    # "state_1s, action_1s, state_2s, action_2s, state_3s, action_3s" when lookahead = 2
+    # etc
