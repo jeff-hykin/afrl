@@ -114,12 +114,12 @@ class Coach(nn.Module):
         self.loss_objects = LazyDict({
             each.__name__ : each()
                 for each in [
+                    self.action_prediction_loss,
+                    self.coach_future_loss,
                     self.consistent_value_loss,
                     self.consistent_coach_loss,
-                    self.value_prediction_loss,
-                    self.action_prediction_loss,
                     self.state_prediction_loss,
-                    self.coach_future_loss,
+                    self.value_prediction_loss,
                 ]
         })
         
@@ -296,8 +296,8 @@ class Coach(nn.Module):
     def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, batch_size=settings.batch_size):
         env      = config.get_env(env_name)
         card     = None if not with_card else ss.DisplayCard("multiLine", {
-            **{ f"train_{name}": [] for name in self.loss_objects },
-            **{ f"test_{name}" : [] for name in self.loss_objects },
+            **{ f"{name}_train": [] for name in self.loss_objects },
+            **{ f"{name}_validate" : [] for name in self.loss_objects },
         })
         self.episode_recorder = Recorder(
             training_record=True,
@@ -364,7 +364,7 @@ class Coach(nn.Module):
                                 backprop.loss = loss
                             
                             # log data
-                            per_batch_data["train_"+name].append(to_pure(loss))
+                            per_batch_data[name+"_train"].append(to_pure(loss))
                 
                 # record the averge for each loss function
                 self.episode_recorder.add({
@@ -386,7 +386,7 @@ class Coach(nn.Module):
                 )
                 for name, loss_object in self.loss_objects.items():
                     self.episode_recorder.add({
-                        "test_"+name : to_pure( loss_object.function(*batch) ) 
+                        name+"_validate" : to_pure( loss_object.function(*batch) ) 
                     })
                 
                 
