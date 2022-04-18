@@ -43,9 +43,7 @@ fi
 export FORNIX_NEXT_RUN_DONT_DO_MANUAL_START="true"
 . "$path_to_fornix_core"
 
-if [ "$FORNIX_DEBUG" = "true" ]; then
-    echo "starting: $FORNIX_COMMANDS_FOLDER"start
-fi
+__fornix_debug_message  "starting: $FORNIX_COMMANDS_FOLDER"start
 
 # 
 # fix the windows WSL mkfifo problem
@@ -201,7 +199,6 @@ fi
 . "$FORNIX_FOLDER/settings/extensions/nix/commands/ensure_nix_installed"
 
 # just start the shell with no arguments (arguments might be supported in the future)
+__fornix_debug_message  "about to run: $FORNIX_COMMANDS_FOLDER/shell"
 "$FORNIX_COMMANDS_FOLDER/shell"
-if [ "$FORNIX_DEBUG" = "true" ]; then
-    echo "finished: $FORNIX_COMMANDS_FOLDER"start
-fi
+__fornix_debug_message  "finished: $FORNIX_COMMANDS_FOLDER/shell"

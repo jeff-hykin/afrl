@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-if [ "$FORNIX_DEBUG" = "true" ]; then
-    echo "starting ensure_nix_installed"
-fi
+
+__fornix_debug_message () { if [ "$FORNIX_DEBUG" = "true" ]; then echo "$@"; fi }
+
+__fornix_debug_message "starting ensure_nix_installed"
 
 # setup some helpers
 newline='
@@ -27,6 +28,7 @@ fi
 # 
 if [ -z "$(command -v "nix")" ]
 then
+    __fornix_debug_message "    nix doesnt seem to exist as a command"
     # 
     # try sourcing some files, then check avail if nix is available
     # 
@@ -45,6 +47,7 @@ then
     # 
     if [ -z "$(command -v "nix")" ]
     then
+        __fornix_debug_message "    even after setting the path, nix doesnt seem to exist as a command"
         echo "|------------------------------------------------------|" 1>&2
         echo "|                                                      |" 1>&2
         echo "|    I'll try to install nix for you                   |" 1>&2
@@ -120,7 +123,7 @@ then
         #
         if [ "$(uname)" = "Darwin" ]
         then
-            debugging_info="$debugging_info$newline""I think you have a Mac because "'"$OSTYPE" = "darwin"*'" came back true"
+            __fornix_debug_message "    I think you have a Mac because "'"$OSTYPE" = "darwin"*'" came back true"
             full_version="$(sw_vers -productVersion)"
             major_version="$(echo "$full_version" | sed -E 's/([0-9]+)\.[0-9]+\.[0-9]+/\1/g')"
             minor_version="$(echo "$full_version" | sed -E 's/[0-9]+\.([0-9]+)\.[0-9]+/\1/g')"
@@ -149,12 +152,15 @@ then
             fi
         # assuming Linux/POSIX if not on MacOS
         else
+            __fornix_debug_message "    I think you are using Linux because "'"$OSTYPE" = "darwin"*'" came back false"
             # if curl doesnt exist, try to make it exist
             if [ -z "$(command -v "curl")" ]
             then
+                __fornix_debug_message "    curl doesnt exist, attempting install"
                 # if apt-get exists
                 if [ -n "$(command -v "apt-get")" ]
                 then
+                    __fornix_debug_message "    apt-get does exist"
                     sudo apt-get update && sudo apt-get install curl
                 else
                     echo "it looks like you don't have curl, please install curl then re-run this script" 1>&2
@@ -165,9 +171,11 @@ then
             # if now curl exists
             if [ -n "$(command -v "curl")" ]
             then
+                __fornix_debug_message "    curl command seems to exist"
                 # check if systemd exists
                 if pidof systemd
                 then
+                    __fornix_debug_message "    systemd seems to exist"
                     # the single-user install seems to have fewer install issues
                     curl -Lk https://releases.nixos.org/nix/nix-2.3.7/install | sh -s
                     # # multi-user install if systemd exists
@@ -180,3 +188,5 @@ then
         fi
     fi
 fi
+
+__fornix_debug_message "nix seems to exist"
