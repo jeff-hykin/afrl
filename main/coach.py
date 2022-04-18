@@ -90,7 +90,6 @@ class Coach(nn.Module):
         # save
         # 
         coach.save(path)
-        if settings.with_card: coach.generate_graphs()
         return coach
     
     # init
@@ -390,22 +389,17 @@ class Coach(nn.Module):
         return self.episode_recorder
     
     def generate_graphs(self):
-        
-        # y axis of loss
-        # add the state_loss 
-        # add the future_loss
-        # add the q_value_loss
         records = tuple(self.recorder.all_records)
-        training_records = tuple(each for each in records if each.get("training_record", False))
-        special_records = tuple(each for each in records if each.get("future_loss", False) )
-        ss.DisplayCard("multiLine", dict(
-            train=[ (each["epochs_index"], each["train_loss"]) for each in training_records ],
-            test= [ (each["epochs_index"], each["test_loss"] ) for each in training_records ],
+        training_records = tuple(each for each in records if each.get("epochs_index", False))
+        
+        if len(training_records) > 0:
+            keys = tuple(training_records[0].keys())
             
-            future_loss= [ (each["epochs_index"], each["future_loss"] ) for each in special_records ],
-            q_loss= [ (each["epochs_index"], each["q_loss"] ) for each in special_records ],
-            state_loss= [ (each["epochs_index"], each["state_loss"] ) for each in special_records ],
-        ))
+            ss.DisplayCard("multiLine", {
+                each_key: [ (each_record["epochs_index"], each_record[each_key]) for each_record in training_records ]
+                    for each_key in keys
+                        if "loss" in each_key
+            })
         return self
     
     @classmethod
