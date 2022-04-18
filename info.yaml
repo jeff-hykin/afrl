@@ -179,7 +179,7 @@
                 delayed_coach_loss:
                     epochs_of_delay: 50
                 number_of_episodes: 100
-                number_of_epochs: 50 # should be 100
+                number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
                 batch_size: 256
                 with_card: true

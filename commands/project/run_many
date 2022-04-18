@@ -67,6 +67,20 @@ python ./main/run/full.py -- \
     train_coach:consistent_coach_loss:scale_future_state_loss:"1" \
     train_coach:number_of_epochs:500
 
+# 
+# delayed
+# 
+python ./main/run/full.py -- \
+    train_coach:force_retrain:"false" \
+    test_predictor:force_recompute:"false" \
+    env_name:"LunarLanderContinuous-v2" \
+    load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
+    experiment_name:"delayed_coach_loss_1" \
+    train_coach:loss_function:"delayed_coach_loss" \
+    train_coach:consistent_coach_loss:scale_future_state_loss:"1" \
+    train_coach:number_of_epochs:120 \
+    train_coach:batch_size:256
+
 # python ./main/run/full.py -- experiment_name:state_loss_1_with_sac11 train_agent:model_name:default_sac_11
 
 # python ./main/run/full.py -- experiment_name:coach_loss_1_with_sac4_epochs100  train_coach:train_coach:loss_function:consistent_coach_loss 
