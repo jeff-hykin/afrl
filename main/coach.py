@@ -118,12 +118,14 @@ class Coach(nn.Module):
                     self.coach_future_loss,
                     # self.consistent_value_loss,
                     # self.consistent_coach_loss,
+                    self.delayed_coach_loss,
                     # self.half_consistent_coach_loss,
                     self.state_triple_loss,
                     self.state_prediction_loss,
                     self.value_prediction_loss,
                 ]
         })
+        self.epochs_index = 0
         
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
@@ -243,6 +245,35 @@ class Coach(nn.Module):
             # BOOKMARK
             output.loss_value = (future_loss + q_loss) * state_loss
             return output.loss_value
+        
+        output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
+    
+    def delayed_coach_loss(self):
+        output = LossObject()
+        
+        epochs_of_delay = self.settings.delayed_coach_loss.epochs_of_delay
+        state_prediction_loss = self.state_prediction_loss().function
+        value_prediction_loss = self.value_prediction_loss().function
+        scale_future_state_loss = self.settings.consistent_coach_loss.scale_future_state_loss
+        soft_average_q_loss = torch.tensor(0)
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_):
+            nonlocal soft_average_q_loss
+            state_loss = state_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
+            q_loss     = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
+            if self.epochs_index < epochs_of_delay:
+                # average current value and last value
+                soft_average_q_loss = torch.tensor([ to_pure(soft_average_q_loss), to_pure(q_loss) ]).mean()
+                return state_loss
+            else:
+                once_predicted_state_2s  = self.forward(state_1s, action_1s)
+                once_predicted_state_3s  = self.forward(state_2s, action_2s)
+                twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
+                
+                future_loss = (torch.abs(once_predicted_state_3s - twice_predicted_state_3s)).mean() * scale_future_state_loss
+                q_loss     = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
+                return state_loss * q_loss/soft_average_q_loss 
         
         output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
         output.function = actual_loss_function
@@ -376,6 +407,7 @@ class Coach(nn.Module):
             # epochs
             # 
             for epochs_index in range(number_of_epochs):
+                self.epochs_index = epochs_index
                 self.episode_recorder.add(
                     epochs_index=epochs_index,
                 )

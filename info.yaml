@@ -176,10 +176,12 @@
                 loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
                 consistent_coach_loss:
                     scale_future_state_loss: 1000000
+                delayed_coach_loss:
+                    epochs_of_delay: 50
                 number_of_episodes: 100
                 number_of_epochs: 50 # should be 100
                 train_test_split: 0.7
-                batch_size: 64
+                batch_size: 256
                 with_card: true
                 env_overrides:
                     *env_settings
@@ -187,7 +189,7 @@
             test_predictor:
                 force_recompute: false
                 graph_smoothing: 3 # rolling average of _ number values
-                number_of_episodes: 20 # original value is 50 
+                number_of_episodes: 10 # original value is 50 
                 reward_discount: 0.98
                 horizons:
                     0.001: 5
