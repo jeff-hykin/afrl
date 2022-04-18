@@ -39,7 +39,7 @@ class Agent(SAC):
                 return agent
         
         print(f'''\n\n-------------------------------------------------------''')
-        print(f''' Training Agent from scratch for {path}.zip''')
+        print(f''' Training Agent from scratch for {path}''')
         print(f'''-------------------------------------------------------\n\n''')
         # train and return
         agent = Agent("MlpPolicy", env_name, device=config.device, verbose=2,)
