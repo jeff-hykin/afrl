@@ -28,7 +28,7 @@ settings = config.train_coach
     # hidden_sizes
     # number_of_episodes
     # number_of_epochs
-    # minibatch_size
+    # batch_size
     # etc
 
 # State transition coach model
@@ -83,7 +83,7 @@ class Coach(nn.Module):
             number_of_episodes=settings.number_of_episodes,
             number_of_epochs=settings.number_of_epochs,
             with_card=settings.with_card,
-            minibatch_size=settings.minibatch_size,
+            batch_size=settings.batch_size,
         )
         
         # 
@@ -159,9 +159,9 @@ class Coach(nn.Module):
     # 
     # Loss Helpers
     # 
-    def create_next_batch(self, indices, minibatch_size, lookahead, data):
+    def create_next_batch(self, indices, batch_size, lookahead, data):
         sideways_batch = []
-        for count in range(minibatch_size):
+        for count in range(batch_size):
             index = indices.pop()
             try:
                 items = []
@@ -277,7 +277,7 @@ class Coach(nn.Module):
     # main training loop
     # 
     # 
-    def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, minibatch_size=settings.minibatch_size):
+    def train_with(self, env_name, agent, number_of_episodes=100, number_of_epochs=100, with_card=True, batch_size=settings.batch_size):
         env      = config.get_env(env_name)
         card     = None if not with_card else ss.DisplayCard("multiLine", {
             **{ f"train_{name}": [] for name in self.loss_objects },
@@ -286,7 +286,7 @@ class Coach(nn.Module):
         self.episode_recorder = Recorder(
             training_record=True,
             env_name=env_name,
-            batch_size=minibatch_size,
+            batch_size=batch_size,
             number_of_episodes=number_of_episodes,
             number_of_epochs=number_of_epochs,
         ).set_parent(self.recorder)
@@ -326,11 +326,11 @@ class Coach(nn.Module):
                 indices = list(range(len(train_data[0])))
                 per_batch_data = defaultdict(lambda *_: [])
                 shuffle(indices)
-                while len(indices) > minibatch_size:
+                while len(indices) > batch_size:
                     # dynamicly shape batch dependong on lookahead
                     batch = self.create_next_batch(
                         indices=indices,
-                        minibatch_size=minibatch_size,
+                        batch_size=batch_size,
                         lookahead=max(each_loss_object.lookahead for each_loss_object in self.loss_objects.values()),
                         data=train_data,
                     )
@@ -364,7 +364,7 @@ class Coach(nn.Module):
                 # one giant batch
                 batch = self.create_next_batch(
                     indices=list(range(len(test_data[0]))),
-                    minibatch_size=len(test_data[0]),
+                    batch_size=len(test_data[0]),
                     lookahead=max(each_loss_object.lookahead for each_loss_object in self.loss_objects.values()),
                     data=test_data,
                 )

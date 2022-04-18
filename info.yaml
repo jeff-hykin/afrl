@@ -179,7 +179,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 50 # should be 100
                 train_test_split: 0.7
-                minibatch_size: 32
+                batch_size: 64
                 with_card: true
                 env_overrides:
                     *env_settings
