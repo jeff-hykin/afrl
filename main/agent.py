@@ -113,7 +113,7 @@ class Agent(SAC):
         #     q, _ = torch.min(q, dim=1, keepdim=True)
         #     return q.item()
     
-    @cache()
+    @cache(depends_on=[config.train_coach, config.train_agent])
     def gather_experience(self, env, number_of_episodes):
         episodes = [None]*number_of_episodes
         reward_per_episode = []

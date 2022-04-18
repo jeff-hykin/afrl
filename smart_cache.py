@@ -51,7 +51,7 @@ def consumer(in_q):
         data = in_q.get()
         # Process the data
 
-def cache(folder=settings.default_folder):
+def cache(folder=settings.default_folder, depends_on=[]):
     def real_decorator(input_func):
         data = CacheData()  # because we need a reference not a value or compile error
         function_id = super_hash(input_func)
@@ -66,7 +66,7 @@ def cache(folder=settings.default_folder):
                         if func_hash == data.deep_hash:
                             data.cache = cache_temp
                 data.calculated = True
-            arg_hash = super_hash((args, kwargs))
+            arg_hash = super_hash((args, kwargs, depends_on))
             if arg_hash in data.cache:
                 return data.cache[arg_hash]
             result = input_func(*inner_func_args, **kwargs)

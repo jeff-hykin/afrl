@@ -164,7 +164,7 @@
                     # HumanoidStandup-v2
             train_agent:
                 model_name: default_sac_4 # was the best (by far) out of 10
-                iterations: 100000
+                iterations: 200000
                 force_retrain: false
                 env_overrides:
                     *env_settings
@@ -176,8 +176,8 @@
                 loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
                 consistent_coach_loss:
                     scale_future_state_loss: 1000000
-                number_of_episodes: 20
-                number_of_epochs: 100 # should be 100
+                number_of_episodes: 100
+                number_of_epochs: 50 # should be 100
                 train_test_split: 0.7
                 minibatch_size: 32
                 with_card: true
@@ -186,7 +186,7 @@
     
             test_predictor:
                 force_recompute: false
-                graph_smoothing: 4 # rolling average of _ number values
+                graph_smoothing: 3 # rolling average of _ number values
                 number_of_episodes: 20 # original value is 50 
                 reward_discount: 0.98
                 horizons:

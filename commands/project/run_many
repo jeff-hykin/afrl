@@ -7,9 +7,11 @@ python ./main/run/full.py -- \
     experiment_name:"best_state_loss" 
 
 python ./main/run/full.py -- \
+    train_coach:force_retrain:"false" \
+    test_predictor:force_recompute:"false" \
     env_name:"LunarLanderContinuous-v2" \
     load:agent_path:"./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" \
-    experiment_name:"best_state_loss" 
+    experiment_name:"best_state_loss"
 
 python ./main/run/full.py -- \
     env_name:"LunarLanderContinuous-v2" \

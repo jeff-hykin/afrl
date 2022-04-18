@@ -173,7 +173,7 @@ class Coach(nn.Module):
             except IndexError as error:
                 pass
         
-        # for example return: "state_1s, action_1s, state_2s, action_2s" each as a tensor
+        # for example return: "state_1s, action_1s, state_2s, action_2s, ..." each as a tensor
         return tuple(to_tensor(each) for each in zip(*sideways_batch))
                     
     
