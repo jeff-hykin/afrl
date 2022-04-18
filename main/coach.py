@@ -114,11 +114,11 @@ class Coach(nn.Module):
         self.loss_objects = LazyDict({
             each.__name__ : each()
                 for each in [
-                    self.action_prediction_loss,
+                    # self.action_prediction_loss,
                     self.coach_future_loss,
-                    self.consistent_value_loss,
-                    self.consistent_coach_loss,
-                    self.half_consistent_coach_loss,
+                    # self.consistent_value_loss,
+                    # self.consistent_coach_loss,
+                    # self.half_consistent_coach_loss,
                     self.state_triple_loss,
                     self.state_prediction_loss,
                     self.value_prediction_loss,
