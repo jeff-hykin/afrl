@@ -123,6 +123,10 @@
                         0.1: 26
                         0.01: 16
                         0.001: 4
+                    # Max Episode Reward: 852.4950843086151
+                    # Min Episode Reward: 153.87762677698575
+                    # Max Timestep Reward: 2.3122164298644683
+                    # Min Timestep Reward: -1.7494330256972288
                 
                 HumanoidBulletEnv-v0:
                     reward_discount: 0.98
