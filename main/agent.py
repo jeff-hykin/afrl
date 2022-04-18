@@ -118,7 +118,7 @@ class Agent(SAC):
         episodes = [None]*number_of_episodes
         reward_per_episode = []
         reward_per_timestep = []
-        all_actions, all_curr_states, all_next_states = [], [], []
+        all_actions, all_curr_states = [], []
         print(f'''Starting Experience Recording''')
         for episode_index in range(number_of_episodes):
             episode = Episode()
@@ -146,7 +146,6 @@ class Agent(SAC):
             episodes[episode_index] = episode
             all_curr_states += episode.curr_states
             all_actions     += episode.actions
-            all_next_states += episode.next_states
         
         self.average_episode_reward = average(reward_per_episode)
         self.average_timestep_reward = average(reward_per_timestep)
@@ -155,7 +154,7 @@ class Agent(SAC):
         print(f'''    Min Episode Reward: {min(reward_per_episode)}''')
         print(f'''    Max Timestep Reward: {max(reward_per_timestep)}''')
         print(f'''    Min Timestep Reward: {min(reward_per_timestep)}''')
-        return episodes, all_actions, all_curr_states, all_next_states
+        return episodes, all_actions, all_curr_states
     
     def __super_hash__(self):
         return self.path

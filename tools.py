@@ -172,7 +172,6 @@ def train_test_split(*args, split_proportion):
         return to_tensor(data[train]), to_tensor(data[test])
     
     indices = np.arange(len(args[0]))
-    np.random.shuffle(indices)
     output = []
     for each in args:
         output.append(split(each, indices, split_proportion))
@@ -367,11 +366,11 @@ class Episode:
     
     @property
     def curr_states(self):
-        return [s for s in self.states[1:  ]]
+        return [s for s in self.states[: -1]]
     
     @property
     def next_states(self):
-        return [s for s in self.states[: -1]]
+        return [s for s in self.states[1: ]]
 
 
 class WeightUpdate(object):

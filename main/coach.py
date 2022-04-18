@@ -292,7 +292,7 @@ class Coach(nn.Module):
         ).set_parent(self.recorder)
     
         # Get experience from trained agent
-        episodes, all_actions, all_curr_states, all_next_states = agent.gather_experience(env, number_of_episodes)
+        episodes, all_actions, all_curr_states = agent.gather_experience(env, number_of_episodes)
         print(f'''Starting Train/Test''')
         states      = to_tensor(all_curr_states)
         actions     = to_tensor(all_actions)
