@@ -119,6 +119,7 @@ class Coach(nn.Module):
                     self.value_prediction_loss,
                     self.action_prediction_loss,
                     self.state_prediction_loss,
+                    self.coach_future_loss,
                 ]
         })
         
@@ -215,9 +216,25 @@ class Coach(nn.Module):
             
             future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean() * scale_future_state_loss
             q_loss     = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
-            state_loss = state_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
             # BOOKMARK
             output.loss_value = future_loss + q_loss
+            return output.loss_value
+        
+        output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
+    
+    def coach_future_loss(self):
+        output = LossObject()
+        
+        scale_future_state_loss = self.settings.consistent_coach_loss.scale_future_state_loss
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_):
+            once_predicted_state_2s  = self.forward(state_1s, action_1s)
+            once_predicted_state_3s  = self.forward(state_2s, action_2s)
+            twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
+            
+            future_loss = ((once_predicted_state_3s - twice_predicted_state_3s)**2).mean() * scale_future_state_loss
+            output.loss_value = future_loss 
             return output.loss_value
         
         output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
