@@ -3,7 +3,7 @@
 
 python ./main/run/full.py -- \
     train_coach:force_retrain:"false" \
-    test_predictor:force_recompute:"false" \
+    test_predictor:force_recompute:"true" \
     env_name:"AntBulletEnv-v0" \
     experiment_name:"baseline_1"
 
@@ -12,7 +12,7 @@ python ./main/run/full.py -- \
 # 
 python ./main/run/full.py -- \
     train_coach:force_retrain:"false" \
-    test_predictor:force_recompute:"false" \
+    test_predictor:force_recompute:"true" \
     env_name:"AntBulletEnv-v0" \
     experiment_name:"consistent_value_loss_1" \
     train_coach:loss_function:"consistent_value_loss"
@@ -22,7 +22,7 @@ python ./main/run/full.py -- \
 # 
 python ./main/run/full.py -- \
     train_coach:force_retrain:"false" \
-    test_predictor:force_recompute:"false" \
+    test_predictor:force_recompute:"true" \
     env_name:"AntBulletEnv-v0" \
     experiment_name:"consistent_coach_loss_1" \
     train_coach:loss_function:"consistent_coach_loss" \
@@ -33,7 +33,7 @@ python ./main/run/full.py -- \
 # 
 python ./main/run/full.py -- \
     train_coach:force_retrain:"false" \
-    test_predictor:force_recompute:"false" \
+    test_predictor:force_recompute:"true" \
     env_name:"AntBulletEnv-v0" \
     experiment_name:"half_consistent_coach_loss_1" \
     train_coach:loss_function:"half_consistent_coach_loss" \
@@ -45,7 +45,7 @@ python ./main/run/full.py -- \
 # 
 python ./main/run/full.py -- \
     train_coach:force_retrain:"false" \
-    test_predictor:force_recompute:"false" \
+    test_predictor:force_recompute:"true" \
     env_name:"AntBulletEnv-v0" \
     experiment_name:"state_triple_loss_1" \
     train_coach:loss_function:"state_triple_loss" \
@@ -54,7 +54,7 @@ python ./main/run/full.py -- \
 
 python ./main/run/full.py -- \
     train_coach:force_retrain:"false" \
-    test_predictor:force_recompute:"false" \
+    test_predictor:force_recompute:"true" \
     env_name:"AntBulletEnv-v0" \
     experiment_name:"state_triple_loss_2" \
     train_coach:loss_function:"state_triple_loss" \
@@ -64,12 +64,4 @@ python ./main/run/full.py -- \
 # 
 # delayed
 # 
-python ./main/run/full.py -- \
-    train_coach:force_retrain:"false" \
-    test_predictor:force_recompute:"false" \
-    env_name:"AntBulletEnv-v0" \
-    experiment_name:"delayed_coach_loss_1" \
-    train_coach:loss_function:"delayed_coach_loss" \
-    train_coach:consistent_coach_loss:scale_future_state_loss:"1" \
-    train_coach:number_of_epochs:120 \
-    train_coach:batch_size:256
+python ./main/run/full.py -- @ENV=ANT @delayed_coach_loss_1 

@@ -92,9 +92,10 @@
                     max_reward_single_timestep: 100
                     number_of_timesteps: 1000000
                     horizons:
-                        0.1: 26
-                        0.01: 13
+                        0: 1
                         0.001: 11
+                        0.01: 13
+                        0.1: 26
                     hparams: 
                         learning_rate: 7.3e-4
                         buffer_size: 300000
@@ -120,9 +121,10 @@
                     min_reward_single_timestep: 19
                     max_reward_single_timestep: 105
                     horizons:
-                        0.1: 26
-                        0.01: 16
-                        0.001: 4
+                        0: 1
+                        0.0007: 4
+                        0.0015: 16
+                        0.0020: 26
                     # Max Episode Reward: 852.4950843086151
                     # Min Episode Reward: 153.87762677698575
                     # Max Timestep Reward: 2.3122164298644683
@@ -207,4 +209,25 @@
         
         FORCE_CPU:
             force_cpu: true
+        
+        ENV=LUNAR:
+            env_name: "LunarLanderContinuous-v2"
+        ENV=ANT:
+            env_name: "AntBulletEnv-v0"
+        ENV=CHEETA:
+            env_name: "HalfCheetahBulletEnv-v0"
+        
+        delayed_coach_loss_1:
+            experiment_name: "delayed_coach_loss_1"
+            
+            train_coach:
+                force_retrain: false
+                loss_function: "delayed_coach_loss"
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                number_of_epochs: 120
+                batch_size: 256
+                
+            test_predictor:
+                force_recompute: true
         
