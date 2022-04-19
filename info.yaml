@@ -75,7 +75,7 @@
             test_predictor:
                 force_recompute: false
                 graph_smoothing: 3 # rolling average of _ number values
-                number_of_episodes_for_baseline: 30 # always save this+inital_epsilon. This value makes a big difference on the standard deviation, which highly effects the optimal_epsilon
+                number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
                 inital_epsilon: 0.001
@@ -220,7 +220,7 @@
                 
             test_predictor:
                 force_recompute: true
-                number_of_episodes_for_baseline: 30 # always save this+inital_epsilon. This value makes a big difference on the standard deviation, which highly effects the optimal_epsilon
+                number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
                 inital_epsilon: 0.0100

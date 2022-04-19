@@ -206,11 +206,12 @@ class Tester:
     
     @cache()
     def gather_optimal_parameters(self, baseline):
+        sample_stdev = baseline.stdev / (baseline.count - 1)
         # 
         # hone in on acceptable epsilon
         # 
         print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
-        acceptable_performance_loss = baseline.stdev * self.settings.acceptable_performance_loss
+        acceptable_performance_loss = sample_stdev * self.settings.acceptable_performance_loss
         optimal_epsilon = self.settings.inital_epsilon
         optimal_horizon = self.settings.intial_horizon
         threshold_guesses = []
@@ -240,7 +241,7 @@ class Tester:
             # 
             # logging
             # 
-            print(f'''    episode={episode_index}, horizon={optimal_horizon}, effective_score={effective_score:.2f}, baseline={baseline.average:.2f}+{baseline.stdev:.2f}={baseline.stdev+baseline.average:.2f}, new_epsilon={optimal_epsilon:.4f}, adjustment%={(adjustment_scale-1)*100:.2f},''')
+            print(f'''    episode={episode_index}, horizon={optimal_horizon}, effective_score={effective_score:.2f}, baseline={baseline.average:.2f}+{sample_stdev:.2f}={sample_stdev+baseline.average:.2f}, new_epsilon={optimal_epsilon:.4f}, adjustment%={(adjustment_scale-1)*100:.2f},''')
         
         print(f'''optimal_epsilon = {optimal_epsilon}''')
         print(f'''optimal_horizon = {optimal_horizon}''')
