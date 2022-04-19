@@ -24,6 +24,7 @@ from rigorous_recorder import Recorder
 
 from info import path_to, config
 from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale
+from smart_cache import cache
 from main.agent import Agent
 from main.coach import Coach
 
@@ -39,23 +40,31 @@ class Tester:
         self.prediction_card = None
         # Data recording below is independent to reduce max file size (lets it sync to git)
         self.recorder = Recorder()
-        self.rewards_per_episode_per_timestep            = [None] * settings.number_of_episodes
-        self.discounted_rewards_per_episode_per_timestep = [None] * settings.number_of_episodes
-        self.failure_points_per_episode_per_timestep     = [None] * settings.number_of_episodes
-        self.stopped_early_per_episode_per_timestep      = [None] * settings.number_of_episodes
-        self.real_q_values_per_episode_per_timestep      = [None] * settings.number_of_episodes
-        self.q_value_gaps_per_episode_per_timestep       = [None] * settings.number_of_episodes
+        self.rewards_per_episode_per_timestep            = [None] * settings.number_of_episodes_for_testing
+        self.discounted_rewards_per_episode_per_timestep = [None] * settings.number_of_episodes_for_testing
+        self.failure_points_per_episode_per_timestep     = [None] * settings.number_of_episodes_for_testing
+        self.stopped_early_per_episode_per_timestep      = [None] * settings.number_of_episodes_for_testing
+        self.real_q_values_per_episode_per_timestep      = [None] * settings.number_of_episodes_for_testing
+        self.q_value_gaps_per_episode_per_timestep       = [None] * settings.number_of_episodes_for_testing
         
         # for loading from a file
         for each_key, each_value in attribute_overrides.items():
             setattr(self, each_key, each_value)
+        
+        # for saving to yaml
+        self.simple_data = LazyDict(
+            number_of_episodes_for_testing=self.settings.number_of_episodes_for_testing,
+            acceptable_performance_loss=self.settings.acceptable_performance_loss,
+            inital_epsilon=self.settings.inital_epsilon,
+            intial_horizon=self.settings.intial_horizon,
+        )
     
     # 
     # core algorithm
     # 
     def experience_episode(
         self,
-        epsilon: float,
+        scaled_epsilon: float,
         horizon: int,
         episode_index: int,
     ):
@@ -102,7 +111,7 @@ class Tester:
                         q_value_gaps: {q_value_gaps}
                     ''')
                 # if the planned old_plan_action is significantly worse, then fail
-                if q_value_gap > epsilon:
+                if q_value_gap > scaled_epsilon:
                     stopped_early = True
                     break
                 
@@ -159,6 +168,74 @@ class Tester:
         real_q_values_per_timestep      = self.real_q_values_per_episode_per_timestep[episode_index]      = tuple(real_q_values_per_timestep)
         q_value_gaps_per_timestep       = self.q_value_gaps_per_episode_per_timestep[episode_index]       = tuple(q_value_gaps_per_timestep)
         return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
+    
+    # decides when cache-busting happends (happens if any of these change)
+    def __super_hash__(self):
+        return (
+            self.path,
+            self.agent_reward_discount,
+            self.settings.number_of_episodes_for_testing,
+            self.settings.acceptable_performance_loss,
+            self.settings.inital_epsilon,
+            self.settings.intial_horizon,
+            self.settings.number_of_episodes_for_baseline,
+            self.settings.number_of_episodes_for_optimal_parameters,
+        )
+    
+    @cache()
+    def gather_baseline(self):
+        print("----- getting a reward baseline -----------------------------------------------------------------------------------------------------------------------------------")
+        discounted_rewards_per_episode = []
+        for episode_index in range(self.settings.number_of_episodes_for_baseline):
+            _, rewards, discounted_rewards, _, _, _, q_value_gaps = self.experience_episode(scaled_epsilon=0, horizon=1, episode_index=episode_index)
+            total = sum(discounted_rewards)
+            discounted_rewards_per_episode.append(total)
+            print(f'''  episode_index={episode_index}, total={total}''')
+        baseline = simple_stats(discounted_rewards_per_episode)
+        print(f'''reward baseline = {baseline}''')
+        return baseline
+    
+    @cache()
+    def gather_optimal_parameters(self, baseline):
+        # 
+        # hone in on acceptable epsilon
+        # 
+        print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
+        acceptable_performance_loss = baseline.stdev * self.settings.acceptable_performance_loss
+        optimal_epsilon = self.settings.inital_epsilon
+        optimal_horizon = self.settings.intial_horizon
+        threshold_guesses = []
+        failure_point_summaries = []
+        for episode_index in range(self.settings.number_of_episodes_for_optimal_parameters):
+            
+            # per-timestep data
+            forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=optimal_epsilon, horizon=optimal_horizon, episode_index=episode_index)
+            failure_point_summaries.append(simple_stats(failure_points))
+            optimal_horizon = max((each.max for each in failure_point_summaries)) * 2 # e.g. make sure the horizon is plenty big, as it shouldn't be restricting the capabilites of prediciton
+            # TODO: probably should increase the number of loops whenever horizon seems to have not converged (e.g. prediction length is growing)
+            
+            # 
+            # adjust the optimal_epsilon up or down
+            # 
+            # technique
+            #      if 1 standard devation below baseline, then keep as-is
+            #      if equal to baseline, increase by ((this+stdev)/baseline)
+            #      if 2 standard devations below baseline, decrease by ((this+stdev)/baseline)
+            #     (^ smooth those changes with averaging instead of directly using them)
+            episode_raw_score = sum(discounted_rewards)
+            effective_score = episode_raw_score + acceptable_performance_loss
+            adjustment_scale = effective_score / baseline.average
+            threshold_guesses.append(adjustment_scale * optimal_epsilon)
+            optimal_epsilon = average([optimal_epsilon, adjustment_scale * optimal_epsilon]) # smooth via simple averaging (may need to increase this smoother to be average(threshold_guesses))
+            
+            # 
+            # logging
+            # 
+            print(f'''    episode={episode_index}, horizon={optimal_horizon}, effective_score={effective_score:.2f}, baseline={baseline.average:.2f}+{baseline.stdev:.2f}={baseline.stdev+baseline.average:.2f}, new_epsilon={optimal_epsilon:.4f}, adjustment%={(adjustment_scale-1)*100:.2f},''')
+        
+        print(f'''optimal_epsilon = {optimal_epsilon}''')
+        print(f'''optimal_horizon = {optimal_horizon}''')
+        return optimal_epsilon, optimal_horizon
 
     # 
     # setup for testing
@@ -171,13 +248,7 @@ class Tester:
         # 
         # pull in settings
         # 
-        normal_epsilons     = tuple(settings.horizons.keys())
-        forecast_horizons     = tuple(settings.horizons.values())
-        reward_range          = settings.max_reward_single_timestep - settings.min_reward_single_timestep
-        epsilons              = reward_range * np.array(normal_epsilons)
         predictor.agent.gamma = config.train_agent.env_overrides[config.env_name].reward_discount
-        print(f'''normal_epsilons = {normal_epsilons}''')
-        print(f'''epsilons = {epsilons}''')
         
         # define return value
         self.csv_data = LazyDict(
@@ -187,64 +258,68 @@ class Tester:
             forecast=[],
         )
         
+        # get a baseline for the reward value
+        baseline = self.gather_baseline()
+        optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline)
+        
+        # save to a place they'll be easily visible
+        horizon        = self.simple_data.optimal_epsilon = optimal_epsilon
+        scaled_epsilon = self.simple_data.optimal_horizon = optimal_horizon
+            
         # 
-        # perform experiments with all epsilons
+        # perform experiments with optimal
         # 
+        epoch_recorder = Recorder(
+            horizon=horizon,
+            scaled_epsilon=scaled_epsilon,
+        ).set_parent(self.recorder)
+        
         index = -1
-        for epsilon, horizon, normal_epsilon in zip(epsilons, forecast_horizons, normal_epsilons):
+        forecast_slices = []
+        alt_forecast_slices = []
+        for episode_index in range(settings.number_of_episodes_for_testing):
+            index += 1
+            forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=scaled_epsilon, horizon=horizon, episode_index=episode_index)
             
-            epoch_recorder = Recorder(
-                horizon=horizon,
-                scaled_epsilon=epsilon,
-                normal_epsilon=normal_epsilon,
-            ).set_parent(self.recorder)
+            reward_stats            = simple_stats(rewards)
+            discounted_reward_stats = simple_stats(discounted_rewards)
+            failure_point_stats     = simple_stats(failure_points)
+            real_q_value_stats      = simple_stats(real_q_values)
             
-            forecast_slices = []
-            alt_forecast_slices = []
+            normalized_rewards = normalize(rewards, min=settings.min_reward_single_timestep, max=settings.max_reward_single_timestep)
             
-            for episode_index in range(settings.number_of_episodes):
-                index += 1
-                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(epsilon, horizon, episode_index)
-                
-                reward_stats            = simple_stats(rewards)
-                discounted_reward_stats = simple_stats(discounted_rewards)
-                failure_point_stats     = simple_stats(failure_points)
-                real_q_value_stats      = simple_stats(real_q_values)
-                
-                normalized_rewards = normalize(rewards, min=settings.min_reward_single_timestep, max=settings.max_reward_single_timestep)
-                
-                # 
-                # forecast stats
-                # 
-                forecast_slices.append(forecast[horizon:])
-                alt_forecast_slices.append(forecast)
-                # NOTE: double averaging might not be the desired metric but its probably alright
-                grand_forecast_average = average(average(each) for each in forecast_slices)
-                alt_forecast_average   = average(average(each) for each in alt_forecast_slices)
-                
-                # save self.csv_data
-                epoch_recorder.push(
-                    episode_index=episode_index,
-                    timestep_count=len(rewards),
-                    forecast_average=grand_forecast_average,
-                    alt_forecast_average=alt_forecast_average,
-                    normalized_reward_average=simple_stats(normalized_rewards).average,
-                    **key_prepend("reward", reward_stats), # reward_average, reward_median, reward_min, reward_max, etc
-                    **key_prepend("discounted_reward", discounted_reward_stats), # discounted_reward_average, discounted_reward_median, discounted_reward_min, discounted_reward_max, etc
-                    **key_prepend("failure_point", failure_point_stats),
-                    **key_prepend("q", real_q_value_stats),
-                    **key_prepend("q_gaps", simple_stats(flatten(q_value_gaps) or [0])),
-                    **key_prepend("q_final_gaps", simple_stats([each[-1] for each in q_value_gaps if len(each) > 0] or [0])),
-                )
-                self.increment_live_graphs() # uses latest record
-                
-                # record for CSV backwards compatibility
-                self.csv_data.epsilon.append(epsilon)
-                self.csv_data.rewards.append(reward_stats.sum)
-                self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
-                self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
-                
-                print(f"    epsilon: {epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
+            # 
+            # forecast stats
+            # 
+            forecast_slices.append(forecast[horizon:])
+            alt_forecast_slices.append(forecast)
+            # NOTE: double averaging might not be the desired metric but its probably alright
+            grand_forecast_average = average(average(each) for each in forecast_slices)
+            alt_forecast_average   = average(average(each) for each in alt_forecast_slices)
+            
+            # save self.csv_data
+            epoch_recorder.push(
+                episode_index=episode_index,
+                timestep_count=len(rewards),
+                forecast_average=grand_forecast_average,
+                alt_forecast_average=alt_forecast_average,
+                normalized_reward_average=simple_stats(normalized_rewards).average,
+                **key_prepend("reward", reward_stats), # reward_average, reward_median, reward_min, reward_max, etc
+                **key_prepend("discounted_reward", discounted_reward_stats), # discounted_reward_average, discounted_reward_median, discounted_reward_min, discounted_reward_max, etc
+                **key_prepend("failure_point", failure_point_stats),
+                **key_prepend("q", real_q_value_stats),
+                **key_prepend("q_gaps", simple_stats(flatten(q_value_gaps) or [0])),
+                **key_prepend("q_final_gaps", simple_stats([each[-1] for each in q_value_gaps if len(each) > 0] or [0])),
+            )
+            self.increment_live_graphs() # uses latest record
+            
+            # record for CSV backwards compatibility
+            self.csv_data.epsilon.append(scaled_epsilon)
+            self.csv_data.rewards.append(reward_stats.sum)
+            self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
+            self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
+            
+            print(f"    scaled_epsilon: {scaled_epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
         
         self.save()
         return self
@@ -396,6 +471,7 @@ class Tester:
     # 
     attributes_to_save = [
         "settings",
+        "simple_data",
         "recorder",
         "agent_reward_discount",
         "rewards_per_episode_per_timestep",
@@ -444,6 +520,12 @@ class Tester:
             each_path = f"{path}/serial_data/{each_attribute_name}.pickle"
             FS.clear_a_path_for(each_path, overwrite=True)
             large_pickle_save(getattr(self, each_attribute_name, None), each_path)
+        
+        # save basic data
+        simple_data_path = f"{path}/simple_data.json"
+        FS.clear_a_path_for(simple_data_path, overwrite=True)
+        ez_yaml.to_file(obj=self.simple_data, file_path=simple_data_path)
+        
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)
         pd.DataFrame(self.csv_data).explode("forecast").to_csv(self.csv_path)

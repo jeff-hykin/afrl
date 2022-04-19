@@ -195,8 +195,13 @@
             test_predictor:
                 force_recompute: false
                 graph_smoothing: 3 # rolling average of _ number values
-                number_of_episodes: 10 # original value is 50 
+                number_of_episodes_for_baseline: 30 # makes a big difference on the standard deviation, which highly effects the optimal_epsilon
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10 # original value is 50 
                 reward_discount: 0.98
+                acceptable_performance_loss: 1 # units = standard deviations
+                inital_epsilon: 0.001
+                intial_horizon: 16 # units = timesteps. Mostly irrelevent
                 horizons:
                     0.001: 5
                     0.0025: 5
@@ -230,4 +235,5 @@
                 
             test_predictor:
                 force_recompute: true
-        
+                inital_epsilon: 0.0018
+                intial_horizon: 80
