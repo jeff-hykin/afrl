@@ -12,6 +12,7 @@ import stable_baselines3 as sb
 import torch
 import file_system_py as FS
 import silver_spectacle as ss
+import ez_yaml
 from nptyping import NDArray
 from stable_baselines3.common.off_policy_algorithm import OffPolicyAlgorithm
 from torch.optim.adam import Adam
@@ -69,6 +70,7 @@ class Tester:
         episode_index: int,
         should_record=False,
     ):
+        horizon = int(horizon)
         # data recording
         rewards_per_timestep            = []
         discounted_rewards_per_timestep = []
@@ -139,7 +141,7 @@ class Tester:
         timestep = -1
         state    = env.reset()
         episode_forecast = []
-        rolling_forecast = [0]*int(horizon+1) # TODO: check if that +1 is wrong (if right, removing should error)
+        rolling_forecast = [0]*(horizon+1) # TODO: check if that +1 is wrong (if right, removing should error)
         rolling_forecast = self.update_rolling_forecast(rolling_forecast, horizon)
         plan, failure_point, stopped_early, q_value_gaps = replan(state, [])
         while not done:
@@ -170,12 +172,12 @@ class Tester:
         q_value_gaps_per_timestep       = tuple(q_value_gaps_per_timestep)
         # data recording (and convert to tuple to reduce memory pressure)
         if should_record:
-            rewards_per_timestep            = self.rewards_per_episode_per_timestep[episode_index]            
-            discounted_rewards_per_timestep = self.discounted_rewards_per_episode_per_timestep[episode_index] 
-            failure_points_per_timestep     = self.failure_points_per_episode_per_timestep[episode_index]     
-            stopped_early_per_timestep      = self.stopped_early_per_episode_per_timestep[episode_index]      
-            real_q_values_per_timestep      = self.real_q_values_per_episode_per_timestep[episode_index]      
-            q_value_gaps_per_timestep       = self.q_value_gaps_per_episode_per_timestep[episode_index]       
+            self.rewards_per_episode_per_timestep[episode_index]             = rewards_per_timestep            
+            self.discounted_rewards_per_episode_per_timestep[episode_index]  = discounted_rewards_per_timestep 
+            self.failure_points_per_episode_per_timestep[episode_index]      = failure_points_per_timestep     
+            self.stopped_early_per_episode_per_timestep[episode_index]       = stopped_early_per_timestep      
+            self.real_q_values_per_episode_per_timestep[episode_index]       = real_q_values_per_timestep      
+            self.q_value_gaps_per_episode_per_timestep[episode_index]        = q_value_gaps_per_timestep       
         return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
     
     # decides when cache-busting happends (happens if any of these change)
@@ -183,7 +185,6 @@ class Tester:
         return (
             self.path,
             self.agent_reward_discount,
-            self.settings.number_of_episodes_for_testing,
             self.settings.acceptable_performance_loss,
             self.settings.inital_epsilon,
             self.settings.intial_horizon,
@@ -199,7 +200,7 @@ class Tester:
             _, rewards, discounted_rewards, _, _, _, q_value_gaps = self.experience_episode(scaled_epsilon=0, horizon=1, episode_index=episode_index)
             total = sum(discounted_rewards)
             discounted_rewards_per_episode.append(total)
-            print(f'''  episode_index={episode_index}, total={total}''')
+            print(f'''  episode_index={episode_index}, episode_discounted_reward_sum={total}''')
         baseline = simple_stats(discounted_rewards_per_episode)
         print(f'''reward baseline = {baseline}''')
         return baseline
@@ -212,20 +213,21 @@ class Tester:
         # 
         print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
         acceptable_performance_loss = sample_stdev * self.settings.acceptable_performance_loss
-        optimal_epsilon = self.settings.inital_epsilon
-        optimal_horizon = self.settings.intial_horizon
-        threshold_guesses = []
+        new_epsilon = self.settings.inital_epsilon
+        new_horizon = self.settings.intial_horizon
+        epsilon_attempts = []
+        horizon_attempts = []
         failure_point_summaries = []
         for episode_index in range(self.settings.number_of_episodes_for_optimal_parameters):
             
             # per-timestep data
-            forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=optimal_epsilon, horizon=optimal_horizon, episode_index=episode_index)
+            forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
             failure_point_summaries.append(simple_stats(failure_points))
-            optimal_horizon = max((each.max for each in failure_point_summaries)) * 2 # e.g. make sure the horizon is plenty big, as it shouldn't be restricting the capabilites of prediciton
+            new_horizon = int(max((each.max for each in failure_point_summaries)) * 2) # e.g. make sure the horizon is plenty big, as it shouldn't be restricting the capabilites of prediciton
             # TODO: probably should increase the number of loops whenever horizon seems to have not converged (e.g. prediction length is growing)
             
             # 
-            # adjust the optimal_epsilon up or down
+            # adjust the new_epsilon up or down
             # 
             # technique
             #      if 1 standard devation below baseline, then keep as-is
@@ -235,14 +237,18 @@ class Tester:
             episode_raw_score = sum(discounted_rewards)
             effective_score = episode_raw_score + acceptable_performance_loss
             adjustment_scale = effective_score / baseline.average
-            threshold_guesses.append(adjustment_scale * optimal_epsilon)
-            optimal_epsilon = average([optimal_epsilon, adjustment_scale * optimal_epsilon]) # smooth via simple averaging (may need to increase this smoother to be average(threshold_guesses))
+            new_epsilon = average([new_epsilon, adjustment_scale * new_epsilon]) # smooth via simple averaging
+            epsilon_attempts.append(new_epsilon)
+            horizon_attempts.append(new_horizon)
             
             # 
             # logging
             # 
-            print(f'''    episode={episode_index}, horizon={optimal_horizon}, effective_score={effective_score:.2f}, baseline={baseline.average:.2f}+{sample_stdev:.2f}={sample_stdev+baseline.average:.2f}, new_epsilon={optimal_epsilon:.4f}, adjustment%={(adjustment_scale-1)*100:.2f},''')
+            print(f'''    episode={episode_index}, horizon={new_horizon}, effective_score={effective_score:.2f}, baseline={baseline.average:.2f}+{sample_stdev:.2f}={sample_stdev+baseline.average:.2f}, new_epsilon={new_epsilon:.4f}, adjustment%={(adjustment_scale-1)*100:.2f},''')
         
+        # take median to ignore outliers and find the converged-value even if the above process wasnt converging
+        optimal_epsilon = simple_stats(epsilon_attempts).median
+        optimal_horizon = int(simple_stats(horizon_attempts).median)
         print(f'''optimal_epsilon = {optimal_epsilon}''')
         print(f'''optimal_horizon = {optimal_horizon}''')
         return optimal_epsilon, optimal_horizon
@@ -273,8 +279,8 @@ class Tester:
         optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline)
         
         # save to a place they'll be easily visible
-        horizon        = self.simple_data.optimal_epsilon = optimal_epsilon
-        scaled_epsilon = self.simple_data.optimal_horizon = optimal_horizon
+        scaled_epsilon = self.simple_data.optimal_epsilon = optimal_epsilon
+        horizon        = self.simple_data.optimal_horizon = optimal_horizon
             
         # 
         # perform experiments with optimal
@@ -411,7 +417,7 @@ class Tester:
         prediction_card = ss.DisplayCard("multiLine", dict(
             forecast_average=forecasts_average,
             failure_point_average=failure_points_average,
-            horizon=horizons,
+            # horizon=horizons,
         ))
         text_card = ss.DisplayCard("quickMarkdown", f"""## Experiment: {config.experiment_name}""")
         
@@ -447,7 +453,7 @@ class Tester:
         self.prediction_card = ss.DisplayCard("multiLine", dict(
             forecast_average=[],
             failure_point_average=[],
-            horizon=[],
+            # horizon=[],
         ))
         self.text_card = ss.DisplayCard("quickMarkdown", f"""## Experiment: {config.experiment_name}""")
     
@@ -472,7 +478,7 @@ class Tester:
         self.prediction_card.send(dict(
             forecast_average=      [index, latest_record["forecast_average"] ],
             failure_point_average= [index, latest_record["failure_point_average"] ],
-            horizon=               [index, latest_record["horizon"] ],
+            # horizon=               [index, latest_record["horizon"] ],
         ))
     
     def update_rolling_forecast(self, old_rolling_forecast, failure_point):
@@ -482,7 +488,7 @@ class Tester:
         new_rolling_forecast = [ next+1 for current, next in pairwise ]
         new_rolling_forecast.append(0) # pairwise is always 1 element shorter than original, so add missing element
         # zero-out everything past the failure point
-        for index in range(failure_point, len(new_rolling_forecast)):
+        for index in range(int(failure_point), len(new_rolling_forecast)):
             new_rolling_forecast[index] = 0
             
         return new_rolling_forecast
@@ -543,9 +549,12 @@ class Tester:
             large_pickle_save(getattr(self, each_attribute_name, None), each_path)
         
         # save basic data
+        import json
         simple_data_path = f"{path}/simple_data.json"
         FS.clear_a_path_for(simple_data_path, overwrite=True)
-        ez_yaml.to_file(obj=self.simple_data, file_path=simple_data_path)
+        with open(simple_data_path, 'w') as outfile:
+            json.dump(dict(self.simple_data), outfile)
+        # ez_yaml.to_file(obj=dict(self.simple_data), file_path=simple_data_path)
         
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)

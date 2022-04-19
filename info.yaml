@@ -92,7 +92,7 @@
         FORCE_CPU_PROFILE:
             force_cpu: true
             
-        ENV=LUNAR:
+        ENV=LUNAR: &Lunar
             env_name: "LunarLanderContinuous-v2"    
             train_agent:
                 reward_discount: 0.98
@@ -104,7 +104,7 @@
                     0.0: 1
                     0.005: 10
                     0.01: 20
-        ENV=HOPPER:
+        ENV=HOPPER: &Hopper
             env_name: "HopperBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
@@ -115,7 +115,7 @@
                 0.1: 26
                 0.01: 16
                 0.001: 11
-        ENV=CHEETAH:
+        ENV=CHEETAH: &Cheetah
             env_name: "HalfCheetahBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
@@ -138,7 +138,7 @@
                 train_freq: 8
                 gradient_steps: 8
                 learning_starts: 10000
-        ENV=WALKER:
+        ENV=WALKER: &Walker
             env_name: "BipedalWalker-v3"    
             train_agent:
                 reward_discount: 0.98
@@ -149,7 +149,7 @@
                     0.1: 26
                     0.01: 16
                     0.001: 11
-        ENV=ANT:
+        ENV=ANT: &Ant
             env_name: "AntBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
@@ -167,7 +167,7 @@
             # Min Episode Reward: 153.87762677698575
             # Max Timestep Reward: 2.3122164298644683
             # Min Timestep Reward: -1.7494330256972288
-        ENV=HUMANOID:
+        ENV=HUMANOID: &Humanoid
             env_name: "HumanoidBulletEnv-v0"
             reward_discount: 0.98
             test_predictor:
@@ -207,9 +207,7 @@
                     # Humanoid-v2
                     # Humanoid-v3
                     # HumanoidStandup-v2
-        delayed_coach_loss_1:
-            experiment_name: "delayed_coach_loss_1"
-            
+        delayed_coach_loss: &delayed_coach_loss
             train_coach:
                 force_retrain: false
                 loss_function: "delayed_coach_loss"
@@ -223,5 +221,33 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
+                inital_epsilon: 0.0116
+                intial_horizon: 70
+        
+        delayed_coach_loss_1: &delayed_coach_loss_1
+            <<: *delayed_coach_loss
+            experiment_name: "delayed_coach_loss_1"
+            
+        delayed_coach_loss_1_ant:
+            <<: *Ant
+            <<: *delayed_coach_loss
+            test_predictor:
+                force_recompute: true
+                number_of_episodes_for_baseline: 30
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
                 inital_epsilon: 0.0100
-                intial_horizon: 106
+                intial_horizon: 76
+        
+        delayed_coach_loss_1_lunar:
+            experiment_name: "delayed_coach_loss_1"
+            <<: *Lunar
+            <<: *delayed_coach_loss_1
+            test_predictor:
+                acceptable_performance_loss: 2 # units = standard deviations
+                force_recompute: true
+                number_of_episodes_for_baseline: 30
+                number_of_episodes_for_optimal_parameters: 5 # normally 15
+                number_of_episodes_for_testing: 9
+                inital_epsilon: 0.026220759371288625
+                intial_horizon: 40
