@@ -55,7 +55,7 @@ class Coach(nn.Module):
         coach = Coach(
             state_size=env.observation_space.shape[0],
             action_size=env.action_space.shape[0],
-            settings=settings.merge(settings.env_overrides.get(env_name, {})),
+            settings=settings,
             agent=agent,
             path=path,
             device=config.device,

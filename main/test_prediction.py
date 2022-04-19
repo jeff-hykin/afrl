@@ -67,6 +67,7 @@ class Tester:
         scaled_epsilon: float,
         horizon: int,
         episode_index: int,
+        should_record=False,
     ):
         # data recording
         rewards_per_timestep            = []
@@ -138,7 +139,7 @@ class Tester:
         timestep = -1
         state    = env.reset()
         episode_forecast = []
-        rolling_forecast = [0]*(horizon+1) # TODO: check if that +1 is wrong (if right, removing should error)
+        rolling_forecast = [0]*int(horizon+1) # TODO: check if that +1 is wrong (if right, removing should error)
         rolling_forecast = self.update_rolling_forecast(rolling_forecast, horizon)
         plan, failure_point, stopped_early, q_value_gaps = replan(state, [])
         while not done:
@@ -159,14 +160,22 @@ class Tester:
             stopped_early_per_timestep.append(to_pure(stopped_early))
             real_q_values_per_timestep.append(to_pure(real_q_value))
             q_value_gaps_per_timestep.append(q_value_gaps)
-            
+        
+        # convert to tuple to reduce memory pressure    
+        rewards_per_timestep            = tuple(rewards_per_timestep)
+        discounted_rewards_per_timestep = tuple(discounted_rewards_per_timestep)
+        failure_points_per_timestep     = tuple(failure_points_per_timestep)
+        stopped_early_per_timestep      = tuple(stopped_early_per_timestep)
+        real_q_values_per_timestep      = tuple(real_q_values_per_timestep)
+        q_value_gaps_per_timestep       = tuple(q_value_gaps_per_timestep)
         # data recording (and convert to tuple to reduce memory pressure)
-        rewards_per_timestep            = self.rewards_per_episode_per_timestep[episode_index]            = tuple(rewards_per_timestep)
-        discounted_rewards_per_timestep = self.discounted_rewards_per_episode_per_timestep[episode_index] = tuple(discounted_rewards_per_timestep)
-        failure_points_per_timestep     = self.failure_points_per_episode_per_timestep[episode_index]     = tuple(failure_points_per_timestep)
-        stopped_early_per_timestep      = self.stopped_early_per_episode_per_timestep[episode_index]      = tuple(stopped_early_per_timestep)
-        real_q_values_per_timestep      = self.real_q_values_per_episode_per_timestep[episode_index]      = tuple(real_q_values_per_timestep)
-        q_value_gaps_per_timestep       = self.q_value_gaps_per_episode_per_timestep[episode_index]       = tuple(q_value_gaps_per_timestep)
+        if should_record:
+            rewards_per_timestep            = self.rewards_per_episode_per_timestep[episode_index]            
+            discounted_rewards_per_timestep = self.discounted_rewards_per_episode_per_timestep[episode_index] 
+            failure_points_per_timestep     = self.failure_points_per_episode_per_timestep[episode_index]     
+            stopped_early_per_timestep      = self.stopped_early_per_episode_per_timestep[episode_index]      
+            real_q_values_per_timestep      = self.real_q_values_per_episode_per_timestep[episode_index]      
+            q_value_gaps_per_timestep       = self.q_value_gaps_per_episode_per_timestep[episode_index]       
         return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
     
     # decides when cache-busting happends (happens if any of these change)
@@ -248,7 +257,7 @@ class Tester:
         # 
         # pull in settings
         # 
-        predictor.agent.gamma = config.train_agent.env_overrides[config.env_name].reward_discount
+        predictor.agent.gamma = config.train_agent.reward_discount
         
         # define return value
         self.csv_data = LazyDict(
@@ -274,12 +283,23 @@ class Tester:
             scaled_epsilon=scaled_epsilon,
         ).set_parent(self.recorder)
         
-        index = -1
         forecast_slices = []
         alt_forecast_slices = []
         for episode_index in range(settings.number_of_episodes_for_testing):
-            index += 1
-            forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=scaled_epsilon, horizon=horizon, episode_index=episode_index)
+            (
+                forecast,
+                rewards,
+                discounted_rewards,
+                failure_points,
+                stopped_earlies,
+                real_q_values,
+                q_value_gaps
+            ) = self.experience_episode(
+                scaled_epsilon=scaled_epsilon,
+                horizon=horizon,
+                episode_index=episode_index,
+                should_record=True,
+            )
             
             reward_stats            = simple_stats(rewards)
             discounted_reward_stats = simple_stats(discounted_rewards)

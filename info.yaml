@@ -38,12 +38,11 @@
             results: "./results/"
 
     (local_data): ./local_data.ignore.yaml
-    (profiles):
+    (profiles): # NOTE: more than one profile is picked, and the values are merged
         (default):
             experiment_name: null
             env_name: "LunarLanderContinuous-v2" # can be any of: "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
             force_cpu: false
-            mode: development
             load:
                 agent_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
                 coach_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
@@ -53,100 +52,140 @@
                 number_of_episodes: 10
                 base_name: default_sac
             
-            gym_env_settings: &env_settings
-                LunarLanderContinuous-v2: 
-                    reward_discount: 0.98
-                    min_reward_single_timestep: -100
-                    max_reward_single_timestep: 70
-                    number_of_timesteps: 2000000
-                    # horizons: # <- from those settings
-                    #     0.1: 26  # epslion of 0.1 is really big. Causes major drop in rewards 
-                    #     0.01: 31 # <- out of order?
-                    #     0.001: 21
-                    # horizons: # <- what was in the codebase I had
-                    #     0.001: 5
-                    #     0.0025: 5
-                    #     0.005: 10
-                    #     0.0075: 15
-                    #     0.01: 20
-                    horizons:  # <- what I think makes the most sense
-                        0.0: 1
-                        # 0.001: 5
-                        # 0.0025: 8
-                        0.005: 10
-                        # 0.0075: 15
-                        0.01: 20
-                
-                HopperBulletEnv-v0: 
-                    reward_discount: 0.98
-                    min_reward_single_timestep: 18
-                    max_reward_single_timestep: 110
-                    horizons:
-                        0.1: 26
-                        0.01: 16
-                        0.001: 11
-                
-                HalfCheetahBulletEnv-v0: 
-                    reward_discount: 0.98
-                    min_reward_single_timestep: -60
-                    max_reward_single_timestep: 100
-                    number_of_timesteps: 1000000
-                    horizons:
-                        0: 1
-                        0.001: 11
-                        0.01: 13
-                        0.1: 26
-                    hparams: 
-                        learning_rate: 7.3e-4
-                        buffer_size: 300000
-                        batch_size: 256
-                        ent_coef: auto
-                        gamma: 0.98
-                        tau: 0.02
-                        train_freq: 8
-                        gradient_steps: 8
-                        learning_starts: 10000
-                
-                BipedalWalker-v3: 
-                    reward_discount: 0.98
-                    min_reward_single_timestep: -23
-                    max_reward_single_timestep: 5
-                    horizons:
-                        0.1: 26
-                        0.01: 16
-                        0.001: 11
-                
-                AntBulletEnv-v0: 
-                    reward_discount: 0.98
-                    min_reward_single_timestep: 19
-                    max_reward_single_timestep: 105
-                    horizons:
-                        0: 1
-                        0.0007: 4
-                        0.0015: 16
-                        0.0020: 26
-                    # Max Episode Reward: 852.4950843086151
-                    # Min Episode Reward: 153.87762677698575
-                    # Max Timestep Reward: 2.3122164298644683
-                    # Min Timestep Reward: -1.7494330256972288
-                
-                HumanoidBulletEnv-v0:
-                    reward_discount: 0.98
-                    min_reward_single_timestep: -30
-                    max_reward_single_timestep: 113
-                    number_of_timesteps: 3000000
-                    horizons:
-                        0.1: 26
-                        0.01: 11
-                        0.001: 5
-                    hparams: 
-                        learning_rate: 3e-4
-                        buffer_size: 1000000
-                        batch_size: 64
-                        ent_coef: auto
-                        train_freq: 1
-                        gradient_steps: 1
-                        learning_starts: 1000
+            train_agent:
+                model_name: default_sac_4 # was the best (by far) out of 10
+                iterations: 200000
+                force_retrain: false
+                    
+            train_coach:
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
+                consistent_coach_loss:
+                    scale_future_state_loss: 1000000
+                delayed_coach_loss:
+                    epochs_of_delay: 50
+                number_of_episodes: 100
+                number_of_epochs: 100 # should be 100
+                train_test_split: 0.7
+                batch_size: 256
+                with_card: true
+    
+            test_predictor:
+                force_recompute: false
+                graph_smoothing: 3 # rolling average of _ number values
+                number_of_episodes_for_baseline: 30 # always save this+inital_epsilon. This value makes a big difference on the standard deviation, which highly effects the optimal_epsilon
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10 # original value is 50 
+                inital_epsilon: 0.001
+                intial_horizon: 16 # units = timesteps. Mostly irrelevent
+                reward_discount: 0.98
+                acceptable_performance_loss: 1 # units = standard deviations
+                horizons:
+                    0.001: 5
+                    0.0025: 5
+                    0.005: 10
+                    0.0075: 15
+                    0.01: 20
+        
+        FORCE_CPU_PROFILE:
+            force_cpu: true
+            
+        ENV=LUNAR:
+            env_name: "LunarLanderContinuous-v2"    
+            train_agent:
+                reward_discount: 0.98
+            test_predictor:
+                number_of_timesteps: 2000000
+                min_reward_single_timestep: -100
+                max_reward_single_timestep: 70
+                horizons:
+                    0.0: 1
+                    0.005: 10
+                    0.01: 20
+        ENV=HOPPER:
+            env_name: "HopperBulletEnv-v0"    
+            train_agent:
+                reward_discount: 0.98
+            test_predictor:
+                min_reward_single_timestep: 18
+                max_reward_single_timestep: 110
+                horizons:
+                0.1: 26
+                0.01: 16
+                0.001: 11
+        ENV=CHEETAH:
+            env_name: "HalfCheetahBulletEnv-v0"    
+            train_agent:
+                reward_discount: 0.98
+            test_predictor:
+                min_reward_single_timestep: -60
+                max_reward_single_timestep: 100
+                number_of_timesteps: 1000000
+                horizons:
+                    0: 1
+                    0.001: 11
+                    0.01: 13
+                    0.1: 26
+            hparams: 
+                learning_rate: 7.3e-4
+                buffer_size: 300000
+                batch_size: 256
+                ent_coef: auto
+                gamma: 0.98
+                tau: 0.02
+                train_freq: 8
+                gradient_steps: 8
+                learning_starts: 10000
+        ENV=WALKER:
+            env_name: "BipedalWalker-v3"    
+            train_agent:
+                reward_discount: 0.98
+            test_predictor:
+                min_reward_single_timestep: -23
+                max_reward_single_timestep: 5
+                horizons:
+                    0.1: 26
+                    0.01: 16
+                    0.001: 11
+        ENV=ANT:
+            env_name: "AntBulletEnv-v0"    
+            train_agent:
+                reward_discount: 0.98
+            test_predictor:
+                inital_epsilon: 0.0018
+                intial_horizon: 80
+                min_reward_single_timestep: 19
+                max_reward_single_timestep: 105
+                horizons:
+                    0: 1
+                    0.0007: 4
+                    0.0015: 16
+                    0.0020: 26
+            # Max Episode Reward: 852.4950843086151
+            # Min Episode Reward: 153.87762677698575
+            # Max Timestep Reward: 2.3122164298644683
+            # Min Timestep Reward: -1.7494330256972288
+        ENV=HUMANOID:
+            env_name: "HumanoidBulletEnv-v0"
+            reward_discount: 0.98
+            test_predictor:
+                min_reward_single_timestep: -30
+                max_reward_single_timestep: 113
+                number_of_timesteps: 3000000
+                horizons:
+                    0.1: 26
+                    0.01: 11
+                    0.001: 5
+            hparams: 
+                learning_rate: 3e-4
+                buffer_size: 1000000
+                batch_size: 64
+                ent_coef: auto
+                train_freq: 1
+                gradient_steps: 1
+                learning_starts: 1000
                 
                 # Available: 
                     # Reacher-v2
@@ -168,60 +207,6 @@
                     # Humanoid-v2
                     # Humanoid-v3
                     # HumanoidStandup-v2
-            train_agent:
-                model_name: default_sac_4 # was the best (by far) out of 10
-                iterations: 200000
-                force_retrain: false
-                env_overrides:
-                    *env_settings
-                    
-            train_coach:
-                force_retrain: false
-                learning_rate: 0.0001
-                hidden_sizes: [64, 64, 64, 64]
-                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
-                consistent_coach_loss:
-                    scale_future_state_loss: 1000000
-                delayed_coach_loss:
-                    epochs_of_delay: 50
-                number_of_episodes: 100
-                number_of_epochs: 100 # should be 100
-                train_test_split: 0.7
-                batch_size: 256
-                with_card: true
-                env_overrides:
-                    *env_settings
-    
-            test_predictor:
-                force_recompute: false
-                graph_smoothing: 3 # rolling average of _ number values
-                number_of_episodes_for_baseline: 30 # makes a big difference on the standard deviation, which highly effects the optimal_epsilon
-                number_of_episodes_for_optimal_parameters: 15
-                number_of_episodes_for_testing: 10 # original value is 50 
-                reward_discount: 0.98
-                acceptable_performance_loss: 1 # units = standard deviations
-                inital_epsilon: 0.001
-                intial_horizon: 16 # units = timesteps. Mostly irrelevent
-                horizons:
-                    0.001: 5
-                    0.0025: 5
-                    0.005: 10
-                    0.0075: 15
-                    0.01: 20
-                env_overrides:
-                    *env_settings
-                
-        
-        FORCE_CPU:
-            force_cpu: true
-        
-        ENV=LUNAR:
-            env_name: "LunarLanderContinuous-v2"
-        ENV=ANT:
-            env_name: "AntBulletEnv-v0"
-        ENV=CHEETA:
-            env_name: "HalfCheetahBulletEnv-v0"
-        
         delayed_coach_loss_1:
             experiment_name: "delayed_coach_loss_1"
             
@@ -235,5 +220,8 @@
                 
             test_predictor:
                 force_recompute: true
-                inital_epsilon: 0.0018
-                intial_horizon: 80
+                number_of_episodes_for_baseline: 30 # always save this+inital_epsilon. This value makes a big difference on the standard deviation, which highly effects the optimal_epsilon
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
+                inital_epsilon: 0.0100
+                intial_horizon: 106
