@@ -41,6 +41,10 @@ class Tester:
         self.prediction_card = None
         # Data recording below is independent to reduce max file size (lets it sync to git)
         self.recorder = Recorder()
+        # for backwards compatibility with previous results
+        self.settings.api = "v1" if hasattr(self.settings, "number_of_episodes") else "v2"
+        if self.settings.api == "v1": settings.number_of_episodes_for_testing = self.settings.number_of_episodes
+        
         self.rewards_per_episode_per_timestep            = [None] * settings.number_of_episodes_for_testing
         self.discounted_rewards_per_episode_per_timestep = [None] * settings.number_of_episodes_for_testing
         self.failure_points_per_episode_per_timestep     = [None] * settings.number_of_episodes_for_testing
@@ -52,14 +56,6 @@ class Tester:
         for each_key, each_value in attribute_overrides.items():
             setattr(self, each_key, each_value)
         
-        # for saving to yaml
-        self.simple_data = LazyDict(
-            number_of_episodes_for_testing=self.settings.number_of_episodes_for_testing,
-            acceptable_performance_loss=self.settings.acceptable_performance_loss,
-            inital_epsilon=self.settings.inital_epsilon,
-            intial_horizon=self.settings.intial_horizon,
-        )
-    
     # 
     # core algorithm
     # 
@@ -279,8 +275,8 @@ class Tester:
         optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline)
         
         # save to a place they'll be easily visible
-        scaled_epsilon = self.simple_data.optimal_epsilon = optimal_epsilon
-        horizon        = self.simple_data.optimal_horizon = optimal_horizon
+        scaled_epsilon = self.settings.optimal_epsilon = optimal_epsilon
+        horizon        = self.settings.optimal_horizon = optimal_horizon
             
         # 
         # perform experiments with optimal
@@ -417,7 +413,9 @@ class Tester:
         prediction_card = ss.DisplayCard("multiLine", dict(
             forecast_average=forecasts_average,
             failure_point_average=failure_points_average,
-            # horizon=horizons,
+            **(dict(
+                horizon=horizons,
+            ) if self.settings.api == "v1" else {}),
         ))
         text_card = ss.DisplayCard("quickMarkdown", f"""## Experiment: {config.experiment_name}""")
         
@@ -498,7 +496,6 @@ class Tester:
     # 
     attributes_to_save = [
         "settings",
-        "simple_data",
         "recorder",
         "agent_reward_discount",
         "rewards_per_episode_per_timestep",
@@ -553,8 +550,8 @@ class Tester:
         simple_data_path = f"{path}/simple_data.json"
         FS.clear_a_path_for(simple_data_path, overwrite=True)
         with open(simple_data_path, 'w') as outfile:
-            json.dump(dict(self.simple_data), outfile)
-        # ez_yaml.to_file(obj=dict(self.simple_data), file_path=simple_data_path)
+            json.dump(dict(self.settings), outfile)
+        # ez_yaml.to_file(obj=dict(self.settings), file_path=simple_data_path)
         
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)

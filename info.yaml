@@ -207,7 +207,7 @@
                     # Humanoid-v2
                     # Humanoid-v3
                     # HumanoidStandup-v2
-        delayed_coach_loss: &delayed_coach_loss
+        LOSS=delayed_coach_loss: &delayed_coach_loss
             train_coach:
                 force_retrain: false
                 loss_function: "delayed_coach_loss"
@@ -218,19 +218,11 @@
                 
             test_predictor:
                 force_recompute: true
-                number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
-                number_of_episodes_for_testing: 10
-                inital_epsilon: 0.0116
-                intial_horizon: 70
         
-        delayed_coach_loss_1: &delayed_coach_loss_1
-            <<: *delayed_coach_loss
-            experiment_name: "delayed_coach_loss_1"
-            
-        delayed_coach_loss_1_ant:
+        LOSS=delayed_coach_loss_1_ant:
             <<: *Ant
             <<: *delayed_coach_loss
+            experiment_name: "delayed_coach_loss_1"
             test_predictor:
                 force_recompute: true
                 number_of_episodes_for_baseline: 30
@@ -239,10 +231,10 @@
                 inital_epsilon: 0.0100
                 intial_horizon: 76
         
-        delayed_coach_loss_1_lunar:
+        LOSS=delayed_coach_loss_1_lunar:
             experiment_name: "delayed_coach_loss_1"
             <<: *Lunar
-            <<: *delayed_coach_loss_1
+            <<: *delayed_coach_loss
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
@@ -251,3 +243,22 @@
                 number_of_episodes_for_testing: 9
                 inital_epsilon: 0.026220759371288625
                 intial_horizon: 40
+        
+        LOSS=BASELINE: &baseline
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE experiment_name:baseline_1
+            train_coach:
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
+                consistent_coach_loss:
+                    scale_future_state_loss: 1000000
+                delayed_coach_loss:
+                    epochs_of_delay: 50
+                number_of_episodes: 100
+                number_of_epochs: 100 # should be 100
+                train_test_split: 0.7
+                batch_size: 256
+                with_card: true
+            train_coach:
+                force_retrain: false
