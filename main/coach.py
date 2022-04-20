@@ -342,13 +342,14 @@ class Coach(nn.Module):
         get_lookahead = lambda: max(state_prediction_loss_obj.lookahead,state_prediction_loss_obj.lookahead,)
         state_prediction_loss = state_prediction_loss_obj.function
         value_prediction_loss = value_prediction_loss_obj.function
+        value_proportion = self.settings.value_plus_state_loss.value_proportion
         
         output.lookahead = get_lookahead()
         
         @output.function
         def actual_loss_function(*args):
             output.lookahead = get_lookahead()
-            return value_prediction_loss(*args) + state_prediction_loss(*args)
+            return value_proportion * value_prediction_loss(*args) + (1-value_proportion) * state_prediction_loss(*args)
             
         return output
     
