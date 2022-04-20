@@ -12,22 +12,15 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
-        - question:
-            - why is current method doing worst than state prediction
-            - look 2 or 3 steps into the future loss
-            - try large coefficients for q loss
-            - phasing: transition from state based to q loss and future
-        - task: log the losses independently and graph them
-        - check: DONE; epsilon size compared to timestep q values for plan/replan (check as a percentage)
-        - task: DONE; add graph of the average q-values so they can be compared as a percentage to the epsilon
-        - task: DONE; graph a baseline using the state_prediction_loss with the good agent
-        - discuss: stable agent 
-        - discuss: loss function spread
-        - discuss: new loss function coach_value_predict
-        - task: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
-        - problem: epsilon is highly effected by max/min possible score. There's conflicting info on if min/max is supposed to be on a per-episode or per-timestep basis, and if its supposed to be discounted or not
-        - solve: why slice [horizon:] instead of [:horizon], which of the two is correct
-        - todo: make sure the graphs are actually measuring the correct thing
+        - question: why would q do worse than state prediction
+        - task: attempt phasing transition from state based to q loss and future
+        - todo: research why loss combination isn't working
+        - attempt: attempt seperate optimizers for multiple losses
+        - attempt: look 2 or 3 steps into the future loss
+        - future_task: make horizon obsolete by having a retroactive planner. Dont plan, until the plan comes into question
+        - task: 
+            original: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
+            resovled by: auto-optimize the epsilon, ignore the min/max sizing
 
     # a central place for filepaths
     (path_to):
@@ -37,7 +30,7 @@
             results: "./results/"
 
     (local_data): ./local_data.ignore.yaml
-    (profiles): # NOTE: more than one profile is picked, and the values are merged
+    (profiles): # NOTE: more than one profile is picked, and the values are merged. The equal signs are just part of the name-string (not special)
         (default):
             experiment_name: null
             env_name: "LunarLanderContinuous-v2" # can be any of: "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
@@ -70,7 +63,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 256
+                batch_size: 512
                 with_card: true
     
             test_predictor:
@@ -99,7 +92,10 @@
             load:
                 agent_path: "./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" 
             train_agent:
-                reward_discount: 0.98
+                iterations: 200000
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
             test_predictor:
                 number_of_timesteps: 2000000
                 min_reward_single_timestep: -100
@@ -108,7 +104,7 @@
                     0.0: 1
                     0.005: 10
                     0.01: 20
-        ENV=HOPPER: &Hopper
+        ENV=HOPPER:
             env_name: "HopperBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
@@ -119,7 +115,7 @@
                 0.1: 26
                 0.01: 16
                 0.001: 11
-        ENV=CHEETAH: &Cheetah
+        ENV=CHEETAH:
             env_name: "HalfCheetahBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
@@ -136,14 +132,14 @@
             hparams: 
                 learning_rate: 7.3e-4
                 buffer_size: 300000
-                batch_size: 256
+                batch_size: 512
                 ent_coef: auto
                 gamma: 0.98
                 tau: 0.02
                 train_freq: 8
                 gradient_steps: 8
                 learning_starts: 10000
-        ENV=WALKER: &Walker
+        ENV=WALKER:
             env_name: "BipedalWalker-v3"    
             train_agent:
                 reward_discount: 0.98
@@ -154,7 +150,7 @@
                     0.1: 26
                     0.01: 16
                     0.001: 11
-        ENV=ANT: &Ant
+        ENV=ANT:
             env_name: "AntBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
@@ -172,7 +168,7 @@
             # Min Episode Reward: 153.87762677698575
             # Max Timestep Reward: 2.3122164298644683
             # Min Timestep Reward: -1.7494330256972288
-        ENV=HUMANOID: &Humanoid
+        ENV=HUMANOID:
             env_name: "HumanoidBulletEnv-v0"
             reward_discount: 0.98
             train_coach:
@@ -232,13 +228,15 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 256
+                batch_size: 512
                 with_card: true
             train_coach:
                 force_retrain: false
         
         CUSTOM=LUNAR_BASELINE_V1:
             # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V1 experiment_name:baseline_1
+            train_coach:
+                number_of_episodes: 100
             test_predictor:
                 force_recompute: false
                 number_of_episodes: 10
@@ -303,7 +301,7 @@
                 value_plus_state_loss:
                     value_proportion: 0.5 # 50-50 split
                 number_of_epochs: 120
-                batch_size: 256
+                batch_size: 512
             test_predictor:
                 force_recompute: false
         
@@ -348,7 +346,7 @@
                 loss_function: "value_plus_state_loss"
                 force_retrain: false
                 number_of_epochs: 120
-                batch_size: 256
+                batch_size: 512
                 consistent_coach_loss:
                     scale_future_state_loss: 1
                 value_plus_state_loss:
@@ -649,7 +647,7 @@
                 consistent_coach_loss:
                     scale_future_state_loss: 1
                 number_of_epochs: 120
-                batch_size: 256
+                batch_size: 512
                 
             test_predictor:
                 force_recompute: false
