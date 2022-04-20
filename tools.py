@@ -395,3 +395,27 @@ class WeightUpdate(object):
             if not (self.loss is None):
                 self.loss.backward()
             self.optimizer.step()
+
+def confidence_interval(confidence_percent, samples):
+    import statistics
+    import scipy.stats as st
+    min_value, max_value = st.t.interval(alpha=confidence_percent/100, df=len(samples)-1, loc=statistics.mean(samples), scale=st.sem(samples)) 
+    return min_value, max_value
+
+def probability_of_belonging_if_bellcurve(item, bellcurve_mean, bellcurve_stdev):
+    import scipy.stats as stats
+    import math
+    how_many_deviations_away = abs(item-bellcurve_mean) / bellcurve_stdev
+    return stats.norm.cdf(how_many_deviations_away)
+
+def jenson_shannon_divergence(net_1_logits, net_2_logits):
+    from torch.functional import F
+    net_1_probs =  F.softmax(net_1_logits, dim=0)
+    net_2_probs=  F.softmax(net_2_logits, dim=0)
+    
+    total_m = 0.5 * (net_1_probs + net_1_probs)
+    
+    loss = 0.0
+    loss += F.kl_div(F.log_softmax(net_1_logits, dim=0), total_m, reduction="batchmean") 
+    loss += F.kl_div(F.log_softmax(net_2_logits, dim=0), total_m, reduction="batchmean") 
+    return (0.5 * loss)
