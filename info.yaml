@@ -92,8 +92,10 @@
         FORCE_CPU_PROFILE:
             force_cpu: true
             
-        ENV=LUNAR: &Lunar
-            env_name: "LunarLanderContinuous-v2"    
+        ENV=LUNAR:
+            env_name: "LunarLanderContinuous-v2"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" 
             train_agent:
                 reward_discount: 0.98
             test_predictor:
@@ -207,7 +209,80 @@
                     # Humanoid-v2
                     # Humanoid-v3
                     # HumanoidStandup-v2
-        LOSS=delayed_coach_loss: &delayed_coach_loss
+        # 
+        # BASELINE
+        # 
+        LOSS=BASELINE:
+            train_coach:
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
+                consistent_coach_loss:
+                    scale_future_state_loss: 1000000
+                delayed_coach_loss:
+                    epochs_of_delay: 50 # this doesn't affect the baseline model, but shows on the loss graph (good for comparison)
+                number_of_episodes: 100
+                number_of_epochs: 100 # should be 100
+                train_test_split: 0.7
+                batch_size: 256
+                with_card: true
+            train_coach:
+                force_retrain: false
+        
+        CUSTOM=LUNAR_BASELINE_V1:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V1 experiment_name:baseline_1
+            test_predictor:
+                force_recompute: false
+                number_of_episodes: 10
+                horizons:
+                    0.0: 1
+                    0.005: 10
+                    0.01: 20
+        
+        CUSTOM=LUNAR_BASELINE_V2:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V2 experiment_name:baseline_2
+            test_predictor:
+                acceptable_performance_loss: 2 # units = standard deviations
+                force_recompute: true
+                number_of_episodes_for_baseline: 30
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                inital_epsilon: 0.1199 # emperical (run and print optimial)
+                intial_horizon: 600
+        
+        # 
+        # Q LOSS (aka value_prediction_loss)
+        # 
+        LOSS=Q:
+            train_coach:
+                loss_function: "value_prediction_loss"
+                force_retrain: false
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                value_plus_state_loss:
+                    value_proportion: 0.5 # 50-50 split
+                number_of_epochs: 120
+                batch_size: 256
+            test_predictor:
+                force_recompute: false
+        
+        CUSTOM=LUNAR_Q:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q @CUSTOM=LUNAR_Q experiment_name:q_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                inital_epsilon: 0.0765
+                intial_horizon: 250
+            
+        
+        # 
+        # DELAYED_COACH
+        # 
+        LOSS=DELAYED_COACH:
             train_coach:
                 force_retrain: false
                 loss_function: "delayed_coach_loss"
@@ -217,24 +292,10 @@
                 batch_size: 256
                 
             test_predictor:
-                force_recompute: true
+                force_recompute: false
         
-        LOSS=delayed_coach_loss_1_ant:
-            <<: *Ant
-            <<: *delayed_coach_loss
-            experiment_name: "delayed_coach_loss_1"
-            test_predictor:
-                force_recompute: true
-                number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
-                number_of_episodes_for_testing: 10
-                inital_epsilon: 0.0100
-                intial_horizon: 76
-        
-        LOSS=delayed_coach_loss_1_lunar:
-            experiment_name: "delayed_coach_loss_1"
-            <<: *Lunar
-            <<: *delayed_coach_loss
+        CUSTOM=LUNAR_DELAYED_COACH:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=DELAYED_COACH @CUSTOM=LUNAR_DELAYED_COACH experiment_name:delayed_coach_loss_1
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
@@ -244,21 +305,13 @@
                 inital_epsilon: 0.026220759371288625
                 intial_horizon: 40
         
-        LOSS=BASELINE: &baseline
-            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE experiment_name:baseline_1
-            train_coach:
-                force_retrain: false
-                learning_rate: 0.0001
-                hidden_sizes: [64, 64, 64, 64]
-                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
-                consistent_coach_loss:
-                    scale_future_state_loss: 1000000
-                delayed_coach_loss:
-                    epochs_of_delay: 50
-                number_of_episodes: 100
-                number_of_epochs: 100 # should be 100
-                train_test_split: 0.7
-                batch_size: 256
-                with_card: true
-            train_coach:
-                force_retrain: false
+        CUSTOM=ANT_DELAYED_COACH:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=DELAYED_COACH @CUSTOM=ANT_DELAYED_COACH experiment_name:delayed_coach_loss_1
+            experiment_name: "delayed_coach_loss_1"
+            test_predictor:
+                force_recompute: true
+                number_of_episodes_for_baseline: 30
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
+                inital_epsilon: 0.0100
+                intial_horizon: 76

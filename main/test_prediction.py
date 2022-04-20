@@ -233,7 +233,8 @@ class Tester:
             episode_raw_score = sum(discounted_rewards)
             effective_score = episode_raw_score + acceptable_performance_loss
             adjustment_scale = effective_score / baseline.average
-            new_epsilon = average([new_epsilon, adjustment_scale * new_epsilon]) # smooth via simple averaging
+            # new_epsilon = average([new_epsilon, adjustment_scale * new_epsilon]) # (Old method) smooth via simple averaging
+            new_epsilon = adjustment_scale * new_epsilon # let median at the end do the smoothing
             epsilon_attempts.append(new_epsilon)
             horizon_attempts.append(new_horizon)
             
