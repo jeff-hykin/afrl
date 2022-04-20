@@ -177,6 +177,84 @@ class Tester:
             self.q_value_gaps_per_episode_per_timestep[episode_index]        = q_value_gaps_per_timestep       
         return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
     
+    def simple_prediction_experience_episode(
+        self,
+        scaled_epsilon: float,
+        episode_index: int,
+        should_record=False,
+    ):
+        # data recording
+        rewards_per_timestep            = []
+        discounted_rewards_per_timestep = []
+        stopped_early_per_timestep      = []
+        real_q_values_per_timestep      = []
+        q_value_gaps_per_timestep       = []
+        
+        # setup shortcuts/naming
+        env                = self.predictor.env
+        predict_next_state = self.predictor.coach.predict
+        actor_model        = self.predictor.agent.predict
+        value_batch        = self.predictor.agent.value_of
+        choose_action      = lambda state: actor_model(state, deterministic=True)[0]
+        q_value_for        = lambda state, action: value_batch(state, action)[0][0]
+        reward_discount    = self.predictor.agent.gamma
+        
+        # init values
+        done     = False
+        timestep = -1
+        state    = env.reset()
+        previously_predicted_state = None
+        failure_points = []
+        streak_counter = 0
+        while not done:
+            timestep += 1
+            streak_counter += 1
+            prediciton_failed = False
+            
+            real_action    = choose_action(state)
+            planned_action = choose_action(previously_predicted_state) if previously_predicted_state is not None else None
+            
+            real_q_value    = q_value_for(state, real_action)
+            planned_q_value = q_value_for(state, planned_action)
+            gap = real_q_value - planned_q_value if planned_action is not None else 0
+            
+            prediciton_failed = gap > scaled_epsilon
+            
+            if prediciton_failed:
+                # failure: reset streak_counter
+                failure_points.append(streak_counter)
+                streak_counter = 0
+                action = real_action
+                # use the real state to predict the next this time
+                previously_predicted_state = predict_next_state(state, action)
+            else:
+                action = planned_action
+                previously_predicted_state = predict_next_state(previously_predicted_state, action)
+            
+            state, reward, done, _ = env.step(to_numpy(action))
+            
+            # record data
+            rewards_per_timestep.append(to_pure(reward))
+            discounted_rewards_per_timestep.append(to_pure(reward * (reward_discount ** timestep)))
+            stopped_early_per_timestep.append(prediciton_failed)
+            real_q_values_per_timestep.append(to_pure(real_q_value))
+            q_value_gaps_per_timestep.append(to_pure(gap))
+        
+        # convert to tuple to reduce memory pressure    
+        rewards_per_timestep            = tuple(rewards_per_timestep)
+        discounted_rewards_per_timestep = tuple(discounted_rewards_per_timestep)
+        stopped_early_per_timestep      = tuple(stopped_early_per_timestep)
+        real_q_values_per_timestep      = tuple(real_q_values_per_timestep)
+        q_value_gaps_per_timestep       = tuple(q_value_gaps_per_timestep)
+        # data recording (and convert to tuple to reduce memory pressure)
+        if should_record:
+            self.rewards_per_episode_per_timestep[episode_index]             = rewards_per_timestep            
+            self.discounted_rewards_per_episode_per_timestep[episode_index]  = discounted_rewards_per_timestep 
+            self.stopped_early_per_episode_per_timestep[episode_index]       = stopped_early_per_timestep      
+            self.real_q_values_per_episode_per_timestep[episode_index]       = real_q_values_per_timestep      
+            self.q_value_gaps_per_episode_per_timestep[episode_index]        = q_value_gaps_per_timestep       
+        return failure_points, rewards_per_timestep, discounted_rewards_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
+    
     # decides when cache-busting happends (happens if any of these change)
     def __super_hash__(self):
         return (
