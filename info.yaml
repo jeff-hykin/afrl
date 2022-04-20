@@ -256,6 +256,17 @@
                 initial_epsilon: &baseline_lunar_initial_epsilon 2.1170
                 initial_horizon: &baseline_lunar_initial_horizon 20
         
+        CUSTOM=LUNAR_BASELINE_V3:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V3 experiment_name:baseline_3
+            test_predictor:
+                acceptable_performance_loss: 2 # units = standard deviations
+                force_recompute: true
+                number_of_episodes_for_baseline: 30
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: 2.1170
+                initial_horizon: 40
+        
         # 
         # Q LOSS (aka value_prediction_loss)
         # 
