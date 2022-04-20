@@ -78,10 +78,11 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
-                inital_epsilon: 0.001
+                inital_epsilon: 100.1 # overshooting this inital value is better than undershooting
                 intial_horizon: 16 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
                 acceptable_performance_loss: 1 # units = standard deviations
+                confidence_interval_for_convergence: 90
                 horizons:
                     0.001: 5
                     0.0025: 5
@@ -225,7 +226,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 256
+                batch_size: 2048
                 with_card: true
             train_coach:
                 force_retrain: false
@@ -248,8 +249,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-                inital_epsilon: 0.1199 # emperical (run and print optimial)
-                intial_horizon: 600
+                inital_epsilon: &baseline_lunar_inital_epsilon 2.1170
+                intial_horizon: &baseline_lunar_inital_horizon 600
         
         # 
         # Q LOSS (aka value_prediction_loss)
@@ -275,9 +276,60 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-                inital_epsilon: 0.0765
-                intial_horizon: 250
-            
+                inital_epsilon: *baseline_lunar_inital_epsilon
+                intial_horizon: *baseline_lunar_inital_horizon
+        
+        # 
+        # Q PLUS STATE
+        # 
+        LOSS=Q_PLUS_STATE:
+            train_coach:
+                loss_function: "value_plus_state_loss"
+                force_retrain: false
+                number_of_epochs: 120
+                batch_size: 256
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                value_plus_state_loss:
+                    value_proportion: 0.01
+        
+        CUSTOM=LUNAR_Q_PLUS_STATE:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q @CUSTOM=LUNAR_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_episodes_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                inital_epsilon: *baseline_lunar_inital_epsilon
+                intial_horizon: *baseline_lunar_inital_horizon
+        
+        CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_PLUS_STATE @CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
+            train_coach:
+                force_retrain: false
+                value_plus_state_loss:
+                    value_proportion: 0.01
+        
+        CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_PLUS_STATE @CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
+            train_coach:
+                value_plus_state_loss:
+                    value_proportion: 0
+        
+        # 
+        # CONSISTENT_COACH (main loss function)
+        #
+        LOSS=CONSISTENT_COACH:
+            train_coach:
+                loss_function: consistent_coach_loss
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+        
+        CUSTOM=LUNAR_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_PLUS_STATE @CUSTOM=LUNAR_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
+            test_predictor:
+                force_recompute: false
         
         # 
         # DELAYED_COACH

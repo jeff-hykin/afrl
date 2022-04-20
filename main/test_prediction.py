@@ -24,7 +24,7 @@ from simple_namespace import namespace
 from rigorous_recorder import Recorder
 
 from info import path_to, config
-from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale
+from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size
 from smart_cache import cache
 from main.agent import Agent
 from main.coach import Coach
@@ -197,52 +197,66 @@ class Tester:
             total = sum(discounted_rewards)
             discounted_rewards_per_episode.append(total)
             print(f'''  episode_index={episode_index}, episode_discounted_reward_sum={total}''')
-        baseline = simple_stats(discounted_rewards_per_episode)
-        print(f'''reward baseline = {baseline}''')
-        return baseline
+        return discounted_rewards_per_episode
     
     @cache()
-    def gather_optimal_parameters(self, baseline):
-        sample_stdev = baseline.stdev / (baseline.count - 1)
+    def gather_optimal_parameters(self, baseline_samples):
+        leniency                    = self.settings.acceptable_performance_loss # standard deviation 
+        confidence_interval_percent = self.settings.confidence_interval_for_convergence
+        increment_amount = 1.5
+        
+        baseline = simple_stats(baseline_samples)
+        print(f'''baseline = {baseline}''')
+        
+        baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
+        baseline_population_average = baseline.average
+        baseline_worst_value        = baseline_population_average - (baseline_population_stdev*leniency)
+        baseline_confidence_size = confidence_interval_size(confidence_interval_percent, baseline_samples)
         # 
         # hone in on acceptable epsilon
         # 
         print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
-        acceptable_performance_loss = sample_stdev * self.settings.acceptable_performance_loss
         new_epsilon = self.settings.inital_epsilon
         new_horizon = self.settings.intial_horizon
+        print(f'''baseline_confidence_size = {baseline_confidence_size}''')
         epsilon_attempts = []
         horizon_attempts = []
-        failure_point_summaries = []
+        new_horizon = 20 # FIXME: debugging
         for episode_index in range(self.settings.number_of_episodes_for_optimal_parameters):
+            sampled_rewards = []
+            # loop until within the confidence bounds
+            loop_number = 0
+            while True:
+                loop_number += 1
+                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
+                reward_single_sum = sum(discounted_rewards)
+                print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
+                sampled_rewards.append(reward_single_sum)
+                if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
+                    print()
+                    continue
+                confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
+                print(f'''confidence_size = {confidence_size}''')
+                if confidence_size < baseline_confidence_size:
+                    break
+                # prevent stupidly long runs because of volatile outcomes
+                if loop_number >= self.settings.number_of_episodes_for_baseline:
+                    print(f'''        hit cap of: {self.settings.number_of_episodes_for_baseline} iterations''')
+                    break
+            # then compare the mean
+            sample_stats = simple_stats(sampled_rewards)
             
-            # per-timestep data
-            forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
-            failure_point_summaries.append(simple_stats(failure_points))
-            new_horizon = int(max((each.max for each in failure_point_summaries)) * 2) # e.g. make sure the horizon is plenty big, as it shouldn't be restricting the capabilites of prediciton
-            # TODO: probably should increase the number of loops whenever horizon seems to have not converged (e.g. prediction length is growing)
+            epsilon_isnt_a_problem = sample_stats.average >= baseline_worst_value
+            if epsilon_isnt_a_problem:
+                # double until its a problem
+                new_epsilon *= increment_amount
+            else:
+                new_epsilon /= increment_amount
             
-            # 
-            # adjust the new_epsilon up or down
-            # 
-            # technique
-            #      if 1 standard devation below baseline, then keep as-is
-            #      if equal to baseline, increase by ((this+stdev)/baseline)
-            #      if 2 standard devations below baseline, decrease by ((this+stdev)/baseline)
-            #     (^ smooth those changes with averaging instead of directly using them)
-            episode_raw_score = sum(discounted_rewards)
-            effective_score = episode_raw_score + acceptable_performance_loss
-            adjustment_scale = effective_score / baseline.average
-            # new_epsilon = average([new_epsilon, adjustment_scale * new_epsilon]) # (Old method) smooth via simple averaging
-            new_epsilon = adjustment_scale * new_epsilon # let median at the end do the smoothing
             epsilon_attempts.append(new_epsilon)
             horizon_attempts.append(new_horizon)
-            
-            # 
-            # logging
-            # 
-            print(f'''    episode={episode_index}, horizon={new_horizon}, effective_score={effective_score:.2f}, baseline={baseline.average:.2f}+{sample_stdev:.2f}={sample_stdev+baseline.average:.2f}, new_epsilon={new_epsilon:.4f}, adjustment%={(adjustment_scale-1)*100:.2f},''')
-        
+            print(f'''        episode={episode_index}, horizon={new_horizon}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, epsilon_isnt_a_problem={epsilon_isnt_a_problem}''')
+                
         # take median to ignore outliers and find the converged-value even if the above process wasnt converging
         optimal_epsilon = simple_stats(epsilon_attempts).median
         optimal_horizon = int(simple_stats(horizon_attempts).median)
@@ -509,6 +523,7 @@ class Tester:
     
     @classmethod
     def smart_load(cls, path, settings, predictor, force_recompute=False):
+        print(f'''test settings = {settings}''')
         if not force_recompute and all(
             FS.is_file(f"{path}/serial_data/{each_attribute_name}.pickle")
                 for each_attribute_name in cls.attributes_to_save
