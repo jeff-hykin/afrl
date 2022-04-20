@@ -1,5 +1,4 @@
 import functools
-from dataclasses import dataclass
 from types import *
 from random import random, sample, choices, shuffle
 from collections import defaultdict
@@ -184,27 +183,69 @@ class Coach(nn.Module):
     # 
     # Loss functions
     # 
-    def consistent_value_loss(self):
+    def state_prediction_loss(self):
         output = LossObject()
-        
-        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_):
-            once_predicted_state_2s  = self.forward(state_1s, action_1s)
-            once_predicted_state_3s  = self.forward(state_2s, action_2s)
-            twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
             
-            actual_value    = self.agent.value_of(state_3s, action_3s)
-            predicted_once  = self.agent.value_of(once_predicted_state_3s, action_3s)
-            predicted_twice = self.agent.value_of(twice_predicted_state_3s, action_3s)
+        value_prediction_loss = self.value_prediction_loss().function
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
+            predicted_state_2s = self.forward(state_1s, action_1s)
             
-            output.loss_value = torch.stack([
-                ((actual_value   - predicted_once )**2).mean(dim=-1),
-                ((predicted_once - predicted_twice)**2).mean(dim=-1),
-            ]).mean()
+            q_error = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, *_)
+            output.loss_value = ((predicted_state_2s - state_2s) ** 2).mean()
+            return output.loss_value
+            
+        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
+    
+    def action_prediction_loss(self):
+        output = LossObject()
+            
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
+            predicted_state_2s  = self.forward(state_1s, action_1s)
+            predicted_action_2s = self.agent.make_decision(predicted_state_2s, deterministic=True)
+            
+            output.loss_value = ((action_2s - predicted_action_2s) ** 2).mean() # when action is very different, loss is high
             
             return output.loss_value
-        
-        output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+            
+        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
         output.function = actual_loss_function
+        return output
+    
+    def value_prediction_loss(self):
+        output = LossObject()
+            
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
+            predicted_state_2s   = self.forward(state_1s, action_1s)
+            
+            predicted_action_2s = self.agent.make_decision(predicted_state_2s, deterministic=True)
+            predicted_value_2s  = self.agent.value_of(state_2s, predicted_action_2s)
+            best_value_2s       = self.agent.value_of(state_2s, action_2s)
+            
+            return ((best_value_2s - predicted_value_2s)**2).mean()
+            
+        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
+    
+    def value_plus_state_loss(self):
+        output = LossObject()
+            
+        state_prediction_loss_obj = self.state_prediction_loss()
+        value_prediction_loss_obj = self.value_prediction_loss()
+        get_lookahead = lambda: max(state_prediction_loss_obj.lookahead,state_prediction_loss_obj.lookahead,)
+        state_prediction_loss = state_prediction_loss_obj.function
+        value_prediction_loss = value_prediction_loss_obj.function
+        value_proportion = self.settings.value_plus_state_loss.value_proportion
+        
+        output.lookahead = get_lookahead()
+        
+        @output.function
+        def actual_loss_function(*args):
+            output.lookahead = get_lookahead()
+            return value_proportion * value_prediction_loss(*args) + (1-value_proportion) * state_prediction_loss(*args)
+            
         return output
     
     def consistent_coach_loss(self):
@@ -222,6 +263,29 @@ class Coach(nn.Module):
             q_loss     = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_)
             # BOOKMARK
             output.loss_value = future_loss + q_loss
+            return output.loss_value
+        
+        output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
+        output.function = actual_loss_function
+        return output
+    
+    def consistent_value_loss(self):
+        output = LossObject()
+        
+        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, state_3s, action_3s, *_):
+            once_predicted_state_2s  = self.forward(state_1s, action_1s)
+            once_predicted_state_3s  = self.forward(state_2s, action_2s)
+            twice_predicted_state_3s = self.forward(once_predicted_state_2s, action_2s)
+            
+            actual_value    = self.agent.value_of(state_3s, action_3s)
+            predicted_once  = self.agent.value_of(once_predicted_state_3s, action_3s)
+            predicted_twice = self.agent.value_of(twice_predicted_state_3s, action_3s)
+            
+            output.loss_value = torch.stack([
+                ((actual_value   - predicted_once )**2).mean(dim=-1),
+                ((predicted_once - predicted_twice)**2).mean(dim=-1),
+            ]).mean()
+            
             return output.loss_value
         
         output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
@@ -315,53 +379,6 @@ class Coach(nn.Module):
             return output.loss_value
         
         output.lookahead = 2 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
-        output.function = actual_loss_function
-        return output
-    
-    def value_prediction_loss(self):
-        output = LossObject()
-            
-        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
-            predicted_state_2s   = self.forward(state_1s, action_1s)
-            
-            predicted_action_2s = self.agent.make_decision(predicted_state_2s, deterministic=True)
-            predicted_value_2s  = self.agent.value_of(state_2s, predicted_action_2s)
-            best_value_2s       = self.agent.value_of(state_2s, action_2s)
-            
-            return ((best_value_2s - predicted_value_2s)**2).mean()
-            
-        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
-        output.function = actual_loss_function
-        return output
-    
-    def action_prediction_loss(self):
-        output = LossObject()
-            
-        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
-            predicted_state_2s  = self.forward(state_1s, action_1s)
-            predicted_action_2s = self.agent.make_decision(predicted_state_2s, deterministic=True)
-            
-            output.loss_value = ((action_2s - predicted_action_2s) ** 2).mean() # when action is very different, loss is high
-            
-            return output.loss_value
-            
-        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
-        output.function = actual_loss_function
-        return output
-        
-        
-    def state_prediction_loss(self):
-        output = LossObject()
-            
-        value_prediction_loss = self.value_prediction_loss().function
-        def actual_loss_function(state_1s, action_1s, state_2s, action_2s, *_):
-            predicted_state_2s = self.forward(state_1s, action_1s)
-            
-            q_error = value_prediction_loss(state_1s, action_1s, state_2s, action_2s, *_)
-            output.loss_value = ((predicted_state_2s - state_2s) ** 2).mean()
-            return output.loss_value
-            
-        output.lookahead = 1 # "state_2s, action_2" is 1-ahead,  "state_3s, action_3s" is 2-ahead
         output.function = actual_loss_function
         return output
     
@@ -533,7 +550,6 @@ class Coach(nn.Module):
         coach.recorder = Recorder.load_from(path_to.recorder)
         return coach
 
-@dataclass
 class LossObject:
     function: FunctionType = lambda : 0  # the actual loss function
     loss_value: Tensor = None      # optional, the most-recently calculated loss value
@@ -542,3 +558,6 @@ class LossObject:
     # "state, action, next_state, next_actoin" when lookahead = 1
     # "state_1s, action_1s, state_2s, action_2s, state_3s, action_3s" when lookahead = 2
     # etc
+    def function(self, function):
+        self.function = function
+        return function
