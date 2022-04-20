@@ -51,13 +51,26 @@ def consumer(in_q):
         data = in_q.get()
         # Process the data
 
-def cache(folder=settings.default_folder, depends_on=[]):
+def cache(folder=settings.default_folder, depends_on=[], watch_attributes=[], bust=False):
     def real_decorator(input_func):
         data = CacheData()  # because we need a reference not a value or compile error
         function_id = super_hash(input_func)
         data.cache_file_name = f'cache.ignore/{function_id}.pickle'
+        if bust:
+            FS.remove(data.cache_file_name)
         def wrapper(*args, **kwargs):
+            args = list(args)
+            # if watching attributes on self, replace first arg
+            if len(watch_attributes) > 0:
+                self = args[0]
+                attributes = {}
+                for each_attribute in watch_attributes:
+                    if hasattr(self, each_attribute):
+                        attributes[each_attribute] = getattr(self, each_attribute)
+                args[0] = attributes
+            
             inner_func_args = list(args)
+            # load cached values if possible
             if not data.calculated:
                 data.deep_hash = function_id
                 if path.exists(data.cache_file_name):
@@ -66,6 +79,7 @@ def cache(folder=settings.default_folder, depends_on=[]):
                         if func_hash == data.deep_hash:
                             data.cache = cache_temp
                 data.calculated = True
+            # 
             arg_hash = super_hash((args, kwargs, depends_on))
             if arg_hash in data.cache:
                 return data.cache[arg_hash]
