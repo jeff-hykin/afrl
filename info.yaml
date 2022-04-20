@@ -256,8 +256,8 @@
                     scale_future_state_loss: 1
                 number_of_epochs: 120
                 batch_size: 256
-        LOSS=Q_STATE_FAVORED:
-            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_STATE_FAVORED experiment_name:q_favored_plus_state_loss_1
+        LOSS=Q_STATE_UNFAVORED:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_STATE_UNFAVORED experiment_name:q_unfavored_plus_state_loss_1
             train_coach:
                 loss_function: "value_plus_state_loss"
                 force_retrain: false
@@ -265,5 +265,16 @@
                     scale_future_state_loss: 1
                 value_plus_state_loss:
                     value_proportion: 0.01
+                number_of_epochs: 120
+                batch_size: 256
+        LOSS=Q_STATE_IGNORED:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_STATE_IGNORED experiment_name:q_ignored_plus_state_loss_1
+            train_coach:
+                loss_function: "value_plus_state_loss"
+                force_retrain: false
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                value_plus_state_loss:
+                    value_proportion: 0
                 number_of_epochs: 120
                 batch_size: 256
