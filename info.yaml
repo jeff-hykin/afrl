@@ -240,13 +240,15 @@
             # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q experiment_name:q_loss_1
             train_coach:
                 loss_function: "value_prediction_loss"
-                force_retrain: false
+                force_retrain: true
                 consistent_coach_loss:
                     scale_future_state_loss: 1
+                value_plus_state_loss:
+                    value_proportion: 0.5 # 50-50 split
                 number_of_epochs: 120
                 batch_size: 256
             test_predictor:
-                force_recompute: false
+                force_recompute: true
         LOSS=Q_STATE:
             # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_STATE experiment_name:q_plus_state_loss_1
             train_coach:
