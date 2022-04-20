@@ -184,6 +184,8 @@
                     scale_future_state_loss: 1000000
                 delayed_coach_loss:
                     epochs_of_delay: 50
+                value_plus_state_loss:
+                    value_proportion: 0.5
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
@@ -243,12 +245,25 @@
                     scale_future_state_loss: 1
                 number_of_epochs: 120
                 batch_size: 256
+            test_predictor:
+                force_recompute: false
         LOSS=Q_STATE:
-            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q experiment_name:q_loss_1
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_STATE experiment_name:q_plus_state_loss_1
             train_coach:
                 loss_function: "value_plus_state_loss"
                 force_retrain: false
                 consistent_coach_loss:
                     scale_future_state_loss: 1
+                number_of_epochs: 120
+                batch_size: 256
+        LOSS=Q_STATE_FAVORED:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_STATE_FAVORED experiment_name:q_favored_plus_state_loss_1
+            train_coach:
+                loss_function: "value_plus_state_loss"
+                force_retrain: false
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                value_plus_state_loss:
+                    value_proportion: 0.01
                 number_of_epochs: 120
                 batch_size: 256
