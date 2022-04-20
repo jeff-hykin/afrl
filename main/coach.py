@@ -141,7 +141,7 @@ class Coach(nn.Module):
     
     @convert_each_arg.to_tensor()
     @convert_each_arg.to_device(device_attribute="device")
-    def create_forcast(self, observation: torch.Tensor, inital_action: torch.Tensor, length: int):
+    def create_forcast(self, observation: torch.Tensor, initial_action: torch.Tensor, length: int):
         """
         Return:
             list of state-action pairs
@@ -149,7 +149,7 @@ class Coach(nn.Module):
         """
         predictions = []
         state = observation
-        action = inital_action
+        action = initial_action
         with self.agent.frozen() as agent:
             for each in range(length):
                 predicted_state = self.forward(state, action)

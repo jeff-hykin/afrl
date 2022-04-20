@@ -182,8 +182,8 @@ class Tester:
             self.path,
             self.agent_reward_discount,
             self.settings.acceptable_performance_loss,
-            self.settings.inital_epsilon,
-            self.settings.intial_horizon,
+            self.settings.initial_epsilon,
+            self.settings.initial_horizon,
             self.settings.number_of_episodes_for_baseline,
             self.settings.number_of_episodes_for_optimal_parameters,
         )
@@ -216,12 +216,12 @@ class Tester:
         # hone in on acceptable epsilon
         # 
         print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
-        new_epsilon = self.settings.inital_epsilon
-        new_horizon = self.settings.intial_horizon
+        new_epsilon = self.settings.initial_epsilon
+        new_horizon = self.settings.initial_horizon
         print(f'''baseline_confidence_size = {baseline_confidence_size}''')
         epsilon_attempts = []
         horizon_attempts = []
-        failure_points = [self.settings.intial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
+        failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
         for episode_index in range(self.settings.number_of_episodes_for_optimal_parameters):
             sampled_rewards = []
             # loop until within the confidence bounds
@@ -286,8 +286,12 @@ class Tester:
         )
         
         # get a baseline for the reward value
-        baseline = self.gather_baseline()
-        optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline)
+        # baseline = self.gather_baseline()
+        # optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline)
+        
+        # FIXME: debugging
+        optimal_epsilon = self.settings.initial_epsilon
+        optimal_horizon = self.settings.initial_horizon
         
         # save to a place they'll be easily visible
         scaled_epsilon = self.settings.optimal_epsilon = optimal_epsilon

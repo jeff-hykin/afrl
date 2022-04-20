@@ -80,8 +80,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
-                inital_epsilon: 100.1 # overshooting this inital value is better than undershooting
-                intial_horizon: 16 # units = timesteps. Mostly irrelevent
+                initial_epsilon: 100.1 # overshooting this initial value is better than undershooting
+                initial_horizon: 16 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
                 acceptable_performance_loss: 1 # units = standard deviations
                 confidence_interval_for_convergence: 90
@@ -159,8 +159,8 @@
             train_agent:
                 reward_discount: 0.98
             test_predictor:
-                inital_epsilon: 0.0018
-                intial_horizon: 80
+                initial_epsilon: 0.0018
+                initial_horizon: 80
                 min_reward_single_timestep: 19
                 max_reward_single_timestep: 105
                 horizons:
@@ -230,7 +230,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 2048
+                batch_size: 256
                 with_card: true
             train_coach:
                 force_retrain: false
@@ -253,8 +253,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-                inital_epsilon: &baseline_lunar_inital_epsilon 1.4113
-                intial_horizon: &baseline_lunar_inital_horizon 20
+                initial_epsilon: &baseline_lunar_initial_epsilon 2.1170
+                initial_horizon: &baseline_lunar_initial_horizon 20
         
         # 
         # Q LOSS (aka value_prediction_loss)
@@ -280,8 +280,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-                inital_epsilon: *baseline_lunar_inital_epsilon
-                intial_horizon: *baseline_lunar_inital_horizon
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
         
         # 
         # Q PLUS STATE
@@ -305,8 +305,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-                inital_epsilon: *baseline_lunar_inital_epsilon
-                intial_horizon: *baseline_lunar_inital_horizon
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
         
         CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE:
             # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_PLUS_STATE @CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
@@ -358,8 +358,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 5 # normally 15
                 number_of_episodes_for_testing: 9
-                inital_epsilon: 0.026220759371288625
-                intial_horizon: 40
+                initial_epsilon: 0.026220759371288625
+                initial_horizon: 40
         
         CUSTOM=ANT_DELAYED_COACH:
             # python ./main/run/full.py -- @ENV=LUNAR @LOSS=DELAYED_COACH @CUSTOM=ANT_DELAYED_COACH experiment_name:delayed_coach_loss_1
@@ -369,5 +369,5 @@
                 number_of_episodes_for_baseline: 30
                 number_of_episodes_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
-                inital_epsilon: 0.0100
-                intial_horizon: 76
+                initial_epsilon: 0.0100
+                initial_horizon: 76
