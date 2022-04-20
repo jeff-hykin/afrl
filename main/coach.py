@@ -122,6 +122,7 @@ class Coach(nn.Module):
                     self.state_triple_loss,
                     self.state_prediction_loss,
                     self.value_prediction_loss,
+                    self.value_plus_state_loss,
                 ]
         })
         self.epochs_index = 0

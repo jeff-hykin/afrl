@@ -224,7 +224,9 @@
                 consistent_coach_loss:
                     scale_future_state_loss: 1000000
                 delayed_coach_loss:
-                    epochs_of_delay: 50 # this doesn't affect the baseline model, but shows on the loss graph (good for comparison)
+                    epochs_of_delay: 50
+                value_plus_state_loss:
+                    value_proportion: 0.5
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
