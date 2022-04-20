@@ -221,14 +221,14 @@ class Tester:
         print(f'''baseline_confidence_size = {baseline_confidence_size}''')
         epsilon_attempts = []
         horizon_attempts = []
-        new_horizon = 20 # FIXME: debugging
+        failure_points = [self.settings.intial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
         for episode_index in range(self.settings.number_of_episodes_for_optimal_parameters):
             sampled_rewards = []
             # loop until within the confidence bounds
             loop_number = 0
             while True:
                 loop_number += 1
-                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
+                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=average(failure_points)*2, episode_index=episode_index)
                 reward_single_sum = sum(discounted_rewards)
                 print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
                 sampled_rewards.append(reward_single_sum)
