@@ -155,8 +155,6 @@
             train_agent:
                 reward_discount: 0.98
             test_predictor:
-                initial_epsilon: 0.0018
-                initial_horizon: 80
                 min_reward_single_timestep: 19
                 max_reward_single_timestep: 105
                 horizons:
