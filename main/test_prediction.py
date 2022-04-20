@@ -316,7 +316,7 @@ class Tester:
                     print()
                     continue
                 confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
-                print(f'''confidence_size = {confidence_size}''')
+                print(f'''confidence_size={confidence_size}, new_horizon={new_horizon}''')
                 if confidence_size < baseline_confidence_size:
                     break
                 # prevent stupidly long runs because of volatile outcomes
