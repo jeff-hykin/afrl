@@ -125,6 +125,8 @@ class Coach(nn.Module):
                     self.value_plus_state_loss,
                 ]
         })
+        # ensure that the active loss function is always in the graph (even if commented out above)
+        self.loss_objects[self.which_loss] = getattr(self, self.which_loss)
         self.epochs_index = 0
         
     @convert_each_arg.to_tensor()
@@ -233,15 +235,15 @@ class Coach(nn.Module):
     def value_plus_state_loss(self):
         output = LossObject()
             
-        state_prediction_loss_obj = self.state_prediction_loss()
-        value_prediction_loss_obj = self.value_prediction_loss()
-        get_lookahead = lambda: max(state_prediction_loss_obj.lookahead,state_prediction_loss_obj.lookahead,)
-        state_prediction_loss = state_prediction_loss_obj.function
-        value_prediction_loss = value_prediction_loss_obj.function
         value_proportion = self.settings.value_plus_state_loss.value_proportion
+        state_prediction_loss = self.loss_objects.state_prediction_loss.function
+        value_prediction_loss = self.loss_objects.value_prediction_loss.function
+        get_lookahead = lambda: max(
+            self.loss_objects.state_prediction_loss.lookahead,
+            self.loss_objects.value_prediction_loss.lookahead,
+        )
         
         output.lookahead = get_lookahead()
-        
         @output.function
         def actual_loss_function(*args):
             output.lookahead = get_lookahead()
