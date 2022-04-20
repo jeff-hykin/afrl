@@ -212,6 +212,9 @@
         
         ENV=LUNAR:
             env_name: "LunarLanderContinuous-v2"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip"
+        
         ENV=ANT:
             env_name: "AntBulletEnv-v0"
         ENV=CHEETA:
@@ -231,3 +234,21 @@
             test_predictor:
                 force_recompute: true
         
+        LOSS=Q:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q experiment_name:q_loss_1
+            train_coach:
+                loss_function: "value_prediction_loss"
+                force_retrain: false
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                number_of_epochs: 120
+                batch_size: 256
+        LOSS=Q_STATE:
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q experiment_name:q_loss_1
+            train_coach:
+                loss_function: "value_plus_state_loss"
+                force_retrain: false
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                number_of_epochs: 120
+                batch_size: 256
