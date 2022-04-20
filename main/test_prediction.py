@@ -307,10 +307,10 @@ class Tester:
             loop_number = 0
             while True:
                 loop_number += 1
-                new_horizon = stats(failure_points).q3 + 1
                 forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
                 reward_single_sum = sum(discounted_rewards)
                 print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
+                new_horizon = stats(failure_points).q3 + 1
                 sampled_rewards.append(reward_single_sum)
                 if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
                     print()

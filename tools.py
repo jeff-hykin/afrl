@@ -31,7 +31,7 @@ def stats(number_iterator):
     average     = total / count     if count != 0 else None
     median      = median(values)    if count != 0 else None
     stdev       = stdev(values)     if count  > 1 else None
-    normalized  = tuple((each-minimum)/range for each in values)
+    normalized  = tuple((each-minimum)/range for each in values) if range != 0 else None
     (q1,_,q3),_ = quantiles(values) if count  > 1 else (None,None,None),None
     
     return LazyDict(
