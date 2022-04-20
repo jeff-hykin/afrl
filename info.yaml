@@ -78,7 +78,7 @@
                 force_recompute: false
                 graph_smoothing: 3 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
+                number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
                 initial_epsilon: 100.1 # overshooting this initial value is better than undershooting
                 initial_horizon: 16 # units = timesteps. Mostly irrelevent
@@ -124,6 +124,7 @@
             env_name: "HalfCheetahBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
+                learning_rate: 0.00073
             test_predictor:
                 min_reward_single_timestep: -60
                 max_reward_single_timestep: 100
@@ -175,6 +176,8 @@
         ENV=HUMANOID: &Humanoid
             env_name: "HumanoidBulletEnv-v0"
             reward_discount: 0.98
+            train_coach:
+                learning_rate: 0.0003
             test_predictor:
                 min_reward_single_timestep: -30
                 max_reward_single_timestep: 113
@@ -184,7 +187,7 @@
                     0.01: 11
                     0.001: 5
             hparams: 
-                learning_rate: 3e-4
+                learning_rate: 0.0003
                 buffer_size: 1000000
                 batch_size: 64
                 ent_coef: auto
@@ -251,10 +254,10 @@
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
                 number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
+                number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-                initial_epsilon: &baseline_lunar_initial_epsilon 2.1170
-                initial_horizon: &baseline_lunar_initial_horizon 20
+                initial_epsilon: 2.1170
+                initial_horizon: 20
         
         CUSTOM=LUNAR_BASELINE_V3:
             # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V3 experiment_name:baseline_3
@@ -262,10 +265,10 @@
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
                 number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
+                number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-                initial_epsilon: 2.1170
-                initial_horizon: 40
+                initial_epsilon: &baseline_lunar_initial_epsilon 1.5 
+                initial_horizon: &baseline_lunar_initial_horizon 45  
         
         # 
         # Q LOSS (aka value_prediction_loss)
@@ -289,8 +292,19 @@
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
+                number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        CUSTOM=CHEETAH_Q:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=Q @CUSTOM=CHEETAH_Q experiment_name:q_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
                 initial_epsilon: *baseline_lunar_initial_epsilon
                 initial_horizon: *baseline_lunar_initial_horizon
         
@@ -314,7 +328,7 @@
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
+                number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
                 initial_epsilon: *baseline_lunar_initial_epsilon
                 initial_horizon: *baseline_lunar_initial_horizon
@@ -332,6 +346,46 @@
                 value_plus_state_loss:
                     value_proportion: 0
         
+        CUSTOM=CHEETAH_Q_PLUS_STATE:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=Q @CUSTOM=CHEETAH_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=Q_PLUS_STATE @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
+            train_coach:
+                force_retrain: false
+                value_plus_state_loss:
+                    value_proportion: 0.01
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_PLUS_STATE @CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
+            train_coach:
+                value_plus_state_loss:
+                    value_proportion: 0
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
         # 
         # CONSISTENT_COACH (main loss function)
         #
@@ -342,9 +396,110 @@
                     scale_future_state_loss: 1
         
         CUSTOM=LUNAR_CONSISTENT_COACH:
-            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=Q_PLUS_STATE @CUSTOM=LUNAR_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
+            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=CONSISTENT_COACH @CUSTOM=LUNAR_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
             test_predictor:
                 force_recompute: false
+        
+        CUSTOM=CHEETAH_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=CONSISTENT_COACH @CUSTOM=CHEETAH_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        # 
+        # CONSISTENT_VALUE
+        # 
+        LOSS=CONSISTENT_VALUE:
+            train_coach:
+                loss_function: consistent_value_loss
+        
+        CUSTOM=CHEETAH_CONSISTENT_VALUE:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=CONSISTENT_VALUE @CUSTOM=CHEETAH_CONSISTENT_VALUE experiment_name:consistent_value_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        # 
+        # HALF_CONSISTENT_COACH
+        # 
+        LOSS=HALF_CONSISTENT_COACH:
+            train_coach:
+                loss_function: half_consistent_coach_loss
+        
+        CUSTOM=CHEETAH_HALF_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=HALF_CONSISTENT_COACH @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        # 
+        # STATE_TRIPLE
+        # 
+        LOSS=STATE_TRIPLE:
+            train_coach:
+                loss_function: state_triple
+        
+        CUSTOM=CHEETAH_STATE_TRIPLE:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=STATE_TRIPLE @CUSTOM=CHEETAH_STATE_TRIPLE experiment_name:state_triple_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        # 
+        # DELAYED_COACH_LOSS
+        # 
+        LOSS=DELAYED_COACH_LOSS:
+            train_coach:
+                loss_function: delayed_coach_loss
+        
+        CUSTOM=CHEETAH_DELAYED_COACH_LOSS:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=DELAYED_COACH_LOSS @CUSTOM=CHEETAH_DELAYED_COACH_LOSS experiment_name:delayed_coach_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
+        
+        # 
+        # HALF_CONSISTENT_COACH
+        # 
+        LOSS=HALF_CONSISTENT_COACH:
+            train_coach:
+                loss_function: half_consistent_coach_loss
+        
+        CUSTOM=CHEETAH_HALF_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=HALF_CONSISTENT_COACH @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
+            test_predictor:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: *baseline_lunar_initial_epsilon
+                initial_horizon: *baseline_lunar_initial_horizon
         
         # 
         # DELAYED_COACH
@@ -367,7 +522,7 @@
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
                 number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 5 # normally 15
+                number_of_epochs_for_optimal_parameters: 5 # normally 15
                 number_of_episodes_for_testing: 9
                 initial_epsilon: 0.026220759371288625
                 initial_horizon: 40
@@ -378,7 +533,7 @@
             test_predictor:
                 force_recompute: true
                 number_of_episodes_for_baseline: 30
-                number_of_episodes_for_optimal_parameters: 15
+                number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
                 initial_epsilon: 0.0100
                 initial_horizon: 76
