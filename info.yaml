@@ -13,11 +13,12 @@
             
     tasks/questions:
         - question: why would q do worse than state prediction
+        - task: run ant and cheeta env
+        - task: make horizon obsolete by having a retroactive planner. Dont plan, until the plan comes into question
         - task: attempt phasing transition from state based to q loss and future
         - todo: research why loss combination isn't working
         - attempt: attempt seperate optimizers for multiple losses
         - attempt: look 2 or 3 steps into the future loss
-        - future_task: make horizon obsolete by having a retroactive planner. Dont plan, until the plan comes into question
         - task: 
             original: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
             resovled by: auto-optimize the epsilon, ignore the min/max sizing
