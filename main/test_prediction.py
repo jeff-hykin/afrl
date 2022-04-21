@@ -77,8 +77,89 @@ class Tester:
                     path=self.predictor.agent.path,
                 )
     # 
-    # core algorithm
+    # main algorithms
     # 
+    @cache(
+        depends_on=[config.env_name],
+        watch_attributes=lambda self: (self.settings.number_of_episodes_for_baseline, self.settings.agent.path)
+    )
+    def gather_baseline(self):
+        print("----- getting a reward baseline -----------------------------------------------------------------------------------------------------------------------------------")
+        discounted_rewards_per_episode = []
+        for episode_index in range(self.settings.number_of_episodes_for_baseline):
+            _, rewards, discounted_rewards, _, _, _, q_value_gaps = self.experience_episode(scaled_epsilon=0, horizon=1, episode_index=episode_index)
+            total = sum(discounted_rewards)
+            discounted_rewards_per_episode.append(total)
+            print(f'''  episode_index={episode_index}, episode_discounted_reward_sum={total}''')
+        return discounted_rewards_per_episode
+    
+    @cache()
+    def gather_optimal_parameters(self, baseline_samples):
+        leniency                    = self.settings.acceptable_performance_loss # standard deviation 
+        confidence_interval_percent = self.settings.confidence_interval_for_convergence
+        increment_amount = 1.5
+        
+        baseline = simple_stats(baseline_samples)
+        print(f'''baseline = {baseline}''')
+        
+        baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
+        baseline_population_average = baseline.average
+        baseline_worst_value        = baseline_population_average - (baseline_population_stdev*leniency)
+        baseline_confidence_size = confidence_interval_size(confidence_interval_percent, baseline_samples)
+        # 
+        # hone in on acceptable epsilon
+        # 
+        print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
+        new_epsilon = self.settings.initial_epsilon
+        new_horizon = self.settings.initial_horizon
+        print(f'''baseline_confidence_size = {baseline_confidence_size}''')
+        epsilon_attempts = []
+        horizon_attempts = []
+        all_failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
+        for episode_index in range(self.settings.number_of_epochs_for_optimal_parameters):
+            sampled_rewards = []
+            # loop until within the confidence bounds
+            loop_number = 0
+            while True:
+                loop_number += 1
+                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
+                reward_single_sum = sum(discounted_rewards)
+                all_failure_points += failure_points
+                print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
+                sampled_rewards.append(reward_single_sum)
+                if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
+                    print()
+                    continue
+                new_horizon = max(stats(all_failure_points).median, 1) * 2
+                confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
+                print(f'''confidence_size={confidence_size}, new_horizon={new_horizon}''')
+                if confidence_size < baseline_confidence_size:
+                    break
+                # prevent stupidly long runs because of volatile outcomes
+                if loop_number >= self.settings.number_of_episodes_for_baseline:
+                    print(f'''        hit cap of: {self.settings.number_of_episodes_for_baseline} iterations''')
+                    break
+            # then compare the mean
+            sample_stats = simple_stats(sampled_rewards)
+            
+            epsilon_isnt_a_problem = sample_stats.average >= baseline_worst_value
+            if epsilon_isnt_a_problem:
+                # double until its a problem
+                new_epsilon *= increment_amount
+            else:
+                new_epsilon /= increment_amount
+            
+            epsilon_attempts.append(new_epsilon)
+            horizon_attempts.append(new_horizon)
+            print(f'''        episode={episode_index}, horizon={new_horizon}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, epsilon_isnt_a_problem={epsilon_isnt_a_problem}''')
+                
+        # take median to ignore outliers and find the converged-value even if the above process wasnt converging
+        optimal_epsilon = simple_stats(epsilon_attempts).median
+        optimal_horizon = int(simple_stats(horizon_attempts).median)
+        print(f'''optimal_epsilon = {optimal_epsilon}''')
+        print(f'''optimal_horizon = {optimal_horizon}''')
+        return optimal_epsilon, optimal_horizon
+    
     def experience_episode(
         self,
         scaled_epsilon: float,
@@ -274,98 +355,6 @@ class Tester:
             self.q_value_gaps_per_episode_per_timestep[episode_index]        = q_value_gaps_per_timestep       
         return failure_points, rewards_per_timestep, discounted_rewards_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
     
-    # decides when cache-busting happends (happens if any of these change)
-    def __super_hash__(self):
-        return (
-            self.path,
-            self.settings.acceptable_performance_loss,
-            self.settings.initial_epsilon,
-            self.settings.initial_horizon,
-            self.settings.number_of_episodes_for_baseline,
-            self.settings.number_of_epochs_for_optimal_parameters,
-        )
-    
-    @cache(
-        depends_on=[config.env_name],
-        watch_attributes=lambda self: (self.settings.number_of_episodes_for_baseline, self.settings.agent.path)
-    )
-    def gather_baseline(self):
-        print("----- getting a reward baseline -----------------------------------------------------------------------------------------------------------------------------------")
-        discounted_rewards_per_episode = []
-        for episode_index in range(self.settings.number_of_episodes_for_baseline):
-            _, rewards, discounted_rewards, _, _, _, q_value_gaps = self.experience_episode(scaled_epsilon=0, horizon=1, episode_index=episode_index)
-            total = sum(discounted_rewards)
-            discounted_rewards_per_episode.append(total)
-            print(f'''  episode_index={episode_index}, episode_discounted_reward_sum={total}''')
-        return discounted_rewards_per_episode
-    
-    @cache()
-    def gather_optimal_parameters(self, baseline_samples):
-        leniency                    = self.settings.acceptable_performance_loss # standard deviation 
-        confidence_interval_percent = self.settings.confidence_interval_for_convergence
-        increment_amount = 1.5
-        
-        baseline = simple_stats(baseline_samples)
-        print(f'''baseline = {baseline}''')
-        
-        baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
-        baseline_population_average = baseline.average
-        baseline_worst_value        = baseline_population_average - (baseline_population_stdev*leniency)
-        baseline_confidence_size = confidence_interval_size(confidence_interval_percent, baseline_samples)
-        # 
-        # hone in on acceptable epsilon
-        # 
-        print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
-        new_epsilon = self.settings.initial_epsilon
-        new_horizon = self.settings.initial_horizon
-        print(f'''baseline_confidence_size = {baseline_confidence_size}''')
-        epsilon_attempts = []
-        horizon_attempts = []
-        all_failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
-        for episode_index in range(self.settings.number_of_epochs_for_optimal_parameters):
-            sampled_rewards = []
-            # loop until within the confidence bounds
-            loop_number = 0
-            while True:
-                loop_number += 1
-                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
-                reward_single_sum = sum(discounted_rewards)
-                all_failure_points += failure_points
-                print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
-                sampled_rewards.append(reward_single_sum)
-                if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
-                    print()
-                    continue
-                new_horizon = max(stats(all_failure_points).median, 1) * 2
-                confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
-                print(f'''confidence_size={confidence_size}, new_horizon={new_horizon}''')
-                if confidence_size < baseline_confidence_size:
-                    break
-                # prevent stupidly long runs because of volatile outcomes
-                if loop_number >= self.settings.number_of_episodes_for_baseline:
-                    print(f'''        hit cap of: {self.settings.number_of_episodes_for_baseline} iterations''')
-                    break
-            # then compare the mean
-            sample_stats = simple_stats(sampled_rewards)
-            
-            epsilon_isnt_a_problem = sample_stats.average >= baseline_worst_value
-            if epsilon_isnt_a_problem:
-                # double until its a problem
-                new_epsilon *= increment_amount
-            else:
-                new_epsilon /= increment_amount
-            
-            epsilon_attempts.append(new_epsilon)
-            horizon_attempts.append(new_horizon)
-            print(f'''        episode={episode_index}, horizon={new_horizon}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, epsilon_isnt_a_problem={epsilon_isnt_a_problem}''')
-                
-        # take median to ignore outliers and find the converged-value even if the above process wasnt converging
-        optimal_epsilon = simple_stats(epsilon_attempts).median
-        optimal_horizon = int(simple_stats(horizon_attempts).median)
-        print(f'''optimal_epsilon = {optimal_epsilon}''')
-        print(f'''optimal_horizon = {optimal_horizon}''')
-        return optimal_epsilon, optimal_horizon
-
     # 
     # setup for testing
     # 
@@ -607,6 +596,17 @@ class Tester:
             new_rolling_forecast[index] = 0
             
         return new_rolling_forecast
+    
+    # decides when cache-busting happends (happens if any of these change)
+    def __super_hash__(self):
+        return (
+            self.path,
+            self.settings.acceptable_performance_loss,
+            self.settings.initial_epsilon,
+            self.settings.initial_horizon,
+            self.settings.number_of_episodes_for_baseline,
+            self.settings.number_of_epochs_for_optimal_parameters,
+        )
     
     # 
     # save and load methods
