@@ -50,7 +50,6 @@ class Coach(nn.Module):
         agent,
         force_retrain=settings.force_retrain,
     ):
-        print(f'''coach settings = {settings}''')
         env = config.get_env(env_name)
         coach = Coach(
             state_size=env.observation_space.shape[0],
@@ -66,6 +65,7 @@ class Coach(nn.Module):
                 print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
                 print(f''' Coach Model Exists, loading: {path}''')
                 print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
+                print(f'''coach settings = {settings}''')
                 path_to = Coach.internal_paths(path)
                 coach.load_state_dict(torch.load(path_to.model))
                 coach.recorder = Recorder.load_from(path_to.recorder)
@@ -74,6 +74,7 @@ class Coach(nn.Module):
         print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
         print(f''' Training Coach Model from scrach''')
         print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
+        print(f'''coach settings = {settings}''')
         # 
         # train
         # 
