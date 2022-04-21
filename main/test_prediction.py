@@ -336,7 +336,7 @@ class Tester:
                 if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
                     print()
                     continue
-                new_horizon = max(stats(all_failure_points).average, 1) * 2
+                new_horizon = max(stats(all_failure_points).median, 1) * 2
                 confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
                 print(f'''confidence_size={confidence_size}, new_horizon={new_horizon}''')
                 if confidence_size < baseline_confidence_size:
