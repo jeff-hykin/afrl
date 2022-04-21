@@ -315,8 +315,8 @@ class Tester:
             planned_action = choose_action(previously_predicted_state) if previously_predicted_state is not None else None
             
             real_q_value    = q_value_for(state, real_action)
-            planned_q_value = q_value_for(state, planned_action)
-            gap = real_q_value - planned_q_value if planned_action is not None else 0
+            planned_q_value = q_value_for(state, planned_action) if planned_action is not None else -math.inf
+            gap = real_q_value - planned_q_value
             
             prediciton_failed = gap > scaled_epsilon
             
