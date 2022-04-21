@@ -78,12 +78,12 @@
                 reward_discount: 0.98
                 acceptable_performance_loss: 1 # units = standard deviations
                 confidence_interval_for_convergence: 90
-                horizons:
-                    0.001: 5
-                    0.0025: 5
-                    0.005: 10
-                    0.0075: 15
-                    0.01: 20
+                # horizons: # this is part of the v1 settings api but not v2
+                #     0.001: 5
+                #     0.0025: 5
+                #     0.005: 10
+                #     0.0075: 15
+                #     0.01: 20
         
         FORCE_CPU_PROFILE:
             force_cpu: true

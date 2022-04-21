@@ -300,7 +300,7 @@ class Tester:
         print(f'''baseline_confidence_size = {baseline_confidence_size}''')
         epsilon_attempts = []
         horizon_attempts = []
-        failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
+        all_failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
         for episode_index in range(self.settings.number_of_epochs_for_optimal_parameters):
             sampled_rewards = []
             # loop until within the confidence bounds
@@ -309,12 +309,13 @@ class Tester:
                 loop_number += 1
                 forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
                 reward_single_sum = sum(discounted_rewards)
+                all_failure_points += failure_points
                 print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
-                new_horizon = stats(failure_points).q3 + 1
                 sampled_rewards.append(reward_single_sum)
                 if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
                     print()
                     continue
+                new_horizon = max(stats(all_failure_points).average, 1) * 2
                 confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
                 print(f'''confidence_size={confidence_size}, new_horizon={new_horizon}''')
                 if confidence_size < baseline_confidence_size:
