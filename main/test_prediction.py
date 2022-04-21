@@ -278,7 +278,6 @@ class Tester:
     def __super_hash__(self):
         return (
             self.path,
-            self.agent_reward_discount,
             self.settings.acceptable_performance_loss,
             self.settings.initial_epsilon,
             self.settings.initial_horizon,
@@ -543,7 +542,7 @@ class Tester:
         plot_kwargs = dict(
             csv_path=self.csv_path,
             output_folder=f"{self.path}/visuals",
-            reward_discount=self.agent_reward_discount,
+            reward_discount=self.settings.agent.gamma,
             min_reward_single_timestep=self.settings.min_reward_single_timestep,
             max_reward_single_timestep=self.settings.max_reward_single_timestep,
         )
@@ -615,7 +614,6 @@ class Tester:
     attributes_to_save = [
         "settings",
         "recorder",
-        "agent_reward_discount",
         "rewards_per_episode_per_timestep",
         "discounted_rewards_per_episode_per_timestep",
         "failure_points_per_episode_per_timestep",
