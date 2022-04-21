@@ -227,7 +227,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 512
+                batch_size: 2048
                 with_card: true
             train_coach:
                 force_retrain: false
@@ -268,14 +268,16 @@
         
         CUSTOM=CHEETAH_BASELINE:
             # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=BASELINE @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2
+            train_coach:
+                batch_size: 2048
             test_predictor:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
-                initial_epsilon: *baseline_lunar_initial_epsilon
-                initial_horizon: *baseline_lunar_initial_horizon
+                initial_epsilon: 0.7
+                initial_horizon: 42
         
         CUSTOM=ANT_BASELINE:
             # python ./main/run/full.py -- @ENV=ANT @LOSS=BASELINE @CUSTOM=ANT_BASELINE experiment_name:baseline_2

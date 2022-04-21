@@ -60,17 +60,21 @@ def cache(folder=settings.default_folder, depends_on=[], watch_attributes=[], bu
             FS.remove(data.cache_file_name)
         def wrapper(*args, **kwargs):
             args = list(args)
+            hashed_args = list(args)
             # if watching attributes on self, replace first arg
-            if len(watch_attributes) > 0:
-                self = args[0]
+            if callable(watch_attributes):
+                self = hashed_args[0]
+                hashed_args[0] = watch_attributes(self)
+                
+            elif len(watch_attributes) > 0:
+                self = hashed_args[0]
                 attributes = {}
                 for each_attribute in watch_attributes:
                     if hasattr(self, each_attribute):
                         attributes[each_attribute] = getattr(self, each_attribute)
-                args[0] = attributes
+                hashed_args[0] = attributes
             
-            inner_func_args = list(args)
-            # load cached values if possible
+            # load cached values for this function
             if not data.calculated:
                 data.deep_hash = function_id
                 if path.exists(data.cache_file_name):
@@ -79,13 +83,15 @@ def cache(folder=settings.default_folder, depends_on=[], watch_attributes=[], bu
                         if func_hash == data.deep_hash:
                             data.cache = cache_temp
                 data.calculated = True
-            # 
-            arg_hash = super_hash((args, kwargs, depends_on))
+            # check if this arg combination has been used already
+            arg_hash = super_hash((hashed_args, kwargs, depends_on))
             if arg_hash in data.cache:
                 return data.cache[arg_hash]
-            result = input_func(*inner_func_args, **kwargs)
-            data.cache[arg_hash] = result
-            worker_que.put(data, block=False)
-            return result
+            # if args not in cache, run the function
+            else:
+                result = input_func(*args, **kwargs)
+                data.cache[arg_hash] = result # save the output for next time
+                worker_que.put(data, block=False) # use a different process for saving to disk to prevent slowdown
+                return result
         return wrapper
     return real_decorator

@@ -50,6 +50,7 @@ class Coach(nn.Module):
         agent,
         force_retrain=settings.force_retrain,
     ):
+        print(f'''coach settings = {settings}''')
         env = config.get_env(env_name)
         coach = Coach(
             state_size=env.observation_space.shape[0],

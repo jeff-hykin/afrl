@@ -36,7 +36,6 @@ class Tester:
         self.predictor = predictor
         self.path = path
         self.csv_path = f"{path}/experiments.csv"
-        self.agent_reward_discount = self.predictor.agent.gamma if self.predictor else None
         self.csv_data = None
         self.threshold_card = None
         self.prediction_card = None
@@ -44,7 +43,7 @@ class Tester:
         self.recorder = Recorder()
         # for backwards compatibility with previous results
         self.settings.api = "v1" if hasattr(self.settings, "number_of_episodes") else "v2"
-        if self.settings.api == "v1": settings.number_of_episodes_for_testing = self.settings.number_of_episodes
+        if self.settings.api == "v1": self.settings.number_of_episodes_for_testing = self.settings.number_of_episodes
         
         self.rewards_per_episode_per_timestep            = [None] * settings.number_of_episodes_for_testing
         self.discounted_rewards_per_episode_per_timestep = [None] * settings.number_of_episodes_for_testing
@@ -57,6 +56,26 @@ class Tester:
         for each_key, each_value in attribute_overrides.items():
             setattr(self, each_key, each_value)
         
+        # if loading from saved data
+        if isinstance(self.settings.get("agent", None), LazyDict):
+            # it should always be None here, but just encase
+            if self.predictor is None:
+                # fake/fill-in the predictor
+                self.predictor = LazyDict(
+                    agent=LazyDict(
+                        gamma=self.settings.agent.gamma,
+                        path=self.settings.agent.path,
+                    ),
+                )
+        # if full load
+        else:
+            # should always not-be none here
+            if self.predictor is not None:
+                # attach predictor stuff to settings so that its saved to disk
+                self.settings.agent = LazyDict(
+                    gamma=self.predictor.agent.gamma,
+                    path=self.predictor.agent.path,
+                )
     # 
     # core algorithm
     # 
@@ -267,7 +286,10 @@ class Tester:
             self.settings.number_of_epochs_for_optimal_parameters,
         )
     
-    @cache()
+    @cache(
+        depends_on=[config.env_name],
+        watch_attributes=lambda self: (self.settings.number_of_episodes_for_baseline, self.settings.agent.path)
+    )
     def gather_baseline(self):
         print("----- getting a reward baseline -----------------------------------------------------------------------------------------------------------------------------------")
         discounted_rewards_per_episode = []

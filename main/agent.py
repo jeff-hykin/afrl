@@ -33,6 +33,9 @@ class Agent(SAC):
                         "learning_rate": 0.0,
                         "lr_schedule": lambda _: 0.0,
                         "clip_range": lambda _: 0.0,
+                        "freeze": lambda _: agent,
+                        "unfreeze": lambda _: agent,
+                        "frozen": lambda _: agent,
                     },
                 )
                 agent.path = path
