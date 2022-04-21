@@ -117,14 +117,20 @@ class Tester:
         horizon_attempts = []
         all_failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
         for episode_index in range(self.settings.number_of_epochs_for_optimal_parameters):
+            epoch_q_value_gaps = []
             sampled_rewards = []
             # loop until within the confidence bounds
             loop_number = 0
             while True:
                 loop_number += 1
-                forecast, rewards, discounted_rewards, failure_points, stopped_earlies, real_q_values, q_value_gaps = self.experience_episode(scaled_epsilon=new_epsilon, horizon=new_horizon, episode_index=episode_index)
+                failure_points, rewards, discounted_rewards, stopped_earlies, real_q_values, q_value_gaps = self.simple_prediction_experience_episode(
+                    scaled_epsilon=new_epsilon,
+                    episode_index=episode_index,
+                    should_record=False,
+                )
                 reward_single_sum = sum(discounted_rewards)
                 all_failure_points += failure_points
+                epoch_q_value_gaps += q_value_gaps
                 print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
                 sampled_rewards.append(reward_single_sum)
                 if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
@@ -151,7 +157,7 @@ class Tester:
             
             epsilon_attempts.append(new_epsilon)
             horizon_attempts.append(new_horizon)
-            print(f'''        episode={episode_index}, horizon={new_horizon}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, epsilon_isnt_a_problem={epsilon_isnt_a_problem}''')
+            print(f'''        episode={episode_index}, horizon={new_horizon}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
                 
         # take median to ignore outliers and find the converged-value even if the above process wasnt converging
         optimal_epsilon = simple_stats(epsilon_attempts).median
@@ -315,12 +321,12 @@ class Tester:
             planned_action = choose_action(previously_predicted_state) if previously_predicted_state is not None else None
             
             real_q_value    = q_value_for(state, real_action)
-            planned_q_value = q_value_for(state, planned_action) if planned_action is not None else -math.inf
-            gap = real_q_value - planned_q_value
+            planned_q_value = q_value_for(state, planned_action) if planned_action is not None else None
+            gap = real_q_value - planned_q_value if planned_action is not None else 0
             
             prediciton_failed = gap > scaled_epsilon
             
-            if prediciton_failed:
+            if prediciton_failed or planned_action is None:
                 # failure: reset streak_counter
                 failure_points.append(streak_counter)
                 streak_counter = 0
@@ -359,9 +365,6 @@ class Tester:
     # setup for testing
     # 
     def run_all_episodes(self):
-        print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
-        print(f''' Testing Agent+Coach''')
-        print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
         settings, predictor = self.settings, self.predictor
         # 
         # pull in settings
@@ -624,6 +627,9 @@ class Tester:
     
     @classmethod
     def smart_load(cls, path, settings, predictor, force_recompute=False):
+        print(f'''\n\n-----------------------------------------------------------------------------------------------------''')
+        print(f''' Testing Agent+Coach''')
+        print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
         print(f'''test settings = {settings}''')
         if not force_recompute and all(
             FS.is_file(f"{path}/serial_data/{each_attribute_name}.pickle")

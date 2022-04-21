@@ -12,6 +12,7 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
+        - todo: given a distribution of q gaps; as an average gap size for each +1 into the future, decide on a cutoff point there instead of an epsilon binary search guess.  (increment up and down the average gap size, good = averge gap for timestep+1, bad = average gap for timestep -1)
         - question: why would q do worse than state prediction
         - task: run ant and cheeta env
         - task: make horizon obsolete by having a retroactive planner. Dont plan, until the plan comes into question
@@ -287,8 +288,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
-                initial_epsilon: *baseline_lunar_initial_epsilon
-                initial_horizon: *baseline_lunar_initial_horizon
+                initial_epsilon: 0.1316872427983539
+                initial_horizon: 8
         
         # 
         # Q LOSS (aka value_prediction_loss)
