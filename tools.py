@@ -425,3 +425,12 @@ def jenson_shannon_divergence(net_1_logits, net_2_logits):
     loss += F.kl_div(F.log_softmax(net_1_logits, dim=0), total_m, reduction="batchmean") 
     loss += F.kl_div(F.log_softmax(net_2_logits, dim=0), total_m, reduction="batchmean") 
     return (0.5 * loss)
+
+def save_all_charts_to(path, overwrite=True):
+    import requests
+    import file_system_py as FS
+    FS.clear_a_path_for(path, overwrite=overwrite)
+    FS.write(
+        data=requests.get(url='http://localhost:9900/').text,
+        to=path,
+    )

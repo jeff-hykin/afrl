@@ -1,10 +1,11 @@
 import os
+import math
 from types import FunctionType
 from typing import List
 from copy import deepcopy
 from dataclasses import dataclass
-import math
 from collections import defaultdict
+from time import sleep
 
 import gym
 import numpy as np
@@ -25,7 +26,7 @@ from simple_namespace import namespace
 from rigorous_recorder import Recorder
 
 from info import path_to, config
-from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats
+from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats, save_all_charts_to
 from smart_cache import cache
 from main.agent import Agent
 from main.coach import Coach
@@ -541,6 +542,8 @@ class Tester:
         plot_epsilon_1(**plot_kwargs)
         plot_epsilon_2(**plot_kwargs)
         
+        sleep(0.5)
+        save_all_charts_to(f"{self.path}/charts.html")
         return self
     
     def init_live_graphs(self):
