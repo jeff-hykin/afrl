@@ -17,6 +17,7 @@ from super_map import LazyDict
 
 settings = LazyDict(
     default_folder="cache.ignore/",
+    worker_que_size=100,
 )
 
 class CacheData:
@@ -26,32 +27,11 @@ class CacheData:
     deep_hash: str
 
 # since we only care about latest
-worker_que = queue.Queue(maxsize=100)
-
-def worker():
-    while threading.main_thread().is_alive():
-        try:
-            data: CacheData = worker_que.get(timeout=0.1) # 0.1 second. Allows for checking if the main thread is alive
-            while not worker_que.empty(): # so we only write the latest value
-                data = worker_que.get(block=False)
-            FS.clear_a_path_for(data.cache_file_name, overwrite=True)
-            with open(data.cache_file_name, 'wb') as cache_file:
-                pickle.dump((data.deep_hash, data.cache), cache_file, protocol=4)
-            worker_que.task_done()
-        except queue.Empty:
-            continue
-
-thread = Thread(target=worker)
-thread.start()
-
-# A thread that consumes data
-def consumer(in_q):
-    while True:
-        # Get some data
-        data = in_q.get()
-        # Process the data
-
+worker_que = None
 def cache(folder=settings.default_folder, depends_on=[], watch_attributes=[], bust=False):
+    global worker_que
+    if worker_que is None:
+        worker_que = queue.Queue(maxsize=settings.worker_que_size)
     def real_decorator(input_func):
         data = CacheData()  # because we need a reference not a value or compile error
         function_id = super_hash(input_func)
@@ -95,3 +75,21 @@ def cache(folder=settings.default_folder, depends_on=[], watch_attributes=[], bu
                 return result
         return wrapper
     return real_decorator
+
+def worker():
+    global worker_que
+    while threading.main_thread().is_alive():
+        try:
+            if worker_que is not None:
+                data = worker_que.get(timeout=0.1) # 0.1 second. Allows for checking if the main thread is alive
+                while not worker_que.empty(): # so we only write the latest value
+                    data = worker_que.get(block=False)
+                FS.clear_a_path_for(data.cache_file_name, overwrite=True)
+                with open(data.cache_file_name, 'wb') as cache_file:
+                    pickle.dump((data.deep_hash, data.cache), cache_file, protocol=4)
+                worker_que.task_done()
+        except queue.Empty:
+            continue
+
+thread = Thread(target=worker)
+thread.start()
