@@ -285,7 +285,7 @@
                 initial_horizon: 42
         
         CUSTOM=ANT_BASELINE:
-            # python ./main/run/full.py -- @ENV=ANT @LOSS=BASELINE @CUSTOM=ANT_BASELINE experiment_name:baseline_2
+            # python ./main/run/full.py -- @CUSTOM=ANT_BASELINE experiment_name:baseline_2
             (inherit): [ LOSS=BASELINE, ENV=ANT, ]
             test_predictor:
                 force_recompute: false
