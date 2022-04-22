@@ -118,14 +118,14 @@
                 0.01: 16
                 0.001: 11
         ENV=CHEETAH:
-            env_name: "HalfCheetahBulletEnv-v0"    
+            env_name: "HalfCheetahBulletEnv-v0"
             train_agent:
                 reward_discount: 0.98
                 learning_rate: 0.00073
+                number_of_timesteps: 1000000
             test_predictor:
                 min_reward_single_timestep: -60
                 max_reward_single_timestep: 100
-                number_of_timesteps: 1000000
                 horizons:
                     0: 1
                     0.001: 11
@@ -274,7 +274,7 @@
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2
             (inherit): [ LOSS=BASELINE, ENV=CHEETAH, ]
             train_coach:
-                batch_size: 2048
+                force_retrain: false
             test_predictor:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
