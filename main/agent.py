@@ -7,7 +7,7 @@ import file_system_py as FS
 from stable_baselines3 import SAC
 from trivial_torch_tools import to_tensor, init, convert_each_arg
 
-from smart_cache import cache
+from cool_cache import cache
 from info import path_to, config
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average
 
@@ -116,7 +116,7 @@ class Agent(SAC):
         #     q, _ = torch.min(q, dim=1, keepdim=True)
         #     return q.item()
     
-    @cache(depends_on=[config.train_agent])
+    @cache(depends_on=lambda:[config.train_agent])
     def gather_experience(self, env, number_of_episodes):
         episodes = [None]*number_of_episodes
         reward_per_episode = []

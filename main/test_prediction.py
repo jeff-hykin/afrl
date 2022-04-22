@@ -24,10 +24,10 @@ from trivial_torch_tools.generics import to_pure, flatten, large_pickle_load, la
 from super_map import LazyDict
 from simple_namespace import namespace
 from rigorous_recorder import Recorder
+from cool_cache import cache
 
 from info import path_to, config
 from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats, save_all_charts_to
-from smart_cache import cache
 from main.agent import Agent
 from main.coach import Coach
 
@@ -81,7 +81,7 @@ class Tester:
     # main algorithms
     # 
     @cache(
-        depends_on=[config.env_name],
+        depends_on=lambda:[config.env_name],
         watch_attributes=lambda self: (self.settings.number_of_episodes_for_baseline, self.settings.agent.path)
     )
     def gather_baseline(self):
