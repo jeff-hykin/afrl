@@ -234,7 +234,8 @@
                 force_retrain: false
         
         CUSTOM=LUNAR_BASELINE_V1:
-            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V1 experiment_name:baseline_1
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V1 experiment_name:baseline_1
+            (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
             train_coach:
                 number_of_episodes: 100
             test_predictor:
@@ -246,7 +247,8 @@
                     0.01: 20
         
         CUSTOM=LUNAR_BASELINE_V2:
-            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V2 experiment_name:baseline_2
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V2 experiment_name:baseline_2
+            (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
@@ -257,7 +259,8 @@
                 initial_horizon: 20
         
         CUSTOM=LUNAR_BASELINE_V3:
-            # python ./main/run/full.py -- @ENV=LUNAR @LOSS=BASELINE @CUSTOM=LUNAR_BASELINE_V3 experiment_name:baseline_3
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V3 experiment_name:baseline_3
+            (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
@@ -268,7 +271,8 @@
                 initial_horizon: &baseline_lunar_initial_horizon 45  
         
         CUSTOM=CHEETAH_BASELINE:
-            # python ./main/run/full.py -- @ENV=CHEETAH @LOSS=BASELINE @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2
+            (inherit): [ LOSS=BASELINE, ENV=CHEETAH, ]
             train_coach:
                 batch_size: 2048
             test_predictor:
@@ -282,6 +286,7 @@
         
         CUSTOM=ANT_BASELINE:
             # python ./main/run/full.py -- @ENV=ANT @LOSS=BASELINE @CUSTOM=ANT_BASELINE experiment_name:baseline_2
+            (inherit): [ LOSS=BASELINE, ENV=ANT, ]
             test_predictor:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
