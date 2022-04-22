@@ -82,7 +82,10 @@ class Tester:
     # 
     @cache(
         depends_on=lambda:[config.env_name],
-        watch_attributes=lambda self: (self.settings.number_of_episodes_for_baseline, self.settings.agent.path)
+        watch_attributes=lambda self: (
+            self.settings.number_of_episodes_for_baseline,
+            self.settings.agent.path,
+        )
     )
     def gather_baseline(self):
         print("----- getting a reward baseline -----------------------------------------------------------------------------------------------------------------------------------")
@@ -94,7 +97,15 @@ class Tester:
             print(f'''  episode_index={episode_index}, episode_discounted_reward_sum={total}''')
         return discounted_rewards_per_episode
     
-    @cache()
+    @cache(
+        depends_on=lambda:[config.env_name],
+        watch_attributes=lambda self: (
+            self.settings.acceptable_performance_loss,
+            self.settings.confidence_interval_for_convergence,
+            # self.settings.number_of_epochs_for_optimal_parameters,
+            # self.settings.number_of_episodes_for_baseline,
+        ),
+    )
     def gather_optimal_parameters(self, baseline_samples):
         leniency                    = self.settings.acceptable_performance_loss # standard deviation 
         confidence_interval_percent = self.settings.confidence_interval_for_convergence
