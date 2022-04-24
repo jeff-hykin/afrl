@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-# stdbuf -i0 -o0 -e0 ./commands/project/run_ant 2>&1 | tee logs/run_ant.log
+# . ./commands/project/run_ant
 
 mkdir -p logs/ant
 # this one trains the agent that all the others will use
 python ./main/run/full.py -- @CUSTOM=ANT_BASELINE               experiment_name:baseline_2 1>&2 | tee logs/ant/baseline_2.log
 
+python ./main/run/full.py -- @CUSTOM=ANT_BASELINE               experiment_name:baseline_3                    "$@" &> logs/ant/baseline_3.log &
 python ./main/run/full.py -- @CUSTOM=ANT_Q_PLUS_STATE           experiment_name:q_plus_state_loss_1           "$@" &> logs/ant/q_plus_state_loss_1.log &
 python ./main/run/full.py -- @CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1 "$@" &> logs/ant/q_unfavored_plus_state_loss_1.log &
 python ./main/run/full.py -- @CUSTOM=ANT_Q_IGNORED_PLUS_STATE   experiment_name:q_ignored_plus_state_loss_1   "$@" &> logs/ant/q_ignored_plus_state_loss_1.log &
