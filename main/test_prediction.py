@@ -87,7 +87,7 @@ class Tester:
     # main algorithms
     # 
     @cache(
-        depends_on=lambda:[config.env_name],
+        depends_on=lambda:[config.env_name, config.train_agent],
         watch_attributes=lambda self: (
             self.settings.number_of_episodes_for_baseline,
             self.settings.agent.path,
@@ -104,7 +104,7 @@ class Tester:
         return discounted_rewards_per_episode
     
     @cache(
-        depends_on=lambda:[config.env_name],
+        depends_on=lambda:[ config.env_name, config.train_agent, config.train_coach ],
         watch_attributes=lambda self: (
             self.settings.acceptable_performance_loss,
             self.settings.confidence_interval_for_convergence,

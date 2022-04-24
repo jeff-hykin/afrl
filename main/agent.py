@@ -30,7 +30,7 @@ class Agent(SAC):
                     config.get_env(env_name),
                     device=config.device,
                     custom_objects = { # a hack for loading from stable baselines: https://github.com/DLR-RM/stable-baselines3/pull/336
-                        "learning_rate": 0.0,
+                        "learning_rate": config.train_agent.get("learning_rate", 0),
                         "lr_schedule": lambda _: 0.0,
                         "clip_range": lambda _: 0.0,
                         "freeze": lambda _: agent,
