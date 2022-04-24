@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 
-python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE               experiment_name:baseline_2 &> logs/cheetah/baseline_2.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_Q                      experiment_name:q_loss_1 &> logs/cheetah/q_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:q_plus_state_loss_1 &> logs/cheetah/q_plus_state_loss_1.log &
+# stdbuf -i0 -o0 -e0 ./commands/project/run_cheetah 2>&1 | tee logs/run_cheetah.log
+
+# this one trains the agent that all the others will use
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE               experiment_name:baseline_2 1>&2 | tee logs/cheetah/baseline_2.log
+
+python ./main/run/full.py -- @CUSTOM=CHEETAH_Q                      experiment_name:q_loss_1                      &> logs/cheetah/q_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:q_plus_state_loss_1           &> logs/cheetah/q_plus_state_loss_1.log &
 python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1 &> logs/cheetah/q_unfavored_plus_state_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE   experiment_name:q_ignored_plus_state_loss_1 &> logs/cheetah/q_ignored_plus_state_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH       experiment_name:consistent_coach_loss_1 &> logs/cheetah/consistent_coach_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE       experiment_name:consistent_value_loss_1 &> logs/cheetah/consistent_value_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1 &> logs/cheetah/half_consistent_coach_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE           experiment_name:state_triple_1 &> logs/cheetah/state_triple_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS     experiment_name:delayed_coach_loss_1 &> logs/cheetah/delayed_coach_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1 &> logs/cheetah/half_consistent_coach_loss_1.log &
-python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH          experiment_name:delayed_coach_loss_1 &> logs/cheetah/delayed_coach_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE   experiment_name:q_ignored_plus_state_loss_1   &> logs/cheetah/q_ignored_plus_state_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH       experiment_name:consistent_coach_loss_1       &> logs/cheetah/consistent_coach_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE       experiment_name:consistent_value_loss_1       &> logs/cheetah/consistent_value_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1  &> logs/cheetah/half_consistent_coach_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE           experiment_name:state_triple_1                &> logs/cheetah/state_triple_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS     experiment_name:delayed_coach_loss_1          &> logs/cheetah/delayed_coach_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1  &> logs/cheetah/half_consistent_coach_loss_1.log &
+python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH          experiment_name:delayed_coach_loss_1          &> logs/cheetah/delayed_coach_loss_1.log &
