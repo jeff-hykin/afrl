@@ -314,7 +314,7 @@
         
         CUSTOM=LUNAR_Q:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q experiment_name:q_loss_1
-            (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE, ]
+            (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
             test_predictor:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
@@ -358,7 +358,7 @@
         
         CUSTOM=LUNAR_Q_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
-            (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE, ]
+            (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
             test_predictor:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
@@ -368,7 +368,7 @@
         
         CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
-            (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE, ]
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
             train_coach:
                 force_retrain: false
                 value_plus_state_loss:
@@ -376,7 +376,7 @@
         
         CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
-            (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE, ]
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
             train_coach:
                 value_plus_state_loss:
                     value_proportion: 0
@@ -466,7 +466,7 @@
         
         CUSTOM=LUNAR_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
-            (inherit): [ LOSS=CONSISTENT_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE, ]
+            (inherit): [ LOSS=CONSISTENT_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
             test_predictor:
                 force_recompute: false
         
@@ -642,7 +642,7 @@
         
         CUSTOM=LUNAR_DELAYED_COACH:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_DELAYED_COACH experiment_name:delayed_coach_loss_1
-            (inherit): [ LOSS=DELAYED_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE, ]
+            (inherit): [ LOSS=DELAYED_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: true
