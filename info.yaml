@@ -152,7 +152,7 @@
                     0.1: 26
                     0.01: 16
                     0.001: 11
-        CUSTOM=ANT_BASELINE, ENV=ANT:
+        ENV=ANT:
             env_name: "AntBulletEnv-v0"    
             train_agent:
                 reward_discount: 0.98
@@ -286,7 +286,7 @@
         
         CUSTOM=ANT_BASELINE:
             # python ./main/run/full.py -- @CUSTOM=ANT_BASELINE experiment_name:baseline_2
-            (inherit): [ LOSS=BASELINE, CUSTOM=ANT_BASELINE, ENV=ANT, ]
+            (inherit): [ LOSS=BASELINE, ENV=ANT, ]
             test_predictor:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
