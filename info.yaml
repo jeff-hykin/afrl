@@ -152,6 +152,8 @@
                     0.001: 11
         ENV=ANT:
             env_name: "AntBulletEnv-v0"    
+            load:
+                agent_path: "subrepos/rl-trained-agents/sac/AntBulletEnv-v0_1/AntBulletEnv-v0.zip"
             train_agent:
                 reward_discount: 0.98
             test_predictor:
@@ -250,7 +252,7 @@
             (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
-                force_recompute: true
+                force_recompute: false
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -262,7 +264,7 @@
             (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
-                force_recompute: true
+                force_recompute: false
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -644,7 +646,7 @@
             (inherit): [ LOSS=DELAYED_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
             test_predictor:
                 acceptable_performance_loss: 2 # units = standard deviations
-                force_recompute: true
+                force_recompute: false
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 5 # normally 15
                 number_of_episodes_for_testing: 9
@@ -656,7 +658,7 @@
             (inherit): [ LOSS=DELAYED_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
             experiment_name: "delayed_coach_loss_1"
             test_predictor:
-                force_recompute: true
+                force_recompute: false
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
@@ -668,7 +670,7 @@
             (inherit): [ LOSS=DELAYED_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
             experiment_name: "delayed_coach_loss_1"
             test_predictor:
-                force_recompute: true
+                force_recompute: false
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
