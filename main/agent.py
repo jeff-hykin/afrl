@@ -38,6 +38,8 @@ class Agent(SAC):
                         "frozen": lambda _: agent,
                     },
                 )
+                # hack-in the freeze tools after agent is loaded from python pickle
+                init.freeze_tools()(lambda *args:None)(agent)
                 agent.path = path
                 return agent
         
