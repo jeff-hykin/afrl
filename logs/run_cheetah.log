@@ -2418,3 +2418,20 @@ Wrapping the env in a DummyVecEnv.
 |    learning_rate   | 0.0003   |
 |    n_updates       | 563899   |
 ---------------------------------
+---------------------------------
+| rollout/           |          |
+|    ep_len_mean     | 1e+03    |
+|    ep_rew_mean     | 2.07e+03 |
+| time/              |          |
+|    episodes        | 568      |
+|    fps             | 85       |
+|    time_elapsed    | 6646     |
+|    total timesteps | 568000   |
+| train/             |          |
+|    actor_loss      | -170     |
+|    critic_loss     | 1.03     |
+|    ent_coef        | 0.0283   |
+|    ent_coef_loss   | 0.181    |
+|    learning_rate   | 0.0003   |
+|    n_updates       | 567899   |
+---------------------------------
