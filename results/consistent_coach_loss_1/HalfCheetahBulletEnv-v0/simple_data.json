@@ -20,7 +20,7 @@
     "api": "v2",
     "agent": {
         "gamma": 0.99,
-        "path": "data/models/agents/HalfCheetahBulletEnv-v0/default_sac_4.zip"
+        "path": "models.ignore/agents/HalfCheetahBulletEnv-v0/default_sac_4.zip"
     },
     "optimal_epsilon": 0.4444444444444444,
     "optimal_horizon": 4
