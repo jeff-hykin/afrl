@@ -126,7 +126,7 @@ class Tester:
         new_horizon = self.settings.initial_horizon
         print(f'''baseline_confidence_size = {baseline_confidence_size}''')
         epsilon_attempts = []
-        horizon_attempts = []
+        horizon_attempts = LazyDict().setdefault(lambda key: []) # one list per epsilon value
         all_failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
         for episode_index in range(self.settings.number_of_epochs_for_optimal_parameters):
             epoch_q_value_gaps = []
@@ -167,13 +167,13 @@ class Tester:
             else:
                 new_epsilon /= increment_amount
             
+            horizon_attempts[new_epsilon] += [new_horizon]
             epsilon_attempts.append(new_epsilon)
-            horizon_attempts.append(new_horizon)
             print(f'''        episode={episode_index}, horizon={new_horizon}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
                 
         # take median to ignore outliers and find the converged-value even if the above process wasnt converging
         optimal_epsilon = simple_stats(epsilon_attempts).median
-        optimal_horizon = int(simple_stats(horizon_attempts).median)
+        optimal_horizon = int(simple_stats(horizon_attempts[optimal_epsilon]).median)
         print(f'''optimal_epsilon = {optimal_epsilon}''')
         print(f'''optimal_horizon = {optimal_horizon}''')
         return optimal_epsilon, optimal_horizon

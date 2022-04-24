@@ -20,6 +20,7 @@ super-hash = "^1.1.0"
 trivial-torch-tools = "^0.5.1"
 scipy = "^1.8.0"
 cool-cache = "^0.0.2"
+super-map = "^1.2.2"
 
 [tool.poetry.dev-dependencies]
 
