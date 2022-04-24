@@ -152,7 +152,7 @@ class Tester:
                     continue
                 new_horizon     = max(stats(failure_points_per_epsilon[new_epsilon]).median, 1) * 2 # new
                 confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
-                print(f'''confidence_size={confidence_size}, new_horizon={horizon_for_epsilon(epsilon)}''')
+                print(f'''confidence_size={confidence_size}, new_horizon={horizon_for_epsilon(new_epsilon)}''')
                 if confidence_size < baseline_confidence_size:
                     break
                 # prevent stupidly long runs because of volatile outcomes
@@ -170,7 +170,7 @@ class Tester:
                 new_epsilon /= increment_amount
             
             epsilon_attempts.append(new_epsilon)
-            print(f'''        episode={episode_index}, horizon={horizon_for_epsilon(epsilon)}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
+            print(f'''        episode={episode_index}, horizon={horizon_for_epsilon(new_epsilon)}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
                 
         # take median to ignore outliers and find the converged-value even if the above process wasnt converging
         optimal_epsilon = simple_stats(epsilon_attempts).median
