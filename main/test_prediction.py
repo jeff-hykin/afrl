@@ -67,6 +67,9 @@ class Tester:
                         gamma=self.settings.agent.gamma,
                         path=self.settings.agent.path,
                     ),
+                    coach=LazyDict(
+                        path=self.settings.coach.path,
+                    ),
                 )
         # if full load
         else:
@@ -76,6 +79,9 @@ class Tester:
                 self.settings.agent = LazyDict(
                     gamma=self.predictor.agent.gamma,
                     path=self.predictor.agent.path,
+                )
+                self.settings.coach = LazyDict(
+                    path=self.predictor.coach.path,
                 )
     # 
     # main algorithms
@@ -102,6 +108,8 @@ class Tester:
         watch_attributes=lambda self: (
             self.settings.acceptable_performance_loss,
             self.settings.confidence_interval_for_convergence,
+            self.settings.agent.path, # TODO: improve this by making agent and coach hashable, then saving their hash to settings
+            self.settings.coach.path, # TODO: improve this by making agent and coach hashable, then saving their hash to settings
             # self.settings.number_of_epochs_for_optimal_parameters,
             # self.settings.number_of_episodes_for_baseline,
         ),
