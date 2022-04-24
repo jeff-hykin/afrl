@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=BASELINE              @CUSTOM=CHEETAH_BASELINE               experiment_name:baseline_2
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=Q                     @CUSTOM=CHEETAH_Q                      experiment_name:q_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=Q                     @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:q_plus_state_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=Q_PLUS_STATE          @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=Q_PLUS_STATE          @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE   experiment_name:q_ignored_plus_state_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=CONSISTENT_COACH      @CUSTOM=CHEETAH_CONSISTENT_COACH       experiment_name:consistent_coach_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=CONSISTENT_VALUE      @CUSTOM=CHEETAH_CONSISTENT_VALUE       experiment_name:consistent_value_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=HALF_CONSISTENT_COACH @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=STATE_TRIPLE          @CUSTOM=CHEETAH_STATE_TRIPLE           experiment_name:state_triple_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=DELAYED_COACH_LOSS    @CUSTOM=CHEETAH_DELAYED_COACH_LOSS     experiment_name:delayed_coach_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=HALF_CONSISTENT_COACH @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1
-python ./main/run/full.py -- @ENV=CHEETAH @LOSS=DELAYED_COACH         @CUSTOM=CHEETAH_DELAYED_COACH          experiment_name:delayed_coach_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE               experiment_name:baseline_2
+python ./main/run/full.py -- @CUSTOM=CHEETAH_Q                      experiment_name:q_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:q_plus_state_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE   experiment_name:q_ignored_plus_state_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH       experiment_name:consistent_coach_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE       experiment_name:consistent_value_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE           experiment_name:state_triple_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS     experiment_name:delayed_coach_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1
+python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH          experiment_name:delayed_coach_loss_1
