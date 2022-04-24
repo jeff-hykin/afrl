@@ -885,7 +885,7 @@ py = {version = "*", markers = "implementation_name == \"pypy\""}
 
 [[package]]
 name = "quik-config"
-version = "1.5.3"
+version = "1.6.0"
 description = "Project config files"
 category = "main"
 optional = false
@@ -1058,7 +1058,7 @@ simple-namespace = "1.0.0"
 
 [[package]]
 name = "super-map"
-version = "1.2.1"
+version = "1.2.2"
 description = "Like dict, but easier"
 category = "main"
 optional = false
@@ -1232,7 +1232,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "82717173c32b562deffaf96c99198be9f05f3d07e367d202ccf6e792a410b9e9"
+content-hash = "74af14a7ae55478f46102cfc5b33ef8802ae4ead9000a38973c9c2faf88a91ee"
 
 [metadata.files]
 aiohttp = [
@@ -2078,8 +2078,8 @@ pyzmq = [
     {file = "pyzmq-22.3.0.tar.gz", hash = "sha256:8eddc033e716f8c91c6a2112f0a8ebc5e00532b4a6ae1eb0ccc48e027f9c671c"},
 ]
 quik-config = [
-    {file = "quik_config-1.5.3-py3-none-any.whl", hash = "sha256:a2735022c05fd4867625ba3e0127598c0388de93d820c120f5981af7ec37462b"},
-    {file = "quik_config-1.5.3.tar.gz", hash = "sha256:f55a5096cb9f6e3018bca87a7e9fb6a55c9c55649a9dba1f2b09e29cba805e7b"},
+    {file = "quik_config-1.6.0-py3-none-any.whl", hash = "sha256:32a3ea93cbbdf4a317c26b64d23b41f3abdf3b2a99d61785f1f894016752f6f2"},
+    {file = "quik_config-1.6.0.tar.gz", hash = "sha256:2f93ed3ec1826f81a69078f06b80b384d5bb43234231a1ff1e6e0e8822b8441f"},
 ]
 regex = [
     {file = "regex-2022.3.15-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:42eb13b93765c6698a5ab3bcd318d8c39bb42e5fa8a7fcf7d8d98923f3babdb1"},
@@ -2254,8 +2254,8 @@ super-hash = [
     {file = "super_hash-1.1.0.tar.gz", hash = "sha256:bfdc0a379f3b0e82fa65d92f6d12515485a991e381de422c61031e74f812fb9a"},
 ]
 super-map = [
-    {file = "super_map-1.2.1-py3-none-any.whl", hash = "sha256:d70e550bbc230cbb4b2ce2e25e05295a7e3b1b93c979831953b6cc2605b61b4e"},
-    {file = "super_map-1.2.1.tar.gz", hash = "sha256:0983bafc6ecc05eafc091834d312aeb1c3b24ca1d2e9d18ef86a5658a608bd10"},
+    {file = "super_map-1.2.2-py3-none-any.whl", hash = "sha256:4b8ad3b1c273dbed03bd0367616de4809de2bf5f377cca5ff551e96f1bb9e3ef"},
+    {file = "super_map-1.2.2.tar.gz", hash = "sha256:b385a9d834036b48046da0e47296fdb15acd63b9d46a6694b9f0834ee9c16ec6"},
 ]
 terminado = [
     {file = "terminado-0.13.3-py3-none-any.whl", hash = "sha256:874d4ea3183536c1782d13c7c91342ef0cf4e5ee1d53633029cbc972c8760bd8"},

@@ -7,7 +7,7 @@ authors = [""]
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
 pip = "20.1.1"
-quik-config = "1.5.3"
+quik-config = "1.6.0"
 PyVirtualDisplay = "^3.0"
 slick-siphon = "^0.1.1"
 notebook = "^6.4.8"
