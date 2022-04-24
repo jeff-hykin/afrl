@@ -46,11 +46,12 @@ path_to.test_results              = lambda env_name: f"{path_to.folder.results}/
 # 
 # env lookup
 # 
-import gym
+from stable_baselines3.common.utils import gym
+from sb3_contrib.common.wrappers import TimeFeatureWrapper
 import pybullet_envs
 def get_env(env_name):
     # might intercept names in the future 
-    env = gym.make(env_name)
+    env = TimeFeatureWrapper(gym.make(env_name))
     env.name = env_name
     return env
 config.get_env = get_env

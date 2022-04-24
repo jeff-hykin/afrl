@@ -27,7 +27,7 @@ class Agent(SAC):
                 print(f'''-----------------------------------------------------------------------------------------------------\n\n''')
                 agent = Agent.load(
                     path,
-                    config.get_env(env_name),
+                    env=config.get_env(env_name),
                     device=config.device,
                     custom_objects = { # a hack for loading from stable baselines: https://github.com/DLR-RM/stable-baselines3/pull/336
                         "learning_rate": config.train_agent.get("learning_rate", 0),
