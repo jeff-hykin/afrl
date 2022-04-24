@@ -27,8 +27,8 @@
     # a central place for filepaths
     (path_to):
         folder:
-            agent_models: "./data/models/agents/"
-            coach_models: "./data/models/coach/"
+            agent_models: "./models.ignore/agents/"
+            coach_models: "./models.ignore/coach/"
             results: "./results/"
 
     (local_data): ./local_data.ignore.yaml
