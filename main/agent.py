@@ -16,7 +16,7 @@ class Agent(SAC):
     # load
     # 
     @classmethod
-    def smart_load(cls, env_name, *, path, iterations=config.train_agent.iterations, force_retrain=config.train_agent.force_retrain):
+    def smart_load(cls, env_name, *, path, number_of_timesteps=config.train_agent.number_of_timesteps, force_retrain=config.train_agent.force_retrain):
         # skip already-trained ones
         if not force_retrain:
             if ".zip" not in path:
@@ -48,7 +48,7 @@ class Agent(SAC):
         print(f'''-------------------------------------------------------\n\n''')
         # train and return
         agent = Agent("MlpPolicy", env_name, device=config.device, verbose=2,)
-        agent.learn(iterations)
+        agent.learn(number_of_timesteps)
         agent.path = path
         agent.save(FS.clear_a_path_for(path, overwrite=True))
         return agent
