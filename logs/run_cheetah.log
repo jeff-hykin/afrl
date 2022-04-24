@@ -1,0 +1,40 @@
+pybullet build time: Oct 11 2021 20:52:37
+argv[0]=
+argv[0]=
+
+
+-------------------------------------------------------
+
+ Environment: HalfCheetahBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-------------------------------------------------------
+ Training Agent from scratch for models.ignore/agents/HalfCheetahBulletEnv-v0/default_sac_4.zip
+-------------------------------------------------------
+
+
+Using cpu device
+Creating environment from the given name 'HalfCheetahBulletEnv-v0'
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+---------------------------------
+| rollout/           |          |
+|    ep_len_mean     | 1e+03    |
+|    ep_rew_mean     | -970     |
+| time/              |          |
+|    episodes        | 4        |
+|    fps             | 87       |
+|    time_elapsed    | 45       |
+|    total timesteps | 4000     |
+| train/             |          |
+|    actor_loss      | -21.8    |
+|    critic_loss     | 1.37     |
+|    ent_coef        | 0.32     |
+|    ent_coef_loss   | -9.83    |
+|    learning_rate   | 0.0003   |
+|    n_updates       | 3899     |
+---------------------------------
