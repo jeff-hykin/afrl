@@ -112,9 +112,9 @@
                 min_reward_single_timestep: 18
                 max_reward_single_timestep: 110
                 horizons:
-                0.1: 26
-                0.01: 16
-                0.001: 11
+                    0.1: 26
+                    0.01: 16
+                    0.001: 11
         ENV=CHEETAH:
             env_name: "HalfCheetahBulletEnv-v0"
             train_agent:
