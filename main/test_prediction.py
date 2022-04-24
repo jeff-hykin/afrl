@@ -118,16 +118,17 @@ class Tester:
         baseline_population_average = baseline.average
         baseline_worst_value        = baseline_population_average - (baseline_population_stdev*leniency)
         baseline_confidence_size = confidence_interval_size(confidence_interval_percent, baseline_samples)
+        print(f'''baseline_confidence_size = {baseline_confidence_size}''')
+        
         # 
         # hone in on acceptable epsilon
         # 
         print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
         new_epsilon = self.settings.initial_epsilon
         new_horizon = self.settings.initial_horizon
-        print(f'''baseline_confidence_size = {baseline_confidence_size}''')
         epsilon_attempts = []
-        horizon_attempts = LazyDict().setdefault(lambda key: []) # one list per epsilon value
-        all_failure_points = [self.settings.initial_horizon] # FIXME: this method of determining horizon needs re-doing. The horizon should probably be bigger, but we need a code refactor for that to be anywhere close to performant. (plan needs to be created reto-actively on demand instead of proactively)
+        failure_points_per_epsilon = LazyDict().setdefault(lambda key: [self.settings.initial_horizon]) # one list per epsilon value
+        horizon_for_epsilon = lambda epsilon: int(max(stats(failure_points_per_epsilon[epsilon]).median, 1) * 2) # horizon needs to provide plently of "growing room" and needs to stay above 1, otherwise it gets stuck and epsilon is meaningless
         for episode_index in range(self.settings.number_of_epochs_for_optimal_parameters):
             epoch_q_value_gaps = []
             sampled_rewards = []
@@ -140,17 +141,18 @@ class Tester:
                     episode_index=episode_index,
                     should_record=False,
                 )
+                epoch_q_value_gaps                      += q_value_gaps
+                failure_points_per_epsilon[new_epsilon] += failure_points
                 reward_single_sum = sum(discounted_rewards)
-                all_failure_points += failure_points
-                epoch_q_value_gaps += q_value_gaps
-                print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
                 sampled_rewards.append(reward_single_sum)
+                print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
+                
                 if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
                     print()
                     continue
-                new_horizon = max(stats(all_failure_points).median, 1) * 2
+                new_horizon     = max(stats(failure_points_per_epsilon[new_epsilon]).median, 1) * 2 # new
                 confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
-                print(f'''confidence_size={confidence_size}, new_horizon={new_horizon}''')
+                print(f'''confidence_size={confidence_size}, new_horizon={horizon_for_epsilon(epsilon)}''')
                 if confidence_size < baseline_confidence_size:
                     break
                 # prevent stupidly long runs because of volatile outcomes
@@ -167,13 +169,12 @@ class Tester:
             else:
                 new_epsilon /= increment_amount
             
-            horizon_attempts[new_epsilon] += [new_horizon]
             epsilon_attempts.append(new_epsilon)
-            print(f'''        episode={episode_index}, horizon={new_horizon}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
+            print(f'''        episode={episode_index}, horizon={horizon_for_epsilon(epsilon)}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
                 
         # take median to ignore outliers and find the converged-value even if the above process wasnt converging
         optimal_epsilon = simple_stats(epsilon_attempts).median
-        optimal_horizon = int(simple_stats(horizon_attempts[optimal_epsilon]).median)
+        optimal_horizon = horizon_for_epsilon(optimal_epsilon)
         print(f'''optimal_epsilon = {optimal_epsilon}''')
         print(f'''optimal_horizon = {optimal_horizon}''')
         return optimal_epsilon, optimal_horizon
