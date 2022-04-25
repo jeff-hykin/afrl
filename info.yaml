@@ -117,6 +117,8 @@
                     0.001: 11
         ENV=CHEETAH:
             env_name: "HalfCheetahBulletEnv-v0"
+            load:
+                agent_path: "subrepos/rl-trained-agents/sac/HalfCheetahBulletEnv-v0_1/HalfCheetahBulletEnv-v0.zip"
             train_agent:
                 reward_discount: 0.98
                 learning_rate: 0.00073
