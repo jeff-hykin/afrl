@@ -1,4 +1,4 @@
-from info import config, path_to
+from info import config, path_to, print
 from analysis import generate_all_visuals
 from main.agent import Agent
 from main.coach import Coach as Coach

@@ -26,7 +26,7 @@ from simple_namespace import namespace
 from rigorous_recorder import Recorder
 from cool_cache import cache
 
-from info import path_to, config
+from info import path_to, config, print
 from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats, save_all_charts_to
 from main.agent import Agent
 from main.coach import Coach

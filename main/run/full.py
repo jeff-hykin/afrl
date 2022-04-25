@@ -1,6 +1,6 @@
 from super_map import LazyDict
 
-from info import config, path_to
+from info import config, path_to, print
 from main.agent import Agent
 from main.coach import Coach as Coach
 from main.test_prediction import Tester

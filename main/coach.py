@@ -17,7 +17,7 @@ from trivial_torch_tools.generics import large_pickle_load, large_pickle_save, t
 from super_map import LazyDict
 
 from debug import debug
-from info import path_to, config
+from info import path_to, config, print
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average, log_graph, WeightUpdate
 from main.agent import Agent
 

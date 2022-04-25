@@ -71,3 +71,10 @@ import numpy as np
 def custom_handler(tensor):
     # always send to cpu first (otherwise it fails)
     return tensor.cpu().detach().numpy()
+
+# 
+# override print
+# 
+real_print = print
+def print(*args, **kwargs):
+    return real_print(*args, **{ "flush": True, **kwargs})

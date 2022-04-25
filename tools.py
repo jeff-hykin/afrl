@@ -153,7 +153,7 @@ def rolling_average(a_list, window):
 
 def ft(arg):
     from torch import FloatTensor
-    from info import config
+    from info import config, print
     return FloatTensor(arg).to(config.device)
 
 def log_scale(number):
