@@ -35,12 +35,7 @@ coach settings = {
     "number_of_episodes": 100, 
     "number_of_epochs": 100, 
     "train_test_split": 0.7, 
-    "batch_size": 128, 
+    "batch_size": 1024, 
     "with_card": True, 
 }
-Starting Experience Recording
-    Episode: 0, Reward: 3138.221, Average Reward: 3138.221
-    Episode: 1, Reward: 3064.089, Average Reward: 3101.155
-    Episode: 2, Reward: 3118.134, Average Reward: 3106.815
-    Episode: 3, Reward: 3110.512, Average Reward: 3107.739
-    Episode: 4, Reward: 3098.987, Average Reward: 3105.989
+Starting Train/Test

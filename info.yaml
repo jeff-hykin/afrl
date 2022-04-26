@@ -65,7 +65,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 128
+                batch_size: 1024
     
             test_predictor:
                 force_recompute: false
@@ -134,7 +134,7 @@
             hparams: 
                 learning_rate: 7.3e-4
                 buffer_size: 300000
-                batch_size: 128
+                batch_size: 1024
                 ent_coef: auto
                 gamma: 0.98
                 tau: 0.02
@@ -187,7 +187,7 @@
             hparams: 
                 learning_rate: 0.0003
                 buffer_size: 1000000
-                batch_size: 64
+                batch_size: 1024
                 ent_coef: auto
                 train_freq: 1
                 gradient_steps: 1
@@ -231,7 +231,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 128
+                batch_size: 1024
                 with_card: true
             train_coach:
                 force_retrain: false
@@ -311,7 +311,7 @@
                 value_plus_state_loss:
                     value_proportion: 0.5 # 50-50 split
                 number_of_epochs: 120
-                batch_size: 128
+                batch_size: 1024
             test_predictor:
                 force_recompute: false
         
@@ -353,7 +353,7 @@
                 loss_function: "value_plus_state_loss"
                 force_retrain: false
                 number_of_epochs: 120
-                batch_size: 128
+                batch_size: 1024
                 consistent_coach_loss:
                     scale_future_state_loss: 1
                 value_plus_state_loss:
@@ -638,7 +638,7 @@
                 consistent_coach_loss:
                     scale_future_state_loss: 1
                 number_of_epochs: 120
-                batch_size: 128
+                batch_size: 1024
                 
             test_predictor:
                 force_recompute: false
