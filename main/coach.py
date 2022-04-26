@@ -20,6 +20,7 @@ from debug import debug
 from info import path_to, config, print
 from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average, log_graph, WeightUpdate
 from main.agent import Agent
+from main.optimizer.sam import SAM
 
 settings = config.train_coach
 # contains:
@@ -111,7 +112,7 @@ class Coach(nn.Module):
         )
         self.episode_recorder = None
         self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
-        self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
+        self.optimizer = SAM(self.model.parameters(), base_optimizer=Adam, lr=self.learning_rate)
         self.loss_objects = LazyDict({
             each.__name__ : each()
                 for each in [
