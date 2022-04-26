@@ -1,54 +1,31 @@
+Traceback (most recent call last):
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/quik_config/main.py", line 392, in find_and_load
+    config = recursive_update(config, available_profiles[each_option])
+KeyError: 'CUSTOM=ANT_DELAYED_COACH'
 
+During handling of the above exception, another exception occurred:
 
--------------------------------------------------------
+Traceback (most recent call last):
+  File "./main/run/full.py", line 3, in <module>
+    from info import config, path_to, print
+  File "/home/jeffhykin/repos/AFRL/info.py", line 7, in <module>
+    info = find_and_load(
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/quik_config/main.py", line 394, in find_and_load
+    raise Exception(f"""
+Exception: 
 
- Environment: AntBulletEnv-v0
+    ---------------------------------------------------------------------------------
+    Your local config choices in this file: ./local_data.ignore.yaml
+    selected these options: ['CUSTOM=ANT_DELAYED_COACH']
+    (and there's a problem with this one: CUSTOM=ANT_DELAYED_COACH)
+    
+    Your info file: /home/jeffhykin/repos/AFRL/info.yaml
+    only lists these options available: ['(default)', 'FORCE_CPU_PROFILE', 'ENV=LUNAR', 'ENV=HOPPER', 'ENV=CHEETAH', 'ENV=WALKER', 'ENV=ANT', 'ENV=HUMANOID', 'LOSS=BASELINE', 'LOSS=Q', 'LOSS=Q_PLUS_STATE', 'LOSS=CONSISTENT_COACH', 'LOSS=CONSISTENT_VALUE', 'LOSS=HALF_CONSISTENT_COACH', 'LOSS=STATE_TRIPLE', 'LOSS=DELAYED_COACH_LOSS', 'CUSTOM=LUNAR_BASELINE_V1', 'CUSTOM=LUNAR_BASELINE_V2', 'CUSTOM=LUNAR_BASELINE_V3', 'CUSTOM=CHEETAH_BASELINE', 'CUSTOM=ANT_BASELINE', 'CUSTOM=LUNAR_Q', 'CUSTOM=CHEETAH_Q', 'CUSTOM=ANT_Q', 'CUSTOM=LUNAR_Q_PLUS_STATE', 'CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE', 'CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE', 'CUSTOM=CHEETAH_Q_PLUS_STATE', 'CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE', 'CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE', 'CUSTOM=ANT_Q_PLUS_STATE', 'CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE', 'CUSTOM=ANT_Q_IGNORED_PLUS_STATE', 'CUSTOM=LUNAR_CONSISTENT_COACH', 'CUSTOM=CHEETAH_CONSISTENT_COACH', 'CUSTOM=ANT_CONSISTENT_COACH', 'CUSTOM=CHEETAH_CONSISTENT_VALUE', 'CUSTOM=ANT_CONSISTENT_VALUE', 'CUSTOM=CHEETAH_HALF_CONSISTENT_COACH', 'CUSTOM=ANT_HALF_CONSISTENT_COACH', 'CUSTOM=CHEETAH_STATE_TRIPLE', 'CUSTOM=ANT_STATE_TRIPLE', 'CUSTOM=CHEETAH_DELAYED_COACH_LOSS', 'CUSTOM=ANT_DELAYED_COACH_LOSS']
+    Look for "(project)" -> "(profiles)" -> *option*,to see them
+    
+    LIKELY SOLUTION:
+        Edit your local config: ./local_data.ignore.yaml
+        And remove "- CUSTOM=ANT_DELAYED_COACH"
+    ---------------------------------------------------------------------------------
+    
 
--------------------------------------------------------
-
-
-
-
------------------------------------------------------------------------------------------------------
- Agent Model Exists, loading: subrepos/rl-trained-agents/sac/AntBulletEnv-v0_1/AntBulletEnv-v0.zip
------------------------------------------------------------------------------------------------------
-
-
-pybullet build time: Oct 11 2021 20:52:37
-Wrapping the env with a `Monitor` wrapper
-Wrapping the env in a DummyVecEnv.
-
-
------------------------------------------------------------------------------------------------------
- Training Coach Model from scrach
------------------------------------------------------------------------------------------------------
-
-
-coach settings = {
-    "force_retrain": False, 
-    "learning_rate": 0.0001, 
-    "hidden_sizes": [64, 64, 64, 64, ], 
-    "loss_function": "delayed_coach_loss", 
-    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
-    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
-    "value_plus_state_loss": {"value_proportion": 0.5, }, 
-    "number_of_episodes": 100, 
-    "number_of_epochs": 100, 
-    "train_test_split": 0.7, 
-    "batch_size": 128, 
-    "with_card": True, 
-}
-Starting Experience Reco    Ep    Episode: 0, Reward: 3090.537, Average Reward: 309    Ep    Episode: 1, Reward: 3083.932, Average Reward: 308    Ep    Episode: 2, Reward: 3150.259, Average Reward: 310    Ep    Episode: 3, Reward: 3039.207, Average Reward: 309    Ep    Episode: 4, Reward: 3119.419, Average Reward: 309    Ep    Episode: 5, Reward: 3046.100, Average Reward: 308    Ep    Episode: 6, Reward: 3129.928, Average Reward: 309    Ep    Episode: 7, Reward: 3122.247, Average Reward: 309    Ep    Episode: 8, Reward: 3116.937, Average Reward: 309    Ep    Episode: 9, Reward: 3097.337, Average Reward: 309    Ep    Episode: 10, Reward: 3076.415, Average Reward: 309    Ep    Episode: 11, Reward: 3103.328, Average Reward: 309    Ep    Episode: 12, Reward: 3075.754, Average Reward: 309    Ep    Episode: 13, Reward: 3044.882, Average Reward: 309    Ep    Episode: 14, Reward: 3114.299, Average Reward: 309    Ep    Episode: 15, Reward: 3151.804, Average Reward: 309    Ep    Episode: 16, Reward: 3076.962, Average Reward: 309    Ep    Episode: 17, Reward: 3075.608, Average Reward: 309    Ep    Episode: 18, Reward: 3089.321, Average Reward: 309    Ep    Episode: 19, Reward: 3137.663, Average Reward: 309    Ep    Episode: 20, Reward: 3015.439, Average Reward: 309    Ep    Episode: 21, Reward: 3109.650, Average Reward: 309    Ep    Episode: 22, Reward: 3094.444, Average Reward: 309    Ep    Episode: 23, Reward: 1327.370, Average Reward: 302    Ep    Episode: 24, Reward: 3126.525, Average Reward: 302    Ep    Episode: 25, Reward: 3111.878, Average Reward: 302    Ep    Episode: 26, Reward: 3109.634, Average Reward: 303    Ep    Episode: 27, Reward: 3112.613, Average Reward: 303    Ep    Episode: 28, Reward: 3071.643, Average Reward: 303    Ep    Episode: 29, Reward: 3112.235, Average Reward: 303    Ep    Episode: 30, Reward: 3111.632, Average Reward: 304    Ep    Episode: 31, Reward: 3127.128, Average Reward: 304    Ep    Episode: 32, Reward: 3090.001, Average Reward: 304    Ep    Episode: 33, Reward: 3104.243, Average Reward: 304    Ep    Episode: 34, Reward: 3044.939, Average Reward: 304    Ep    Episode: 35, Reward: 3095.073, Average Reward: 304    Ep    Episode: 36, Reward: 3153.517, Average Reward: 305    Ep    Episode: 37, Reward: 3093.156, Average Reward: 305    Ep    Episode: 38, Reward: 3108.269, Average Reward: 305    Ep    Episode: 39, Reward: 3124.823, Average Reward: 305    Ep    Episode: 40, Reward: 3114.660, Average Reward: 305    Ep    Episode: 41, Reward: 3111.290, Average Reward: 305    Ep    Episode: 42, Reward: 3094.915, Average Reward: 305    Ep    Episode: 43, Reward: 3073.438, Average Reward: 305    Ep    Episode: 44, Reward: 3110.675, Average Reward: 305    Ep    Episode: 45, Reward: 3071.781, Average Reward: 306    Ep    Episode: 46, Reward: 3125.216, Average Reward: 306    Ep    Episode: 47, Reward: 3135.197, Average Reward: 306    Ep    Episode: 48, Reward: 3079.902, Average Reward: 306    Ep    Episode: 49, Reward: 3087.326, Average Reward: 306    Ep    Episode: 50, Reward: 3123.265, Average Reward: 306    Ep    Episode: 51, Reward: 3067.949, Average Reward: 306    Ep    Episode: 52, Reward: 3138.281, Average Reward: 306    Ep    Episode: 53, Reward: 3119.824, Average Reward: 306    Ep    Episode: 54, Reward: 3046.286, Average Reward: 306    Ep    Episode: 55, Reward: 3065.467, Average Reward: 306    Ep    Episode: 56, Reward: 3114.087, Average Reward: 306    Ep    Episode: 57, Reward: 3102.844, Average Reward: 306    Ep    Episode: 58, Reward: 3014.722, Average Reward: 306    Ep    Episode: 59, Reward: 3094.527, Average Reward: 306    Ep    Episode: 60, Reward: 3116.141, Average Reward: 306    Ep    Episode: 61, Reward: 3063.682, Average Reward: 306    Ep    Episode: 62, Reward: 3113.184, Average Reward: 306    Ep    Episode: 63, Reward: 3125.972, Average Reward: 307    Ep    Episode: 64, Reward: 3095.207, Average Reward: 307    Ep    Episode: 65, Reward: 3099.256, Average Reward: 307    Ep    Episode: 66, Reward: 3108.011, Average Reward: 307    Ep    Episode: 67, Reward: 3116.282, Average Reward: 307    Ep    Episode: 68, Reward: 3136.855, Average Reward: 307    Ep    Episode: 69, Reward: 3104.214, Average Reward: 307    Ep    Episode: 70, Reward: 3121.650, Average Reward: 307    Ep    Episode: 71, Reward: 3099.488, Average Reward: 30    Epi    Episode: 72, Reward: 3131.855, Average Reward: 30    Epi    Episode: 73, Reward: 3099.734, Average Reward: 30    Epi    Episode: 74, Reward: 3051.640, Average Reward: 30    Epi    Episode: 75, Reward: 3096.409, Average Reward: 30    Epi    Episode: 76, Reward: 3065.090, Average Reward: 30    Epi    Episode: 77, Reward: 3105.075, Average Reward: 30    Epi    Episode: 78, Reward: 3118.279, Average Reward: 30    Epi    Episode: 79, Reward: 3070.901, Average Reward: 30    Epi    Episode: 80, Reward: 3100.647, Average Reward: 30    Epi    Episode: 81, Reward: 3112.410, Average Reward: 30    Epi    Episode: 82, Reward: 3153.908, Average Reward: 30    Epi    Episode: 83, Reward: 3095.714, Average Reward: 30    Epi    Episode: 84, Reward: 3102.084, Average Reward: 30    Epi    Episode: 85, Reward: 3060.946, Average Reward: 30    Epi    Episode: 86, Reward: 3096.081, Average Reward: 30    Epi    Episode: 87, Reward: 3132.056, Average Reward: 30    Epi    Episode: 88, Reward: 3107.438, Average Reward: 30    Epi    Episode: 89, Reward: 3007.735, Average Reward: 30    Epi    Episode: 90, Reward: 3130.592, Average Reward: 30    Epi    Episode: 91, Reward: 3127.208, Average Reward: 30    Epi    Episode: 92, Reward: 3051.671, Average Reward: 30    Epi    Episode: 93, Reward: 3103.005, Average Reward: 30    Epi    Episode: 94, Reward: 3075.352, Average Reward: 30    Epi    Episode: 95, Reward: 3125.873, Average Reward: 30    Epi    Episode: 96, Reward: 3069.804, Average Reward: 30    Epi    Episode: 97, Reward: 3070.744, Average Reward: 30    Epi    Episode: 98, Reward: 3139.277, Average Reward: 30    Epi    Episode: 99, Reward: 3150.608, Average Reward: 3081.299
-
-    Max Episode Reward: 3153.9079665370436
-    Min Episode Reward: 1327.3700676394797
-    Max Timestep Reward: 3.8283785680480764
-    Min Timestep Reward: -0.44861835834994834
-Starting T    Epoch: 0
-    Epoch: 1
-    Epoch: 2
-    Epoch: 3
-    Epoch: 4
-    Epoch: 5
-    Epoch: 6
- Epoch: 6

@@ -35,74 +35,36 @@ coach settings = {
     "number_of_episodes": 100, 
     "number_of_epochs": 100, 
     "train_test_split": 0.7, 
-    "batch_size": 128, 
+    "batch_size": 1024, 
     "with_card": True, 
 }
-Starting Experience Recording
-    Episode: 0, Reward: 3092.929, Average Reward: 3092.929
-    Episode: 1, Reward: 3070.547, Average Reward: 3081.738
-    Episode: 2, Reward: 3080.833, Average Reward: 3062.302
-    Episode: 3, Reward: 3101.364, Average Reward: 3072.068
-    Episode: 4, Reward: 3073.760, Average Reward: 3078.682
-    Episode: 5, Reward: 3144.125, Average Reward: 3089.589
-    Episode: 6, Reward: 3058.755, Average Reward: 3085.184
-    Episode: 7, Reward: 3064.456, Average Reward: 3082.593
-    Episode: 8, Reward: 3118.338, Average Reward: 3086.565
-    Episode: 9, Reward: 3049.898, Average Reward: 3082.898
-    Episode: 10, Reward: 3106.785, Average Reward: 3085.070
-    Episode: 11, Reward: 3147.108, Average Reward: 3090.240
-    Episode: 12, Reward: 3105.160, Average Reward: 3091.387
-    Episode: 13, Reward: 3098.439, Average Reward: 3091.891
-    Episode: 14, Reward: 3118.900, Average Reward: 3093.692
-    Episode: 15, Reward: 3104.848, Average Reward: 3094.389
-    Episode: 16, Reward: 3113.181, Average Reward: 3095.494
-    Episode: 17, Reward: 3078.537, Average Reward: 3094.552
-    Episode: 18, Reward: 3137.025, Average Reward: 3096.788
-    Episode: 19, Reward: 3101.914, Average Reward: 3097.044
-    Episode: 20, Reward: 3047.586, Average Reward: 3094.689
-    Episode: 21, Reward: 3128.822, Average Reward: 3096.240
-    Episode: 22, Reward: 3074.983, Average Reward: 3095.316
-    Episode: 23, Reward: 3074.304, Average Reward: 3094.441
-    Episode: 24, Reward: 3102.920, Average Reward: 3094.780
-    Episode: 25, Reward: 3122.257, Average Reward: 3095.837     Episode: 26, Reward: 3052.056, Average Reward: 3094.215     Episode: 27, Reward: 3084.203, Average Reward: 3093.857     Episode: 28, Reward: 3078.341, Average Reward: 3093.322     Episode: 29, Reward: 3055.248, Average Reward: 3092.053     Episode: 30, Reward: 3061.411, Average Reward: 3091.065     Episode: 31, Reward: 3067.528, Average Reward: 3090.329     Episode: 32, Reward: 3076.629, Average Reward: 3089.914     Episode: 33, Reward: 3100.337, Average Reward: 3090.221     Episode: 34, Reward: 3117.150, Average Reward: 3090.990     Episode: 35, Reward: 3108.287, Average Reward: 3091.471     Episode: 36, Reward: 3109.428, Average Reward: 3091.956     Episode: 37, Reward: 3036.424, Average Reward: 3090.495     Episode: 38, Reward: 3142.415, Average Reward: 3091.826     Episode: 39, Reward: 3120.734, Average Reward: 3092.549     Episode: 40, Reward: 3069.611, Average Reward: 3091.989     Episode: 41, Reward: 3083.039, Average Reward: 3091.776     Episode: 42, Reward: 3104.635, Average Reward: 3092.075     Episode: 43, Reward: 3142.389, Average Reward: 3093.219     Episode: 44, Reward: 3100.006, Average Reward: 3093.369     Episode: 45, Reward: 3119.387, Average Reward: 3093.935     Episode: 46, Reward: 3044.937, Average Reward: 3092.892     Episode: 47, Reward: 3122.302, Average Reward: 3093.505     Episode: 48, Reward: 3117.093, Average Reward: 3093.987     Episode: 49, Reward: 3116.960, Average Reward: 3094.446     Episode: 50, Reward: 3102.017, Average Reward: 3094.594     Episode: 51, Reward: 3015.898, Average Reward: 3093.081     Episode: 52, Reward: 3067.566, Average Reward: 3092.600     Episode: 53, Reward: 3097.311, Average Reward: 3092.687     Episode: 54, Reward: 3026.519, Average Reward: 3091.484     Episode: 55, Reward: 3132.979, Average Reward: 3092.225     Episode: 56, Reward: 3094.662, Average Reward: 3092.268     Episode: 57, Reward: 3058.142, Average Reward: 3091.679     Episode: 58, Reward: 3096.857, Average Reward: 3091.767     Episode: 59, Reward: 3097.171, Average Reward: 3091.857     Episode: 60, Reward: 3123.392, Average Reward: 3092.374     Episode: 61, Reward: 3059.834, Average Reward: 3091.849     Episode: 62, Reward: 3096.145, Average Reward: 3091.917    Episode: 63, Reward: 3147.769, Average Reward: 3062.240
-    Episode: 64, Reward: 3145.488, Average Reward: 3063.520
-    Episode: 65, Reward: 3084.701, Average Reward: 3063.841
-    Episode: 66, Reward: 3086.832, Average Reward: 3064.185
-    Episode: 67, Reward: 3036.925, Average Reward: 3063.784
-    Episode: 68, Reward: 3069.265, Average Reward: 3063.863
-     Episode: 69, Reward: 3107.928, Average Reward: 3090.532     Episode: 70, Reward: 3061.739, Average Reward: 3090.127    Episode: 71, Reward: 3125.932, Average Reward: 3065.652
-    Episode: 72, Reward: 3060.272, Average Reward: 3065.578
-    Episode: 73, Reward: 3084.392, Average Reward: 3065.833
-    Episode: 74, Reward: 3099.281, Average Reward: 3066.278
-    Episode: 75, Reward: 3104.958, Average Reward: 3066.787
-    Episode: 76, Reward: 3106.327, Average Reward: 3067.301
-    Episode: 77, Reward: 3069.111, Average Reward: 3067.324
-    Episode: 78, Reward: 3114.000, Average Reward: 3067.915
-    Episode: 79, Reward: 3083.588, Average Reward: 3068.111
-    Episode: 80, Reward: 3075.404, Average Reward: 3068.201
-    Episode: 81, Reward: 3118.245, Average Reward: 3068.811
-    Episode: 82, Reward: 3125.840, Average Reward: 3069.498
-    Episode: 83, Reward: 3105.787, Average Reward: 3069.930
-    Episode: 84, Reward: 3034.166, Average Reward: 3069.510
-    Episode: 85, Reward: 3077.637, Average Reward: 3069.604
-    Episode: 86, Reward: 3094.687, Average Reward: 3069.892
-    Episode: 87, Reward: 3042.573, Average Reward: 3069.582
-    Episode: 88, Reward: 3108.023, Average Reward: 3070.014
-    Episode: 89, Reward: 3085.410, Average Reward: 3070.185
-    Episode: 90, Reward: 3032.540, Average Reward: 3069.771
-    Episode: 91, Reward: 3121.854, Average Reward: 3070.337
-    Episode: 92, Reward: 3107.598, Average Reward: 3070.738
-    Episode: 93, Reward: 3101.005, Average Reward: 3071.060
-    Episode: 94, Reward: 3107.992, Average Reward: 3071.449
-    Episode: 95, Reward: 3035.646, Average Reward: 3071.076
-    Episode: 96, Reward: 3095.071, Average Reward: 3071.323
-    Episode: 97, Reward: 3104.059, Average Reward: 3071.657
-    Episode: 98, Reward: 3073.528, Average Reward: 3071.676
-     Episode: 99, Reward: 3108.650, Average Reward: 3089.735
-    Max Episode Reward: 3159.810625242195
-    Min Episode Reward: 678.3859380295186
-    Max Timestep Reward: 3.8914679757101136
-    Min Timestep Reward: -0.7753876760931002
 Starting Train/Test
-      Epoch:     Epoch: 1
-      Epoch:       Epoch: 3
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 21, in full_run
+    coach = Coach.smart_load(
+  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 82, in smart_load
+    coach.train_with(
+  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 506, in train_with
+    print(f'''    Epoch: {epochs_index}''')
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/model.py", line 118, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 469, in train_with
+    per_batch_data[name+"_train"].append(to_pure(loss))
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 397, in __exit__
+    self.optimizer.step()
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/optim/optimizer.py", line 88, in wrapper
+    return func(*args, **kwargs)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/autograd/grad_mode.py", line 28, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/optimizer/sam.py", line 44, in step
+    assert closure is not None, "Sharpness Aware Minimization requires closure, but it was not provided"
+AssertionError: Sharpness Aware Minimization requires closure, but it was not provided
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+

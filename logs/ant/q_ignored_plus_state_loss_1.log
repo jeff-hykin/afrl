@@ -637,3 +637,10 @@ optimal_horizon = 2
     scaled_epsilon: 0.0390, forecast_average: 0.1127, episode_reward:3051.19, max_timestep_reward: 3.57, min_timestep_reward: -0.19
     scaled_epsilon: 0.0390, forecast_average: 0.1169, episode_reward:3042.21, max_timestep_reward: 3.73, min_timestep_reward: -0.25
     scaled_epsilon: 0.0390, forecast_average: 0.1142, episode_reward:3025.98, max_timestep_reward: 3.62, min_timestep_reward: -0.21
+    scaled_epsilon: 0.0390, forecast_average: 0.1134, episode_reward:3049.35, max_timestep_reward: 3.60, min_timestep_reward: -0.36
+    scaled_epsilon: 0.0390, forecast_average: 0.1129, episode_reward:3027.77, max_timestep_reward: 3.59, min_timestep_reward: -0.22
+    scaled_epsilon: 0.0390, forecast_average: 0.1124, episode_reward:3058.40, max_timestep_reward: 3.56, min_timestep_reward: -0.35
+    scaled_epsilon: 0.0390, forecast_average: 0.1122, episode_reward:3092.18, max_timestep_reward: 3.71, min_timestep_reward: -0.19
+    scaled_epsilon: 0.0390, forecast_average: 0.1163, episode_reward:3049.42, max_timestep_reward: 3.68, min_timestep_reward: -0.19
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
