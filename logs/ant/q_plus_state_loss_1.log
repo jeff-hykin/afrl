@@ -35,115 +35,9 @@ coach settings = {
     "number_of_episodes": 100, 
     "number_of_epochs": 120, 
     "train_test_split": 0.7, 
-    "batch_size": 128, 
+    "batch_size": 1024, 
     "with_card": True, 
 }
-Starting Experience Recording
-    Episode: 0, Reward: 3089.191, Average Reward: 3089.191
-    Episode: 1, Reward: 3140.253, Average Reward: 3114.722
-    Episode: 2, Reward: 3097.531, Average Reward: 3108.992
-    Episode: 3, Reward: 3098.623, Average Reward: 3106.399
-    Episode: 4, Reward: 3062.642, Average Reward: 3097.648
-    Episode: 5, Reward: 1680.373, Average Reward: 2861.435
-    Episode: 6, Reward: 3136.521, Average Reward: 2900.733
-    Episode: 7, Reward: 3097.191, Average Reward: 2925.291
-    Episode: 8, Reward: 3165.556, Average Reward: 2951.987
-    Episode: 9, Reward: 3135.564, Average Reward: 2970.344
-    Episode: 10, Reward: 3136.490, Average Reward: 2985.449
-    Episode: 11, Reward: 3108.600, Average Reward: 2995.711
-    Episode: 12, Reward: 3061.256, Average Reward: 3000.753
-    Episode: 13, Reward: 3136.126, Average Reward: 3010.422
-    Episode: 14, Reward: 3135.502, Average Reward: 3018.761
-    Episode: 15, Reward: 3069.617, Average Reward: 3021.940
-    Episode: 16, Reward: 3043.463, Average Reward: 3023.206
-    Episode: 17, Reward: 3097.583, Average Reward: 3027.338
-    Episode: 18, Reward: 3114.284, Average Reward: 3031.914
-    Episode: 19, Reward: 3111.918, Average Reward: 3035.914
-    Episode: 20, Reward: 3069.148, Average Reward: 3037.497
-    Episode: 21, Reward: 3033.465, Average Reward: 3037.313
-    Episode: 22, Reward: 3111.739, Average Reward: 3040.549
-    Episode: 23, Reward: 3107.243, Average Reward: 3043.328
-    Episode: 24, Reward: 3092.148, Average Reward: 3045.281
-    Episode: 25, Reward: 3107.552, Average Reward: 3047.676
-    Episode: 26, Reward: 3110.435, Average Reward: 3050.000
-    Episode: 27, Reward: 2931.319, Average Reward: 3045.762
-    Episode: 28, Reward: 3133.738, Average Reward: 3048.795
-    Episode: 29, Reward: 3095.874, Average Reward: 3050.365
-    Episode: 30, Reward: 3110.399, Average Reward: 3052.301
-    Episode: 31, Reward: 3089.918, Average Reward: 3053.477
-    Episode: 32, Reward: 3086.738, Average Reward: 3054.485
-    Episode: 33, Reward: 3085.825, Average Reward: 3055.407
-    Episode: 34, Reward: 3121.325, Average Reward: 3057.290
-    Episode: 35, Reward: 3062.556, Average Reward: 3057.436
-    Episode: 36, Reward: 3104.120, Average Reward: 3058.698
-    Episode: 37, Reward: 3093.863, Average Reward: 3059.623
-    Episode: 38, Reward: 3051.074, Average Reward: 3059.404
-    Episode: 39, Reward: 3099.147, Average Reward: 3060.398
-    Episode: 40, Reward: 3098.021, Average Reward: 3061.315
-    Episode: 41, Reward: 3119.604, Average Reward: 3062.703
-    Episode: 42, Reward: 3081.885, Average Reward: 3063.149
-    Episode: 43, Reward: 3082.693, Average Reward: 3063.593
-    Episode: 44, Reward: 2975.956, Average Reward: 3061.646
-    Episode: 45, Reward: 3114.420, Average Reward: 3062.793
-    Episode: 46, Reward: 2678.996, Average Reward: 3054.627
-    Episode: 47, Reward: 3133.347, Average Reward: 3056.267
-    Episode: 48, Reward: 3096.832, Average Reward: 3057.095
-    Episode: 49, Reward: 3110.373, Average Reward: 3058.161
-    Episode: 50, Reward: 2295.458, Average Reward: 3043.206
-    Episode: 51, Reward: 3082.744, Average Reward: 3043.966
-    Episode: 52, Reward: 3135.557, Average Reward: 3045.694
-    Episode: 53, Reward: 3088.644, Average Reward: 3046.490
-    Episode: 54, Reward: 3112.720, Average Reward: 3047.694
-    Episode: 55, Reward: 3088.285, Average Reward: 3048.419
-    Episode: 56, Reward: 3083.660, Average Reward: 3049.037
-    Episode: 57, Reward: 3125.688, Average Reward: 3050.358
-    Episode: 58, Reward: 3115.506, Average Reward: 3051.463
-    Episode: 59, Reward: 3053.662, Average Reward: 3051.499
-    Episode: 60, Reward: 3114.317, Average Reward: 3052.529
-    Episode: 61, Reward: 3113.525, Average Reward: 3053.513
-    Episode: 62, Reward: 3118.475, Average Reward: 3054.544
-    Episode: 63, Reward: 3049.749, Average Reward: 3054.469
-    Episode: 64, Reward: 3078.538, Average Reward: 3054.839
-    Episode: 65, Reward: 3079.376, Average Reward: 3055.211
-    Episode: 66, Reward: 3078.305, Average Reward: 3055.556
-    Episode: 67, Reward: 3131.577, Average Reward: 3056.674
-    Episode: 68, Reward: 3176.574, Average Reward: 3058.412
-    Episode: 69, Reward: 3110.580, Average Reward: 3059.157
-    Episode: 70, Reward: 3107.332, Average Reward: 3059.835
-    Episode: 71, Reward: 3070.709, Average Reward: 3059.986
-    Episode: 72, Reward: 3063.577, Average Reward: 3060.036
-    Episode: 73, Reward: 3097.221, Average Reward: 3060.538
-    Episode: 74, Reward: 3110.326, Average Reward: 3061.202
-    Episode: 75, Reward: 3103.218, Average Reward: 3061.755
-    Episode: 76, Reward: 3119.261, Average Reward: 3062.502
-    Episode: 77, Reward: 3113.003, Average Reward: 3063.149
-    Episode: 78, Reward: 3113.470, Average Reward: 3063.786
-    Episode: 79, Reward: 2965.358, Average Reward: 3062.556
-    Episode: 80, Reward: 3064.250, Average Reward: 3062.577
-    Episode: 81, Reward: 3048.975, Average Reward: 3062.411
-    Episode: 82, Reward: 3120.577, Average Reward: 3063.111
-    Episode: 83, Reward: 3036.574, Average Reward: 3062.796
-    Episode: 84, Reward: 3059.270, Average Reward: 3062.754
-    Episode: 85, Reward: 3140.106, Average Reward: 3063.653
-    Episode: 86, Reward: 3108.619, Average Reward: 3064.170
-    Episode: 87, Reward: 3080.784, Average Reward: 3064.359
-    Episode: 88, Reward: 3028.784, Average Reward: 3063.959
-    Episode: 89, Reward: 3127.391, Average Reward: 3064.664
-    Episode: 90, Reward: 3106.463, Average Reward: 3065.124
-    Episode: 91, Reward: 3042.212, Average Reward: 3064.874
-    Episode: 92, Reward: 3095.149, Average Reward: 3065.200
-    Episode: 93, Reward: 3071.761, Average Reward: 3065.270
-    Episode: 94, Reward: 2754.668, Average Reward: 3062.000
-    Episode: 95, Reward: 3089.912, Average Reward: 3062.291
-    Episode: 96, Reward: 3068.172, Average Reward: 3062.352
-    Episode: 97, Reward: 2586.611, Average Reward: 3057.497
-    Episode: 98, Reward: 3116.042, Average Reward: 3058.089
-    Episode: 99, Reward: 3108.875, Average Reward: 3058.596
-
-    Max Episode Reward: 3176.573503045795
-    Min Episode Reward: 1680.3729960489193
-    Max Timestep Reward: 3.7961806110649556
-    Min Timestep Reward: -1.0227785318363385
 Starting Train/Test
     Epoch: 0
     Epoch: 1
@@ -151,3 +45,569 @@ Starting Train/Test
     Epoch: 3
     Epoch: 4
     Epoch: 5
+    Epoch: 6
+    Epoch: 7
+    Epoch: 8
+    Epoch: 9
+    Epoch: 10
+    Epoch: 11
+    Epoch: 12
+    Epoch: 13
+    Epoch: 14
+    Epoch: 15
+    Epoch: 16
+    Epoch: 17
+    Epoch: 18
+    Epoch: 19
+    Epoch: 20
+    Epoch: 21
+    Epoch: 22
+    Epoch: 23
+    Epoch: 24
+    Epoch: 25
+    Epoch: 26
+    Epoch: 27
+    Epoch: 28
+    Epoch: 29
+    Epoch: 30
+    Epoch: 31
+    Epoch: 32
+    Epoch: 33
+    Epoch: 34
+    Epoch: 35
+    Epoch: 36
+    Epoch: 37
+    Epoch: 38
+    Epoch: 39
+    Epoch: 40
+    Epoch: 41
+    Epoch: 42
+    Epoch: 43
+    Epoch: 44
+    Epoch: 45
+    Epoch: 46
+    Epoch: 47
+    Epoch: 48
+    Epoch: 49
+    Epoch: 50
+    Epoch: 51
+    Epoch: 52
+    Epoch: 53
+    Epoch: 54
+    Epoch: 55
+    Epoch: 56
+    Epoch: 57
+    Epoch: 58
+    Epoch: 59
+    Epoch: 60
+    Epoch: 61
+    Epoch: 62
+    Epoch: 63
+    Epoch: 64
+    Epoch: 65
+    Epoch: 66
+    Epoch: 67
+    Epoch: 68
+    Epoch: 69
+    Epoch: 70
+    Epoch: 71
+    Epoch: 72
+    Epoch: 73
+    Epoch: 74
+    Epoch: 75
+    Epoch: 76
+    Epoch: 77
+    Epoch: 78
+    Epoch: 79
+    Epoch: 80
+    Epoch: 81
+    Epoch: 82
+    Epoch: 83
+    Epoch: 84
+    Epoch: 85
+    Epoch: 86
+    Epoch: 87
+    Epoch: 88
+    Epoch: 89
+    Epoch: 90
+    Epoch: 91
+    Epoch: 92
+    Epoch: 93
+    Epoch: 94
+    Epoch: 95
+    Epoch: 96
+    Epoch: 97
+    Epoch: 98
+    Epoch: 99
+    Epoch: 100
+    Epoch: 101
+    Epoch: 102
+    Epoch: 103
+    Epoch: 104
+    Epoch: 105
+    Epoch: 106
+    Epoch: 107
+    Epoch: 108
+    Epoch: 109
+    Epoch: 110
+    Epoch: 111
+    Epoch: 112
+    Epoch: 113
+    Epoch: 114
+    Epoch: 115
+    Epoch: 116
+    Epoch: 117
+    Epoch: 118
+    Epoch: 119
+Saving Coach to: models.ignore/coach/AntBulletEnv-v0/q_plus_state_loss_1/
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "force_recompute": False, 
+    "graph_smoothing": 3, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 9, 
+    "initial_epsilon": 0.1316872427983539, 
+    "initial_horizon": 8, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_loss": 2, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": 19, 
+    "max_reward_single_timestep": 105, 
+    "horizons": {0: 1, 0.0007: 4, 0.0015: 16, 0.002: 26, }, 
+}
+baseline = {
+    "max": 105.15090233798715, 
+    "min": 97.48693352007322, 
+    "range": 7.663968817913926, 
+    "count": 30, 
+    "sum": 3048.2638920231598, 
+    "average": 101.608796400772, 
+    "stdev": 1.7865210698736294, 
+    "median": 101.56097791518405, 
+}
+baseline_confidence_size = 0.5542087306245662
+----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------
+argv[0]=
+argv[0]=
+            reward_single_sum=98.1579289114095, 
+            reward_single_sum=102.04668934289722, confidence_size=12.276333532501788, new_horizon=4
+            reward_single_sum=100.16944642940915, confidence_size=3.2785933470808857, new_horizon=4
+            reward_single_sum=101.52907631024874, confidence_size=2.042987767664627, new_horizon=4
+            reward_single_sum=98.36206306163318, confidence_size=1.6932903757129623, new_horizon=4
+            reward_single_sum=100.74526297832459, confidence_size=1.3273357804995243, new_horizon=4
+            reward_single_sum=100.67418590434774, confidence_size=1.0908666205385202, new_horizon=4
+            reward_single_sum=89.09759820243465, confidence_size=2.795056551612973, new_horizon=4
+            reward_single_sum=100.91520499168804, confidence_size=2.4568501033485006, new_horizon=4
+            reward_single_sum=100.13085152221227, confidence_size=2.1748233454716512, new_horizon=4
+            reward_single_sum=100.18823890061336, confidence_size=1.9520812327677106, new_horizon=4
+            reward_single_sum=100.2215396637365, confidence_size=1.771382909586663, new_horizon=4
+            reward_single_sum=102.39100116467893, confidence_size=1.6698697797849178, new_horizon=4
+            reward_single_sum=100.79239625786876, confidence_size=1.543700786131808, new_horizon=4
+            reward_single_sum=100.01634131951975, confidence_size=1.4298665600347817, new_horizon=4
+            reward_single_sum=101.32625259782927, confidence_size=1.3431771139227493, new_horizon=4
+            reward_single_sum=102.30531409705127, confidence_size=1.282655221182182, new_horizon=4
+            reward_single_sum=100.95777961702983, confidence_size=1.208918069218612, new_horizon=4
+            reward_single_sum=99.26665524917776, confidence_size=1.1418496094421045, new_horizon=4
+            reward_single_sum=92.91482107571247, confidence_size=1.2401931031038202, new_horizon=4
+            reward_single_sum=103.78270683054681, confidence_size=1.2255280641609687, new_horizon=4
+            reward_single_sum=102.04244987300245, confidence_size=1.1788162465341543, new_horizon=4
+            reward_single_sum=103.03404468840168, confidence_size=1.1479758265369924, new_horizon=4
+            reward_single_sum=95.74111857982534, confidence_size=1.1392766914811716, new_horizon=4
+            reward_single_sum=101.05836047399892, confidence_size=1.0938921619977435, new_horizon=4
+            reward_single_sum=100.36481627386763, confidence_size=1.049710259348032, new_horizon=4
+            reward_single_sum=103.5487181930838, confidence_size=1.03414587409398, new_horizon=4
+            reward_single_sum=103.42111946132964, confidence_size=1.0158809167556626, new_horizon=4
+            reward_single_sum=103.39840874492133, confidence_size=0.9969563785659119, new_horizon=4
+            reward_single_sum=98.2111561436162, confidence_size=0.969240352127585, new_horizon=4
+        hit cap of: 30 iterations
+        episode=0, horizon=16, effective_score=100.23, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0878, bad=True, gap_average=0.2963127105474472
+            reward_single_sum=102.62524956439275, 
+            reward_single_sum=103.11313010620812, confidence_size=1.5401782549643528, new_horizon=2
+            reward_single_sum=106.5044339824973, confidence_size=3.562105899804564, new_horizon=4
+            reward_single_sum=98.07686487123831, confidence_size=4.07420179767071, new_horizon=2
+            reward_single_sum=98.82066172837112, confidence_size=3.2774778091693832, new_horizon=2
+            reward_single_sum=101.35564537270703, confidence_size=2.534406620413165, new_horizon=2
+            reward_single_sum=101.64031754780711, confidence_size=2.065791558181381, new_horizon=2
+            reward_single_sum=100.5855459987427, confidence_size=1.765350066039744, new_horizon=2
+            reward_single_sum=100.49585342315578, confidence_size=1.5447444676452449, new_horizon=2
+            reward_single_sum=99.8151788341944, confidence_size=1.3953372470314065, new_horizon=2
+            reward_single_sum=103.56852255838423, confidence_size=1.302532280770663, new_horizon=2
+            reward_single_sum=103.60366292878048, confidence_size=1.2191523618480602, new_horizon=2
+            reward_single_sum=99.05887173504007, confidence_size=1.1697005337797464, new_horizon=2
+            reward_single_sum=105.07359412605545, confidence_size=1.1680206956588677, new_horizon=2
+            reward_single_sum=104.43358933889007, confidence_size=1.1268134271533796, new_horizon=2
+            reward_single_sum=100.57626879486716, confidence_size=1.059345486868736, new_horizon=2
+            reward_single_sum=103.211804888245, confidence_size=1.0010615516166013, new_horizon=2
+            reward_single_sum=103.23065603130276, confidence_size=0.948970394276472, new_horizon=2
+            reward_single_sum=100.84493410862429, confidence_size=0.9008404351872912, new_horizon=2
+            reward_single_sum=101.76128549558126, confidence_size=0.8523042917443604, new_horizon=2
+            reward_single_sum=101.69965867374422, confidence_size=0.8088354277405045, new_horizon=2
+            reward_single_sum=101.48033342157584, confidence_size=0.7701480476102631, new_horizon=2
+            reward_single_sum=102.76544751927041, confidence_size=0.7372669780806689, new_horizon=2
+            reward_single_sum=102.08003407313639, confidence_size=0.7046177645236895, new_horizon=2
+            reward_single_sum=99.02843187470607, confidence_size=0.7033635035063668, new_horizon=2
+            reward_single_sum=100.68953401632939, confidence_size=0.6787480807259954, new_horizon=2
+            reward_single_sum=104.28608939522049, confidence_size=0.6711817543733787, new_horizon=2
+            reward_single_sum=102.4826365295401, confidence_size=0.6469662524869477, new_horizon=2
+            reward_single_sum=100.82784564070516, confidence_size=0.6265708760182633, new_horizon=2
+            reward_single_sum=92.04148150004563, confidence_size=0.8211922207662639, new_horizon=2
+        hit cap of: 30 iterations
+        episode=1, horizon=4, effective_score=101.53, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.1317, bad=False, gap_average=0.27624521657625833
+            reward_single_sum=99.4464354539082, 
+            reward_single_sum=100.74504382521644, confidence_size=4.099545285740312, new_horizon=4
+            reward_single_sum=101.15206805653132, confidence_size=1.5017728999667241, new_horizon=4
+            reward_single_sum=101.3742869825909, confidence_size=1.0146776188391868, new_horizon=4
+            reward_single_sum=100.4105548033957, confidence_size=0.7211570178822342, new_horizon=4
+            reward_single_sum=100.39344519368328, confidence_size=0.5620003750499194, new_horizon=4
+            reward_single_sum=99.50925196746816, confidence_size=0.5470845697445696, new_horizon=4
+        episode=2, horizon=2, effective_score=100.43, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0878, bad=True, gap_average=0.3075053494317191
+            reward_single_sum=103.26073456899877, 
+            reward_single_sum=101.29233676869796, confidence_size=6.213987296690021, new_horizon=2
+            reward_single_sum=100.97954365979717, confidence_size=2.0848621378246577, new_horizon=2
+            reward_single_sum=101.8400377004552, confidence_size=1.1881507973085519, new_horizon=2
+            reward_single_sum=101.96714295768481, confidence_size=0.8353825446598648, new_horizon=2
+            reward_single_sum=101.82121109702814, confidence_size=0.6449083286028383, new_horizon=2
+            reward_single_sum=101.53885092018676, confidence_size=0.5331222461653908, new_horizon=2
+        episode=3, horizon=4, effective_score=101.81, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.1317, bad=False, gap_average=0.278767833505358
+            reward_single_sum=97.99705628462203, 
+            reward_single_sum=102.48350462562658, confidence_size=14.163160004546803, new_horizon=4
+            reward_single_sum=100.64176140676079, confidence_size=3.801885389995789, new_horizon=4
+            reward_single_sum=92.37441248790348, confidence_size=5.181316193955794, new_horizon=4
+            reward_single_sum=101.50636022112303, confidence_size=3.8731710847101155, new_horizon=4
+            reward_single_sum=105.17819645805605, confidence_size=3.638606483841599, new_horizon=4
+            reward_single_sum=99.30777654876573, confidence_size=2.9722786138881787, new_horizon=4
+            reward_single_sum=105.08587570529886, confidence_size=2.7912663596399483, new_horizon=4
+            reward_single_sum=97.76305743317835, confidence_size=2.484870394808283, new_horizon=4
+            reward_single_sum=102.89726865343124, confidence_size=2.2436520073497945, new_horizon=4
+            reward_single_sum=100.66534601235534, confidence_size=2.0067318090386266, new_horizon=4
+            reward_single_sum=101.23424700452412, confidence_size=1.8181350396274638, new_horizon=4
+            reward_single_sum=100.7390255671286, confidence_size=1.659896511829146, new_horizon=4
+            reward_single_sum=102.38703831334857, confidence_size=1.5435119379060112, new_horizon=4
+            reward_single_sum=102.54463085609592, confidence_size=1.4448694642056665, new_horizon=4
+            reward_single_sum=102.4655574808119, confidence_size=1.3567564573499453, new_horizon=4
+            reward_single_sum=102.73934164588455, confidence_size=1.2824092195485406, new_horizon=4
+            reward_single_sum=102.93910067267274, confidence_size=1.218339298689763, new_horizon=4
+            reward_single_sum=101.2114782363524, confidence_size=1.1487696839259058, new_horizon=4
+            reward_single_sum=99.8618667501569, confidence_size=1.092556524418768, new_horizon=4
+            reward_single_sum=99.99963945068475, confidence_size=1.040515517437882, new_horizon=4
+            reward_single_sum=104.72831989483359, confidence_size=1.030799221160116, new_horizon=4
+            reward_single_sum=103.68595365135444, confidence_size=1.0000520261175438, new_horizon=4
+            reward_single_sum=87.53513108820644, confidence_size=1.3721424930771775, new_horizon=4
+            reward_single_sum=96.67448442460395, confidence_size=1.3430790251992164, new_horizon=4
+            reward_single_sum=99.86192552224178, confidence_size=1.2891986139632081, new_horizon=4
+            reward_single_sum=100.91648951868737, confidence_size=1.2389067164597378, new_horizon=4
+            reward_single_sum=99.50846551567624, confidence_size=1.1939616689893313, new_horizon=4
+            reward_single_sum=98.1094603602815, confidence_size=1.1593476692833207, new_horizon=4
+            reward_single_sum=50.396101064748876, confidence_size=3.047668229388549, new_horizon=4
+        hit cap of: 30 iterations
+        episode=4, horizon=2, effective_score=98.78, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0878, bad=True, gap_average=0.30752276295820874
+            reward_single_sum=99.6988083869621, 
+            reward_single_sum=100.28892739669845, confidence_size=1.8629323958178716, new_horizon=2
+            reward_single_sum=102.24747881158727, confidence_size=2.249198280722382, new_horizon=2
+            reward_single_sum=102.34256427946272, confidence_size=1.589456882077016, new_horizon=2
+            reward_single_sum=96.9609707769437, confidence_size=2.1036862886229244, new_horizon=2
+            reward_single_sum=103.42474113742087, confidence_size=1.9317674433719532, new_horizon=2
+            reward_single_sum=100.53581048484496, confidence_size=1.5764894320917762, new_horizon=2
+            reward_single_sum=100.85333472175235, confidence_size=1.3312289326113245, new_horizon=2
+            reward_single_sum=98.77314919799169, confidence_size=1.2256463485651636, new_horizon=2
+            reward_single_sum=103.84696472249333, confidence_size=1.2364428443882076, new_horizon=2
+            reward_single_sum=103.95093664305244, confidence_size=1.2148923181276103, new_horizon=2
+            reward_single_sum=102.63836961200253, confidence_size=1.1205109420342012, new_horizon=2
+            reward_single_sum=99.31744087569044, confidence_size=1.0583010620850928, new_horizon=2
+            reward_single_sum=99.77575383045576, confidence_size=0.9888322590704774, new_horizon=2
+            reward_single_sum=103.43559300031018, confidence_size=0.9575537016756641, new_horizon=2
+            reward_single_sum=98.79345767716414, confidence_size=0.929872465957402, new_horizon=2
+            reward_single_sum=101.03377336771901, confidence_size=0.8698950682835971, new_horizon=2
+            reward_single_sum=102.24796813807039, confidence_size=0.8253027971199032, new_horizon=2
+            reward_single_sum=101.0351221795145, confidence_size=0.7782096482450243, new_horizon=2
+            reward_single_sum=100.75626126288618, confidence_size=0.7368313729451614, new_horizon=2
+            reward_single_sum=101.0134748761807, confidence_size=0.6991114482141398, new_horizon=2
+            reward_single_sum=100.83570104882872, confidence_size=0.6653466534319961, new_horizon=2
+            reward_single_sum=98.97330999267608, confidence_size=0.6536745453420707, new_horizon=2
+            reward_single_sum=101.74694451653633, confidence_size=0.6269846655267486, new_horizon=2
+            reward_single_sum=100.61713457535107, confidence_size=0.6009724829153384, new_horizon=2
+            reward_single_sum=98.62978472105509, confidence_size=0.5972305088583454, new_horizon=2
+            reward_single_sum=99.6025620642347, confidence_size=0.5797892631617287, new_horizon=2
+            reward_single_sum=102.47721176998004, confidence_size=0.5664816286993073, new_horizon=2
+            reward_single_sum=100.31662541566668, confidence_size=0.5470653732875661, new_horizon=2
+        episode=5, horizon=16, effective_score=100.90, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0585, bad=True, gap_average=0.27519849057033147
+            reward_single_sum=101.36130747786392, 
+            reward_single_sum=101.77170622809136, confidence_size=1.2955778654604657, new_horizon=2
+            reward_single_sum=101.42937925057277, confidence_size=0.37079132588560526, new_horizon=2
+        episode=6, horizon=2, effective_score=101.52, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0878, bad=False, gap_average=0.2400950592358907
+            reward_single_sum=98.71578053304286, 
+            reward_single_sum=96.03706101550843, confidence_size=8.456384705779925, new_horizon=2
+            reward_single_sum=101.36244678538627, confidence_size=4.488939781793789, new_horizon=2
+            reward_single_sum=100.23642589465246, confidence_size=2.712225086345711, new_horizon=2
+            reward_single_sum=95.35927501789502, confidence_size=2.4797809999309095, new_horizon=2
+            reward_single_sum=99.29291239684494, confidence_size=1.9402543210757415, new_horizon=2
+            reward_single_sum=94.80018452769383, confidence_size=1.8856885680260262, new_horizon=2
+            reward_single_sum=102.7024488175995, confidence_size=1.946828634651908, new_horizon=2
+            reward_single_sum=101.01569497599893, confidence_size=1.7597244355687849, new_horizon=2
+            reward_single_sum=103.55384407454645, confidence_size=1.7763363965136278, new_horizon=2
+            reward_single_sum=101.22380782734642, confidence_size=1.6197255240095245, new_horizon=2
+            reward_single_sum=99.63784637290884, confidence_size=1.4652635432000523, new_horizon=2
+            reward_single_sum=100.37596071503275, confidence_size=1.343085387263386, new_horizon=2
+            reward_single_sum=100.0576777840593, confidence_size=1.2371201064021164, new_horizon=2
+            reward_single_sum=98.76219347332007, confidence_size=1.1496340313138376, new_horizon=2
+            reward_single_sum=102.20515307398917, confidence_size=1.1093945699178533, new_horizon=2
+            reward_single_sum=101.95235023797274, confidence_size=1.0631066130466422, new_horizon=2
+            reward_single_sum=101.76047909700678, confidence_size=1.0157919138937075, new_horizon=2
+            reward_single_sum=102.41928532115583, confidence_size=0.9839940735241584, new_horizon=2
+            reward_single_sum=101.23353213670157, confidence_size=0.9361955209776056, new_horizon=2
+            reward_single_sum=101.58027063944749, confidence_size=0.8961198707469009, new_horizon=2
+            reward_single_sum=102.2502354948704, confidence_size=0.8673413617798218, new_horizon=2
+            reward_single_sum=102.40682260666824, confidence_size=0.8419060858036858, new_horizon=2
+            reward_single_sum=102.08836065325633, confidence_size=0.813630736408669, new_horizon=2
+            reward_single_sum=99.93274696421817, confidence_size=0.7798798022797655, new_horizon=2
+            reward_single_sum=99.98677514085307, confidence_size=0.7486721762165018, new_horizon=2
+            reward_single_sum=93.58349070384271, confidence_size=0.839066182634582, new_horizon=2
+            reward_single_sum=105.70446438799506, confidence_size=0.8748676119530217, new_horizon=2
+            reward_single_sum=100.29101509445317, confidence_size=0.8431029629534521, new_horizon=2
+            reward_single_sum=100.74223682615394, confidence_size=0.8138387683760158, new_horizon=2
+        hit cap of: 30 iterations
+        episode=7, horizon=2, effective_score=100.38, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0585, bad=True, gap_average=0.27245982868671415
+            reward_single_sum=98.92091743619807, 
+            reward_single_sum=103.28944468743117, confidence_size=13.790897774961088, new_horizon=2
+            reward_single_sum=101.44815519326573, confidence_size=3.697451271817748, new_horizon=2
+            reward_single_sum=100.5672191576628, confidence_size=2.1418133287846075, new_horizon=2
+            reward_single_sum=106.05885389528497, confidence_size=2.609179602574244, new_horizon=2
+            reward_single_sum=99.53892143411636, confidence_size=2.184027897475019, new_horizon=2
+            reward_single_sum=102.70765696148818, confidence_size=1.8046381871304078, new_horizon=2
+            reward_single_sum=98.67461905571855, confidence_size=1.69300902482793, new_horizon=2
+            reward_single_sum=103.30505431826626, confidence_size=1.517387930610937, new_horizon=2
+            reward_single_sum=104.00319473107872, confidence_size=1.407856422437419, new_horizon=2
+            reward_single_sum=100.82717555926757, confidence_size=1.270366742033218, new_horizon=2
+            reward_single_sum=68.93815781947382, confidence_size=5.044383885786019, new_horizon=2
+            reward_single_sum=102.24383449791941, confidence_size=4.626145042638143, new_horizon=2
+            reward_single_sum=102.39574866980803, confidence_size=4.274009528142869, new_horizon=2
+            reward_single_sum=94.10592216503908, confidence_size=4.007524363649978, new_horizon=2
+            reward_single_sum=101.37499980505812, confidence_size=3.73917928012213, new_horizon=2
+            reward_single_sum=100.71723085861086, confidence_size=3.5011229151224583, new_horizon=2
+            reward_single_sum=96.01909986352851, confidence_size=3.3048315563362394, new_horizon=2
+            reward_single_sum=98.13330557645729, confidence_size=3.1175446048509343, new_horizon=2
+            reward_single_sum=102.76196536879141, confidence_size=2.9659190990252497, new_horizon=2
+            reward_single_sum=94.98062022751868, confidence_size=2.8362384176500655, new_horizon=2
+            reward_single_sum=97.37857189752914, confidence_size=2.701355380407321, new_horizon=2
+            reward_single_sum=103.44984796618667, confidence_size=2.5970027586549875, new_horizon=2
+            reward_single_sum=104.52659621269112, confidence_size=2.51057050806385, new_horizon=2
+            reward_single_sum=100.69729018069704, confidence_size=2.4054134950643586, new_horizon=2
+            reward_single_sum=102.88482028590475, confidence_size=2.318144828981744, new_horizon=2
+            reward_single_sum=93.73854033552033, confidence_size=2.258048225151498, new_horizon=2
+            reward_single_sum=59.70509880273851, confidence_size=3.2482703355665947, new_horizon=2
+            reward_single_sum=105.87038154270589, confidence_size=3.164338052684556, new_horizon=2
+            reward_single_sum=101.40024560685656, confidence_size=3.0586467814432865, new_horizon=2
+        hit cap of: 30 iterations
+        episode=8, horizon=16, effective_score=98.36, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0390, bad=True, gap_average=0.29699054662386576
+            reward_single_sum=103.6170418513077, 
+            reward_single_sum=101.94016921610829, confidence_size=5.293678570309275, new_horizon=2
+            reward_single_sum=101.85337612568217, confidence_size=1.6759846281611743, new_horizon=2
+            reward_single_sum=99.88893610918949, confidence_size=1.7940475395697106, new_horizon=2
+            reward_single_sum=85.02500801619296, confidence_size=7.272729095607936, new_horizon=2
+            reward_single_sum=100.19789587809096, confidence_size=5.642916441930382, new_horizon=2
+            reward_single_sum=103.74403638795846, confidence_size=4.803145669866836, new_horizon=2
+            reward_single_sum=97.78572166918264, confidence_size=4.07509743643093, new_horizon=2
+            reward_single_sum=100.84918480767284, confidence_size=3.5427632831342493, new_horizon=2
+            reward_single_sum=101.78048075506321, confidence_size=3.1531862549283574, new_horizon=2
+            reward_single_sum=101.332252149203, confidence_size=2.8333298800822178, new_horizon=2
+            reward_single_sum=102.81570436873632, confidence_size=2.6017420997968657, new_horizon=2
+            reward_single_sum=98.3324213929739, confidence_size=2.387039447890828, new_horizon=2
+            reward_single_sum=103.64746599905757, confidence_size=2.245529191209272, new_horizon=2
+            reward_single_sum=97.81866964975329, confidence_size=2.097843537481083, new_horizon=2
+            reward_single_sum=104.49092185773456, confidence_size=2.01306097788553, new_horizon=2
+            reward_single_sum=103.02380157633041, confidence_size=1.9035733980906997, new_horizon=2
+            reward_single_sum=106.71256717546103, confidence_size=1.8870048021196766, new_horizon=2
+            reward_single_sum=98.78699762173751, confidence_size=1.788939148845273, new_horizon=2
+            reward_single_sum=97.43568961570774, confidence_size=1.7159392608690354, new_horizon=2
+            reward_single_sum=102.66429254712862, confidence_size=1.6372170706998617, new_horizon=2
+            reward_single_sum=97.00504616273075, confidence_size=1.5833678826276554, new_horizon=2
+            reward_single_sum=104.47212869754865, confidence_size=1.5388103912174529, new_horizon=2
+            reward_single_sum=99.81649746855966, confidence_size=1.471728962093934, new_horizon=2
+            reward_single_sum=98.63291416903768, confidence_size=1.4157596935822028, new_horizon=2
+            reward_single_sum=100.28946231120824, confidence_size=1.358143667340201, new_horizon=2
+            reward_single_sum=100.31772112440923, confidence_size=1.3050175956481382, new_horizon=2
+            reward_single_sum=104.95334490989043, confidence_size=1.2843484275483092, new_horizon=2
+            reward_single_sum=97.65611875345932, confidence_size=1.2504020761927421, new_horizon=2
+            reward_single_sum=105.60660401034097, confidence_size=1.239682815511017, new_horizon=2
+        hit cap of: 30 iterations
+        episode=9, horizon=16, effective_score=100.75, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0260, bad=True, gap_average=0.22971995129585265
+            reward_single_sum=101.8331971744829, 
+            reward_single_sum=100.53351979151498, confidence_size=4.102920022733137, new_horizon=2
+            reward_single_sum=103.17042811784785, confidence_size=2.2227969667762864, new_horizon=2
+            reward_single_sum=103.160505250615, confidence_size=1.484265218037379, new_horizon=2
+            reward_single_sum=104.34246304397679, confidence_size=1.3925494257243116, new_horizon=2
+            reward_single_sum=105.3854704057404, confidence_size=1.4230603111149236, new_horizon=2
+            reward_single_sum=104.95799671951451, confidence_size=1.2726242073495655, new_horizon=2
+            reward_single_sum=103.26297699375588, confidence_size=1.07471606860274, new_horizon=2
+            reward_single_sum=105.27130013259645, confidence_size=1.0130055500035127, new_horizon=2
+            reward_single_sum=106.01060752968111, confidence_size=1.0009059839311902, new_horizon=2
+            reward_single_sum=94.0745413500494, confidence_size=1.834499761857984, new_horizon=2
+            reward_single_sum=101.56578286817688, confidence_size=1.6714841169097667, new_horizon=2
+            reward_single_sum=101.93921306317336, confidence_size=1.5304298065558157, new_horizon=2
+            reward_single_sum=100.80067454813606, confidence_size=1.4289022454206872, new_horizon=2
+            reward_single_sum=105.50052054937203, confidence_size=1.3663328855697898, new_horizon=2
+            reward_single_sum=104.0606047439377, confidence_size=1.2797211365897851, new_horizon=2
+            reward_single_sum=99.34044950640123, confidence_size=1.25075412665241, new_horizon=2
+            reward_single_sum=100.51543204640323, confidence_size=1.193112969695406, new_horizon=2
+            reward_single_sum=102.83372810364078, confidence_size=1.125294452569662, new_horizon=2
+            reward_single_sum=103.2088978294878, confidence_size=1.0660091461738546, new_horizon=2
+            reward_single_sum=99.64639963327268, confidence_size=1.0398506154870404, new_horizon=2
+            reward_single_sum=103.41094099122093, confidence_size=0.9920347536951653, new_horizon=2
+            reward_single_sum=100.84144700774031, confidence_size=0.953933079625557, new_horizon=2
+            reward_single_sum=102.76448107619285, confidence_size=0.911911885304292, new_horizon=2
+            reward_single_sum=100.26668005514509, confidence_size=0.8856649314765264, new_horizon=2
+            reward_single_sum=102.90209065506743, confidence_size=0.8503356686667729, new_horizon=2
+            reward_single_sum=99.54031376112628, confidence_size=0.8363430785577748, new_horizon=2
+            reward_single_sum=104.08002663055112, confidence_size=0.8123622659601466, new_horizon=2
+            reward_single_sum=104.2567898974618, confidence_size=0.790979195396389, new_horizon=2
+            reward_single_sum=97.49697685552137, confidence_size=0.8121238369452755, new_horizon=2
+        hit cap of: 30 iterations
+        episode=10, horizon=2, effective_score=102.23, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0390, bad=False, gap_average=0.22294391768773397
+            reward_single_sum=105.24967158403403, 
+            reward_single_sum=103.03538424240848, confidence_size=6.990230028696423, new_horizon=2
+            reward_single_sum=99.50626584864973, confidence_size=4.883377231878782, new_horizon=2
+            reward_single_sum=105.40932130694536, confidence_size=3.2376852983821323, new_horizon=2
+            reward_single_sum=106.07458218544475, confidence_size=2.561359893747351, new_horizon=2
+            reward_single_sum=102.38241076138205, confidence_size=2.0376924334861997, new_horizon=2
+            reward_single_sum=99.5810465341471, confidence_size=2.002173112673205, new_horizon=2
+            reward_single_sum=99.1272065050638, confidence_size=1.9271938551901542, new_horizon=2
+            reward_single_sum=102.05514491611238, confidence_size=1.671276065684964, new_horizon=2
+            reward_single_sum=98.88862087808582, confidence_size=1.614799270099013, new_horizon=2
+            reward_single_sum=99.47444538981539, confidence_size=1.5090605373553387, new_horizon=2
+            reward_single_sum=100.46353264576666, confidence_size=1.381559340812231, new_horizon=2
+            reward_single_sum=102.60598113282799, confidence_size=1.2664167266482735, new_horizon=2
+            reward_single_sum=101.76325148271876, confidence_size=1.1650399972305507, new_horizon=2
+            reward_single_sum=102.15798209638406, confidence_size=1.0793877252570212, new_horizon=2
+            reward_single_sum=100.3629536231901, confidence_size=1.0180909366835351, new_horizon=2
+            reward_single_sum=106.80161261958223, confidence_size=1.084129394949727, new_horizon=2
+            reward_single_sum=97.71248975678222, confidence_size=1.1015435058926926, new_horizon=2
+            reward_single_sum=98.64646692861626, confidence_size=1.078117221997772, new_horizon=2
+            reward_single_sum=99.9445207693271, confidence_size=1.0304536065798402, new_horizon=2
+            reward_single_sum=104.09732302800225, confidence_size=0.9995803513837842, new_horizon=2
+            reward_single_sum=103.14176157071232, confidence_size=0.957688020344861, new_horizon=2
+            reward_single_sum=100.98436148896056, confidence_size=0.9149723184333425, new_horizon=2
+            reward_single_sum=88.8096990775708, confidence_size=1.2704044048831662, new_horizon=2
+            reward_single_sum=102.58599470104272, confidence_size=1.2202131876515239, new_horizon=2
+            reward_single_sum=100.01746170980314, confidence_size=1.173192215980201, new_horizon=2
+            reward_single_sum=95.62486940576477, confidence_size=1.180742039860334, new_horizon=2
+            reward_single_sum=102.47142263482348, confidence_size=1.139845955516222, new_horizon=2
+            reward_single_sum=103.18909485888828, confidence_size=1.1056905689913776, new_horizon=2
+            reward_single_sum=101.83692325299475, confidence_size=1.0677362060707623, new_horizon=2
+        hit cap of: 30 iterations
+        episode=11, horizon=16, effective_score=101.13, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0585, bad=False, gap_average=0.23326880202293396
+            reward_single_sum=102.99180376741204, 
+            reward_single_sum=101.45479774471409, confidence_size=4.852137052033676, new_horizon=2
+            reward_single_sum=97.5592360064648, confidence_size=4.72092336657812, new_horizon=2
+            reward_single_sum=98.18274552197093, confidence_size=3.0622508194705347, new_horizon=2
+            reward_single_sum=104.18773744698085, confidence_size=2.7809684971404636, new_horizon=2
+            reward_single_sum=103.25755339024903, confidence_size=2.290522903742655, new_horizon=2
+            reward_single_sum=97.18592302737406, confidence_size=2.184432434832644, new_horizon=2
+            reward_single_sum=95.01444109907294, confidence_size=2.282038553599378, new_horizon=2
+            reward_single_sum=100.76921817564704, confidence_size=1.9820879750798497, new_horizon=2
+            reward_single_sum=95.58772166731593, confidence_size=1.9309164569883706, new_horizon=2
+            reward_single_sum=57.96127922996452, confidence_size=7.077832058479956, new_horizon=2
+            reward_single_sum=100.35594979733611, confidence_size=6.437754743075203, new_horizon=2
+            reward_single_sum=97.02211374170525, confidence_size=5.878093600342211, new_horizon=2
+            reward_single_sum=103.21577661496742, confidence_size=5.47827059345358, new_horizon=2
+            reward_single_sum=103.44790304523289, confidence_size=5.132573215359315, new_horizon=2
+            reward_single_sum=102.62456364889283, confidence_size=4.815212494873521, new_horizon=2
+            reward_single_sum=105.0915909483808, confidence_size=4.57069238644624, new_horizon=2
+            reward_single_sum=99.75046049223077, confidence_size=4.297148435934375, new_horizon=2
+            reward_single_sum=102.09097475148975, confidence_size=4.068146232618886, new_horizon=2
+            reward_single_sum=99.2320258532458, confidence_size=3.8492468549608176, new_horizon=2
+            reward_single_sum=101.24550609727676, confidence_size=3.6597551011266205, new_horizon=2
+            reward_single_sum=99.49592990421048, confidence_size=3.482290765899208, new_horizon=2
+            reward_single_sum=86.67285658639025, confidence_size=3.436518383690455, new_horizon=2
+            reward_single_sum=103.71930575830362, confidence_size=3.3090927043562743, new_horizon=2
+            reward_single_sum=103.2574420692132, confidence_size=3.186875897586077, new_horizon=2
+            reward_single_sum=103.80051398529564, confidence_size=3.077051888642373, new_horizon=2
+            reward_single_sum=103.74765663244246, confidence_size=2.973934819456346, new_horizon=2
+            reward_single_sum=98.8086950005056, confidence_size=2.861842399263537, new_horizon=2
+            reward_single_sum=103.44540058560935, confidence_size=2.7710542264425158, new_horizon=2
+            reward_single_sum=104.74400827137738, confidence_size=2.6936152307950607, new_horizon=2
+        hit cap of: 30 iterations
+        episode=12, horizon=2, effective_score=99.20, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0390, bad=True, gap_average=0.24250250851710636
+            reward_single_sum=100.97827165212097, 
+            reward_single_sum=101.65976502344577, confidence_size=2.151389902764393, new_horizon=2
+            reward_single_sum=95.10506892270382, confidence_size=6.075433103047615, new_horizon=2
+            reward_single_sum=104.18486783497592, confidence_size=4.519439993418224, new_horizon=2
+            reward_single_sum=102.0269700562879, confidence_size=3.23891995801835, new_horizon=2
+            reward_single_sum=106.26475630229882, confidence_size=3.1028700315495854, new_horizon=2
+            reward_single_sum=100.92110726912428, confidence_size=2.538178266136967, new_horizon=2
+            reward_single_sum=103.4417257536856, confidence_size=2.187481196333181, new_horizon=2
+            reward_single_sum=102.57763985448078, confidence_size=1.8999187210581567, new_horizon=2
+            reward_single_sum=102.54544158040551, confidence_size=1.6792685803135043, new_horizon=2
+            reward_single_sum=99.00235103888596, confidence_size=1.5794687991818108, new_horizon=2
+            reward_single_sum=100.57387266033791, confidence_size=1.4385832293267384, new_horizon=2
+            reward_single_sum=102.9932114063787, confidence_size=1.326968346141868, new_horizon=2
+            reward_single_sum=99.88701404471135, confidence_size=1.2423788228827988, new_horizon=2
+            reward_single_sum=102.86176932286787, confidence_size=1.160065438525109, new_horizon=2
+            reward_single_sum=105.91123007462197, confidence_size=1.1758536787491067, new_horizon=2
+            reward_single_sum=104.98137103676166, confidence_size=1.143676572017739, new_horizon=2
+            reward_single_sum=99.92344334333401, confidence_size=1.095027638963984, new_horizon=2
+            reward_single_sum=103.71668901421022, confidence_size=1.044433906978739, new_horizon=2
+            reward_single_sum=102.77274659496821, confidence_size=0.9898231549501588, new_horizon=2
+            reward_single_sum=100.8413464469054, confidence_size=0.9449270730795973, new_horizon=2
+            reward_single_sum=103.17722040474774, confidence_size=0.90314576936413, new_horizon=2
+            reward_single_sum=103.10321400461333, confidence_size=0.8643884819934016, new_horizon=2
+            reward_single_sum=98.41681163465384, confidence_size=0.8679678553670414, new_horizon=2
+            reward_single_sum=94.24771645573016, confidence_size=0.985771381242273, new_horizon=2
+            reward_single_sum=100.238777734355, confidence_size=0.9503400906727819, new_horizon=2
+            reward_single_sum=100.67396421507763, confidence_size=0.91510550954942, new_horizon=2
+            reward_single_sum=101.9121922318783, confidence_size=0.8808265569722238, new_horizon=2
+            reward_single_sum=99.72535379951852, confidence_size=0.8559653949828885, new_horizon=2
+            reward_single_sum=101.33668244611223, confidence_size=0.8260474394262474, new_horizon=2
+        hit cap of: 30 iterations
+        episode=13, horizon=2, effective_score=101.53, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0585, bad=False, gap_average=0.23579891650676726
+            reward_single_sum=104.60476921087978, 
+            reward_single_sum=97.9641690149062, confidence_size=20.963549773257782, new_horizon=2
+            reward_single_sum=100.90208723916545, confidence_size=5.609902401583, new_horizon=2
+            reward_single_sum=98.16452472584328, confidence_size=3.6497676396505554, new_horizon=2
+            reward_single_sum=101.77605071500668, confidence_size=2.6264919108642175, new_horizon=2
+            reward_single_sum=97.96014459701668, confidence_size=2.2236552604450424, new_horizon=2
+            reward_single_sum=97.80165214849046, confidence_size=1.9334801287750594, new_horizon=2
+            reward_single_sum=102.35632767698472, confidence_size=1.7345468794290042, new_horizon=2
+            reward_single_sum=94.93915899760447, confidence_size=1.8525396972608803, new_horizon=2
+            reward_single_sum=97.8060121071522, confidence_size=1.6664603193389524, new_horizon=2
+            reward_single_sum=101.58937021314802, confidence_size=1.532365204982142, new_horizon=2
+            reward_single_sum=101.90804712380982, confidence_size=1.4275847131275583, new_horizon=2
+            reward_single_sum=95.99328814449191, confidence_size=1.404592683642619, new_horizon=2
+            reward_single_sum=101.23831627657286, confidence_size=1.3102612671647904, new_horizon=2
+            reward_single_sum=102.32230974923131, confidence_size=1.2532839493847376, new_horizon=2
+            reward_single_sum=99.91934282099538, confidence_size=1.1668910163649286, new_horizon=2
+            reward_single_sum=102.60178854432966, confidence_size=1.1281827529043937, new_horizon=2
+            reward_single_sum=100.08358593747282, confidence_size=1.0598744902261146, new_horizon=2
+            reward_single_sum=61.011867901226374, confidence_size=3.695642801702107, new_horizon=2
+            reward_single_sum=102.77060703333257, confidence_size=3.520837979798017, new_horizon=2
+            reward_single_sum=103.07377157834838, confidence_size=3.364472069358783, new_horizon=2
+            reward_single_sum=101.13507848594014, confidence_size=3.207550008722123, new_horizon=2
+            reward_single_sum=99.61087467589695, confidence_size=3.059551625395244, new_horizon=2
+            reward_single_sum=103.74883553343696, confidence_size=2.9468472372518875, new_horizon=2
+            reward_single_sum=102.37829359967783, confidence_size=2.8321727033301443, new_horizon=2
+            reward_single_sum=103.69304948899004, confidence_size=2.734542873037668, new_horizon=2
+            reward_single_sum=102.6248280397051, confidence_size=2.636693166467424, new_horizon=2
+            reward_single_sum=101.27978506185325, confidence_size=2.540288682264304, new_horizon=2
+            reward_single_sum=105.85292643965707, confidence_size=2.4777400694520963, new_horizon=2
+            reward_single_sum=99.639090234347, confidence_size=2.390909231021894, new_horizon=2
+        hit cap of: 30 iterations
+        episode=14, horizon=2, effective_score=99.56, baseline_lowerbound=100.96 baseline_stdev=0.33, new_epsilon=0.0390, bad=True, gap_average=0.24579255995750426
+optimal_epsilon = 0.058527663465935076
+optimal_horizon = 2
+    scaled_epsilon: 0.0585, forecast_average: 0.1102, episode_reward:3084.88, max_timestep_reward: 3.65, min_timestep_reward: -0.23
+    scaled_epsilon: 0.0585, forecast_average: 0.1082, episode_reward:3023.90, max_timestep_reward: 3.56, min_timestep_reward: -0.31
+    scaled_epsilon: 0.0585, forecast_average: 0.1032, episode_reward:3009.38, max_timestep_reward: 3.52, min_timestep_reward: -0.22
+    scaled_epsilon: 0.0585, forecast_average: 0.1022, episode_reward:3052.21, max_timestep_reward: 3.57, min_timestep_reward: -0.24
+    scaled_epsilon: 0.0585, forecast_average: 0.1030, episode_reward:3050.12, max_timestep_reward: 3.60, min_timestep_reward: -0.24
+    scaled_epsilon: 0.0585, forecast_average: 0.1062, episode_reward:3110.15, max_timestep_reward: 3.59, min_timestep_reward: -0.23
+    scaled_epsilon: 0.0585, forecast_average: 0.1064, episode_reward:3039.22, max_timestep_reward: 3.55, min_timestep_reward: -0.21
+    scaled_epsilon: 0.0585, forecast_average: 0.1035, episode_reward:3056.02, max_timestep_reward: 3.69, min_timestep_reward: -0.22
+    scaled_epsilon: 0.0585, forecast_average: 0.1061, episode_reward:3090.48, max_timestep_reward: 3.61, min_timestep_reward: -0.13
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
