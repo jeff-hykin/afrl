@@ -12,17 +12,19 @@
             there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
             
     tasks/questions:
-        - todo: given a distribution of q gaps; as an average gap size for each +1 into the future, decide on a cutoff point there instead of an epsilon binary search guess.  (increment up and down the average gap size, good = averge gap for timestep+1, bad = average gap for timestep -1)
-        - question: why would q do worse than state prediction
-        - task: run ant and cheeta env
-        - task: make horizon obsolete by having a retroactive planner. Dont plan, until the plan comes into question
-        - task: attempt phasing transition from state based to q loss and future
-        - todo: research why loss combination isn't working
-        - attempt: attempt seperate optimizers for multiple losses
-        - attempt: look 2 or 3 steps into the future loss
-        - task: 
-            original: discuss possible theory problems with size of min/max skewing epsilon if they're abnormally large
-            resovled by: auto-optimize the epsilon, ignore the min/max sizing
+        - improving optimization method:
+            - todo: given a distribution of q gaps; as an average gap size for each +1 into the future, decide on a cutoff point there instead of an epsilon binary search guess.  (increment up and down the average gap size, good = averge gap for timestep+1, bad = average gap for timestep -1)
+        - loss optimizations:
+            - question: why would q do worse than state prediction
+            - possible_answer: because state has the most immediate and easy-to-follow reward function
+            - attempt: try different learning rates
+            - attempt: attempt phasing transition from state based to q loss and future
+            - attempt: attempt seperate optimizers for multiple losses
+            - attempt: look 2 or 3 steps into the future loss
+        - research direction:
+            - note: consider having lunar env, but increasing the state space, while adding a lot of random noise
+            - note: this technique doesnt make the actor themself any more stable, the actor is still jittery. Can we try giving the actor a reward for predicting itself (being predictable, not predicting a jittery agent)
+            - consider: spiking neural networks
 
     # a central place for filepaths
     (path_to):
@@ -627,54 +629,3 @@
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
-        
-        # 
-        # DELAYED_COACH
-        # 
-        LOSS=DELAYED_COACH:
-            train_coach:
-                force_retrain: false
-                loss_function: "delayed_coach_loss"
-                consistent_coach_loss:
-                    scale_future_state_loss: 1
-                number_of_epochs: 120
-                batch_size: 128
-                
-            test_predictor:
-                force_recompute: false
-        
-        CUSTOM=LUNAR_DELAYED_COACH:
-            # python ./main/run/full.py -- @CUSTOM=LUNAR_DELAYED_COACH experiment_name:delayed_coach_loss_1
-            (inherit): [ LOSS=DELAYED_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
-            test_predictor:
-                acceptable_performance_loss: 2 # units = standard deviations
-                force_recompute: false
-                number_of_episodes_for_baseline: 30
-                number_of_epochs_for_optimal_parameters: 5 # normally 15
-                number_of_episodes_for_testing: 9
-                initial_epsilon: 0.026220759371288625
-                initial_horizon: 40
-        
-        CUSTOM=CHEETAH_DELAYED_COACH:
-            # python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH experiment_name:delayed_coach_loss_1
-            (inherit): [ LOSS=DELAYED_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            experiment_name: "delayed_coach_loss_1"
-            test_predictor:
-                force_recompute: false
-                number_of_episodes_for_baseline: 30
-                number_of_epochs_for_optimal_parameters: 15
-                number_of_episodes_for_testing: 10
-                initial_epsilon: 0.0100
-                initial_horizon: 76
-        
-        CUSTOM=ANT_DELAYED_COACH:
-            # python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH experiment_name:delayed_coach_loss_1
-            (inherit): [ LOSS=DELAYED_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            experiment_name: "delayed_coach_loss_1"
-            test_predictor:
-                force_recompute: false
-                number_of_episodes_for_baseline: 30
-                number_of_epochs_for_optimal_parameters: 15
-                number_of_episodes_for_testing: 10
-                initial_epsilon: 0.0100
-                initial_horizon: 76
