@@ -20,7 +20,7 @@ Wrapping the env in a DummyVecEnv.
 
 
 -----------------------------------------------------------------------------------------------------
- Coach Model Exists, loading: models.ignore/coach/HalfCheetahBulletEnv-v0/baseline_2/
+ Training Coach Model from scrach
 -----------------------------------------------------------------------------------------------------
 
 
@@ -37,30 +37,9 @@ coach settings = {
     "train_test_split": 0.7, 
     "batch_size": 1024, 
     "with_card": True, 
+    "enable_sam": True, 
 }
-
-
------------------------------------------------------------------------------------------------------
- Testing Agent+Coach
------------------------------------------------------------------------------------------------------
-
-
-test settings = {
-    "force_recompute": False, 
-    "graph_smoothing": 3, 
-    "number_of_episodes_for_baseline": 30, 
-    "number_of_epochs_for_optimal_parameters": 15, 
-    "number_of_episodes_for_testing": 10, 
-    "initial_epsilon": 0.7, 
-    "initial_horizon": 42, 
-    "reward_discount": 0.98, 
-    "acceptable_performance_loss": 2, 
-    "confidence_interval_for_convergence": 90, 
-    "min_reward_single_timestep": -60, 
-    "max_reward_single_timestep": 100, 
-    "horizons": {0: 1, 0.001: 11, 0.01: 13, 0.1: 26, }, 
-}
-/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/cuda/__init__.py:52: UserWarning: CUDA initialization: CUDA driver initialization failed, you might not have a CUDA gpu. (Triggered internally at  /build/source/c10/cuda/CUDAFunctions.cpp:115.)
-  return torch._C._cuda_getDeviceCount() > 0
-/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
-  logger.warn(
+Starting Train/Test
+    Epoch: 0
+    Epoch: 1
+    Epoch: 2
