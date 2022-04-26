@@ -30,7 +30,7 @@
         emptyOptions = ({
             buildInputs = [];
             nativeBuildInputs = [];
-            shellCode = "";
+            shellHook = "";
         });
         
         # torch = (builtins.import
@@ -76,7 +76,7 @@
                 # (torch { name = "torch";})
             ];
             nativeBuildInputs = [];
-            shellCode = ''
+            shellHook = ''
                 if [[ "$OSTYPE" == "linux-gnu" ]] 
                 then
                     true # add important (LD_LIBRARY_PATH, PATH, etc) nix-Linux code here
@@ -100,7 +100,7 @@
             '';
             # for python with CUDA 
             # 1. install cuda drivers on the main machine then
-            # 2. include the following inside the shellCode if statement above
+            # 2. include the following inside the shellHook if statement above
             #     export CUDA_PATH="${main.packages.cudatoolkit}"
             #     export EXTRA_LDFLAGS="-L/lib -L${main.packages.linuxPackages.nvidia_x11}/lib"
             #     export EXTRA_CCFLAGS="-I/usr/include"
@@ -166,7 +166,7 @@
         macOnly = if main.stdenv.isDarwin then ({
             buildInputs = [];
             nativeBuildInputs = [];
-            shellCode = ''
+            shellHook = ''
                 if [[ "$OSTYPE" = "darwin"* ]] 
                 then
                     true # add important nix-MacOS code here
@@ -175,34 +175,40 @@
             '';
         }) else emptyOptions;
         
-    # using the above definitions
-    in
-        # 
-        # create a shell
-        # 
-        main.packages.mkShell {
-            # inside that shell, make sure to use these packages
-            buildInputs =  main.project.buildInputs ++ macOnly.buildInputs ++ linuxOnly.buildInputs;
-            
-            nativeBuildInputs =  main.project.nativeBuildInputs ++ macOnly.nativeBuildInputs ++ linuxOnly.nativeBuildInputs;
-            
-            # run some bash code before starting up the shell
-            shellHook = ''
-                ${main.project.protectHomeShellCode}
-                if [ "$FORNIX_DEBUG" = "true" ]; then
-                    echo "starting: 'shellHook' inside the 'settings/extensions/nix/shell.nix' file"
-                fi
-                ${linuxOnly.shellCode}
-                ${macOnly.shellCode}
-                
-                # provide access to ncurses for nice terminal interactions
-                export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses5}/lib"
-                export LD_LIBRARY_PATH="${main.makeLibraryPath [ main.packages.glib ] }:$LD_LIBRARY_PATH"
-                
-                if [ "$FORNIX_DEBUG" = "true" ]; then
-                    echo "finished: 'shellHook' inside the 'settings/extensions/nix/shell.nix' file"
-                    echo ""
-                    echo "Tools/Commands mentioned in 'settings/extensions/nix/nix.toml' are now available/installed"
-                fi
-            '';
-        }
+# using the above definitions
+in
+    # 
+    # create a shell
+    # 
+    (main.packages.mkShell
+        (main.mergeMixins
+            [
+                main.project
+                linuxOnly
+                macOnly
+                (main.importMixin 
+                    "salt.nix"
+                )
+                # an "inline" mixin (this is what each mixin looks like)
+                ({
+                    # inside that shell, make sure to use these packages
+                    buildInputs = [];
+                    
+                    nativeBuildInputs = [];
+                    
+                    # run some bash code before starting up the shell
+                    shellHook = ''
+                        # provide access to ncurses for nice terminal interactions
+                        export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${main.packages.ncurses5}/lib"
+                        export LD_LIBRARY_PATH="${main.makeLibraryPath [ main.packages.glib ] }:$LD_LIBRARY_PATH"
+                        
+                        if [ "$FORNIX_DEBUG" = "true" ]; then
+                            echo "finished: 'shellHook' inside the 'settings/extensions/nix/shell.nix' file"
+                            echo ""
+                            echo "Tools/Commands mentioned in 'settings/extensions/nix/nix.toml' are now available/installed"
+                        fi
+                    '';
+                })
+            ]
+        )
+    )
