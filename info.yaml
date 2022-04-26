@@ -9,7 +9,7 @@
             - Larger forcast (the avergage length of predictions that were correct)
             - Rewards that are most similar to the optimial policy (green line in .ipynb graph)
         - What is the main loss function?: |
-            there's a few, and they're defined in main/training/train_coach.py on the CoachClass class
+            there's a few, and they're defined in main/training/coach_settings.py on the CoachClass class
             
     tasks/questions:
         - improving optimization method:
@@ -48,12 +48,12 @@
                 number_of_episodes: 10
                 base_name: default_sac
             
-            train_agent:
+            agent_settings:
                 model_name: default_sac_4 # was the best (by far) out of 10 for lunar lander
                 number_of_timesteps: 200000
                 force_retrain: false
                     
-            train_coach:
+            coach_settings:
                 force_retrain: false
                 learning_rate: 0.0001
                 hidden_sizes: [64, 64, 64, 64]
@@ -69,7 +69,7 @@
                 train_test_split: 0.7
                 batch_size: 1024
     
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 graph_smoothing: 3 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
@@ -94,12 +94,12 @@
             env_name: "LunarLanderContinuous-v2"
             load:
                 agent_path: "./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" 
-            train_agent:
+            agent_settings:
                 number_of_timesteps: 200000
                 force_retrain: false
                 learning_rate: 0.0001
                 hidden_sizes: [64, 64, 64, 64]
-            test_predictor:
+            predictor_settings:
                 min_reward_single_timestep: -100
                 max_reward_single_timestep: 70
                 horizons:
@@ -108,9 +108,9 @@
                     0.01: 20
         ENV=HOPPER:
             env_name: "HopperBulletEnv-v0"    
-            train_agent:
+            agent_settings:
                 reward_discount: 0.98
-            test_predictor:
+            predictor_settings:
                 min_reward_single_timestep: 18
                 max_reward_single_timestep: 110
                 horizons:
@@ -121,11 +121,11 @@
             env_name: "HalfCheetahBulletEnv-v0"
             load:
                 agent_path: "subrepos/rl-trained-agents/sac/HalfCheetahBulletEnv-v0_1/HalfCheetahBulletEnv-v0.zip"
-            train_agent:
+            agent_settings:
                 reward_discount: 0.98
                 learning_rate: 0.00073
                 number_of_timesteps: 1000000
-            test_predictor:
+            predictor_settings:
                 min_reward_single_timestep: -60
                 max_reward_single_timestep: 100
                 horizons:
@@ -145,9 +145,9 @@
                 learning_starts: 10000
         ENV=WALKER:
             env_name: "BipedalWalker-v3"    
-            train_agent:
+            agent_settings:
                 reward_discount: 0.98
-            test_predictor:
+            predictor_settings:
                 min_reward_single_timestep: -23
                 max_reward_single_timestep: 5
                 horizons:
@@ -158,9 +158,9 @@
             env_name: "AntBulletEnv-v0"    
             load:
                 agent_path: "subrepos/rl-trained-agents/sac/AntBulletEnv-v0_1/AntBulletEnv-v0.zip"
-            train_agent:
+            agent_settings:
                 reward_discount: 0.98
-            test_predictor:
+            predictor_settings:
                 min_reward_single_timestep: 19
                 max_reward_single_timestep: 105
                 horizons:
@@ -175,10 +175,10 @@
         ENV=HUMANOID:
             env_name: "HumanoidBulletEnv-v0"
             reward_discount: 0.98
-            train_agent:
+            agent_settings:
                 learning_rate: 0.0003
-            train_coach: {}
-            test_predictor:
+            coach_settings: {}
+            predictor_settings:
                 min_reward_single_timestep: -30
                 max_reward_single_timestep: 113
                 number_of_timesteps: 3000000
@@ -219,7 +219,7 @@
         # BASELINE
         # 
         LOSS=BASELINE:
-            train_coach:
+            coach_settings:
                 force_retrain: false
                 learning_rate: 0.0001
                 hidden_sizes: [64, 64, 64, 64]
@@ -235,15 +235,15 @@
                 train_test_split: 0.7
                 batch_size: 1024
                 with_card: true
-            train_coach:
+            coach_settings:
                 force_retrain: false
         
         CUSTOM=LUNAR_BASELINE_V1:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V1 experiment_name:baseline_1
             (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
-            train_coach:
+            coach_settings:
                 number_of_episodes: 100
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 number_of_episodes: 10
                 horizons:
@@ -254,7 +254,7 @@
         CUSTOM=LUNAR_BASELINE_V2:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V2 experiment_name:baseline_2
             (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
-            test_predictor:
+            predictor_settings:
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: false
                 number_of_episodes_for_baseline: 30
@@ -266,7 +266,7 @@
         CUSTOM=LUNAR_BASELINE_V3:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V3 experiment_name:baseline_3
             (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
-            test_predictor:
+            predictor_settings:
                 acceptable_performance_loss: 2 # units = standard deviations
                 force_recompute: false
                 number_of_episodes_for_baseline: 30
@@ -278,9 +278,9 @@
         CUSTOM=CHEETAH_BASELINE:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2
             (inherit): [ LOSS=BASELINE, ENV=CHEETAH, ]
-            train_coach:
+            coach_settings:
                 force_retrain: false
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -292,7 +292,7 @@
         CUSTOM=ANT_BASELINE:
             # python ./main/run/full.py -- @CUSTOM=ANT_BASELINE experiment_name:baseline_2
             (inherit): [ LOSS=BASELINE, ENV=ANT, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -305,7 +305,7 @@
         # Q LOSS (aka value_prediction_loss)
         # 
         LOSS=Q:
-            train_coach:
+            coach_settings:
                 loss_function: "value_prediction_loss"
                 force_retrain: false
                 consistent_coach_loss:
@@ -314,13 +314,13 @@
                     value_proportion: 0.5 # 50-50 split
                 number_of_epochs: 120
                 batch_size: 1024
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
         
         CUSTOM=LUNAR_Q:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q experiment_name:q_loss_1
             (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -330,7 +330,7 @@
         CUSTOM=CHEETAH_Q:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q experiment_name:q_loss_1
             (inherit): [ LOSS=Q, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -340,7 +340,7 @@
         CUSTOM=ANT_Q:
             # python ./main/run/full.py -- @CUSTOM=ANT_Q experiment_name:q_loss_1
             (inherit): [ LOSS=Q, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -351,7 +351,7 @@
         # Q PLUS STATE
         # 
         LOSS=Q_PLUS_STATE:
-            train_coach:
+            coach_settings:
                 loss_function: "value_plus_state_loss"
                 force_retrain: false
                 number_of_epochs: 120
@@ -364,7 +364,7 @@
         CUSTOM=LUNAR_Q_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
             (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -374,7 +374,7 @@
         CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
             (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
-            train_coach:
+            coach_settings:
                 force_retrain: false
                 value_plus_state_loss:
                     value_proportion: 0.01
@@ -382,14 +382,14 @@
         CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
             # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
             (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
-            train_coach:
+            coach_settings:
                 value_plus_state_loss:
                     value_proportion: 0
         
         CUSTOM=CHEETAH_Q_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
             (inherit): [ LOSS=Q, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -399,11 +399,11 @@
         CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
             (inherit): [ LOSS=Q_PLUS_STATE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            train_coach:
+            coach_settings:
                 force_retrain: false
                 value_plus_state_loss:
                     value_proportion: 0.01
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -413,10 +413,10 @@
         CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
             (inherit): [ LOSS=Q_PLUS_STATE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            train_coach:
+            coach_settings:
                 value_plus_state_loss:
                     value_proportion: 0
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -426,7 +426,7 @@
         CUSTOM=ANT_Q_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=ANT_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
             (inherit): [ LOSS=Q, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -436,11 +436,11 @@
         CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE:
             # python ./main/run/full.py -- @CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
             (inherit): [ LOSS=Q_PLUS_STATE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            train_coach:
+            coach_settings:
                 force_retrain: false
                 value_plus_state_loss:
                     value_proportion: 0.01
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -450,10 +450,10 @@
         CUSTOM=ANT_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
             # python ./main/run/full.py -- @CUSTOM=ANT_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
             (inherit): [ LOSS=Q_PLUS_STATE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            train_coach:
+            coach_settings:
                 value_plus_state_loss:
                     value_proportion: 0
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -464,7 +464,7 @@
         # CONSISTENT_COACH (main loss function)
         #
         LOSS=CONSISTENT_COACH:
-            train_coach:
+            coach_settings:
                 loss_function: consistent_coach_loss
                 consistent_coach_loss:
                     scale_future_state_loss: 1
@@ -472,13 +472,13 @@
         CUSTOM=LUNAR_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=LUNAR_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
             (inherit): [ LOSS=CONSISTENT_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
         
         CUSTOM=CHEETAH_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
             (inherit): [ LOSS=CONSISTENT_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -488,7 +488,7 @@
         CUSTOM=ANT_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
             (inherit): [ LOSS=CONSISTENT_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -499,13 +499,13 @@
         # CONSISTENT_VALUE
         # 
         LOSS=CONSISTENT_VALUE:
-            train_coach:
+            coach_settings:
                 loss_function: consistent_value_loss
         
         CUSTOM=CHEETAH_CONSISTENT_VALUE:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE experiment_name:consistent_value_loss_1
             (inherit): [ LOSS=CONSISTENT_VALUE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -515,7 +515,7 @@
         CUSTOM=ANT_CONSISTENT_VALUE:
             # python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_VALUE experiment_name:consistent_value_loss_1
             (inherit): [ LOSS=CONSISTENT_VALUE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -526,13 +526,13 @@
         # HALF_CONSISTENT_COACH
         # 
         LOSS=HALF_CONSISTENT_COACH:
-            train_coach:
+            coach_settings:
                 loss_function: half_consistent_coach_loss
         
         CUSTOM=CHEETAH_HALF_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
             (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -542,7 +542,7 @@
         CUSTOM=ANT_HALF_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
             (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -553,13 +553,13 @@
         # STATE_TRIPLE
         # 
         LOSS=STATE_TRIPLE:
-            train_coach:
+            coach_settings:
                 loss_function: state_triple_loss
         
         CUSTOM=CHEETAH_STATE_TRIPLE:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE experiment_name:state_triple_1
             (inherit): [ LOSS=STATE_TRIPLE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -569,7 +569,7 @@
         CUSTOM=ANT_STATE_TRIPLE:
             # python ./main/run/full.py -- @CUSTOM=ANT_STATE_TRIPLE experiment_name:state_triple_1
             (inherit): [ LOSS=STATE_TRIPLE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -580,13 +580,13 @@
         # DELAYED_COACH_LOSS
         # 
         LOSS=DELAYED_COACH_LOSS:
-            train_coach:
+            coach_settings:
                 loss_function: delayed_coach_loss
         
         CUSTOM=CHEETAH_DELAYED_COACH_LOSS:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS experiment_name:delayed_coach_loss_1
             (inherit): [ LOSS=DELAYED_COACH_LOSS, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -596,7 +596,7 @@
         CUSTOM=ANT_DELAYED_COACH_LOSS:
             # python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH_LOSS experiment_name:delayed_coach_loss_1
             (inherit): [ LOSS=DELAYED_COACH_LOSS, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -607,13 +607,13 @@
         # HALF_CONSISTENT_COACH
         # 
         LOSS=HALF_CONSISTENT_COACH:
-            train_coach:
+            coach_settings:
                 loss_function: half_consistent_coach_loss
         
         CUSTOM=CHEETAH_HALF_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
             (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30
@@ -623,7 +623,7 @@
         CUSTOM=ANT_HALF_CONSISTENT_COACH:
             # python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
             (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
-            test_predictor:
+            predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
                 number_of_episodes_for_baseline: 30

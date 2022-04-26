@@ -4,7 +4,7 @@
 
 mkdir -p logs/cheetah
 # this one trains the agent that all the others will use
-python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2 train_coach:batch_size:1024 2>&1 | tee logs/cheetah/baseline_2.log && {
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2 coach_settings:batch_size:1024 2>&1 | tee logs/cheetah/baseline_2.log && {
     python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE               experiment_name:baseline_3                    force_cpu:true "$@" &> logs/cheetah/baseline_3.log 
     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:q_plus_state_loss_1           force_cpu:true "$@" &> logs/cheetah/q_plus_state_loss_1.log 
     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1 force_cpu:true "$@" &> logs/cheetah/q_unfavored_plus_state_loss_1.log 

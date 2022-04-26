@@ -87,7 +87,7 @@ class Tester:
     # main algorithms
     # 
     @cache(
-        depends_on=lambda:[config.env_name, config.train_agent],
+        depends_on=lambda:[config.env_name, config.agent_settings],
         watch_attributes=lambda self: (
             self.settings.number_of_episodes_for_baseline,
             self.settings.agent.path,
@@ -104,7 +104,7 @@ class Tester:
         return discounted_rewards_per_episode
     
     @cache(
-        depends_on=lambda:[ config.env_name, config.train_agent, config.train_coach ],
+        depends_on=lambda:[ config.env_name, config.agent_settings, config.coach_settings ],
         watch_attributes=lambda self: (
             self.settings.acceptable_performance_loss,
             self.settings.confidence_interval_for_convergence,
@@ -390,7 +390,7 @@ class Tester:
         # 
         # pull in settings
         # 
-        predictor.agent.gamma = config.train_agent.reward_discount
+        predictor.agent.gamma = config.agent_settings.reward_discount
         
         # define return value
         self.csv_data = LazyDict(

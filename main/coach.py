@@ -22,7 +22,7 @@ from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft,
 from main.agent import Agent
 from main.optimizer.sam import SAM
 
-settings = config.train_coach
+settings = config.coach_settings
 # contains:
     # learning_rate
     # hidden_sizes
@@ -112,7 +112,15 @@ class Coach(nn.Module):
         )
         self.episode_recorder = None
         self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
-        self.optimizer = SAM(self.model.parameters(), base_optimizer=Adam, lr=self.learning_rate)
+        
+        # 
+        # optimizer
+        # 
+        if self.settings.get("enable_sam", False):
+            self.optimizer = SAM(self.model.parameters(), base_optimizer=Adam, lr=self.learning_rate)
+        else:
+            self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
+        
         self.loss_objects = LazyDict({
             each.__name__ : each()
                 for each in [
