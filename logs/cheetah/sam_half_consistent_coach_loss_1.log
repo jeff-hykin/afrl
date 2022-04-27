@@ -20,7 +20,7 @@ Wrapping the env in a DummyVecEnv.
 
 
 -----------------------------------------------------------------------------------------------------
- Training Coach Model from scrach
+ Coach Model Exists, loading: models.ignore/coach/HalfCheetahBulletEnv-v0/sam_half_consistent_coach_loss_1/
 -----------------------------------------------------------------------------------------------------
 
 
@@ -39,35 +39,29 @@ coach settings = {
     "with_card": True, 
     "enable_sam": True, 
 }
-Starting Train/Test
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "force_recompute": False, 
+    "graph_smoothing": 3, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 9, 
+    "initial_epsilon": 0.7, 
+    "initial_horizon": 42, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_loss": 2, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": -60, 
+    "max_reward_single_timestep": 100, 
+    "horizons": {0: 1, 0.001: 11, 0.01: 13, 0.1: 26, }, 
+}
 /nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/cuda/__init__.py:52: UserWarning: CUDA initialization: CUDA driver initialization failed, you might not have a CUDA gpu. (Triggered internally at  /build/source/c10/cuda/CUDAFunctions.cpp:115.)
   return torch._C._cuda_getDeviceCount() > 0
 /home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
   logger.warn(
-Traceback (most recent call last):
-  File "./main/run/full.py", line 50, in <module>
-    full_run(
-  File "./main/run/full.py", line 21, in full_run
-    coach = Coach.smart_load(
-  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 82, in smart_load
-    coach.train_with(
-  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 514, in train_with
-    print(f'''    Epoch: {epochs_index}''')
-  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/model.py", line 118, in __exit__
-    raise error
-  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 477, in train_with
-    per_batch_data[name+"_train"].append(to_pure(loss))
-  File "/home/jeffhykin/repos/AFRL/tools.py", line 397, in __exit__
-    self.optimizer.step()
-  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/optim/optimizer.py", line 88, in wrapper
-    return func(*args, **kwargs)
-  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/autograd/grad_mode.py", line 28, in decorate_context
-    return func(*args, **kwargs)
-  File "/home/jeffhykin/repos/AFRL/main/optimizer/sam.py", line 44, in step
-    assert closure is not None, "Sharpness Aware Minimization requires closure, but it was not provided"
-AssertionError: Sharpness Aware Minimization requires closure, but it was not provided
-
-[silver_spectacle] There were unviewed results
-[silver_spectacle] So the display server is still running at: http://localhost:9900
-[silver_spectacle] (use the stop server button to kill it now)
-
