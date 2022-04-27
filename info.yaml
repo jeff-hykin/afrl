@@ -72,7 +72,7 @@
     
             predictor_settings:
                 force_recompute: false
-                graph_smoothing: 3 # rolling average of _ number values
+                graph_smoothing: 1 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
