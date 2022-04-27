@@ -12,6 +12,7 @@
             there's a few, and they're defined in main/training/coach_settings.py on the CoachClass class
             
     tasks/questions:
+        - task: need to redo cheetah since some used the optimal agent and others did not
         - improving optimization method:
             - todo: given a distribution of q gaps; as an average gap size for each +1 into the future, decide on a cutoff point there instead of an epsilon binary search guess.  (increment up and down the average gap size, good = averge gap for timestep+1, bad = average gap for timestep -1)
         - loss optimizations:
