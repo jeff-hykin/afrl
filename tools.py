@@ -148,6 +148,9 @@ def rolling_average(a_list, window):
         else:
             # this could be done a lot more efficiently with a rolling sum, oh well! ¯\_(ツ)_/¯ 
             average_items = a_list[index-window:index+window+1]
+        # fallback
+        if len(average_items) == 0:
+            average_items = [ a_list[index] ]
         results.append(sum(average_items)/len(average_items))
     return results
 
