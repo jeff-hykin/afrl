@@ -16,7 +16,7 @@ class Agent(SAC):
     # load
     # 
     @classmethod
-    def smart_load(cls, env_name, *, path, number_of_timesteps=config.train_agent.number_of_timesteps, force_retrain=config.train_agent.force_retrain):
+    def smart_load(cls, env_name, *, path, number_of_timesteps=config.agent_settings.number_of_timesteps, force_retrain=config.agent_settings.force_retrain):
         # skip already-trained ones
         if not force_retrain:
             if ".zip" not in path:
@@ -30,7 +30,7 @@ class Agent(SAC):
                     env=config.get_env(env_name),
                     device=config.device,
                     custom_objects = { # a hack for loading from stable baselines: https://github.com/DLR-RM/stable-baselines3/pull/336
-                        "learning_rate": config.train_agent.get("learning_rate", 0),
+                        "learning_rate": config.agent_settings.get("learning_rate", 0),
                         "lr_schedule": lambda _: 0.0,
                         "clip_range": lambda _: 0.0,
                         "freeze": lambda _: agent,
@@ -118,7 +118,7 @@ class Agent(SAC):
         #     q, _ = torch.min(q, dim=1, keepdim=True)
         #     return q.item()
     
-    @cache(depends_on=lambda:[config.train_agent])
+    @cache(depends_on=lambda:[config.agent_settings])
     def gather_experience(self, env, number_of_episodes):
         episodes = [None]*number_of_episodes
         reward_per_episode = []

@@ -22,7 +22,7 @@ from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft,
 from main.agent import Agent
 from main.optimizer.sam import SAM
 
-settings = config.train_coach
+settings = config.coach_settings
 # contains:
     # learning_rate
     # hidden_sizes
@@ -101,6 +101,7 @@ class Coach(nn.Module):
         self.learning_rate = self.settings.learning_rate
         self.which_loss    = self.settings.loss_function
         self.hidden_sizes  = self.settings.hidden_sizes
+        self.sam_enabled   = self.settings.get("enable_sam", False)
         self.device        = device
         self.state_size    = state_size
         self.action_size   = action_size
@@ -112,7 +113,15 @@ class Coach(nn.Module):
         )
         self.episode_recorder = None
         self.model = feed_forward(layer_sizes=[state_size + action_size, *self.hidden_sizes, state_size], activation=nn.ReLU).to(self.device)
-        self.optimizer = SAM(self.model.parameters(), base_optimizer=Adam, lr=self.learning_rate)
+        
+        # 
+        # optimizer
+        # 
+        if self.sam_enabled:
+            self.optimizer = SAM(self.model.parameters(), base_optimizer=Adam, lr=self.learning_rate)
+        else:
+            self.optimizer = Adam(self.model.parameters(), lr=self.learning_rate)
+        
         self.loss_objects = LazyDict({
             each.__name__ : each()
                 for each in [
@@ -456,18 +465,32 @@ class Coach(nn.Module):
                     #
                     # run minibatch
                     #
-                    with WeightUpdate(optimizer=self.optimizer) as backprop:
-                        # run all of them for logging purposes
-                        for name, loss_object in self.loss_objects.items():
+                    # run all of them for logging purposes
+                    for name, loss_object in self.loss_objects.items():
+                        loss = loss_object.function(*batch)
+                        
+                        # if its the non-chosen loss, calculate it for statistics
+                        if name != self.which_loss:
                             loss = loss_object.function(*batch)
+                        # if its the main loss function we need to backprop the inputs
+                        else:
+                            if not self.sam_enabled:
+                                with WeightUpdate(optimizer=self.optimizer) as backprop:
+                                    backprop.loss = loss_object.function(*batch)
+                            else:
+                                loss = loss_object.function(*batch)
+                                def closure():
+                                    loss = loss_object.function(*batch)
+                                    loss.backward()
+                                    return loss
+                                # Optimize the self model
+                                loss.backward()
+                                self.optimizer.step(closure)
+                                self.optimizer.zero_grad()
                             
-                            # if its the main/selected loss, backpropogate the output
-                            if name == self.which_loss:
-                                backprop.loss = loss
-                            
-                            # log data
-                            per_batch_data[name+"_train"].append(to_pure(loss))
-                
+                        # log data
+                        per_batch_data[name+"_train"].append(to_pure(loss))
+            
                 # record the averge for each loss function
                 self.episode_recorder.add({
                     each_key: average(batch_values)

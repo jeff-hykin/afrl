@@ -33,7 +33,7 @@ Example look at the `info.yaml` file:
             
             ###stuff###
             
-            train_coach:
+            coach_settings:
                 number_of_epochs: 100
 ```
 
@@ -42,7 +42,7 @@ Lets change the number_of_epochs from `100` to `500` in the command line.
 ```sh
 python main/run/full.py -- \
     experiment_name:experiment2 \
-    train_coach:number_of_epochs:500
+    coach_settings:number_of_epochs:500
 ```
 
 Thats all there is too it. Works with lists, strings and more advanced types. <br>
@@ -53,8 +53,8 @@ Full example:
 python main/run/full.py --                            \
     experiment_name:experiment3                       \
     env_name:AntBulletEnv-v0                          \
-    train_agent:model_name:default_sac_2              \
-    train_coach:loss_function:consistent_coach_loss
+    agent_settings:model_name:default_sac_2              \
+    coach_settings:loss_function:consistent_coach_loss
 ```
 
 #### See more info at [Quik Config Python](https://github.com/jeff-hykin/quik_config_python#command-line-arguments)
