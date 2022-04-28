@@ -1,0 +1,93 @@
+
+
+-------------------------------------------------------
+
+ Environment: AntBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: subrepos/rl-trained-agents/sac/AntBulletEnv-v0_1/AntBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Coach Model Exists, loading: models.ignore/coach/AntBulletEnv-v0/redone_half_consistent_coach_loss_1/
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "half_consistent_coach_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 1024, 
+    "with_card": True, 
+}
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "force_recompute": False, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 9, 
+    "initial_epsilon": 0.1316872427983539, 
+    "initial_horizon": 8, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_loss": 2, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": 19, 
+    "max_reward_single_timestep": 105, 
+    "horizons": {0: 1, 0.0007: 4, 0.0015: 16, 0.002: 26, }, 
+}
+baseline = {
+    "max": 105.15090233798715, 
+    "min": 97.48693352007322, 
+    "range": 7.663968817913926, 
+    "count": 30, 
+    "sum": 3048.2638920231598, 
+    "average": 101.608796400772, 
+    "stdev": 1.7865210698736294, 
+    "median": 101.56097791518405, 
+}
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 26, in full_run
+    results = Tester.smart_load(
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 673, in smart_load
+    return Tester(
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 412, in run_all_episodes
+    optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/cool_cache/__init__.py", line 73, in wrapper
+    result = input_func(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 128, in gather_optimal_parameters
+    baseline_min, baseline_max = confidence_interval(confidence_interval_percent, baseline_samples)
+NameError: name 'confidence_interval' is not defined
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+
