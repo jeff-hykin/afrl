@@ -409,7 +409,7 @@ def confidence_interval_size(confidence_percent, samples):
     import statistics
     import scipy.stats as st
     min_value, max_value = st.t.interval(alpha=confidence_percent/100, df=len(samples)-1, loc=statistics.mean(samples), scale=st.sem(samples)) 
-    return abs(min_value-max_value)/2
+    return abs(max_value-min_value)/2
     
 def probability_of_belonging_if_bellcurve(item, bellcurve_mean, bellcurve_stdev):
     import scipy.stats as stats
