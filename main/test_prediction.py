@@ -125,7 +125,9 @@ class Tester:
         baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
         baseline_population_average = baseline.average
         baseline_worst_value        = baseline_population_average - (baseline_population_stdev*leniency)
-        baseline_confidence_size = confidence_interval_size(confidence_interval_percent, baseline_samples)
+        baseline_min, baseline_max = confidence_interval(confidence_interval_percent, baseline_samples)
+        print(f'''baseline_min = {baseline_min}, baseline_max = {baseline_max},''')
+        baseline_confidence_size = (baseline_max - baseline_min)/2
         print(f'''baseline_confidence_size = {baseline_confidence_size}''')
         
         # 
@@ -159,8 +161,13 @@ class Tester:
                     print()
                     continue
                 new_horizon     = max(stats(failure_points_per_epsilon[new_epsilon]).median, 1) * 2 # new
+                min_with_epsilon, confidence_max = confidence_interval(confidence_interval_percent, sampled_rewards)
                 confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
-                print(f'''confidence_size={confidence_size}, new_horizon={horizon_for_epsilon(new_epsilon)}''')
+                print(f'''confidence_size={confidence_size}, confidence_max={confidence_max}, new_horizon={horizon_for_epsilon(new_epsilon)}''')
+                # if the ranges don't overlap: fail early
+                if confidence_max < baseline_min:
+                    break
+                # if the values have converged enough, break and do a comparison of averages
                 if confidence_size < baseline_confidence_size:
                     break
                 # prevent stupidly long runs because of volatile outcomes
