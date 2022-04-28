@@ -12,7 +12,6 @@
             there's a few, and they're defined in main/training/coach_settings.py on the CoachClass class
             
     tasks/questions:
-        - task: need to redo cheetah since some used the optimal agent and others did not
         - improving optimization method:
             - todo: given a distribution of q gaps; as an average gap size for each +1 into the future, decide on a cutoff point there instead of an epsilon binary search guess.  (increment up and down the average gap size, good = averge gap for timestep+1, bad = average gap for timestep -1)
         - loss optimizations:
@@ -26,6 +25,8 @@
             - note: consider having lunar env, but increasing the state space, while adding a lot of random noise
             - note: this technique doesnt make the actor themself any more stable, the actor is still jittery. Can we try giving the actor a reward for predicting itself (being predictable, not predicting a jittery agent)
             - consider: spiking neural networks
+    notes:
+        - SAM does make it slower to converge in training (baseline 0.04, vs SAM baseline 0.07). Possible training time should be increased with SAM. Performance of baseline seems relatively unaffected.
 
     # a central place for filepaths
     (path_to):
