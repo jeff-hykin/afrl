@@ -86,19 +86,14 @@
             $a \gets 10$ 
             \For{$i$ in $[0,..., b_{sz}]$}{
                 \label{ln:loopsample1}
-                $discounted\_rewards, planlens 
-                    \gets run\_episode(\epsilon=e_n)$ 
+                $discounted\_rewards, planlens \gets run\_episode(\epsilon=e_n)$ 
                 $sampled\_rewards.push(\sigma(discounted\_rewards))$ 
-                $planlens_\epsilon[\epsilon\_n] 
-                    \gets concat(planlens_\epsilon[\epsilon_i], planlens)$ 
-                
+                $planlens_\epsilon[\epsilon\_n] \gets concat(planlens_\epsilon[\epsilon_i], planlens)$ 
                 \If{$length(sampled\_rewards) < 2$} {
                     $continue$
                 }
                 
-                
-                $s_{max}           \gets
-                \hspace{0.5cm}    confidence\_interval\_upper(ci_{lvl}, sampled\_rewards)$
+                $s_{max} \gets\hspace{0.5cm}    confidence\_interval\_upper(ci_{lvl}, sampled\_rewards)$
                 $confidence\_size \gets
                 \hspace{0.5cm}    confidence\_interval\_size(ci_{lvl} , sampled\_rewards)$
                 \If{$s_{max} < baseline_{min} \leq confidence_size < b_ci$}{
