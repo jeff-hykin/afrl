@@ -11,10 +11,15 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 \usepackage{xcolor}         % colors
+% custom
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 
-
-\title{FIXME}
+\title{A Framework for Predictable Actor-Critic Control}
 \author{%
+    % Josiah Coad, \textsuperscript{\rm 1}
+    % Jeff Hykin, \textsuperscript{\rm 2}
+    % James Ault, \textsuperscript{\rm 2}
+    % Guni Sharon \textsuperscript{\rm 2}
     Jeff Hykin
     \texttt{hippo@cs.cranberry-lemon.edu} \\
     % examples of more authors
@@ -46,6 +51,78 @@
         FIXME
     \end{abstract}
 
+    % 
+    % epsilon optimizer
+    % 
+    \begin{algorithm}[h]
+        % \SetAlgoLined\
+        \SetKwInOut{Input}{Input}
+        \SetKwInOut{Output}{Output}
+        \Input{
+            multiplier for epsilon $\mathrm{inc}$,\\
+            baseline min confidence interval $\mathrm{b_{min}}$,\\
+            confidence interval $\mathrm{ci_{lvl}}$,\\
+            minimum average episode reward $\mathrm{b_{lower}}$,\\
+            baseline confidence interval width $\mathrm{b_{ci}}$,\\
+            number of baseline samples $\mathrm{b_{sz}}$,\\
+            initial epsilon $\mathrm{\epsilon_{i}}$,\\
+            initial horizon $\mathrm{h_{i}}$,\\
+            number of iterations of refinement $\mathrm{iter}$\\    
+        }
+        \Output{
+            \\
+            a refined epsilon $\mathrm{\epsilon_{i}}$
+            a refined horizon $\mathrm{h_{i}}$
+        }
+        \caption{Refine2}
+        \label{algo:replan2}
+
+        Initialize an empty array $ epsilon\_attempts $
+        Initialize an empty hash map $ planlens_\epsilon $. Requesting a non-existent key for $ planlens_\epsilon $ returns an array containing $h_i$
+
+        \For{$i$ in $[0,..., iter]$}{
+            \label{ln:loopplan1}
+            Initialize an empty array $sampled\_rewards$ 
+            $a \gets 10$ 
+            \For{$i$ in $[0,..., b_{sz}]$}{
+                \label{ln:loopsample1}
+                $discounted\_rewards, planlens 
+                    \gets run\_episode(\epsilon=e_n)$ 
+                $sampled\_rewards.push(\sigma(discounted\_rewards))$ 
+                $planlens_\epsilon[\epsilon\_n] 
+                    \gets concat(planlens_\epsilon[\epsilon_i], planlens)$ 
+                
+                \If{$length(sampled\_rewards) < 2$} {
+                    $continue$
+                }
+                
+                
+                $s_{max}           \gets
+                \hspace{0.5cm}    confidence\_interval\_upper(ci_{lvl}, sampled\_rewards)$
+                $confidence\_size \gets
+                \hspace{0.5cm}    confidence\_interval\_size(ci_{lvl} , sampled\_rewards)$
+                \If{$s_{max} < baseline_{min} \leq confidence_size < b_ci$}{
+                    $break$
+                }
+            }
+            
+            \If{$mean(sampled\_rewards) \geq b_{lower}$}{
+                $\epsilon_n \*= inc$
+            }{
+                $\epsilon_n \/= inc$
+            }
+            
+            $epsilon\_attempts.push(\epsilon_n)$
+        }
+        $\epsilon_o = median(epsilon\_attempts)$
+
+        $h_o = max(median(planlens_\epsilon[\epsilon_o]), 1) * 2$
+
+        \Return{
+            $\mathrm{\epsilon_{o}}$
+            $\mathrm{h_{o}}$
+        }
+    \end{algorithm}
 
     % TODO: refernce format: Citations may be author/year or numeric. Use natbib \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
 
