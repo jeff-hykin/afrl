@@ -52,19 +52,25 @@
 \newcommand{\SUM }{ \Sigma }
 \newcommand{\MULT}{ \cdot  }
 
+% TODO: refernce format: Citations may be author/year or numeric. Use natbib \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
+
+% for graphics:
+%    \usepackage[pdftex]{graphicx} ...
+%    \includegraphics[width=0.8\linewidth]{myfile.pdf}
+% (\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
+
 \begin{document}
     \maketitle
     \begin{abstract}
-        Everyday life would be quite difficult without some form of planning and commitment. Simple tasks such as walking across a street often involve choosing predictability above a small but immediate gratification. Current reinforcement learning (RL) techniques often fail to capitalize on the benefits of planning and commitment. Even when agents do plan, they almost always choose the best action at every time-step. This is behavior is followed even if the benefit of abandoning the plan was minuscule. This paper proposes a method allowing an agent follow a plan so long as there is minimal impact on total reward. The work includes both theoretical bounds on the reward impact and supporting experimental data.
+        Simple tasks such as walking across a street often involve choosing predictability over a small but immediate gratification. Current reinforcement learning (RL) techniques often fail to capitalize on the benefits of planning and commitment. Even when a plan is formed, if there is any benefit, no matter how small, most agent designs will not hesitate to abandon the plan. This paper proposes a method allowing an agent follow a plan so long as there is minimal impact on total reward. The work includes both theoretical bounds on the reward impact and supporting experimental data.
     \end{abstract}
 
-
-    % TODO: refernce format: Citations may be author/year or numeric. Use natbib \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
-
-    % for graphics:
-    %    \usepackage[pdftex]{graphicx} ...
-    %    \includegraphics[width=0.8\linewidth]{myfile.pdf}
-    % (\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
+    % 
+    % Intro
+    % 
+    \section{Introduction}
+    
+        The typical structure of an RL problem, is to provide an observation value, expect the agent to produce a single action value, and respond with a new observation and reward. This design of a Markov decision process (MDP), has been used to model many domains. Deep reinforcement learning are considered state of the art for solving MDP's, even surpassing human control in some areas~\cite{haarnoja2018soft,schulman2017proximal,mnih2015human}. Examples include: (FIXME insert cited examples)
 
 
     % 
@@ -97,8 +103,8 @@
         Any choice of citation style is acceptable as long as you are consistent.
         Reference section does not count towards the page limit.
     \medskip
-
-
+    
+    \bibliography{ref.bib}
 
 
 

@@ -278,28 +278,28 @@ Anonymous
             % For our theoretical analysis, we assume function approximation is not used and PAC has been executed to convergence visiting each state infinitely often. In this case the entropy term is reduced to 0 and may be omitted. Furthermore, we also assume that the model is unbiased; and as such, bounding the value function bounds the performance degradation of the forecast plan taken by PAC.
 
             \begin{lemma}
-            Assuming known state-action ($Q$) values for a policy $\pi$, and a discount factor, $0<\gamma<1$, applying PrAC on top of $\pi$ would not degrade the sum of discounted rewards by more than $\frac{\epsilon}{1-\gamma}$.
+                Assuming known state-action ($Q$) values for a policy $\pi$, and a discount factor, $0<\gamma<1$, applying PrAC on top of $\pi$ would not degrade the sum of discounted rewards by more than $\frac{\epsilon}{1-\gamma}$.
             \end{lemma}
 
             \begin{proof}
-            At every state, $s$, PrAC applies action, $a^p$, which satisfies: 
-            \begin{equation}\label{eq:local_bound}
-            V^\pi(s) \le Q^\pi(s,a^p) + \epsilon 
-            \end{equation}
-            By definition: 
-            \begin{equation}\label{eq:q_def}
-            Q^\pi(s,a^p)=E_{s'\sim P(s'|s,a^p)}\left[R(s,a^p)+\gamma V^\pi(s')\right] 
-            \end{equation}
-            Combining \ref{eq:local_bound} and~\ref{eq:q_def} yields:
-            \begin{equation}\label{eq:v_bound}
-            V^\pi(s) \le E_{s'\sim P(s'|s,a^p)}\left[R(s,a^p)+\gamma V^\pi(s')\right] + \epsilon
-            \end{equation}
-            Equation~\ref{eq:v_bound} results in a recursive definition over successive state values $V^\pi(s)$ and $V^\pi(s')$. Considering the PrAC state-value definition, $V^p(s)=E_{\tau \sim PrAC|s_0 = s}\sum_t \gamma^t R(s_t,a^p)$, and expanding the recursive term results in:
-            \begin{equation}\label{eq:global_bound}
-            V^\pi(s) \le V^p(s) + \sum_t \gamma^t \epsilon
-            \end{equation}
-            
-            As a result, assuming $\gamma < 1$, the performance degradation of PrAC can be bounded by $\sum_{t=0}^\infty \gamma^t \epsilon = \frac{\epsilon}{1-\gamma}$.
+                At every state, $s$, PrAC applies action, $a^p$, which satisfies: 
+                \begin{equation}\label{eq:local_bound}
+                    V^\pi(s) \le Q^\pi(s,a^p) + \epsilon 
+                \end{equation}
+                By definition: 
+                \begin{equation}\label{eq:q_def}
+                    Q^\pi(s,a^p)=E_{s'\sim P(s'|s,a^p)}\left[R(s,a^p)+\gamma V^\pi(s')\right] 
+                \end{equation}
+                Combining \ref{eq:local_bound} and~\ref{eq:q_def} yields:
+                \begin{equation}\label{eq:v_bound}
+                    V^\pi(s) \le E_{s'\sim P(s'|s,a^p)}\left[R(s,a^p)+\gamma V^\pi(s')\right] + \epsilon
+                \end{equation}
+                Equation~\ref{eq:v_bound} results in a recursive definition over successive state values $V^\pi(s)$ and $V^\pi(s')$. Considering the PrAC state-value definition, $V^p(s)=E_{\tau \sim PrAC|s_0 = s}\sum_t \gamma^t R(s_t,a^p)$, and expanding the recursive term results in:
+                \begin{equation}\label{eq:global_bound}
+                    V^\pi(s) \le V^p(s) + \sum_t \gamma^t \epsilon
+                \end{equation}
+                
+                As a result, assuming $\gamma < 1$, the performance degradation of PrAC can be bounded by $\sum_{t=0}^\infty \gamma^t \epsilon = \frac{\epsilon}{1-\gamma}$.
             \end{proof}
 
             In many realistic scenarios, it is not reasonable to assume that $Q^\pi$ is known but that it is only approximated. Nonetheless, we present empirical results showing that this bound also holds, in expectancy, for cases where $Q^\pi$ is only approximated, as is the case in actor-critic algorithms. 
