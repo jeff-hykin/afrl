@@ -81,7 +81,7 @@
                 initial_horizon: 16 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
                 acceptable_performance_loss: 1 # units = standard deviations
-                acceptable_performance_level: 0.8
+                acceptable_performance_level: 0.8 # proportion
                 confidence_interval_for_convergence: 90
                 # horizons: # this is part of the v1 settings api but not v2
                 #     0.001: 5
@@ -259,7 +259,6 @@
             (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
             predictor_settings:
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 force_recompute: false
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
@@ -272,7 +271,6 @@
             (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
             predictor_settings:
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 force_recompute: false
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
@@ -288,7 +286,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
@@ -301,7 +298,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
@@ -330,7 +326,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -341,7 +336,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
@@ -352,7 +346,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10
@@ -377,7 +370,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -403,7 +395,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -418,7 +409,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -432,7 +422,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -443,7 +432,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -458,7 +446,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -472,7 +459,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -498,7 +484,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -509,7 +494,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -527,7 +511,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -538,7 +521,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -556,7 +538,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -567,7 +548,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -585,7 +565,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -596,7 +575,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -614,7 +592,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -625,7 +602,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -643,7 +619,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9
@@ -654,7 +629,6 @@
             predictor_settings:
                 force_recompute: false
                 acceptable_performance_loss: 2 # units = standard deviations
-                acceptable_performance_level: 0.8
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 9

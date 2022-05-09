@@ -34,17 +34,17 @@ mkdir -p logs/ant
 #     python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH          experiment_name:sam_delayed_coach_loss_1          coach_settings:enable_sam:true "$@" &> logs/ant/sam_delayed_coach_loss_1.log 
 # }
 
-python ./main/run/full.py -- @CUSTOM=ANT_BASELINE experiment_name:redone_baseline_2 2>&1 | tee logs/ant/redone_baseline_2.log && {
-    python ./main/run/full.py -- @CUSTOM=ANT_BASELINE               experiment_name:redone_baseline_3                    "$@" &> logs/ant/redone_baseline_3.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_Q_PLUS_STATE           experiment_name:redone_q_plus_state_loss_1           "$@" &> logs/ant/redone_q_plus_state_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE experiment_name:redone_q_unfavored_plus_state_loss_1 "$@" &> logs/ant/redone_q_unfavored_plus_state_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_Q_IGNORED_PLUS_STATE   experiment_name:redone_q_ignored_plus_state_loss_1   "$@" &> logs/ant/redone_q_ignored_plus_state_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_Q                      experiment_name:redone_q_loss_1                      "$@" &> logs/ant/redone_q_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_COACH       experiment_name:redone_consistent_coach_loss_1       "$@" &> logs/ant/redone_consistent_coach_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_VALUE       experiment_name:redone_consistent_value_loss_1       "$@" &> logs/ant/redone_consistent_value_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH  experiment_name:redone_half_consistent_coach_loss_1  "$@" &> logs/ant/redone_half_consistent_coach_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_STATE_TRIPLE           experiment_name:redone_state_triple_1                "$@" &> logs/ant/redone_state_triple_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH_LOSS     experiment_name:redone_delayed_coach_loss_1          "$@" &> logs/ant/redone_delayed_coach_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH  experiment_name:redone_half_consistent_coach_loss_1  "$@" &> logs/ant/redone_half_consistent_coach_loss_1.log 
-    python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH          experiment_name:redone_delayed_coach_loss_1          "$@" &> logs/ant/redone_delayed_coach_loss_1.log 
-}
+# python ./main/run/full.py -- @CUSTOM=ANT_BASELINE experiment_name:redone_baseline_2 2>&1 | tee logs/ant/redone_baseline_2.log && {
+#     python ./main/run/full.py -- @CUSTOM=ANT_BASELINE               experiment_name:redone_baseline_3                    "$@" &> logs/ant/redone_baseline_3.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_Q_PLUS_STATE           experiment_name:redone_q_plus_state_loss_1           "$@" &> logs/ant/redone_q_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE experiment_name:redone_q_unfavored_plus_state_loss_1 "$@" &> logs/ant/redone_q_unfavored_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_Q_IGNORED_PLUS_STATE   experiment_name:redone_q_ignored_plus_state_loss_1   "$@" &> logs/ant/redone_q_ignored_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_Q                      experiment_name:redone_q_loss_1                      "$@" &> logs/ant/redone_q_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_COACH       experiment_name:redone_consistent_coach_loss_1       "$@" &> logs/ant/redone_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_VALUE       experiment_name:redone_consistent_value_loss_1       "$@" &> logs/ant/redone_consistent_value_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH  experiment_name:redone_half_consistent_coach_loss_1  "$@" &> logs/ant/redone_half_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_STATE_TRIPLE           experiment_name:redone_state_triple_1                "$@" &> logs/ant/redone_state_triple_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH_LOSS     experiment_name:redone_delayed_coach_loss_1          "$@" &> logs/ant/redone_delayed_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH  experiment_name:redone_half_consistent_coach_loss_1  "$@" &> logs/ant/redone_half_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH          experiment_name:redone_delayed_coach_loss_1          "$@" &> logs/ant/redone_delayed_coach_loss_1.log 
+# }

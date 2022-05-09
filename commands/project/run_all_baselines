@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# . ./commands/project/run_all_baselines
+
+python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE acceptable_performance_level:0.8 'experiment_name:final_1_80%'
+python ./main/run/full.py -- @CUSTOM=HOPPER_BASELINE acceptable_performance_level:0.8 'experiment_name:final_1_80%'
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE acceptable_performance_level:0.8 'experiment_name:final_1_80%'
+python ./main/run/full.py -- @CUSTOM=WALKER_BASELINE acceptable_performance_level:0.8 'experiment_name:final_1_80%'
+python ./main/run/full.py -- @CUSTOM=ANT_BASELINE acceptable_performance_level:0.8 'experiment_name:final_1_80%'
+python ./main/run/full.py -- @CUSTOM=HUMANOID_BASELINE acceptable_performance_level:0.8 'experiment_name:final_1_80%'
+
+python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_90%'
+python ./main/run/full.py -- @CUSTOM=HOPPER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_90%'
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_90%'
+python ./main/run/full.py -- @CUSTOM=WALKER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_90%'
+python ./main/run/full.py -- @CUSTOM=ANT_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_90%'
+python ./main/run/full.py -- @CUSTOM=HUMANOID_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_90%'
+
+python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_95%'
+python ./main/run/full.py -- @CUSTOM=HOPPER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_95%'
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_95%'
+python ./main/run/full.py -- @CUSTOM=WALKER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_95%'
+python ./main/run/full.py -- @CUSTOM=ANT_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_95%'
+python ./main/run/full.py -- @CUSTOM=HUMANOID_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_95%'
+
+python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_98%'
+python ./main/run/full.py -- @CUSTOM=HOPPER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_98%'
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_98%'
+python ./main/run/full.py -- @CUSTOM=WALKER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_98%'
+python ./main/run/full.py -- @CUSTOM=ANT_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_98%'
+python ./main/run/full.py -- @CUSTOM=HUMANOID_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_98%'
+
+python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_99%'
+python ./main/run/full.py -- @CUSTOM=HOPPER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_99%'
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_99%'
+python ./main/run/full.py -- @CUSTOM=WALKER_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_99%'
+python ./main/run/full.py -- @CUSTOM=ANT_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_99%'
+python ./main/run/full.py -- @CUSTOM=HUMANOID_BASELINE acceptable_performance_level:0.9 'experiment_name:final_1_99%'
