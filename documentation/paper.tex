@@ -14,6 +14,7 @@
 % custom
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 
+
 \title{A Framework for Predictable Actor-Critic Control}
 \author{%
     % Josiah Coad, \textsuperscript{\rm 1}
@@ -45,95 +46,18 @@
     % \texttt{email} \\
 }
 
+\newcommand{\AND }{ \land  }
+\newcommand{\OR  }{ \lor   }
+\newcommand{\NOT }{ \lnot  }
+\newcommand{\SUM }{ \Sigma }
+\newcommand{\MULT}{ \cdot  }
+
 \begin{document}
     \maketitle
     \begin{abstract}
-        FIXME
+        Everyday life would be quite difficult without some form of planning and commitment. Simple tasks such as walking across a street often involve choosing predictability above a small but immediate gratification. Current reinforcement learning (RL) techniques often fail to capitalize on the benefits of planning and commitment. Even when agents do plan, they almost always choose the best action at every time-step. This is behavior is followed even if the benefit of abandoning the plan was minuscule. This paper proposes a method allowing an agent follow a plan so long as there is minimal impact on total reward. The work includes both theoretical bounds on the reward impact and supporting experimental data.
     \end{abstract}
 
-    % 
-    % epsilon optimizer
-    % 
-    \begin{algorithm}[h]
-        
-        \newcommand{\planlensPerEpsilon}{planlens_\epsilon}
-        \newcommand{\discountedRewards}{discounted\_rewards}
-        \newcommand{\sampledRewards}{sampled\_rewards}
-        \newcommand{\sum}{\sigma}
-        \newcommand{\minimumAcceptableReward}{b_{lower}}
-        \newcommand{\numberOfbaselineSamples}{b_{sz}}
-        \newcommand{\initialEpsilon}{\epsilon_{i}}
-        \newcommand{\runningEpsilon}{\epsilon_{r}}
-        \newcommand{\finalEpsilon}{\epsilon_{o}}
-        \newcommand{\allEpsilons}{a_\epsilon}
-        \newcommand{\intialHorizon}{\h_{i}}
-        \newcommand{\finalHorizon}{\h_{o}}
-        \newcommand{\planLengths}{planlens}
-        
-        % \SetAlgoLined\
-        \SetKwInOut{Input}{Input}
-        \SetKwInOut{Output}{Output}
-        \Input{
-            $\mathrm{\minimumAcceptableReward}$, minimum acceptable reward \\
-            $\mathrm{iter}$ , number of iterations of refinement \\
-            $\mathrm{inc}$, scale multiplier for epsilon \\
-            $\mathrm{\numberOfbaselineSamples}$, number of baseline samples \\
-            $\mathrm{b_{min}}$, min confidence interval of baseline \\
-            $\mathrm{b_{ci}}$, baseline confidence interval width \\
-            $\mathrm{ci_{lvl}}$, confidence level  \\
-            $\mathrm{\initialEpsilon}$, initial epsilon \\
-            $\mathrm{\intialHorizon}$, initial horizon \\
-        }
-        \Output{
-            \\
-            $\mathrm{\finalEpsilon}$, a refined epsilon\\
-            $\mathrm{\finalHorizon}$, a refined horizon\\
-        }
-        \caption{Find Epsilon}
-        \label{algo:find_epsilon}
-        \vspace{8pt}
-        
-        
-        \(\runningEpsilon \gets  \initialEpsilon \) \\
-        \(\allEpsilons \gets []\) \# empty array \\
-        \(\planlensPerEpsilon \gets \{\}\) \# empty hashmap \\
-        \# Note: requesting a non-existent key for this hash-map returns an array containing $\intialHorizon$ \\
-        \For{$i$ in $[0,..., iter]$}{
-            % \label{ln:loopplan1}
-            \(\sampledRewards \gets []\) \# empty array \\
-            \For{$j$ in $[0,..., \numberOfbaselineSamples]$}{
-                % \label{ln:loopsample1}
-                $\discountedRewards, \planLengths \gets runEpisode(\epsilon=\runningEpsilon)$ 
-                $\sampledRewards.push(\sum(\discountedRewards))$ 
-                $\planlensPerEpsilon[\runningEpsilon] \gets concat(\planlensPerEpsilon[\runningEpsilon], \planLengths)$ 
-                \If{$length(\sampledRewards) < 2$} {
-                    $continue$
-                }
-                
-                $s_{max}, s_{min} \gets confidenceInterval(ci_{lvl}, \sampledRewards)$
-                $s_{ci} \gets s_{max} - s_{min}$
-                \If{$s_{max} < \minimumAcceptableReward \texttt{or} s_{ci} < b_ci$}{
-                    $break$
-                }
-            }
-            
-            \If{$mean(\sampledRewards) \geq \minimumAcceptableReward$}{
-                $\runningEpsilon \gets \runningEpsilon \* inc$
-            }{
-                $\runningEpsilon \gets \runningEpsilon / inc$
-            }
-            
-            $\allEpsilons.push(\runningEpsilon)$
-        }
-        $\finalEpsilon \gets median(\allEpsilons)$
-
-        $\finalHorizon \gets max(median(\planlensPerEpsilon[\finalEpsilon]), 1) * 2$
-
-        \Return{
-            $\mathrm{\finalEpsilon}$
-            $\mathrm{\finalHorizon}$
-        }
-    \end{algorithm}
 
     % TODO: refernce format: Citations may be author/year or numeric. Use natbib \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
 
@@ -267,8 +191,89 @@
     % 
     \appendix
     \section{Appendix}
-    Optionally include extra information (complete proofs, additional experiments and plots) in the appendix.
-    This section will often be part of the supplemental material.
+    
+        % 
+        % epsilon optimizer
+        % 
+        \begin{algorithm}[ht]
+            
+            \newcommand{\planlensPerEpsilon}{planlens_\epsilon}
+            \newcommand{\discountedRewards}{discountedRewards}
+            \newcommand{\episodeRewards}{e_r}
+            \newcommand{\minimumAcceptableReward}{b_{lower}}
+            \newcommand{\numberOfbaselineSamples}{b_{sz}}
+            \newcommand{\initialEpsilon}{\epsilon_{i}}
+            \newcommand{\runningEpsilon}{\epsilon_{r}}
+            \newcommand{\finalEpsilon}{\epsilon_{o}}
+            \newcommand{\allEpsilons}{a_\epsilon}
+            \newcommand{\intialHorizon}{h_{i}}
+            \newcommand{\finalHorizon}{h_{o}}
+            \newcommand{\planLengths}{planlens}
+            
+            % \SetAlgoLined\
+            \SetKwInOut{Input}{Input}
+            \SetKwInOut{Output}{Output}
+            \Input{ \\
+                $\mathrm{\minimumAcceptableReward}$, minimum acceptable reward \\
+                $\mathrm{iter}$ , number of iterations of refinement \\
+                $\mathrm{inc}$, scale multiplier for epsilon \\
+                $\mathrm{\numberOfbaselineSamples}$, number of baseline samples \\
+                $\mathrm{b_{min}}$, min confidence interval of baseline \\
+                $\mathrm{b_{ci}}$, baseline confidence interval width \\
+                $\mathrm{ci_{lvl}}$, confidence level  \\
+                $\mathrm{\initialEpsilon}$, initial epsilon \\
+                $\mathrm{\intialHorizon}$, initial horizon \\
+            }
+            \Output{
+                \\
+                $\mathrm{\finalEpsilon}$, a refined epsilon\\
+                $\mathrm{\finalHorizon}$, a refined horizon\\
+            }
+            \caption{Find Epsilon}
+            \label{algo:find_epsilon}
+            \vspace{8pt}
+            
+            
+            \(\runningEpsilon \gets  \initialEpsilon \)                                                           \\
+            \(\allEpsilons \gets []\) \# empty array                                                              \\
+            \(\planlensPerEpsilon \gets \{\}\) \# empty hashmap                                                   \\
+            \# Note: requesting a non-existent key for this hash-map returns an array containing $\intialHorizon$ \\
+            \For{$i$ in $[0,..., iter]$}{
+                % \label{ln:loopplan1}
+                \(\episodeRewards \gets []\) \# empty array \\
+                \For{$j$ in $[0,..., \numberOfbaselineSamples]$}{
+                    % \label{ln:loopsample1}
+                    \(  \discountedRewards, \planLengths \gets runEpisode(\epsilon=\runningEpsilon) \)                      \\
+                    $\episodeRewards.push(\SUM(\discountedRewards))$                                                        \\
+                    $\planlensPerEpsilon[\runningEpsilon] \gets concat(\planlensPerEpsilon[\runningEpsilon], \planLengths)$ \\
+                    \If{$length(\episodeRewards) < 2$} {
+                        $continue$
+                    }
+                    
+                    $s_{max}, s_{min} \gets confidenceInterval(ci_{lvl}, \episodeRewards)$ \\
+                    $s_{ci} \gets s_{max} - s_{min}$ \\
+                    \If{$ (s_{max} < \minimumAcceptableReward) \OR (s_{ci} < b_{ci}) $}{
+                        $break$
+                    }
+                }
+                
+                \If{$mean(\episodeRewards) \geq \minimumAcceptableReward$}{
+                    $\runningEpsilon \gets \runningEpsilon \MULT inc $
+                }
+                \Else{
+                    $\runningEpsilon \gets \runningEpsilon / inc $
+                }
+                
+                $\allEpsilons.push(\runningEpsilon)$
+            }
+            $\finalEpsilon \gets median(\allEpsilons)$
+
+            $\finalHorizon \gets max(median(\planlensPerEpsilon[\finalEpsilon]), 1) \MULT 2$
+
+            \Return{
+                $\mathrm{\finalEpsilon}, \mathrm{\finalHorizon}$
+            }
+        \end{algorithm}
 
 
 \end{document}
