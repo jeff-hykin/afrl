@@ -55,67 +55,83 @@
     % epsilon optimizer
     % 
     \begin{algorithm}[h]
+        
+        \newcommand{\planlensPerEpsilon}{planlens_\epsilon}
+        \newcommand{\discountedRewards}{discounted\_rewards}
+        \newcommand{\sampledRewards}{sampled\_rewards}
+        \newcommand{\sum}{\sigma}
+        \newcommand{\minimumAcceptableReward}{b_{lower}}
+        \newcommand{\numberOfbaselineSamples}{b_{sz}}
+        \newcommand{\initialEpsilon}{\epsilon_{i}}
+        \newcommand{\runningEpsilon}{\epsilon_{r}}
+        \newcommand{\finalEpsilon}{\epsilon_{o}}
+        \newcommand{\allEpsilons}{a_\epsilon}
+        \newcommand{\intialHorizon}{\h_{i}}
+        \newcommand{\finalHorizon}{\h_{o}}
+        \newcommand{\planLengths}{planlens}
+        
         % \SetAlgoLined\
         \SetKwInOut{Input}{Input}
         \SetKwInOut{Output}{Output}
         \Input{
-            multiplier for epsilon $\mathrm{inc}$,\\
-            baseline min confidence interval $\mathrm{b_{min}}$,\\
-            confidence interval $\mathrm{ci_{lvl}}$,\\
-            minimum average episode reward $\mathrm{b_{lower}}$,\\
-            baseline confidence interval width $\mathrm{b_{ci}}$,\\
-            number of baseline samples $\mathrm{b_{sz}}$,\\
-            initial epsilon $\mathrm{\epsilon_{i}}$,\\
-            initial horizon $\mathrm{h_{i}}$,\\
-            number of iterations of refinement $\mathrm{iter}$\\    
+            $\mathrm{\minimumAcceptableReward}$, minimum acceptable reward \\
+            $\mathrm{iter}$ , number of iterations of refinement \\
+            $\mathrm{inc}$, scale multiplier for epsilon \\
+            $\mathrm{\numberOfbaselineSamples}$, number of baseline samples \\
+            $\mathrm{b_{min}}$, min confidence interval of baseline \\
+            $\mathrm{b_{ci}}$, baseline confidence interval width \\
+            $\mathrm{ci_{lvl}}$, confidence level  \\
+            $\mathrm{\initialEpsilon}$, initial epsilon \\
+            $\mathrm{\intialHorizon}$, initial horizon \\
         }
         \Output{
             \\
-            a refined epsilon $\mathrm{\epsilon_{i}}$
-            a refined horizon $\mathrm{h_{i}}$
+            $\mathrm{\finalEpsilon}$, a refined epsilon\\
+            $\mathrm{\finalHorizon}$, a refined horizon\\
         }
-        \caption{Refine2}
-        \label{algo:replan2}
-
-        Initialize an empty array $ epsilon\_attempts $
-        Initialize an empty hash map $ planlens_\epsilon $. Requesting a non-existent key for $ planlens_\epsilon $ returns an array containing $h_i$
-
+        \caption{Find Epsilon}
+        \label{algo:find_epsilon}
+        \vspace{8pt}
+        
+        
+        \(\runningEpsilon \gets  \initialEpsilon \) \\
+        \(\allEpsilons \gets []\) \# empty array \\
+        \(\planlensPerEpsilon \gets \{\}\) \# empty hashmap \\
+        \# Note: requesting a non-existent key for this hash-map returns an array containing $\intialHorizon$ \\
         \For{$i$ in $[0,..., iter]$}{
-            \label{ln:loopplan1}
-            Initialize an empty array $sampled\_rewards$ 
-            $a \gets 10$ 
-            \For{$i$ in $[0,..., b_{sz}]$}{
-                \label{ln:loopsample1}
-                $discounted\_rewards, planlens \gets run\_episode(\epsilon=e_n)$ 
-                $sampled\_rewards.push(\sigma(discounted\_rewards))$ 
-                $planlens_\epsilon[\epsilon\_n] \gets concat(planlens_\epsilon[\epsilon_i], planlens)$ 
-                \If{$length(sampled\_rewards) < 2$} {
+            % \label{ln:loopplan1}
+            \(\sampledRewards \gets []\) \# empty array \\
+            \For{$j$ in $[0,..., \numberOfbaselineSamples]$}{
+                % \label{ln:loopsample1}
+                $\discountedRewards, \planLengths \gets runEpisode(\epsilon=\runningEpsilon)$ 
+                $\sampledRewards.push(\sum(\discountedRewards))$ 
+                $\planlensPerEpsilon[\runningEpsilon] \gets concat(\planlensPerEpsilon[\runningEpsilon], \planLengths)$ 
+                \If{$length(\sampledRewards) < 2$} {
                     $continue$
                 }
                 
-                $s_{max} \gets\hspace{0.5cm}    confidence\_interval\_upper(ci_{lvl}, sampled\_rewards)$
-                $confidence\_size \gets
-                \hspace{0.5cm}    confidence\_interval\_size(ci_{lvl} , sampled\_rewards)$
-                \If{$s_{max} < baseline_{min} \leq confidence_size < b_ci$}{
+                $s_{max}, s_{min} \gets confidenceInterval(ci_{lvl}, \sampledRewards)$
+                $s_{ci} \gets s_{max} - s_{min}$
+                \If{$s_{max} < \minimumAcceptableReward \texttt{or} s_{ci} < b_ci$}{
                     $break$
                 }
             }
             
-            \If{$mean(sampled\_rewards) \geq b_{lower}$}{
-                $\epsilon_n \*= inc$
+            \If{$mean(\sampledRewards) \geq \minimumAcceptableReward$}{
+                $\runningEpsilon \gets \runningEpsilon \* inc$
             }{
-                $\epsilon_n \/= inc$
+                $\runningEpsilon \gets \runningEpsilon / inc$
             }
             
-            $epsilon\_attempts.push(\epsilon_n)$
+            $\allEpsilons.push(\runningEpsilon)$
         }
-        $\epsilon_o = median(epsilon\_attempts)$
+        $\finalEpsilon \gets median(\allEpsilons)$
 
-        $h_o = max(median(planlens_\epsilon[\epsilon_o]), 1) * 2$
+        $\finalHorizon \gets max(median(\planlensPerEpsilon[\finalEpsilon]), 1) * 2$
 
         \Return{
-            $\mathrm{\epsilon_{o}}$
-            $\mathrm{h_{o}}$
+            $\mathrm{\finalEpsilon}$
+            $\mathrm{\finalHorizon}$
         }
     \end{algorithm}
 
@@ -134,15 +150,15 @@
     % 
     % 
     % 
-    \begin{ack}
-        FIXME
-        Do {\bf not} include this section in the anonymized submission, only in the final paper.
-        
-        Use unnumbered first level headings for the acknowledgments.
-        All acknowledgments go at the end of the paper before the list of references.
-        - declare funding (financial activities supporting the submitted work)
-        - competing interests (related financial activities outside the submitted work)
-    \end{ack}
+        % \begin{ack}
+        %     FIXME
+        %     Do {\bf not} include this section in the anonymized submission, only in the final paper.
+            
+        %     Use unnumbered first level headings for the acknowledgments.
+        %     All acknowledgments go at the end of the paper before the list of references.
+        %     - declare funding (financial activities supporting the submitted work)
+        %     - competing interests (related financial activities outside the submitted work)
+        % \end{ack}
 
 
     % 
