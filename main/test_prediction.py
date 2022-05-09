@@ -115,7 +115,6 @@ class Tester:
         ),
     )
     def gather_optimal_parameters(self, baseline_samples):
-        leniency                    = self.settings.acceptable_performance_loss # standard deviation 
         confidence_interval_percent = self.settings.confidence_interval_for_convergence
         increment_amount = 1.5
         
@@ -124,7 +123,7 @@ class Tester:
         
         baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
         baseline_population_average = baseline.average
-        baseline_worst_value        = baseline_population_average - (baseline_population_stdev*leniency)
+        baseline_worst_value        = baseline.average * self.settings.acceptable_performance_level
         baseline_min, baseline_max = confidence_interval(confidence_interval_percent, baseline_samples)
         print(f'''baseline_min = {baseline_min}, baseline_max = {baseline_max},''')
         baseline_confidence_size = (baseline_max - baseline_min)/2
