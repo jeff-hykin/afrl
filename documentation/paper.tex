@@ -87,8 +87,11 @@
 \begin{document}
     \maketitle
     \begin{abstract}
-        (TODO: make more formal)
-        Simple tasks such as walking across a street often involve choosing predictability over a small but immediate gratification. Current reinforcement learning (RL) techniques often fail to capitalize on the benefits of planning and commitment. Even when a plan is formed, if there is any benefit, no matter how small, most agent designs will not hesitate to abandon the plan. This paper proposes a method allowing an agent follow a plan so long as there is minimal impact on total reward. The work includes both theoretical bounds on the reward impact and supporting experimental data.
+        Reinforcement learning (RL) algorithms commonly provide a one action plan per time step. Doing this allows the RL agent to quickly adapt and respond to stochastic environments yet it restricts the ability to predict the agent's future behavior. This paper proposes an actor-critic framework that predicts and follows an $n$-step plan. Committing to the next $n$ actions presents a trade-off between behavior predictability and reduced performance. In order to balance this trade-off, a dynamic plan-following criteria is proposed for determining when it is too costly to follow the preplanned actions and a replanning procedure should be initiated instead. 
+        Performance degradation bounds are presented for the proposed criteria when assuming access to accurate state-action values. Experimental results, using several robotics domains, suggest that the performance bounds are also satisfied in the general (approximation) case on expectancy. Additionally, the experimental section presents a study of the predictability versus performance degradation trade-off and demonstrates the benefits of applying the proposed plan-following criteria. 
+
+        % (TODO: make more formal)
+        % Simple tasks such as walking across a street often involve choosing predictability over a small but immediate gratification. Current reinforcement learning (RL) techniques often fail to capitalize on the benefits of planning and commitment. Even when a plan is formed, if there is any benefit, no matter how small, most agent designs will not hesitate to abandon the plan. This paper proposes a method allowing an agent follow a plan so long as there is minimal impact on total reward. The work includes both theoretical bounds on the reward impact and supporting experimental data.
     \end{abstract}
 
     % 
