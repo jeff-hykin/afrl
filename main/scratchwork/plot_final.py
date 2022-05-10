@@ -30,19 +30,6 @@ def shuffled(thing):
 # f"{path_to.folder.results}/final_1/{config.env_name}/{config.predictor_settings.acceptable_performance_loss}/{config.predictor_settings.method}",
 
 source = f"{path_to.folder.results}/final_1"
-
-
-# final_1/lunar/ppac/0.80/
-# final_1/lunar/ppac/0.90/
-# final_1/lunar/ppac/0.95/
-# final_1/lunar/ppac/0.98/
-# final_1/lunar/ppac/0.99/
-# final_1/lunar/n_step
-# final_1/lunar/optimal
-# final_1/lunar/random
-
-
-
 plot_data_per_env = LazyDict().setdefault(
     lambda each_env: LazyDict(
         rewards=LazyDict(), # <- keys are methods
@@ -53,32 +40,36 @@ for each_env_path in FS.list_folder_paths_in(source):
     env_name = FS.basename(each_env_path)
     plot_data_per_method = plot_data_per_env[env_name]
     
-    for each_method_path in FS.list_folder_paths_in(each_env_path):
-        method = FS.basename(each_method_path)
-        
-        for each_performance_level_path in FS.list_folder_paths_in(each_method_path):
-            each_performance_level = float(FS.basename(each_performance_level_path))
-            
-            # load simple data
-            # simple_data = None
-            # with open(f"{each_performance_level}/simple_data.json", 'r') as in_file:
-            #     simple_data = json.load(in_file)
-            # simple_data = LazyDict(simple_data)
-            # performance_level = simple_data.acceptable_performance_level
-            
-            # load detailed data
-            recorder = Recorder.load_from(f"{each_performance_level}/serial_data/recorder.pickle").full
-            average_plan_length = average(recorder.frame["failure_point_average"])
-            average_episode_reward = average(recorder.frame["discounted_reward_sum"])
-            
-            plot_data_per_method.rewards[]
-            
-            # save to plottable data
-            plot_data.rewards[performance_level] = average_plan_length
-            plot_data.failure_points[performance_level] = average_plan_length
+    # load simple data
+    simple_data = None
+    with open(f"{each_env_path}/simple_data.json", 'r') as in_file:
+        simple_data = json.load(in_file)
+    simple_data = LazyDict(simple_data)
+    
+    plot_data = LazyDict(simple_data.plot)
+    
+    # 
+    # reward plot
+    # 
+    ss.DisplayCard("multiLine", dict(
+        optimal=plot_data.optimal_reward_points,
+        random=plot_data.random_reward_points,
+        theory=plot_data.theory_reward_points,
+        ppac=plot_data.ppac_reward_points,
+        n_step_horizon=plot_data.n_step_horizon_reward_points,
+        n_step_planlen=plot_data.n_step_planlen_reward_points,
+    ))
+    # 
+    # forcast plot
+    # 
+    ss.DisplayCard("multiLine", dict(
+        plot_data.ppac_plan_length_points
+        plot_data.n_step_horizon_plan_length_points
+        plot_data.n_step_planlen_plan_length_points
+    ))
     
     
-
+    
 Recorder.load_from('results/final_1_80%/HopperBulletEnv-v0/serial_data/rewards_per_episode_per_timestep.pickle')
 
 episode_index

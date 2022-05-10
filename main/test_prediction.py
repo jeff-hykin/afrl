@@ -501,7 +501,7 @@ class Tester:
         # 
         epoch_recorder = Recorder(
             horizon=horizon,
-            scaled_epsilon=scaled_epsilon,
+            scaled_epsilon=optimal_epsilon,
         ).set_parent(self.recorder)
         
         forecast_slices = []
@@ -516,7 +516,7 @@ class Tester:
                 real_q_values,
                 q_value_gaps
             ) = self.ppac_experience_episode(
-                scaled_epsilon=scaled_epsilon,
+                scaled_epsilon=optimal_epsilon,
                 horizon=horizon,
                 episode_index=episode_index,
                 should_record=True,
@@ -599,7 +599,7 @@ class Tester:
             # 
             # ppac
             # 
-            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
+            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, acceptable_performance_level)
             # saves these
             self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
             epsiode_lengths = []
@@ -620,18 +620,19 @@ class Tester:
                     episode_index=episode_index,
                     should_record=True,
                 )
-                epsiode_lengths.append(len(discounted_rewards))
+                epsiode_lengths.append(len(discounted_reward))
                 reward_sums.append(sum(discounted_rewards))
                 failure_point_averages.append(average(failure_points))
-            plot_data.ppac_reward_points.append(average(reward_sums))
-            plot_data.ppac_plan_length_points.append(average(failure_point_averages))
+            plot_data.ppac_reward_points.append((each_level, average(reward_sums)))
+            plot_data.ppac_plan_length_points.append((each_level, average(failure_point_averages)))
             
             # 
             # theory
             # 
-            plot_data.theory_reward_points.append(
+            plot_data.theory_reward_points.append((
+                each_level,
                 average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
-            )
+            ))
             
             # 
             # n_step horizon
@@ -648,14 +649,14 @@ class Tester:
                     _
                 ) = self.n_step_experience_episode(
                     number_of_steps=optimal_horizon,
-                    scaled_epsilon=scaled_epsilon,
+                    scaled_epsilon=optimal_epsilon,
                     horizon=optimal_horizon,
                     episode_index=episode_index,
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_horizon_reward_points.append(average(reward_sums))
-            plot_data.n_step_horizon_plan_length_points.append(optimal_horizon)
+            plot_data.n_step_horizon_reward_points.append((each_level, average(reward_sums)))
+            plot_data.n_step_horizon_plan_length_points.append((each_level, optimal_horizon))
             
             # 
             # n_step planlen
@@ -672,17 +673,16 @@ class Tester:
                     _
                 ) = self.n_step_experience_episode(
                     number_of_steps=math.ciel(plot_data.ppac_plan_length_points[-1]), # average failure point, ciel so that never goes to 0
-                    scaled_epsilon=scaled_epsilon,
+                    scaled_epsilon=optimal_epsilon,
                     horizon=optimal_horizon,
                     episode_index=episode_index,
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_planlen_reward_points.append(average(reward_sums))
-            plot_data.n_step_planlen_plan_length_points.append(optimal_horizon)
+            plot_data.n_step_planlen_reward_points.append((each_level, average(reward_sums)))
+            plot_data.n_step_planlen_plan_length_points.append((each_level, optimal_horizon))
         
         self.save()
-        
     # 
     # misc helpers
     # 
@@ -739,7 +739,7 @@ class Tester:
         ))
         
         threshold_card = ss.DisplayCard("multiLine", dict(
-            scaled_epsilon=scaled_epsilons,
+            scaled_epsilon=optimal_epsilons,
             q_final_gaps_average=q_final_gaps_average,
             q_gaps_average=q_gaps_average,
             # q_gaps_min=q_gaps_min,
