@@ -81,8 +81,8 @@
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
-                initial_epsilon: 10.1 # overshooting this initial value is better than undershooting
-                initial_horizon: 16 # units = timesteps. Mostly irrelevent
+                initial_epsilon: 3.5 # overshooting this initial value is better than undershooting
+                initial_horizon: 10 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
                 acceptable_performance_levels: [ 0.8, 0.9, 0.95, 0.98, 0.99 ]
                 acceptable_performance_loss: 1 # units = standard deviations
