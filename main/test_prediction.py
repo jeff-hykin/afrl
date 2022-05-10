@@ -599,7 +599,7 @@ class Tester:
             # 
             # ppac
             # 
-            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, acceptable_performance_level)
+            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
             # saves these
             self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
             epsiode_lengths = []
