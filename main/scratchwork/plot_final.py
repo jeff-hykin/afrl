@@ -27,37 +27,57 @@ def shuffled(thing):
 
 # For each #value create a plot for each env of the theory bound (function of epsilon) and the emperical bound
 
-experiment_names = [ "final_1_80%", "final_1_90%",  "final_1_95%",  "final_1_98%", "final_1_99%"]
-paths = [  f"{path_to.results}/{each}" for each in experiment_names ]
+# f"{path_to.folder.results}/final_1/{config.env_name}/{config.predictor_settings.acceptable_performance_loss}/{config.predictor_settings.method}",
+
+source = f"{path_to.folder.results}/final_1"
+
+
+# final_1/lunar/ppac/0.80/
+# final_1/lunar/ppac/0.90/
+# final_1/lunar/ppac/0.95/
+# final_1/lunar/ppac/0.98/
+# final_1/lunar/ppac/0.99/
+# final_1/lunar/n_step
+# final_1/lunar/optimal
+# final_1/lunar/random
+
+
 
 plot_data_per_env = LazyDict().setdefault(
-    lambda each: LazyDict(
-        rewards_per_level=LazyDict(),
-        failure_points_per_level=LazyDict(),
+    lambda each_env: LazyDict(
+        rewards=LazyDict(), # <- keys are methods
+        failure_points=LazyDict(),
     )
 )
-for each_test in paths:
-    for each_env_path in FS.list_folder_paths_in(each_test):
-        env_name = FS.basename(each_env_path)
-        plot_data = plot_data_per_env[env_name]
+for each_env_path in FS.list_folder_paths_in(source):
+    env_name = FS.basename(each_env_path)
+    plot_data_per_method = plot_data_per_env[env_name]
+    
+    for each_method_path in FS.list_folder_paths_in(each_env_path):
+        method = FS.basename(each_method_path)
         
-        # load simple data
-        simple_data = None
-        with open(f"{each_env_path}/simple_data.json", 'r') as in_file:
-            simple_data = json.load(in_file)
-        simple_data = LazyDict(simple_data)
-        performance_level = simple_data.acceptable_performance_level
-        
-        # load detailed data
-        recorder = Recorder.load_from(f"{each_env_path}/serial_data/recorder.pickle").full
-        average_plan_length = average(recorder.frame["failure_point_average"])
-        average_episode_reward = average(recorder.frame["discounted_reward_sum"])
-        
-        # save to plottable data
-        plot_data.rewards_per_level[performance_level] = average_plan_length
-        plot_data.failure_points_per_level[performance_level] = average_plan_length
-        
-        
+        for each_performance_level_path in FS.list_folder_paths_in(each_method_path):
+            each_performance_level = float(FS.basename(each_performance_level_path))
+            
+            # load simple data
+            # simple_data = None
+            # with open(f"{each_performance_level}/simple_data.json", 'r') as in_file:
+            #     simple_data = json.load(in_file)
+            # simple_data = LazyDict(simple_data)
+            # performance_level = simple_data.acceptable_performance_level
+            
+            # load detailed data
+            recorder = Recorder.load_from(f"{each_performance_level}/serial_data/recorder.pickle").full
+            average_plan_length = average(recorder.frame["failure_point_average"])
+            average_episode_reward = average(recorder.frame["discounted_reward_sum"])
+            
+            plot_data_per_method.rewards[]
+            
+            # save to plottable data
+            plot_data.rewards[performance_level] = average_plan_length
+            plot_data.failure_points[performance_level] = average_plan_length
+    
+    
 
 Recorder.load_from('results/final_1_80%/HopperBulletEnv-v0/serial_data/rewards_per_episode_per_timestep.pickle')
 
