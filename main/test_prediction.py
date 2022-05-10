@@ -119,23 +119,23 @@ class Tester:
     )
     def gather_optimal_parameters(self, baseline_samples, acceptable_performance_level):
         confidence_interval_percent = self.settings.confidence_interval_for_convergence
-        increment_amount = 1.5
+        increment_amount = config.predictor_settings.increment_factor
         
         baseline = simple_stats(baseline_samples)
-        print(f'''baseline = {baseline}''')
+        print(f'''    baseline = {baseline}''')
         
         baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
         baseline_population_average = baseline.average
         baseline_worst_value        = baseline.average * acceptable_performance_level
         baseline_min, baseline_max = confidence_interval(confidence_interval_percent, baseline_samples)
-        print(f'''baseline_min = {baseline_min}, baseline_max = {baseline_max},''')
+        print(f'''    baseline_min = {baseline_min}, baseline_max = {baseline_max},''')
         baseline_confidence_size = (baseline_max - baseline_min)/2
-        print(f'''baseline_confidence_size = {baseline_confidence_size}''')
+        print(f'''    baseline_confidence_size = {baseline_confidence_size}''')
         
         # 
         # hone in on acceptable epsilon
         # 
-        print("----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
+        print("    ----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
         new_epsilon = self.settings.initial_epsilon
         new_horizon = self.settings.initial_horizon
         epsilon_attempts = []
@@ -192,8 +192,8 @@ class Tester:
         # take median to ignore outliers and find the converged-value even if the above process wasnt converging
         optimal_epsilon = simple_stats(epsilon_attempts).median
         optimal_horizon = horizon_for_epsilon(optimal_epsilon)
-        print(f'''optimal_epsilon = {optimal_epsilon}''')
-        print(f'''optimal_horizon = {optimal_horizon}''')
+        print(f'''    optimal_epsilon = {optimal_epsilon}''')
+        print(f'''    optimal_horizon = {optimal_horizon}''')
         return optimal_epsilon, optimal_horizon
     
     def ppac_experience_episode(
@@ -579,6 +579,7 @@ class Tester:
         # 
         # optimal
         # 
+        print("  running optimal method")
         optimal_samples = self.gather_optimal()
         average_optimal_reward = simple_stats(optimal_samples).average
         plot_data.optimal_reward_points = [
@@ -588,6 +589,7 @@ class Tester:
         # 
         # TODO: random
         # 
+        print("  running random method")
         average_random_performance = 0 # FIXME
         plot_data.random_reward_points = [
             (each_level, average_random_performance) for each_level in self.settings.acceptable_performance_levels
@@ -602,12 +604,13 @@ class Tester:
         plot_data.n_step_horizon_plan_length_points = []
         plot_data.n_step_planlen_plan_length_points = []
         for each_level in self.settings.acceptable_performance_levels:
-            # 
-            # ppac
-            # 
             print(f'''# ''')
             print(f'''# acceptable_performance_level = {each_level}''')
             print(f'''# ''')
+            # 
+            # ppac
+            # 
+            print("  running ppac method")
             optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
             # saves these
             self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
@@ -638,6 +641,7 @@ class Tester:
             # 
             # theory
             # 
+            print("  running theory method")
             plot_data.theory_reward_points.append((
                 each_level,
                 average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
@@ -646,6 +650,7 @@ class Tester:
             # 
             # n_step horizon
             # 
+            print("  running n_step horizon method")
             reward_sums     = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 (
@@ -667,6 +672,7 @@ class Tester:
             # 
             # n_step planlen
             # 
+            print("  running n_step planlen method")
             reward_sums     = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 (
@@ -742,7 +748,7 @@ class Tester:
         ))
         
         threshold_card = ss.DisplayCard("multiLine", dict(
-            scaled_epsilon=optimal_epsilons,
+            scaled_epsilon=scaled_epsilons,
             q_final_gaps_average=q_final_gaps_average,
             q_gaps_average=q_gaps_average,
             # q_gaps_min=q_gaps_min,
@@ -883,7 +889,7 @@ class Tester:
         attributes = {}
         for each_attribute_name in cls.attributes_to_save:
             attributes[each_attribute_name] = large_pickle_load(f"{path}/serial_data/{each_attribute_name}.pickle")
-        attributes["settings"].update(settings)
+        attributes["settings"] = attributes["settings"].merge(settings)
         # create a tester with the loaded data
         return Tester(
             settings=attributes["settings"],
@@ -894,7 +900,6 @@ class Tester:
     
     def save(self, path=None):
         path = path or self.path
-        print(f'''self.recorder = {self.recorder}''')
         # save normal things
         for each_attribute_name in self.attributes_to_save:
             each_path = f"{path}/serial_data/{each_attribute_name}.pickle"
@@ -911,7 +916,7 @@ class Tester:
         
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)
-        pd.DataFrame(self.csv_data).explode("forecast").to_csv(self.csv_path)
+        # pd.DataFrame(self.csv_data).explode("forecast").to_csv(self.csv_path)
         return self
 
 

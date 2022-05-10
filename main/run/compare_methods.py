@@ -26,7 +26,7 @@ def full_run(env_name, agent_path, coach_path):
     results = Tester.smart_load(
         force_recompute=config.predictor_settings.force_recompute,
         settings=config.predictor_settings,
-        path=f"{path_to.folder.results}/{config.predictor_settings.override_save_path}" or path_to.test_results(env_name),
+        path=f"{path_to.folder.results}/{config.predictor_settings.override_save_path}" if config.predictor_settings.override_save_path else path_to.test_results(env_name),
         predictor=LazyDict(
             env=config.get_env(env_name),
             coach=coach,

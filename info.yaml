@@ -75,6 +75,7 @@
     
             predictor_settings:
                 override_save_path: false
+                increment_factor: 1.2
                 # available_methods: [ ppac, n_step, random, optimal ]
                 force_recompute: false
                 graph_smoothing: 0 # rolling average of _ number values
@@ -94,6 +95,8 @@
                 #     0.005: 10
                 #     0.0075: 15
                 #     0.01: 20
+                min_reward_single_timestep: 0
+                max_reward_single_timestep: 100
         
         FORCE_CPU_PROFILE:
             force_cpu: true
