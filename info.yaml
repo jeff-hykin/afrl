@@ -75,8 +75,7 @@
     
             predictor_settings:
                 override_save_path: false
-                available_methods: [ ppac, n_step, random, optimal ]
-                method: ppac # n_step, random, or optimal
+                # available_methods: [ ppac, n_step, random, optimal ]
                 force_recompute: false
                 graph_smoothing: 0 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
@@ -85,6 +84,7 @@
                 initial_epsilon: 10.1 # overshooting this initial value is better than undershooting
                 initial_horizon: 16 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
+                acceptable_performance_levels: [ 0.8, 0.9, 0.95, 0.98, 0.99 ]
                 acceptable_performance_loss: 1 # units = standard deviations
                 acceptable_performance_level: 0.8 # proportion
                 confidence_interval_for_convergence: 90

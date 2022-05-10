@@ -32,7 +32,7 @@ def full_run(env_name, agent_path, coach_path):
             coach=coach,
             agent=coach.agent,
         ),
-    ).run_epoch().generate_graphs()
+    ).create_comparisons()
     
     return results
 
