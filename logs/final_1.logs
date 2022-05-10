@@ -3923,3 +3923,1259 @@ Starting Train/Test
     Epoch: 7
     Epoch: 8
     Epoch: 9
+    Epoch: 10
+    Epoch: 11
+    Epoch: 12
+    Epoch: 13
+    Epoch: 14
+    Epoch: 15
+    Epoch: 16
+    Epoch: 17
+    Epoch: 18
+    Epoch: 19
+    Epoch: 20
+    Epoch: 21
+    Epoch: 22
+    Epoch: 23
+    Epoch: 24
+    Epoch: 25
+    Epoch: 26
+    Epoch: 27
+    Epoch: 28
+    Epoch: 29
+    Epoch: 30
+    Epoch: 31
+    Epoch: 32
+    Epoch: 33
+    Epoch: 34
+    Epoch: 35
+    Epoch: 36
+    Epoch: 37
+    Epoch: 38
+    Epoch: 39
+    Epoch: 40
+    Epoch: 41
+    Epoch: 42
+    Epoch: 43
+    Epoch: 44
+    Epoch: 45
+    Epoch: 46
+    Epoch: 47
+    Epoch: 48
+    Epoch: 49
+    Epoch: 50
+    Epoch: 51
+    Epoch: 52
+    Epoch: 53
+    Epoch: 54
+    Epoch: 55
+    Epoch: 56
+    Epoch: 57
+    Epoch: 58
+    Epoch: 59
+    Epoch: 60
+    Epoch: 61
+    Epoch: 62
+    Epoch: 63
+    Epoch: 64
+    Epoch: 65
+    Epoch: 66
+    Epoch: 67
+    Epoch: 68
+    Epoch: 69
+    Epoch: 70
+    Epoch: 71
+    Epoch: 72
+    Epoch: 73
+    Epoch: 74
+    Epoch: 75
+    Epoch: 76
+    Epoch: 77
+    Epoch: 78
+    Epoch: 79
+    Epoch: 80
+    Epoch: 81
+    Epoch: 82
+    Epoch: 83
+    Epoch: 84
+    Epoch: 85
+    Epoch: 86
+    Epoch: 87
+    Epoch: 88
+    Epoch: 89
+    Epoch: 90
+    Epoch: 91
+    Epoch: 92
+    Epoch: 93
+    Epoch: 94
+    Epoch: 95
+    Epoch: 96
+    Epoch: 97
+    Epoch: 98
+    Epoch: 99
+Saving Coach to: models.ignore/coach/HalfCheetahBulletEnv-v0/final_1_95%/
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "force_recompute": True, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 10, 
+    "initial_epsilon": 3.5, 
+    "initial_horizon": 10, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_loss": 1, 
+    "acceptable_performance_level": 0.8, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": -60, 
+    "max_reward_single_timestep": 100, 
+    "horizons": {0: 1, 0.001: 11, 0.01: 13, 0.1: 26, }, 
+}
+----- getting a reward baseline -----------------------------------------------------------------------------------------------------------------------------------
+  episode_index=0, episode_discounted_reward_sum=104.68788092552178
+  episode_index=1, episode_discounted_reward_sum=101.80949042261297
+  episode_index=2, episode_discounted_reward_sum=105.89240262854601
+  episode_index=3, episode_discounted_reward_sum=103.24751409582207
+  episode_index=4, episode_discounted_reward_sum=101.5097088026517
+  episode_index=5, episode_discounted_reward_sum=104.36904161565846
+  episode_index=6, episode_discounted_reward_sum=102.85470683737603
+  episode_index=7, episode_discounted_reward_sum=103.01997325051691
+  episode_index=8, episode_discounted_reward_sum=104.59420178918278
+  episode_index=9, episode_discounted_reward_sum=105.31903929672964
+  episode_index=10, episode_discounted_reward_sum=105.12493242427608
+  episode_index=11, episode_discounted_reward_sum=104.48827537883167
+  episode_index=12, episode_discounted_reward_sum=101.51755494032399
+  episode_index=13, episode_discounted_reward_sum=104.79627480585636
+  episode_index=14, episode_discounted_reward_sum=105.51005767247408
+  episode_index=15, episode_discounted_reward_sum=106.6472799657738
+  episode_index=16, episode_discounted_reward_sum=105.02326982785569
+  episode_index=17, episode_discounted_reward_sum=104.48956970389472
+  episode_index=18, episode_discounted_reward_sum=100.68180807608178
+  episode_index=19, episode_discounted_reward_sum=104.7280555837557
+  episode_index=20, episode_discounted_reward_sum=101.7280259733553
+  episode_index=21, episode_discounted_reward_sum=104.26251126973276
+  episode_index=22, episode_discounted_reward_sum=104.25445348924377
+  episode_index=23, episode_discounted_reward_sum=106.06257525263514
+  episode_index=24, episode_discounted_reward_sum=105.10364020012709
+  episode_index=25, episode_discounted_reward_sum=102.82664964406999
+  episode_index=26, episode_discounted_reward_sum=103.00424956599596
+  episode_index=27, episode_discounted_reward_sum=104.26584841607634
+  episode_index=28, episode_discounted_reward_sum=104.78617751391494
+  episode_index=29, episode_discounted_reward_sum=106.11264420732685
+baseline = {
+    "max": 106.6472799657738, 
+    "min": 100.68180807608178, 
+    "range": 5.965471889692026, 
+    "count": 30, 
+    "sum": 3122.717813576221, 
+    "average": 104.09059378587403, 
+    "stdev": 1.5377957678318828, 
+    "median": 104.4889225413632, 
+}
+baseline_min = 103.61354380598755, baseline_max = 104.56764376576047,
+baseline_confidence_size = 0.47704997988645914
+----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------
+            reward_single_sum=34.59797933216235, 
+            reward_single_sum=45.515133657507235, confidence_size=34.464099829480915, confidence_max=74.5206563243157, new_horizon=4
+        episode=0, horizon=20, effective_score=40.06, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=2.3333, bad=True, gap_average=1.129545380592346
+            reward_single_sum=35.66134335550418, 
+            reward_single_sum=52.251093472317535, confidence_size=52.37177996509966, confidence_max=96.3279983790105, new_horizon=2
+        episode=1, horizon=20, effective_score=43.96, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.5556, bad=True, gap_average=1.9744876137971878
+            reward_single_sum=70.51028123050678, 
+            reward_single_sum=79.32091940676905, confidence_size=27.814090065869436, confidence_max=102.72969038450734, new_horizon=6
+        episode=2, horizon=20, effective_score=74.92, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.0370, bad=True, gap_average=0.9127364234924317
+            reward_single_sum=74.49113570785697, 
+            reward_single_sum=57.45271425735154, confidence_size=53.78817962147271, confidence_max=119.76010460407693, new_horizon=6
+            reward_single_sum=91.36227463308207, confidence_size=28.583407748046376, confidence_max=103.01878261414322, new_horizon=4
+        episode=3, horizon=20, effective_score=74.44, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=0.6914, bad=True, gap_average=0.8051872262954712
+            reward_single_sum=97.39747606773449, 
+            reward_single_sum=92.16063897282095, confidence_size=16.532044070388046, confidence_max=111.31110159066576, new_horizon=6
+            reward_single_sum=86.97594379965356, confidence_size=8.784629982051534, confidence_max=100.96264959545452, new_horizon=6
+        episode=4, horizon=4, effective_score=92.18, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.0370, bad=False, gap_average=0.6264708611170451
+            reward_single_sum=93.09550244377273, 
+            reward_single_sum=33.15509320085686, confidence_size=189.22442482762403, confidence_max=252.3497226499387, new_horizon=6
+            reward_single_sum=89.30498407137542, confidence_size=56.58727698300369, confidence_max=128.43913688833868, new_horizon=6
+            reward_single_sum=70.09127486005163, confidence_size=32.26532210835469, confidence_max=103.67703575236884, new_horizon=6
+            reward_single_sum=70.59197292023055, confidence_size=22.64281208384778, confidence_max=93.89057758310521, new_horizon=6
+        episode=5, horizon=6, effective_score=71.25, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=0.6914, bad=True, gap_average=0.7725016396045685
+            reward_single_sum=83.75064361782653, 
+            reward_single_sum=96.95679636296583, confidence_size=41.690183449657916, confidence_max=132.04390344005407, new_horizon=6
+            reward_single_sum=95.29160847589753, confidence_size=12.125056088736685, confidence_max=104.12473890763331, new_horizon=6
+            reward_single_sum=84.62083397896517, confidence_size=8.160550122457863, confidence_max=98.31552073137163, new_horizon=6
+        episode=6, horizon=6, effective_score=90.15, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.0370, bad=False, gap_average=0.6160890176594257
+            reward_single_sum=78.14864406532284, 
+            reward_single_sum=82.26886742980285, confidence_size=13.00703325440194, confidence_max=93.21578900196478, new_horizon=4
+        episode=7, horizon=6, effective_score=80.21, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=0.6914, bad=True, gap_average=0.778800931930542
+            reward_single_sum=97.45323397365328, 
+            reward_single_sum=91.55064371293557, confidence_size=18.63374409992786, confidence_max=113.13568294322228, new_horizon=6
+            reward_single_sum=94.73274840545776, confidence_size=4.980523297819019, confidence_max=99.55939866183455, new_horizon=6
+        episode=8, horizon=4, effective_score=94.58, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.0370, bad=False, gap_average=0.5762998873392741
+            reward_single_sum=83.32789401090146, 
+            reward_single_sum=88.33517530743298, confidence_size=15.807364935505127, confidence_max=101.63889959467234, new_horizon=4
+        episode=9, horizon=20, effective_score=85.83, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.5556, bad=False, gap_average=0.7140443959832191
+            reward_single_sum=83.26144308865132, 
+            reward_single_sum=66.84872806800236, confidence_size=51.812902161809234, confidence_max=126.86798774013604, new_horizon=6
+            reward_single_sum=70.69211210477106, confidence_size=14.471809382516561, confidence_max=88.07257046965813, new_horizon=6
+        episode=10, horizon=4, effective_score=73.60, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.0370, bad=True, gap_average=0.8289715461730957
+            reward_single_sum=79.71320026005908, 
+            reward_single_sum=85.47589563725364, confidence_size=18.19211333354925, confidence_max=100.7866612822056, new_horizon=6
+        episode=11, horizon=6, effective_score=82.59, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=0.6914, bad=True, gap_average=0.7632601909637451
+            reward_single_sum=41.43958124045453, 
+            reward_single_sum=88.60271752717249, confidence_size=148.88816158651426, confidence_max=213.90931097032768, new_horizon=6
+            reward_single_sum=82.67206405038375, confidence_size=43.30848064733743, confidence_max=114.21326825334101, new_horizon=6
+            reward_single_sum=89.81702722241994, confidence_size=27.073385469711816, confidence_max=102.70623297981949, new_horizon=6
+        episode=12, horizon=20, effective_score=75.63, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=0.4609, bad=True, gap_average=0.5997833316326141
+            reward_single_sum=71.42799296803545, 
+            reward_single_sum=96.42668352242858, confidence_size=78.91776017791972, confidence_max=162.84509842315168, new_horizon=4
+            reward_single_sum=95.10048969864772, confidence_size=23.71289210600937, confidence_max=111.36461416904662, new_horizon=4
+            reward_single_sum=100.68237012598821, confidence_size=15.53697917450387, confidence_max=106.44636325327886, new_horizon=6
+            reward_single_sum=93.66310969461435, confidence_size=10.965116349440166, confidence_max=102.42524555138303, new_horizon=4
+        episode=13, horizon=6, effective_score=91.46, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=0.6914, bad=False, gap_average=0.45826357707977294
+            reward_single_sum=85.6967531897766, 
+            reward_single_sum=94.65349638304953, confidence_size=28.275325452104966, confidence_max=118.45045023851802, new_horizon=6
+            reward_single_sum=96.66166456351553, confidence_size=9.841821144989524, confidence_max=102.17912585710341, new_horizon=6
+        episode=14, horizon=6, effective_score=92.34, baseline_lowerbound=83.27 baseline_stdev=0.28, new_epsilon=1.0370, bad=False, gap_average=0.5918309256235759
+optimal_epsilon = 1.037037037037037
+optimal_horizon = 6
+    scaled_epsilon: 1.0370, forecast_average: 2.0322, episode_reward:2145.90, max_timestep_reward: 2.98, min_timestep_reward: -0.79
+    scaled_epsilon: 1.0370, forecast_average: 2.0659, episode_reward:2154.25, max_timestep_reward: 3.00, min_timestep_reward: -0.31
+    scaled_epsilon: 1.0370, forecast_average: 2.0973, episode_reward:2190.00, max_timestep_reward: 2.96, min_timestep_reward: -0.25
+    scaled_epsilon: 1.0370, forecast_average: 2.0928, episode_reward:2069.12, max_timestep_reward: 2.97, min_timestep_reward: -1.01
+    scaled_epsilon: 1.0370, forecast_average: 2.0817, episode_reward:2196.10, max_timestep_reward: 2.97, min_timestep_reward: -0.37
+    scaled_epsilon: 1.0370, forecast_average: 2.0967, episode_reward:2227.15, max_timestep_reward: 3.08, min_timestep_reward: -0.29
+    scaled_epsilon: 1.0370, forecast_average: 2.0914, episode_reward:2082.28, max_timestep_reward: 2.92, min_timestep_reward: -0.78
+    scaled_epsilon: 1.0370, forecast_average: 2.0868, episode_reward:2165.29, max_timestep_reward: 3.03, min_timestep_reward: -0.48
+    scaled_epsilon: 1.0370, forecast_average: 2.0668, episode_reward:1823.19, max_timestep_reward: 2.99, min_timestep_reward: -2.23
+    scaled_epsilon: 1.0370, forecast_average: 2.0756, episode_reward:2187.31, max_timestep_reward: 3.03, min_timestep_reward: -0.43
+self.recorder = {
+    number_of_records: 0,
+    records: [ ... ],
+    local_data: {},
+    parent_data:    {
+    }
+}
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+argv[0]=
+argv[0]=
+argv[0]=
+argv[0]=
+
+
+-------------------------------------------------------
+
+ Environment: BipedalWalker-v3
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/BipedalWalker-v3_1/BipedalWalker-v3.zip
+-----------------------------------------------------------------------------------------------------
+
+
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Training Coach Model from scrach
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+Starting Experience Recording
+    Episode: 0, Reward: 300.612, Average Reward: 300.612
+    Episode: 1, Reward: 302.322, Average Reward: 301.467
+    Episode: 2, Reward: 299.881, Average Reward: 300.938
+    Episode: 3, Reward: 298.631, Average Reward: 300.361
+    Episode: 4, Reward: 300.879, Average Reward: 300.465
+    Episode: 5, Reward: 301.314, Average Reward: 300.606
+    Episode: 6, Reward: -88.407, Average Reward: 245.033
+    Episode: 7, Reward: 300.225, Average Reward: 251.932
+    Episode: 8, Reward: 302.239, Average Reward: 257.522
+    Episode: 9, Reward: 301.204, Average Reward: 261.890
+    Episode: 10, Reward: 301.527, Average Reward: 265.493
+    Episode: 11, Reward: 300.530, Average Reward: 268.413
+    Episode: 12, Reward: 299.449, Average Reward: 270.800
+    Episode: 13, Reward: 300.945, Average Reward: 272.953
+    Episode: 14, Reward: 298.891, Average Reward: 274.683
+    Episode: 15, Reward: -83.876, Average Reward: 252.273
+    Episode: 16, Reward: 299.988, Average Reward: 255.080
+    Episode: 17, Reward: 301.896, Average Reward: 257.680
+    Episode: 18, Reward: -87.756, Average Reward: 239.500
+    Episode: 19, Reward: 299.720, Average Reward: 242.511
+    Episode: 20, Reward: 300.070, Average Reward: 245.252
+    Episode: 21, Reward: 300.344, Average Reward: 247.756
+    Episode: 22, Reward: 300.413, Average Reward: 250.045
+    Episode: 23, Reward: 301.611, Average Reward: 252.194
+    Episode: 24, Reward: 299.644, Average Reward: 254.092
+    Episode: 25, Reward: 300.717, Average Reward: 255.885
+    Episode: 26, Reward: 300.033, Average Reward: 257.520
+    Episode: 27, Reward: 301.796, Average Reward: 259.101
+    Episode: 28, Reward: 300.954, Average Reward: 260.545
+    Episode: 29, Reward: 300.504, Average Reward: 261.877
+    Episode: 30, Reward: 300.356, Average Reward: 263.118
+    Episode: 31, Reward: 300.836, Average Reward: 264.297
+    Episode: 32, Reward: 301.969, Average Reward: 265.438
+    Episode: 33, Reward: 300.800, Average Reward: 266.478
+    Episode: 34, Reward: 297.963, Average Reward: 267.378
+    Episode: 35, Reward: 299.273, Average Reward: 268.264
+    Episode: 36, Reward: 300.929, Average Reward: 269.147
+    Episode: 37, Reward: 299.313, Average Reward: 269.940
+    Episode: 38, Reward: 301.195, Average Reward: 270.742
+    Episode: 39, Reward: 300.161, Average Reward: 271.477
+    Episode: 40, Reward: 301.135, Average Reward: 272.201
+    Episode: 41, Reward: 303.228, Average Reward: 272.939
+    Episode: 42, Reward: 301.150, Average Reward: 273.596
+    Episode: 43, Reward: 300.775, Average Reward: 274.213
+    Episode: 44, Reward: 300.847, Average Reward: 274.805
+    Episode: 45, Reward: 300.524, Average Reward: 275.364
+    Episode: 46, Reward: 300.783, Average Reward: 275.905
+    Episode: 47, Reward: 300.143, Average Reward: 276.410
+    Episode: 48, Reward: 21.016, Average Reward: 271.198
+    Episode: 49, Reward: 296.170, Average Reward: 271.697
+    Episode: 50, Reward: 301.528, Average Reward: 272.282
+    Episode: 51, Reward: 301.270, Average Reward: 272.840
+    Episode: 52, Reward: 301.536, Average Reward: 273.381
+    Episode: 53, Reward: 302.160, Average Reward: 273.914
+    Episode: 54, Reward: 301.309, Average Reward: 274.412
+    Episode: 55, Reward: 299.275, Average Reward: 274.856
+    Episode: 56, Reward: 296.231, Average Reward: 275.231
+    Episode: 57, Reward: 297.375, Average Reward: 275.613
+    Episode: 58, Reward: 297.375, Average Reward: 275.982
+    Episode: 59, Reward: 300.830, Average Reward: 276.396
+    Episode: 60, Reward: 298.298, Average Reward: 276.755
+    Episode: 61, Reward: 300.250, Average Reward: 277.134
+    Episode: 62, Reward: 299.048, Average Reward: 277.482
+    Episode: 63, Reward: 299.174, Average Reward: 277.821
+    Episode: 64, Reward: 302.484, Average Reward: 278.200
+    Episode: 65, Reward: 301.447, Average Reward: 278.552
+    Episode: 66, Reward: 299.619, Average Reward: 278.867
+    Episode: 67, Reward: 301.091, Average Reward: 279.194
+    Episode: 68, Reward: 188.703, Average Reward: 277.882
+    Episode: 69, Reward: 298.788, Average Reward: 278.181
+    Episode: 70, Reward: 301.207, Average Reward: 278.505
+    Episode: 71, Reward: 299.639, Average Reward: 278.799
+    Episode: 72, Reward: 300.039, Average Reward: 279.090
+    Episode: 73, Reward: 300.436, Average Reward: 279.378
+    Episode: 74, Reward: 298.306, Average Reward: 279.630
+    Episode: 75, Reward: 302.529, Average Reward: 279.932
+    Episode: 76, Reward: 302.855, Average Reward: 280.229
+    Episode: 77, Reward: 300.729, Average Reward: 280.492
+    Episode: 78, Reward: 301.041, Average Reward: 280.752
+    Episode: 79, Reward: 298.661, Average Reward: 280.976
+    Episode: 80, Reward: 300.247, Average Reward: 281.214
+    Episode: 81, Reward: 299.074, Average Reward: 281.432
+    Episode: 82, Reward: 302.928, Average Reward: 281.691
+    Episode: 83, Reward: 299.834, Average Reward: 281.907
+    Episode: 84, Reward: 301.119, Average Reward: 282.133
+    Episode: 85, Reward: 301.296, Average Reward: 282.356
+    Episode: 86, Reward: 303.037, Average Reward: 282.593
+    Episode: 87, Reward: 299.550, Average Reward: 282.786
+    Episode: 88, Reward: 297.850, Average Reward: 282.955
+    Episode: 89, Reward: 298.973, Average Reward: 283.133
+    Episode: 90, Reward: 300.757, Average Reward: 283.327
+    Episode: 91, Reward: 301.192, Average Reward: 283.521
+    Episode: 92, Reward: 302.968, Average Reward: 283.730
+    Episode: 93, Reward: 298.803, Average Reward: 283.891
+    Episode: 94, Reward: 302.797, Average Reward: 284.090
+    Episode: 95, Reward: 300.585, Average Reward: 284.262
+    Episode: 96, Reward: 301.096, Average Reward: 284.435
+    Episode: 97, Reward: 301.996, Average Reward: 284.614
+    Episode: 98, Reward: 299.916, Average Reward: 284.769
+    Episode: 99, Reward: 299.040, Average Reward: 284.912
+
+    Max Episode Reward: 303.22780887138885
+    Min Episode Reward: -88.40722809476156
+    Max Timestep Reward: 0.528635137071193
+    Min Timestep Reward: -100
+Starting Train/Test
+    Epoch: 0
+    Epoch: 1
+    Epoch: 2
+    Epoch: 3
+    Epoch: 4
+    Epoch: 5
+    Epoch: 6
+    Epoch: 7
+    Epoch: 8
+    Epoch: 9
+    Epoch: 10
+    Epoch: 11
+    Epoch: 12
+    Epoch: 13
+    Epoch: 14
+    Epoch: 15
+    Epoch: 16
+    Epoch: 17
+    Epoch: 18
+    Epoch: 19
+    Epoch: 20
+    Epoch: 21
+    Epoch: 22
+    Epoch: 23
+    Epoch: 24
+    Epoch: 25
+    Epoch: 26
+    Epoch: 27
+    Epoch: 28
+    Epoch: 29
+    Epoch: 30
+    Epoch: 31
+    Epoch: 32
+    Epoch: 33
+    Epoch: 34
+    Epoch: 35
+    Epoch: 36
+    Epoch: 37
+    Epoch: 38
+    Epoch: 39
+    Epoch: 40
+    Epoch: 41
+    Epoch: 42
+    Epoch: 43
+    Epoch: 44
+    Epoch: 45
+    Epoch: 46
+    Epoch: 47
+    Epoch: 48
+    Epoch: 49
+    Epoch: 50
+    Epoch: 51
+    Epoch: 52
+    Epoch: 53
+    Epoch: 54
+    Epoch: 55
+    Epoch: 56
+    Epoch: 57
+    Epoch: 58
+    Epoch: 59
+    Epoch: 60
+    Epoch: 61
+    Epoch: 62
+    Epoch: 63
+    Epoch: 64
+    Epoch: 65
+    Epoch: 66
+    Epoch: 67
+    Epoch: 68
+    Epoch: 69
+    Epoch: 70
+    Epoch: 71
+    Epoch: 72
+    Epoch: 73
+    Epoch: 74
+    Epoch: 75
+    Epoch: 76
+    Epoch: 77
+    Epoch: 78
+    Epoch: 79
+    Epoch: 80
+    Epoch: 81
+    Epoch: 82
+    Epoch: 83
+    Epoch: 84
+    Epoch: 85
+    Epoch: 86
+    Epoch: 87
+    Epoch: 88
+    Epoch: 89
+    Epoch: 90
+    Epoch: 91
+    Epoch: 92
+    Epoch: 93
+    Epoch: 94
+    Epoch: 95
+    Epoch: 96
+    Epoch: 97
+    Epoch: 98
+    Epoch: 99
+Saving Coach to: models.ignore/coach/BipedalWalker-v3/final_1_95%/
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "override_save_path": False, 
+    "force_recompute": True, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 10, 
+    "initial_epsilon": 3.5, 
+    "initial_horizon": 10, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_levels": [0.8, 0.9, 0.95, 0.98, 0.99, ], 
+    "acceptable_performance_loss": 1, 
+    "acceptable_performance_level": 0.8, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": -23, 
+    "max_reward_single_timestep": 5, 
+    "horizons": {0.1: 26, 0.01: 16, 0.001: 11, }, 
+}
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 26, in full_run
+    results = Tester.smart_load(
+TypeError: run_epoch() missing 1 required positional argument: 'method'
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+
+
+
+-------------------------------------------------------
+
+ Environment: AntBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: subrepos/rl-trained-agents/sac/AntBulletEnv-v0_1/AntBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Training Coach Model from scrach
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+Starting Experience Recording
+    Episode: 0, Reward: 3079.037, Average Reward: 3079.037
+    Episode: 1, Reward: 3087.831, Average Reward: 3083.434
+    Episode: 2, Reward: 3100.762, Average Reward: 3089.210
+    Episode: 3, Reward: 3063.714, Average Reward: 3082.836
+    Episode: 4, Reward: 3102.805, Average Reward: 3086.830
+    Episode: 5, Reward: 3078.667, Average Reward: 3085.469
+    Episode: 6, Reward: 3055.053, Average Reward: 3081.124
+    Episode: 7, Reward: 3126.057, Average Reward: 3086.741
+    Episode: 8, Reward: 3092.430, Average Reward: 3087.373
+    Episode: 9, Reward: 3107.236, Average Reward: 3089.359
+    Episode: 10, Reward: 3083.358, Average Reward: 3088.814
+    Episode: 11, Reward: 3102.738, Average Reward: 3089.974
+    Episode: 12, Reward: 3088.224, Average Reward: 3089.839
+    Episode: 13, Reward: 3094.084, Average Reward: 3090.142
+    Episode: 14, Reward: 3103.765, Average Reward: 3091.051
+    Episode: 15, Reward: 3085.183, Average Reward: 3090.684
+    Episode: 16, Reward: 3101.387, Average Reward: 3091.314
+    Episode: 17, Reward: 3104.180, Average Reward: 3092.028
+    Episode: 18, Reward: 3081.148, Average Reward: 3091.456
+    Episode: 19, Reward: 3054.245, Average Reward: 3089.595
+    Episode: 20, Reward: 3114.857, Average Reward: 3090.798
+    Episode: 21, Reward: 3120.662, Average Reward: 3092.156
+    Episode: 22, Reward: 3056.011, Average Reward: 3090.584
+    Episode: 23, Reward: 3088.579, Average Reward: 3090.501
+    Episode: 24, Reward: 3104.704, Average Reward: 3091.069
+    Episode: 25, Reward: 3068.323, Average Reward: 3090.194
+    Episode: 26, Reward: 3132.124, Average Reward: 3091.747
+    Episode: 27, Reward: 3150.368, Average Reward: 3093.840
+    Episode: 28, Reward: 2967.010, Average Reward: 3089.467
+    Episode: 29, Reward: 3039.809, Average Reward: 3087.812
+    Episode: 30, Reward: 3059.204, Average Reward: 3086.889
+    Episode: 31, Reward: 3136.502, Average Reward: 3088.439
+    Episode: 32, Reward: 3073.862, Average Reward: 3087.997
+    Episode: 33, Reward: 3059.493, Average Reward: 3087.159
+    Episode: 34, Reward: 3028.324, Average Reward: 3085.478
+    Episode: 35, Reward: 3117.456, Average Reward: 3086.366
+    Episode: 36, Reward: 3123.154, Average Reward: 3087.361
+    Episode: 37, Reward: 3075.808, Average Reward: 3087.057
+    Episode: 38, Reward: 3119.370, Average Reward: 3087.885
+    Episode: 39, Reward: 3097.663, Average Reward: 3088.130
+    Episode: 40, Reward: 3136.824, Average Reward: 3089.317
+    Episode: 41, Reward: 3132.882, Average Reward: 3090.355
+    Episode: 42, Reward: 3076.547, Average Reward: 3090.033
+    Episode: 43, Reward: 3096.995, Average Reward: 3090.192
+    Episode: 44, Reward: 3137.338, Average Reward: 3091.239
+    Episode: 45, Reward: 3094.072, Average Reward: 3091.301
+    Episode: 46, Reward: 3132.696, Average Reward: 3092.182
+    Episode: 47, Reward: 3121.190, Average Reward: 3092.786
+    Episode: 48, Reward: 3111.280, Average Reward: 3093.163
+    Episode: 49, Reward: 3104.544, Average Reward: 3093.391
+    Episode: 50, Reward: 3004.039, Average Reward: 3091.639
+    Episode: 51, Reward: 3109.236, Average Reward: 3091.977
+    Episode: 52, Reward: 3070.012, Average Reward: 3091.563
+    Episode: 53, Reward: 3036.041, Average Reward: 3090.535
+    Episode: 54, Reward: 3128.148, Average Reward: 3091.219
+    Episode: 55, Reward: 3063.832, Average Reward: 3090.730
+    Episode: 56, Reward: 3120.505, Average Reward: 3091.252
+    Episode: 57, Reward: 3097.061, Average Reward: 3091.352
+    Episode: 58, Reward: 2616.729, Average Reward: 3083.308
+    Episode: 59, Reward: 3107.901, Average Reward: 3083.718
+    Episode: 60, Reward: 3055.931, Average Reward: 3083.262
+    Episode: 61, Reward: 3129.824, Average Reward: 3084.013
+    Episode: 62, Reward: 3103.418, Average Reward: 3084.321
+    Episode: 63, Reward: 3106.233, Average Reward: 3084.663
+    Episode: 64, Reward: 3095.458, Average Reward: 3084.830
+    Episode: 65, Reward: 3083.492, Average Reward: 3084.809
+    Episode: 66, Reward: 3106.169, Average Reward: 3085.128
+    Episode: 67, Reward: 3049.493, Average Reward: 3084.604
+    Episode: 68, Reward: 3052.765, Average Reward: 3084.143
+    Episode: 69, Reward: 3069.514, Average Reward: 3083.934
+    Episode: 70, Reward: 3078.326, Average Reward: 3083.855
+    Episode: 71, Reward: 3029.836, Average Reward: 3083.104
+    Episode: 72, Reward: 3102.420, Average Reward: 3083.369
+    Episode: 73, Reward: 3109.371, Average Reward: 3083.720
+    Episode: 74, Reward: 3072.457, Average Reward: 3083.570
+    Episode: 75, Reward: 3054.384, Average Reward: 3083.186
+    Episode: 76, Reward: 3078.454, Average Reward: 3083.125
+    Episode: 77, Reward: 3106.549, Average Reward: 3083.425
+    Episode: 78, Reward: 3078.511, Average Reward: 3083.363
+    Episode: 79, Reward: 3105.936, Average Reward: 3083.645
+    Episode: 80, Reward: 3041.385, Average Reward: 3083.123
+    Episode: 81, Reward: 3156.135, Average Reward: 3084.014
+    Episode: 82, Reward: 3096.057, Average Reward: 3084.159
+    Episode: 83, Reward: 3083.667, Average Reward: 3084.153
+    Episode: 84, Reward: 3092.678, Average Reward: 3084.253
+    Episode: 85, Reward: 3111.701, Average Reward: 3084.572
+    Episode: 86, Reward: 3089.617, Average Reward: 3084.630
+    Episode: 87, Reward: 3099.176, Average Reward: 3084.796
+    Episode: 88, Reward: 3098.595, Average Reward: 3084.951
+    Episode: 89, Reward: 3096.093, Average Reward: 3085.074
+    Episode: 90, Reward: 3101.840, Average Reward: 3085.259
+    Episode: 91, Reward: 3158.592, Average Reward: 3086.056
+    Episode: 92, Reward: 3069.718, Average Reward: 3085.880
+    Episode: 93, Reward: 3093.104, Average Reward: 3085.957
+    Episode: 94, Reward: 3088.042, Average Reward: 3085.979
+    Episode: 95, Reward: 3128.184, Average Reward: 3086.419
+    Episode: 96, Reward: 1643.653, Average Reward: 3071.545
+    Episode: 97, Reward: 3058.191, Average Reward: 3071.408
+    Episode: 98, Reward: 3125.157, Average Reward: 3071.951
+    Episode: 99, Reward: 3115.474, Average Reward: 3072.387
+
+    Max Episode Reward: 3158.5921401879696
+    Min Episode Reward: 1643.6525326206677
+    Max Timestep Reward: 3.8108226635786138
+    Min Timestep Reward: -0.385434190957977
+Starting Train/Test
+    Epoch: 0
+    Epoch: 1
+    Epoch: 2
+    Epoch: 3
+    Epoch: 4
+    Epoch: 5
+    Epoch: 6
+    Epoch: 7
+    Epoch: 8
+    Epoch: 9
+    Epoch: 10
+    Epoch: 11
+    Epoch: 12
+    Epoch: 13
+    Epoch: 14
+    Epoch: 15
+    Epoch: 16
+    Epoch: 17
+    Epoch: 18
+    Epoch: 19
+    Epoch: 20
+    Epoch: 21
+    Epoch: 22
+    Epoch: 23
+    Epoch: 24
+    Epoch: 25
+    Epoch: 26
+    Epoch: 27
+    Epoch: 28
+    Epoch: 29
+    Epoch: 30
+    Epoch: 31
+    Epoch: 32
+    Epoch: 33
+    Epoch: 34
+    Epoch: 35
+    Epoch: 36
+    Epoch: 37
+    Epoch: 38
+    Epoch: 39
+    Epoch: 40
+    Epoch: 41
+    Epoch: 42
+    Epoch: 43
+    Epoch: 44
+    Epoch: 45
+    Epoch: 46
+    Epoch: 47
+    Epoch: 48
+    Epoch: 49
+    Epoch: 50
+    Epoch: 51
+    Epoch: 52
+    Epoch: 53
+    Epoch: 54
+    Epoch: 55
+    Epoch: 56
+    Epoch: 57
+    Epoch: 58
+    Epoch: 59
+    Epoch: 60
+    Epoch: 61
+    Epoch: 62
+    Epoch: 63
+    Epoch: 64
+    Epoch: 65
+    Epoch: 66
+    Epoch: 67
+    Epoch: 68
+    Epoch: 69
+    Epoch: 70
+    Epoch: 71
+    Epoch: 72
+    Epoch: 73
+    Epoch: 74
+    Epoch: 75
+    Epoch: 76
+    Epoch: 77
+    Epoch: 78
+    Epoch: 79
+    Epoch: 80
+    Epoch: 81
+    Epoch: 82
+    Epoch: 83
+    Epoch: 84
+    Epoch: 85
+    Epoch: 86
+    Epoch: 87
+    Epoch: 88
+    Epoch: 89
+    Epoch: 90
+    Epoch: 91
+    Epoch: 92
+    Epoch: 93
+    Epoch: 94
+    Epoch: 95
+    Epoch: 96
+    Epoch: 97
+    Epoch: 98
+    Epoch: 99
+Saving Coach to: models.ignore/coach/AntBulletEnv-v0/final_1_95%/
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "override_save_path": False, 
+    "force_recompute": True, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 10, 
+    "initial_epsilon": 3.5, 
+    "initial_horizon": 10, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_levels": [0.8, 0.9, 0.95, 0.98, 0.99, ], 
+    "acceptable_performance_loss": 1, 
+    "acceptable_performance_level": 0.8, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": 19, 
+    "max_reward_single_timestep": 105, 
+    "horizons": {0: 1, 0.0007: 4, 0.0015: 16, 0.002: 26, }, 
+}
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+argv[0]=
+argv[0]=
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 26, in full_run
+    results = Tester.smart_load(
+TypeError: run_epoch() missing 1 required positional argument: 'method'
+
+
+-------------------------------------------------------
+
+ Environment: ReacherBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/ReacherBulletEnv-v0_1/ReacherBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Coach Model Exists, loading: models.ignore/coach/ReacherBulletEnv-v0/final_1_95%/
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "override_save_path": False, 
+    "force_recompute": True, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 10, 
+    "initial_epsilon": 3.5, 
+    "initial_horizon": 10, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_levels": [0.8, 0.9, 0.95, 0.98, 0.99, ], 
+    "acceptable_performance_loss": 1, 
+    "acceptable_performance_level": 0.8, 
+    "confidence_interval_for_convergence": 90, 
+}
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 26, in full_run
+    results = Tester.smart_load(
+TypeError: run_epoch() missing 1 required positional argument: 'method'
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+
+
+
+-------------------------------------------------------
+
+ Environment: LunarLanderContinuous-v2
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip
+-----------------------------------------------------------------------------------------------------
+
+
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Coach Model Exists, loading: models.ignore/coach/LunarLanderContinuous-v2/final_1_98%/
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "override_save_path": False, 
+    "force_recompute": True, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 10, 
+    "initial_epsilon": 3.5, 
+    "initial_horizon": 10, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_levels": [0.8, 0.9, 0.95, 0.98, 0.99, ], 
+    "acceptable_performance_loss": 1, 
+    "acceptable_performance_level": 0.8, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": -100, 
+    "max_reward_single_timestep": 70, 
+    "horizons": {0.0: 1, 0.005: 10, 0.01: 20, }, 
+}
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 26, in full_run
+    results = Tester.smart_load(
+TypeError: run_epoch() missing 1 required positional argument: 'method'
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+
+
+
+-------------------------------------------------------
+
+ Environment: HopperBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/HopperBulletEnv-v0_1/HopperBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Coach Model Exists, loading: models.ignore/coach/HopperBulletEnv-v0/final_1_98%/
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "override_save_path": False, 
+    "force_recompute": True, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 15, 
+    "number_of_episodes_for_testing": 10, 
+    "initial_epsilon": 3.5, 
+    "initial_horizon": 10, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_levels": [0.8, 0.9, 0.95, 0.98, 0.99, ], 
+    "acceptable_performance_loss": 1, 
+    "acceptable_performance_level": 0.8, 
+    "confidence_interval_for_convergence": 90, 
+    "min_reward_single_timestep": 18, 
+    "max_reward_single_timestep": 110, 
+    "horizons": {0.1: 26, 0.01: 16, 0.001: 11, }, 
+}
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 26, in full_run
+    results = Tester.smart_load(
+TypeError: run_epoch() missing 1 required positional argument: 'method'
+
+
+-------------------------------------------------------
+
+ Environment: HalfCheetahBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: subrepos/rl-trained-agents/sac/HalfCheetahBulletEnv-v0_1/HalfCheetahBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Training Coach Model from scrach
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+Starting Experience Recording
+    Episode: 0, Reward: 2775.986, Average Reward: 2775.986
+    Episode: 1, Reward: 2818.204, Average Reward: 2797.095
+    Episode: 2, Reward: 2818.792, Average Reward: 2804.327
+    Episode: 3, Reward: 2805.103, Average Reward: 2804.521
+    Episode: 4, Reward: 2797.436, Average Reward: 2803.104
+    Episode: 5, Reward: 2786.826, Average Reward: 2800.391
+    Episode: 6, Reward: 2785.474, Average Reward: 2798.260
+    Episode: 7, Reward: 2792.858, Average Reward: 2797.585
+    Episode: 8, Reward: 2809.690, Average Reward: 2798.930
+    Episode: 9, Reward: 2781.863, Average Reward: 2797.223
+    Episode: 10, Reward: 2789.674, Average Reward: 2796.537
+    Episode: 11, Reward: 2805.874, Average Reward: 2797.315
+    Episode: 12, Reward: 2801.853, Average Reward: 2797.664
+    Episode: 13, Reward: 2790.657, Average Reward: 2797.164
+    Episode: 14, Reward: 2795.531, Average Reward: 2797.055
+    Episode: 15, Reward: 2790.157, Average Reward: 2796.624
+    Episode: 16, Reward: 2801.029, Average Reward: 2796.883
+    Episode: 17, Reward: 2776.931, Average Reward: 2795.774
+    Episode: 18, Reward: 2776.975, Average Reward: 2794.785
+    Episode: 19, Reward: 2804.053, Average Reward: 2795.248
+    Episode: 20, Reward: 2797.313, Average Reward: 2795.347
+    Episode: 21, Reward: 2797.982, Average Reward: 2795.466
+    Episode: 22, Reward: 2790.577, Average Reward: 2795.254
+    Episode: 23, Reward: 2794.885, Average Reward: 2795.239
+    Episode: 24, Reward: 2781.944, Average Reward: 2794.707
+    Episode: 25, Reward: 2790.160, Average Reward: 2794.532
+    Episode: 26, Reward: 2796.210, Average Reward: 2794.594
+    Episode: 27, Reward: 2806.243, Average Reward: 2795.010
+    Episode: 28, Reward: 2776.968, Average Reward: 2794.388
+    Episode: 29, Reward: 2784.440, Average Reward: 2794.056
+    Episode: 30, Reward: 2802.543, Average Reward: 2794.330
+    Episode: 31, Reward: 2797.005, Average Reward: 2794.414
+    Episode: 32, Reward: 2789.918, Average Reward: 2794.277
+    Episode: 33, Reward: 2810.326, Average Reward: 2794.749
+    Episode: 34, Reward: 2789.056, Average Reward: 2794.587
+    Episode: 35, Reward: 2794.855, Average Reward: 2794.594
+    Episode: 36, Reward: 2804.433, Average Reward: 2794.860
+    Episode: 37, Reward: 2800.227, Average Reward: 2795.001
+    Episode: 38, Reward: 2813.098, Average Reward: 2795.465
+    Episode: 39, Reward: 2791.906, Average Reward: 2795.376
+    Episode: 40, Reward: 2787.512, Average Reward: 2795.185
+    Episode: 41, Reward: 2803.500, Average Reward: 2795.383
+    Episode: 42, Reward: 2785.800, Average Reward: 2795.160
+    Episode: 43, Reward: 2791.492, Average Reward: 2795.076
+    Episode: 44, Reward: 2809.257, Average Reward: 2795.391
+    Episode: 45, Reward: 2798.803, Average Reward: 2795.466
+    Episode: 46, Reward: 2793.452, Average Reward: 2795.423
+    Episode: 47, Reward: 2797.733, Average Reward: 2795.471
+    Episode: 48, Reward: 2775.205, Average Reward: 2795.057
+    Episode: 49, Reward: 2772.586, Average Reward: 2794.608
+    Episode: 50, Reward: 2798.854, Average Reward: 2794.691
+    Episode: 51, Reward: 2802.006, Average Reward: 2794.832
+    Episode: 52, Reward: 2787.689, Average Reward: 2794.697
+    Episode: 53, Reward: 2783.833, Average Reward: 2794.496
+    Episode: 54, Reward: 2789.937, Average Reward: 2794.413
+    Episode: 55, Reward: 2777.859, Average Reward: 2794.117
+    Episode: 56, Reward: 2799.660, Average Reward: 2794.215
+    Episode: 57, Reward: 2801.112, Average Reward: 2794.334
+    Episode: 58, Reward: 2795.957, Average Reward: 2794.361
+    Episode: 59, Reward: 2790.315, Average Reward: 2794.294
+    Episode: 60, Reward: 2773.958, Average Reward: 2793.960
+    Episode: 61, Reward: 2807.830, Average Reward: 2794.184
+    Episode: 62, Reward: 2807.202, Average Reward: 2794.391
+    Episode: 63, Reward: 2795.388, Average Reward: 2794.406
+    Episode: 64, Reward: 2790.969, Average Reward: 2794.353
+    Episode: 65, Reward: 2831.965, Average Reward: 2794.923
+    Episode: 66, Reward: 2780.524, Average Reward: 2794.708
+    Episode: 67, Reward: 2801.335, Average Reward: 2794.806
+    Episode: 68, Reward: 2819.915, Average Reward: 2795.170
+    Episode: 69, Reward: 2790.505, Average Reward: 2795.103
+    Episode: 70, Reward: 2790.490, Average Reward: 2795.038
+    Episode: 71, Reward: 2770.599, Average Reward: 2794.699
+    Episode: 72, Reward: 2803.167, Average Reward: 2794.815
+    Episode: 73, Reward: 2797.834, Average Reward: 2794.855
+    Episode: 74, Reward: 2795.622, Average Reward: 2794.866
+    Episode: 75, Reward: 2780.361, Average Reward: 2794.675
+    Episode: 76, Reward: 2785.919, Average Reward: 2794.561
+    Episode: 77, Reward: 2805.360, Average Reward: 2794.700
+    Episode: 78, Reward: 2790.635, Average Reward: 2794.648
+    Episode: 79, Reward: 2804.296, Average Reward: 2794.769
+    Episode: 80, Reward: 2789.260, Average Reward: 2794.701
+    Episode: 81, Reward: 2769.358, Average Reward: 2794.392
+    Episode: 82, Reward: 2809.566, Average Reward: 2794.574
+    Episode: 83, Reward: 2778.945, Average Reward: 2794.388
+    Episode: 84, Reward: 2794.581, Average Reward: 2794.391
+    Episode: 85, Reward: 2788.807, Average Reward: 2794.326
+    Episode: 86, Reward: 2777.549, Average Reward: 2794.133
+    Episode: 87, Reward: 2782.088, Average Reward: 2793.996
+    Episode: 88, Reward: 2795.715, Average Reward: 2794.015
+    Episode: 89, Reward: 2792.981, Average Reward: 2794.004
+    Episode: 90, Reward: 2783.761, Average Reward: 2793.891
+    Episode: 91, Reward: 2802.843, Average Reward: 2793.989
+    Episode: 92, Reward: 2787.198, Average Reward: 2793.916
+    Episode: 93, Reward: 2788.139, Average Reward: 2793.854
+    Episode: 94, Reward: 2810.643, Average Reward: 2794.031
+    Episode: 95, Reward: 2785.584, Average Reward: 2793.943
+    Episode: 96, Reward: 2796.163, Average Reward: 2793.966
+    Episode: 97, Reward: 2783.674, Average Reward: 2793.861
+    Episode: 98, Reward: 2791.952, Average Reward: 2793.841
+    Episode: 99, Reward: 2787.547, Average Reward: 2793.778
+
+    Max Episode Reward: 2831.9653381676285
+    Min Episode Reward: 2769.3580550793117
+    Max Timestep Reward: 3.386440528333601
+    Min Timestep Reward: 0.43041492644561963
+Starting Train/Test
+    Epoch: 0
+    Epoch: 1
+    Epoch: 2
+    Epoch: 3
+    Epoch: 4
+    Epoch: 5
+    Epoch: 6
+    Epoch: 7
+    Epoch: 8
+    Epoch: 9
+    Epoch: 10
+    Epoch: 11
+    Epoch: 12
+    Epoch: 13
+    Epoch: 14
+    Epoch: 15
+    Epoch: 16
+    Epoch: 17
+    Epoch: 18
+    Epoch: 19
+    Epoch: 20
+    Epoch: 21
+    Epoch: 22
+    Epoch: 23
+    Epoch: 24
+    Epoch: 25
+    Epoch: 26
+    Epoch: 27
+    Epoch: 28
+    Epoch: 29
+    Epoch: 30
+    Epoch: 31
+    Epoch: 32
+    Epoch: 33
+    Epoch: 34
+    Epoch: 35
+    Epoch: 36
+    Epoch: 37
+    Epoch: 38
+    Epoch: 39
+    Epoch: 40
+    Epoch: 41
+    Epoch: 42
+    Epoch: 43
+    Epoch: 44
+    Epoch: 45
+    Epoch: 46
+    Epoch: 47
+    Epoch: 48
+    Epoch: 49
+    Epoch: 50
+    Epoch: 51
+    Epoch: 52
+    Epoch: 53
+    Epoch: 54
+    Epoch: 55
+    Epoch: 56
+    Epoch: 57
+    Epoch: 58
+    Epoch: 59
+    Epoch: 60
+    Epoch: 61
+    Epoch: 62
+    Epoch: 63
+    Epoch: 64
+    Epoch: 65
+    Epoch: 66
+    Epoch: 67
+    Epoch: 68
+    Epoch: 69
+    Epoch: 70
+    Epoch: 71
+    Epoch: 72
+    Epoch: 73
+    Epoch: 74
+    Epoch: 75
+    Epoch: 76

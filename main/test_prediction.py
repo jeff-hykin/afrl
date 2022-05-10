@@ -344,7 +344,7 @@ class Tester:
         previously_predicted_state = None
         failure_points = []
         streak_counter = 0
-        prediction_step_count = 0
+        prediction_step_count = number_of_steps
         while not done:
             timestep += 1
             streak_counter += 1
@@ -363,10 +363,15 @@ class Tester:
             if prediction_step_count >= number_of_steps:
                 # remake plan
                 prediction_step_count = 0 
+                action = real_action
                 # use the real state to predict the next this time
                 previously_predicted_state = predict_next_state(state, action)
             else:
                 action = planned_action
+                if previously_predicted_state is None:
+                    previously_predicted_state = state
+                if action is None:
+                    action = real_action
                 previously_predicted_state = predict_next_state(previously_predicted_state, action)
             
             state, reward, done, _ = env.step(to_numpy(action))
@@ -600,6 +605,9 @@ class Tester:
             # 
             # ppac
             # 
+            print(f'''# ''')
+            print(f'''# acceptable_performance_level = {each_level}''')
+            print(f'''# ''')
             optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
             # saves these
             self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
@@ -644,10 +652,7 @@ class Tester:
                     _,
                     _,
                     discounted_rewards,
-                    _,
-                    _,
-                    _,
-                    _
+                    *_,
                 ) = self.n_step_experience_episode(
                     number_of_steps=optimal_horizon,
                     scaled_epsilon=optimal_epsilon,
@@ -668,12 +673,9 @@ class Tester:
                     _,
                     _,
                     discounted_rewards,
-                    _,
-                    _,
-                    _,
-                    _
+                    *_,
                 ) = self.n_step_experience_episode(
-                    number_of_steps=math.ciel(plot_data.ppac_plan_length_points[-1]), # average failure point, ciel so that never goes to 0
+                    number_of_steps=math.ceil(plot_data.ppac_plan_length_points[-1][1]), # average failure point, ciel so that never goes to 0
                     scaled_epsilon=optimal_epsilon,
                     horizon=optimal_horizon,
                     episode_index=episode_index,
@@ -683,7 +685,7 @@ class Tester:
             plot_data.n_step_planlen_reward_points.append((each_level, average(reward_sums)))
             plot_data.n_step_planlen_plan_length_points.append((each_level, optimal_horizon))
         
-        self.save()
+            self.save()
     # 
     # misc helpers
     # 
