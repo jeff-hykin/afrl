@@ -1,4 +1,5 @@
 from gym.envs.registration import register
+import gym
 
 # roboschool envs
 ## pendula

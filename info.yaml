@@ -179,8 +179,13 @@
             # Min Episode Reward: 153.87762677698575
             # Max Timestep Reward: 2.3122164298644683
             # Min Timestep Reward: -1.7494330256972288
+        ENV=REACHER:
+            env_name: "ReacherBulletEnv-v0"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/ReacherBulletEnv-v0_1/ReacherBulletEnv-v0.zip" 
+                
         ENV=HUMANOID:
-            env_name: "HumanoidBulletEnv-v0"
+            env_name: "HumanoidPyBulletEnv-v0"
             load:
                 agent_path: "./subrepos/rl-trained-agents/sac/Humanoid-v3_1/Humanoid-v3.zip" 
             reward_discount: 0.98
