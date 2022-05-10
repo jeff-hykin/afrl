@@ -694,6 +694,7 @@ class Tester:
     
     def save(self, path=None):
         path = path or self.path
+        print(f'''self.recorder = {self.recorder}''')
         # save normal things
         for each_attribute_name in self.attributes_to_save:
             each_path = f"{path}/serial_data/{each_attribute_name}.pickle"

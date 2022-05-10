@@ -52,7 +52,7 @@ import pybullet_envs
 def get_env(env_name):
     env = gym.make(env_name)
     # this is needed to load pretrained models (for some reason)
-    if "Hopper" in env_name or "Reacher" in env_name:
+    if "Lunar" not in env_name and "BipedalWalker" not in env_name:
         env = TimeFeatureWrapper(env)
     env.name = env_name
     return env
