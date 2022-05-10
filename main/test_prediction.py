@@ -318,6 +318,7 @@ class Tester:
         number_of_steps: int,
         scaled_epsilon: float,
         episode_index: int,
+        horizon=1,
         should_record=False,
     ):
         # data recording
