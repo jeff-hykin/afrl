@@ -50,5 +50,5 @@ if __name__ == "__main__":
     full_run(
         env_name=env_name,
         agent_path=config.load.agent_path or path_to.agent_model_for(env_name),
-        coach_path=config.load.coach_path or path_to.coach_model_for(env_name),
+        coach_path=config.load.coach_path or f"{path_to.folder.coach_models}/{env_name}/baseline_3",
     )

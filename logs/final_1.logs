@@ -3739,3 +3739,187 @@ baseline_confidence_size = 0.5738190751014258
             reward_single_sum=102.71392771263247, confidence_size=78.44939905189268, confidence_max=154.42239237328482, new_horizon=8
             reward_single_sum=100.55646409094821, confidence_size=46.98910035303371, confidence_max=129.10796136681486, new_horizon=8
             reward_single_sum=102.1293171270142, confidence_size=34.057559911599625, confidence_max=120.17851214802738, new_horizon=8
+            reward_single_sum=94.19307943789102, confidence_size=26.42379219639151, confidence_max=113.89009896639648, new_horizon=8
+            reward_single_sum=98.92377954674693, confidence_size=21.769286229592055, confidence_max=110.87237482484588, new_horizon=8
+            reward_single_sum=101.40951584026664, confidence_size=18.61083622283722, confidence_max=109.25222822371765, new_horizon=8
+        episode=14, horizon=8, effective_score=90.64, baseline_lowerbound=88.08 baseline_stdev=0.34, new_epsilon=2.9926, bad=False, gap_average=1.216019634427971
+optimal_epsilon = 2.9925925925925925
+optimal_horizon = 8
+    scaled_epsilon: 2.9926, forecast_average: 4.6667, episode_reward:25.51, max_timestep_reward: 3.17, min_timestep_reward: -1.49
+    scaled_epsilon: 2.9926, forecast_average: 3.3902, episode_reward:315.37, max_timestep_reward: 5.24, min_timestep_reward: -0.65
+    scaled_epsilon: 2.9926, forecast_average: 3.4268, episode_reward:447.78, max_timestep_reward: 4.95, min_timestep_reward: -1.04
+    scaled_epsilon: 2.9926, forecast_average: 3.5240, episode_reward:214.66, max_timestep_reward: 3.74, min_timestep_reward: -0.90
+    scaled_epsilon: 2.9926, forecast_average: 3.3362, episode_reward:494.35, max_timestep_reward: 4.86, min_timestep_reward: 0.28
+    scaled_epsilon: 2.9926, forecast_average: 3.3260, episode_reward:532.04, max_timestep_reward: 4.83, min_timestep_reward: -0.32
+    scaled_epsilon: 2.9926, forecast_average: 3.4105, episode_reward:455.78, max_timestep_reward: 5.03, min_timestep_reward: -0.24
+    scaled_epsilon: 2.9926, forecast_average: 3.4709, episode_reward:1063.42, max_timestep_reward: 5.07, min_timestep_reward: 0.38
+    scaled_epsilon: 2.9926, forecast_average: 3.5011, episode_reward:505.16, max_timestep_reward: 4.14, min_timestep_reward: -0.08
+    scaled_epsilon: 2.9926, forecast_average: 3.4963, episode_reward:725.99, max_timestep_reward: 4.95, min_timestep_reward: -0.60
+self.recorder = {
+    number_of_records: 0,
+    records: [ ... ],
+    local_data: {},
+    parent_data:    {
+    }
+}
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+argv[0]=
+argv[0]=
+
+
+-------------------------------------------------------
+
+ Environment: HalfCheetahBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: subrepos/rl-trained-agents/sac/HalfCheetahBulletEnv-v0_1/HalfCheetahBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Training Coach Model from scrach
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+Starting Experience Recording
+    Episode: 0, Reward: 2783.058, Average Reward: 2783.058
+    Episode: 1, Reward: 2791.685, Average Reward: 2787.371
+    Episode: 2, Reward: 2786.662, Average Reward: 2787.135
+    Episode: 3, Reward: 2800.886, Average Reward: 2790.573
+    Episode: 4, Reward: 2757.158, Average Reward: 2783.890
+    Episode: 5, Reward: 2785.329, Average Reward: 2784.130
+    Episode: 6, Reward: 2771.409, Average Reward: 2782.312
+    Episode: 7, Reward: 2785.194, Average Reward: 2782.673
+    Episode: 8, Reward: 2787.717, Average Reward: 2783.233
+    Episode: 9, Reward: 2790.350, Average Reward: 2783.945
+    Episode: 10, Reward: 2800.332, Average Reward: 2785.434
+    Episode: 11, Reward: 2800.860, Average Reward: 2786.720
+    Episode: 12, Reward: 2802.839, Average Reward: 2787.960
+    Episode: 13, Reward: 2787.621, Average Reward: 2787.936
+    Episode: 14, Reward: 2798.170, Average Reward: 2788.618
+    Episode: 15, Reward: 2795.556, Average Reward: 2789.052
+    Episode: 16, Reward: 2795.914, Average Reward: 2789.455
+    Episode: 17, Reward: 2778.422, Average Reward: 2788.842
+    Episode: 18, Reward: 2789.868, Average Reward: 2788.896
+    Episode: 19, Reward: 2767.104, Average Reward: 2787.807
+    Episode: 20, Reward: 2797.443, Average Reward: 2788.266
+    Episode: 21, Reward: 2784.972, Average Reward: 2788.116
+    Episode: 22, Reward: 2796.249, Average Reward: 2788.469
+    Episode: 23, Reward: 2814.546, Average Reward: 2789.556
+    Episode: 24, Reward: 2788.638, Average Reward: 2789.519
+    Episode: 25, Reward: 2812.456, Average Reward: 2790.401
+    Episode: 26, Reward: 2782.859, Average Reward: 2790.122
+    Episode: 27, Reward: 2799.619, Average Reward: 2790.461
+    Episode: 28, Reward: 2788.767, Average Reward: 2790.403
+    Episode: 29, Reward: 2780.308, Average Reward: 2790.066
+    Episode: 30, Reward: 2788.272, Average Reward: 2790.008
+    Episode: 31, Reward: 2792.689, Average Reward: 2790.092
+    Episode: 32, Reward: 2806.531, Average Reward: 2790.590
+    Episode: 33, Reward: 2805.867, Average Reward: 2791.040
+    Episode: 34, Reward: 2771.843, Average Reward: 2790.491
+    Episode: 35, Reward: 2804.814, Average Reward: 2790.889
+    Episode: 36, Reward: 2790.488, Average Reward: 2790.878
+    Episode: 37, Reward: 2790.400, Average Reward: 2790.866
+    Episode: 38, Reward: 2782.505, Average Reward: 2790.651
+    Episode: 39, Reward: 2783.419, Average Reward: 2790.470
+    Episode: 40, Reward: 2785.159, Average Reward: 2790.341
+    Episode: 41, Reward: 2798.982, Average Reward: 2790.547
+    Episode: 42, Reward: 2779.985, Average Reward: 2790.301
+    Episode: 43, Reward: 2783.755, Average Reward: 2790.152
+    Episode: 44, Reward: 2776.223, Average Reward: 2789.843
+    Episode: 45, Reward: 2800.544, Average Reward: 2790.075
+    Episode: 46, Reward: 2780.143, Average Reward: 2789.864
+    Episode: 47, Reward: 2771.673, Average Reward: 2789.485
+    Episode: 48, Reward: 2805.290, Average Reward: 2789.808
+    Episode: 49, Reward: 2781.505, Average Reward: 2789.642
+    Episode: 50, Reward: 2796.257, Average Reward: 2789.771
+    Episode: 51, Reward: 2791.248, Average Reward: 2789.800
+    Episode: 52, Reward: 2791.057, Average Reward: 2789.823
+    Episode: 53, Reward: 2784.021, Average Reward: 2789.716
+    Episode: 54, Reward: 2802.449, Average Reward: 2789.947
+    Episode: 55, Reward: 2809.065, Average Reward: 2790.289
+    Episode: 56, Reward: 2794.125, Average Reward: 2790.356
+    Episode: 57, Reward: 2787.545, Average Reward: 2790.308
+    Episode: 58, Reward: 2764.435, Average Reward: 2789.869
+    Episode: 59, Reward: 2797.810, Average Reward: 2790.001
+    Episode: 60, Reward: 2797.182, Average Reward: 2790.119
+    Episode: 61, Reward: 2806.198, Average Reward: 2790.379
+    Episode: 62, Reward: 2803.731, Average Reward: 2790.590
+    Episode: 63, Reward: 2789.752, Average Reward: 2790.577
+    Episode: 64, Reward: 2776.956, Average Reward: 2790.368
+    Episode: 65, Reward: 2808.076, Average Reward: 2790.636
+    Episode: 66, Reward: 2796.171, Average Reward: 2790.719
+    Episode: 67, Reward: 2807.787, Average Reward: 2790.970
+    Episode: 68, Reward: 2814.941, Average Reward: 2791.317
+    Episode: 69, Reward: 2771.745, Average Reward: 2791.038
+    Episode: 70, Reward: 2773.035, Average Reward: 2790.784
+    Episode: 71, Reward: 2807.201, Average Reward: 2791.012
+    Episode: 72, Reward: 2787.436, Average Reward: 2790.963
+    Episode: 73, Reward: 2792.744, Average Reward: 2790.987
+    Episode: 74, Reward: 2781.737, Average Reward: 2790.864
+    Episode: 75, Reward: 2784.387, Average Reward: 2790.779
+    Episode: 76, Reward: 2814.088, Average Reward: 2791.081
+    Episode: 77, Reward: 2783.796, Average Reward: 2790.988
+    Episode: 78, Reward: 2795.998, Average Reward: 2791.051
+    Episode: 79, Reward: 2793.029, Average Reward: 2791.076
+    Episode: 80, Reward: 2786.197, Average Reward: 2791.016
+    Episode: 81, Reward: 2787.234, Average Reward: 2790.970
+    Episode: 82, Reward: 2802.688, Average Reward: 2791.111
+    Episode: 83, Reward: 2744.016, Average Reward: 2790.550
+    Episode: 84, Reward: 2821.697, Average Reward: 2790.917
+    Episode: 85, Reward: 2783.682, Average Reward: 2790.832
+    Episode: 86, Reward: 2789.337, Average Reward: 2790.815
+    Episode: 87, Reward: 2760.687, Average Reward: 2790.473
+    Episode: 88, Reward: 2774.511, Average Reward: 2790.294
+    Episode: 89, Reward: 2807.068, Average Reward: 2790.480
+    Episode: 90, Reward: 2791.139, Average Reward: 2790.487
+    Episode: 91, Reward: 2784.253, Average Reward: 2790.419
+    Episode: 92, Reward: 2812.626, Average Reward: 2790.658
+    Episode: 93, Reward: 2801.304, Average Reward: 2790.771
+    Episode: 94, Reward: 2789.978, Average Reward: 2790.763
+    Episode: 95, Reward: 2796.707, Average Reward: 2790.825
+    Episode: 96, Reward: 2806.214, Average Reward: 2790.984
+    Episode: 97, Reward: 2801.761, Average Reward: 2791.094
+    Episode: 98, Reward: 2782.391, Average Reward: 2791.006
+    Episode: 99, Reward: 2798.487, Average Reward: 2791.081
+
+    Max Episode Reward: 2821.6968304376815
+    Min Episode Reward: 2744.0160948872576
+    Max Timestep Reward: 3.3539539716367774
+    Min Timestep Reward: 0.37548473789314163
+Starting Train/Test
+    Epoch: 0
+    Epoch: 1
+    Epoch: 2
+    Epoch: 3
+    Epoch: 4
+    Epoch: 5
+    Epoch: 6
+    Epoch: 7
+    Epoch: 8
+    Epoch: 9
