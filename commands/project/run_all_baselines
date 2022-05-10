@@ -2,9 +2,9 @@
 
 # . ./commands/project/run_all_baselines
 
-python ./main/run/compare_methods.py -- @ENV=LUNAR   @LOSS=BASELINE experiment_name:final_1 predictor_settings:force_recompute:true
-python ./main/run/compare_methods.py -- @ENV=HOPPER  @LOSS=BASELINE experiment_name:final_1 predictor_settings:force_recompute:true
-python ./main/run/compare_methods.py -- @ENV=CHEETAH @LOSS=BASELINE experiment_name:final_1 predictor_settings:force_recompute:true
-python ./main/run/compare_methods.py -- @ENV=WALKER  @LOSS=BASELINE experiment_name:final_1 predictor_settings:force_recompute:true
-python ./main/run/compare_methods.py -- @ENV=ANT     @LOSS=BASELINE experiment_name:final_1 predictor_settings:force_recompute:true
-python ./main/run/compare_methods.py -- @ENV=REACHER @LOSS=BASELINE experiment_name:final_1 predictor_settings:force_recompute:true
+python ./main/run/compare_methods.py -- @ENV=REACHER @LOSS=BASELINE experiment_name:final_2
+python ./main/run/compare_methods.py -- @ENV=ANT     @LOSS=BASELINE experiment_name:final_2
+python ./main/run/compare_methods.py -- @ENV=WALKER  @LOSS=BASELINE experiment_name:final_2
+python ./main/run/compare_methods.py -- @ENV=CHEETAH @LOSS=BASELINE experiment_name:final_2
+python ./main/run/compare_methods.py -- @ENV=HOPPER  @LOSS=BASELINE experiment_name:final_2
+python ./main/run/compare_methods.py -- @ENV=LUNAR   @LOSS=BASELINE experiment_name:final_2
