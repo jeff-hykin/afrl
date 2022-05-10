@@ -7,7 +7,7 @@
         - How do I judge performance?:
             - Smaller epsilon (lieniency of predicted_state ~~== actual_future_state)
             - Larger forcast (the avergage length of predictions that were correct)
-            - Rewards that are most similar to the optimial policy (green line in .ipynb graph)
+            - Rewards that are most similar to the optimal policy (green line in .ipynb graph)
         - What is the main loss function?: |
             there's a few, and they're defined in main/training/coach_settings.py on the CoachClass class
             
@@ -41,6 +41,7 @@
             experiment_name: null
             env_name: "LunarLanderContinuous-v2" # can be any of: "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
             force_cpu: false
+            
             load:
                 agent_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
                 coach_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
@@ -73,6 +74,9 @@
                 batch_size: 1024
     
             predictor_settings:
+                override_save_path: false
+                available_methods: [ ppac, n_step, random, optimal ]
+                method: ppac # n_step, random, or optimal
                 force_recompute: false
                 graph_smoothing: 0 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
