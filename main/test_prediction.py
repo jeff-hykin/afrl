@@ -479,7 +479,7 @@ class Tester:
     # 
     # setup for testing
     # 
-    def run_epoch(self, method):
+    def run_epoch(self):
         settings, predictor = self.settings, self.predictor
         # 
         # pull in settings
