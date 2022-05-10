@@ -437,3 +437,57 @@ def save_all_charts_to(path, overwrite=True):
         data=requests.get(url='http://localhost:9900/').text,
         to=path,
     )
+
+
+def multi_plot(data, vertical_label=None, horizonal_label=None, title=None, color_key={}):
+    import silver_spectacle as ss
+    datasets = []
+    labels = {}
+    for each_key, each_line in data.items():
+        values = []
+        for x, y in each_line:
+            labels[x] = None
+            values.append(y)
+        
+        datasets.append(dict(
+            label=each_key,
+            data=values,
+            fill=True,
+            tension=0.1,
+            backgroundColor=color_key.get(label, 'rgb(0, 292, 192, 0.5)'),
+        ))
+        
+    
+    labels = list(labels.keys())
+    return ss.DisplayCard("chartjs", {
+        "type": 'line',
+        "data": {
+            "labels": labels,
+            "datasets": datasets,
+        },
+        "options": {
+            "plugins": {
+                "title": {
+                    "display": (not (not title)),
+                    "text": title,
+                }
+            },
+            "pointRadius": 3, # the size of the dots
+            "scales": {
+                "x": {
+                    "title": {
+                        "display": True,
+                        "text": 'seconds',
+                    },
+                },
+                "y": {
+                    "title": {
+                        "display": True,
+                        "text": 'seconds',
+                    },
+                    # "min": 50,
+                    # "max": 100,
+                },
+            }
+        }
+    })
