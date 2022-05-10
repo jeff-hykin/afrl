@@ -111,6 +111,8 @@
                     0.01: 20
         ENV=HOPPER:
             env_name: "HopperBulletEnv-v0"    
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/HopperBulletEnv-v0_1/HopperBulletEnv-v0.zip" 
             agent_settings:
                 reward_discount: 0.98
             predictor_settings:
@@ -148,6 +150,8 @@
                 learning_starts: 10000
         ENV=WALKER:
             env_name: "BipedalWalker-v3"    
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/Walker2d-v3_1/Walker2d-v3.zip" 
             agent_settings:
                 reward_discount: 0.98
             predictor_settings:
@@ -177,6 +181,8 @@
             # Min Timestep Reward: -1.7494330256972288
         ENV=HUMANOID:
             env_name: "HumanoidBulletEnv-v0"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/Humanoid-v3_1/Humanoid-v3.zip" 
             reward_discount: 0.98
             agent_settings:
                 learning_rate: 0.0003
@@ -236,7 +242,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 1024
+                batch_size: 128
                 with_card: true
             coach_settings:
                 force_retrain: false

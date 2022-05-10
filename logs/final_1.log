@@ -1,0 +1,140 @@
+
+
+-------------------------------------------------------
+
+ Environment: HumanoidBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/Humanoid-v3_1/Humanoid-v3.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 17, in full_run
+    agent = Agent.smart_load(
+  File "/home/jeffhykin/repos/AFRL/main/agent.py", line 28, in smart_load
+    agent = Agent.load(
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/common/base_class.py", line 709, in load
+    check_for_correct_spaces(env, data["observation_space"], data["action_space"])
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/common/utils.py", line 223, in check_for_correct_spaces
+    raise ValueError(f"Observation spaces do not match: {observation_space} != {env.observation_space}")
+ValueError: Observation spaces do not match: Box([-inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf], [inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf], (376,), float64) != Box([-inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf -inf
+ -inf -inf   0.], [inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf inf
+ inf inf inf inf inf inf inf inf  1.], (45,), float32)
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+
+
+
+-------------------------------------------------------
+
+ Environment: LunarLanderContinuous-v2
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip
+-----------------------------------------------------------------------------------------------------
+
+
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 17, in full_run
+    agent = Agent.smart_load(
+  File "/home/jeffhykin/repos/AFRL/main/agent.py", line 28, in smart_load
+    agent = Agent.load(
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/common/base_class.py", line 687, in load
+    data, params, pytorch_variables = load_from_zip_file(
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/common/save_util.py", line 435, in load_from_zip_file
+    th_object = th.load(file_content, map_location=device)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/serialization.py", line 607, in load
+    return _load(opened_zipfile, map_location, pickle_module, **pickle_load_args)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/serialization.py", line 882, in _load
+    result = unpickler.load()
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/serialization.py", line 857, in persistent_load
+    load_tensor(data_type, size, key, _maybe_decode_ascii(location))
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/serialization.py", line 846, in load_tensor
+    loaded_storages[key] = restore_location(storage, location)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/serialization.py", line 827, in restore_location
+    return default_restore_location(storage, str(map_location))
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/serialization.py", line 175, in default_restore_location
+    result = fn(storage, location)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/serialization.py", line 157, in _cuda_deserialize
+    return obj.cuda(device)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/_utils.py", line 79, in _cuda
+    return new_type(self.size()).copy_(self, non_blocking)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/cuda/__init__.py", line 528, in _lazy_new
+    return super(_CudaBase, cls).__new__(cls, *args, **kwargs)
+KeyboardInterrupt
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+
