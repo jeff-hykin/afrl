@@ -308,3 +308,10 @@ argv[0]=
     running theory method
     running n_step horizon method
     running n_step planlen method
+    # 
+    # acceptable_performance_level = 0.99
+    # 
+    running ppac method
+    running theory method
+    running n_step horizon method
+    running n_step planlen method
