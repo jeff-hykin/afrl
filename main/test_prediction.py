@@ -599,7 +599,7 @@ class Tester:
             # 
             # ppac
             # 
-            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
+            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, acceptable_performance_level)
             # saves these
             self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
             epsiode_lengths = []
@@ -620,18 +620,19 @@ class Tester:
                     episode_index=episode_index,
                     should_record=True,
                 )
-                epsiode_lengths.append(len(discounted_rewards))
+                epsiode_lengths.append(len(discounted_reward))
                 reward_sums.append(sum(discounted_rewards))
                 failure_point_averages.append(average(failure_points))
-            plot_data.ppac_reward_points.append(average(reward_sums))
-            plot_data.ppac_plan_length_points.append(average(failure_point_averages))
+            plot_data.ppac_reward_points.append((each_level, average(reward_sums)))
+            plot_data.ppac_plan_length_points.append((each_level, average(failure_point_averages)))
             
             # 
             # theory
             # 
-            plot_data.theory_reward_points.append(
+            plot_data.theory_reward_points.append((
+                each_level,
                 average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
-            )
+            ))
             
             # 
             # n_step horizon
@@ -654,8 +655,8 @@ class Tester:
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_horizon_reward_points.append(average(reward_sums))
-            plot_data.n_step_horizon_plan_length_points.append(optimal_horizon)
+            plot_data.n_step_horizon_reward_points.append((each_level, average(reward_sums)))
+            plot_data.n_step_horizon_plan_length_points.append((each_level, optimal_horizon))
             
             # 
             # n_step planlen
@@ -678,11 +679,10 @@ class Tester:
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_planlen_reward_points.append(average(reward_sums))
-            plot_data.n_step_planlen_plan_length_points.append(optimal_horizon)
+            plot_data.n_step_planlen_reward_points.append((each_level, average(reward_sums)))
+            plot_data.n_step_planlen_plan_length_points.append((each_level, optimal_horizon))
         
         self.save()
-        
     # 
     # misc helpers
     # 
