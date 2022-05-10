@@ -6,6 +6,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from collections import defaultdict
 from time import sleep
+from random import random
 
 import gym
 import numpy as np
@@ -30,6 +31,8 @@ from info import path_to, config, print
 from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats, save_all_charts_to, confidence_interval
 from main.agent import Agent
 from main.coach import Coach
+
+force_recompute_value = random() if config.predictor_settings.force_recompute else False
 
 class Tester:
     def __init__(self, settings, predictor, path, attribute_overrides={}):
@@ -87,24 +90,24 @@ class Tester:
     # main algorithms
     # 
     @cache(
-        depends_on=lambda:[config.env_name, config.agent_settings],
+        depends_on=lambda:[config.env_name, config.agent_settings, config.experiment_name, force_recompute_value],
         watch_attributes=lambda self: (
             self.settings.number_of_episodes_for_baseline,
             self.settings.agent.path,
         )
     )
-    def gather_baseline(self):
+    def gather_optimal(self):
         print("----- getting a reward baseline -----------------------------------------------------------------------------------------------------------------------------------")
         discounted_rewards_per_episode = []
         for episode_index in range(self.settings.number_of_episodes_for_baseline):
-            _, rewards, discounted_rewards, _, _, _, q_value_gaps = self.experience_episode(scaled_epsilon=0, horizon=1, episode_index=episode_index)
+            _, rewards, discounted_rewards, _, _, _, q_value_gaps = self.ppac_experience_episode(scaled_epsilon=0, horizon=1, episode_index=episode_index)
             total = sum(discounted_rewards)
             discounted_rewards_per_episode.append(total)
             print(f'''  episode_index={episode_index}, episode_discounted_reward_sum={total}''')
         return discounted_rewards_per_episode
     
     @cache(
-        depends_on=lambda:[ config.env_name, config.agent_settings, config.coach_settings ],
+        depends_on=lambda:[ config.env_name, config.agent_settings, config.coach_settings, config.experiment_name, force_recompute_value],
         watch_attributes=lambda self: (
             self.settings.acceptable_performance_loss,
             self.settings.confidence_interval_for_convergence,
@@ -114,8 +117,7 @@ class Tester:
             # self.settings.number_of_episodes_for_baseline,
         ),
     )
-    def gather_optimal_parameters(self, baseline_samples):
-        leniency                    = self.settings.acceptable_performance_loss # standard deviation 
+    def gather_optimal_parameters(self, baseline_samples, acceptable_performance_level):
         confidence_interval_percent = self.settings.confidence_interval_for_convergence
         increment_amount = 1.5
         
@@ -124,7 +126,7 @@ class Tester:
         
         baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
         baseline_population_average = baseline.average
-        baseline_worst_value        = baseline_population_average - (baseline_population_stdev*leniency)
+        baseline_worst_value        = baseline.average * acceptable_performance_level
         baseline_min, baseline_max = confidence_interval(confidence_interval_percent, baseline_samples)
         print(f'''baseline_min = {baseline_min}, baseline_max = {baseline_max},''')
         baseline_confidence_size = (baseline_max - baseline_min)/2
@@ -146,7 +148,7 @@ class Tester:
             loop_number = 0
             while True:
                 loop_number += 1
-                failure_points, rewards, discounted_rewards, stopped_earlies, real_q_values, q_value_gaps = self.simple_prediction_experience_episode(
+                failure_points, rewards, discounted_rewards, stopped_earlies, real_q_values, q_value_gaps = self.passive_prediction_experience_episode(
                     scaled_epsilon=new_epsilon,
                     episode_index=episode_index,
                     should_record=False,
@@ -194,7 +196,7 @@ class Tester:
         print(f'''optimal_horizon = {optimal_horizon}''')
         return optimal_epsilon, optimal_horizon
     
-    def experience_episode(
+    def ppac_experience_episode(
         self,
         scaled_epsilon: float,
         horizon: int,
@@ -311,7 +313,86 @@ class Tester:
             self.q_value_gaps_per_episode_per_timestep[episode_index]        = q_value_gaps_per_timestep       
         return episode_forecast, rewards_per_timestep, discounted_rewards_per_timestep, failure_points_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
     
-    def simple_prediction_experience_episode(
+    def n_step_experience_episode(
+        self,
+        number_of_steps: int,
+        scaled_epsilon: float,
+        episode_index: int,
+        should_record=False,
+    ):
+        # data recording
+        rewards_per_timestep            = []
+        discounted_rewards_per_timestep = []
+        stopped_early_per_timestep      = []
+        real_q_values_per_timestep      = []
+        q_value_gaps_per_timestep       = []
+        
+        # setup shortcuts/naming
+        env                = self.predictor.env
+        predict_next_state = self.predictor.coach.predict
+        actor_model        = self.predictor.agent.predict
+        value_batch        = self.predictor.agent.value_of
+        choose_action      = lambda state: actor_model(state, deterministic=True)[0]
+        q_value_for        = lambda state, action: value_batch(state, action)[0][0]
+        reward_discount    = self.predictor.agent.gamma
+        
+        # init values
+        done     = False
+        timestep = -1
+        state    = env.reset()
+        previously_predicted_state = None
+        failure_points = []
+        streak_counter = 0
+        prediction_step_count = 0
+        while not done:
+            timestep += 1
+            streak_counter += 1
+            prediciton_failed = False
+            prediction_step_count += 1
+            
+            real_action    = choose_action(state)
+            planned_action = choose_action(previously_predicted_state) if previously_predicted_state is not None else None
+            
+            real_q_value    = q_value_for(state, real_action)
+            planned_q_value = q_value_for(state, planned_action) if planned_action is not None else None
+            gap = real_q_value - planned_q_value if planned_action is not None else 0
+            
+            prediciton_failed = gap > scaled_epsilon
+            
+            if prediction_step_count >= number_of_steps:
+                # remake plan
+                prediction_step_count = 0 
+                # use the real state to predict the next this time
+                previously_predicted_state = predict_next_state(state, action)
+            else:
+                action = planned_action
+                previously_predicted_state = predict_next_state(previously_predicted_state, action)
+            
+            state, reward, done, _ = env.step(to_numpy(action))
+            
+            # record data
+            rewards_per_timestep.append(to_pure(reward))
+            discounted_rewards_per_timestep.append(to_pure(reward * (reward_discount ** timestep)))
+            stopped_early_per_timestep.append(prediciton_failed)
+            real_q_values_per_timestep.append(to_pure(real_q_value))
+            q_value_gaps_per_timestep.append(to_pure(gap))
+        
+        # convert to tuple to reduce memory pressure    
+        rewards_per_timestep            = tuple(rewards_per_timestep)
+        discounted_rewards_per_timestep = tuple(discounted_rewards_per_timestep)
+        stopped_early_per_timestep      = tuple(stopped_early_per_timestep)
+        real_q_values_per_timestep      = tuple(real_q_values_per_timestep)
+        q_value_gaps_per_timestep       = tuple(q_value_gaps_per_timestep)
+        # data recording (and convert to tuple to reduce memory pressure)
+        if should_record:
+            self.rewards_per_episode_per_timestep[episode_index]             = rewards_per_timestep            
+            self.discounted_rewards_per_episode_per_timestep[episode_index]  = discounted_rewards_per_timestep 
+            self.stopped_early_per_episode_per_timestep[episode_index]       = stopped_early_per_timestep      
+            self.real_q_values_per_episode_per_timestep[episode_index]       = real_q_values_per_timestep      
+            self.q_value_gaps_per_episode_per_timestep[episode_index]        = q_value_gaps_per_timestep       
+        return failure_points, rewards_per_timestep, discounted_rewards_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
+    
+    def passive_prediction_experience_episode(
         self,
         scaled_epsilon: float,
         episode_index: int,
@@ -392,7 +473,7 @@ class Tester:
     # 
     # setup for testing
     # 
-    def run_all_episodes(self):
+    def run_epoch(self, method):
         settings, predictor = self.settings, self.predictor
         # 
         # pull in settings
@@ -408,8 +489,8 @@ class Tester:
         )
         
         # get a baseline for the reward value
-        baseline = self.gather_baseline()
-        optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline)
+        baseline = self.gather_optimal()
+        optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(baseline, self.settings.acceptable_performance_level)
         
         # save to a place they'll be easily visible
         scaled_epsilon = self.settings.optimal_epsilon = optimal_epsilon
@@ -434,7 +515,7 @@ class Tester:
                 stopped_earlies,
                 real_q_values,
                 q_value_gaps
-            ) = self.experience_episode(
+            ) = self.ppac_experience_episode(
                 scaled_epsilon=scaled_epsilon,
                 horizon=horizon,
                 episode_index=episode_index,
@@ -483,7 +564,125 @@ class Tester:
         
         self.save()
         return self
-
+    
+    def create_comparisons(self):
+        settings, predictor = self.settings, self.predictor
+        predictor.agent.gamma = config.agent_settings.reward_discount
+        
+        plot_data = self.settings.plot = LazyDict()
+        # 
+        # optimal
+        # 
+        optimal_samples = self.gather_optimal()
+        average_optimal_reward = simple_stats(optimal_samples).average
+        plot_data.optimal_reward_points = [
+            (each_level, average_optimal_reward) for each_level in self.settings.acceptable_performance_levels
+        ]
+        
+        # 
+        # TODO: random
+        # 
+        average_random_performance = 0 # FIXME
+        plot_data.ranom_reward_points = [
+            (each_level, average_random_performance) for each_level in self.settings.acceptable_performance_levels
+        ]
+        
+        plot_data.theory_reward_points = []
+        plot_data.ppac_reward_points   = []
+        plot_data.n_step_horizon_reward_points = []
+        plot_data.n_step_planlen_reward_points = []
+        
+        plot_data.ppac_plan_length_points   = []
+        plot_data.n_step_horizon_plan_length_points = []
+        plot_data.n_step_planlen_plan_length_points = []
+        for each_level in self.settings.acceptable_performance_levels:
+            # 
+            # ppac
+            # 
+            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, acceptable_performance_level)
+            # saves these
+            self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
+            epsiode_lengths = []
+            reward_sums     = []
+            failure_point_averages  = []
+            for episode_index in range(settings.number_of_episodes_for_testing):
+                (
+                    _,
+                    _,
+                    discounted_rewards,
+                    failure_points,
+                    _,
+                    _,
+                    _
+                ) = self.ppac_experience_episode(
+                    scaled_epsilon=optimal_epsilon,
+                    horizon=optimal_horizon,
+                    episode_index=episode_index,
+                    should_record=True,
+                )
+                epsiode_lengths.append(len(discounted_reward))
+                reward_sums.append(sum(discounted_rewards))
+                failure_point_averages.append(average(failure_points))
+            plot_data.ppac_reward_points.append(average(reward_sums))
+            plot_data.ppac_plan_length_points.append(average(failure_point_averages))
+            
+            # 
+            # theory
+            # 
+            plot_data.theory_reward_points.append(
+                average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
+            )
+            
+            # 
+            # n_step horizon
+            # 
+            reward_sums     = []
+            for episode_index in range(settings.number_of_episodes_for_testing):
+                (
+                    _,
+                    _,
+                    discounted_rewards,
+                    _,
+                    _,
+                    _,
+                    _
+                ) = self.n_step_experience_episode(
+                    number_of_steps=optimal_horizon,
+                    scaled_epsilon=scaled_epsilon,
+                    horizon=optimal_horizon,
+                    episode_index=episode_index,
+                    should_record=False,
+                )
+                reward_sums.append(sum(discounted_rewards))
+            plot_data.n_step_horizon_reward_points.append(average(reward_sums))
+            plot_data.n_step_horizon_plan_length_points.append(optimal_horizon)
+            
+            # 
+            # n_step planlen
+            # 
+            reward_sums     = []
+            for episode_index in range(settings.number_of_episodes_for_testing):
+                (
+                    _,
+                    _,
+                    discounted_rewards,
+                    _,
+                    _,
+                    _,
+                    _
+                ) = self.n_step_experience_episode(
+                    number_of_steps=math.ciel(plot_data.ppac_plan_length_points[-1]), # average failure point, ciel so that never goes to 0
+                    scaled_epsilon=scaled_epsilon,
+                    horizon=optimal_horizon,
+                    episode_index=episode_index,
+                    should_record=False,
+                )
+                reward_sums.append(sum(discounted_rewards))
+            plot_data.n_step_planlen_reward_points.append(average(reward_sums))
+            plot_data.n_step_planlen_plan_length_points.append(optimal_horizon)
+        
+        self.save()
+        
     # 
     # misc helpers
     # 
@@ -674,7 +873,7 @@ class Tester:
             path=path,
             settings=settings,
             predictor=predictor,
-        ).run_all_episodes().generate_graphs()
+        )
         
     @classmethod
     def load(cls, path, settings={}, predictor=None):
@@ -692,6 +891,7 @@ class Tester:
     
     def save(self, path=None):
         path = path or self.path
+        print(f'''self.recorder = {self.recorder}''')
         # save normal things
         for each_attribute_name in self.attributes_to_save:
             each_path = f"{path}/serial_data/{each_attribute_name}.pickle"

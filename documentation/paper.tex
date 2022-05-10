@@ -1,0 +1,737 @@
+\documentclass{article}
+\usepackage{neurips_2022} % for first submission 
+% \usepackage[preprint]{neurips_2022}
+% \usepackage[final]{neurips_2022}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+% custom
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath, amsthm}
+
+\title{A Framework for Predictable Actor-Critic Control}
+\author{%
+    % Josiah Coad, \textsuperscript{\rm 1}
+    % Jeff Hykin, \textsuperscript{\rm 2}
+    % James Ault, \textsuperscript{\rm 2}
+    % Guni Sharon \textsuperscript{\rm 2}
+    Jeff Hykin
+    \texttt{hippo@cs.cranberry-lemon.edu} \\
+    % examples of more authors
+    % \And
+    % Coauthor \\
+    % Affiliation \\
+    % Address \\
+    % \texttt{email} \\
+    % \AND
+    % Coauthor \\
+    % Affiliation \\
+    % Address \\
+    % \texttt{email} \\
+    % \And
+    % Coauthor \\
+    % Affiliation \\
+    % Address \\
+    % \texttt{email} \\
+    % \And
+    % Coauthor \\
+    % Affiliation \\
+    % Address \\
+    % \texttt{email} \\
+}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}[]
+
+\setcounter{secnumdepth}{1} %May be changed to 1 or 2 if section numbers are desired.
+
+\newcommand{\GS}[1] {{\color{red} \textbf{[GS]: #1}}}
+\newcommand{\JC}[1] {{\color{blue} \textbf{[JC]: #1}}}
+\newcommand{\JA}[1] {{\color{red} \textbf{[JA]: #1}}}
+
+\newcommand{\AND }{ \land  }
+\newcommand{\OR  }{ \mathrm{OR} }
+\newcommand{\NOT }{ \lnot  }
+\newcommand{\SUM }{ \Sigma }
+\newcommand{\MULT}{ \cdot  }
+\newcommand{\infinity}{ \infty }
+
+
+% TODO: refernce format: Citations may be author/year or numeric. Use natbib \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
+
+% for graphics:
+%    \usepackage[pdftex]{graphicx} ...
+%    \includegraphics[width=0.8\linewidth]{myfile.pdf}
+% (\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
+
+% BASELINE: n-step
+% 6, planlengths
+% distribution
+% get optimal epsilons for 80% 90% 95% 99% 
+% compute theoretical bounds for
+
+% look into training difficulty
+
+
+\begin{document}
+    \maketitle
+    \begin{abstract}
+        Reinforcement learning (RL) algorithms commonly provide a one action plan per time step. Doing this allows the RL agent to quickly adapt and respond to stochastic environments yet it restricts the ability to predict the agent's future behavior. This paper proposes an actor-critic framework that predicts and follows an $n$-step plan. Committing to the next $n$ actions presents a trade-off between behavior predictability and reduced performance. In order to balance this trade-off, a dynamic plan-following criteria is proposed for determining when it is too costly to follow the preplanned actions and a replanning procedure should be initiated instead. 
+        Performance degradation bounds are presented for the proposed criteria when assuming access to accurate state-action values. Experimental results, using several robotics domains, suggest that the performance bounds are also satisfied in the general (approximation) case on expectancy. Additionally, the experimental section presents a study of the predictability versus performance degradation trade-off and demonstrates the benefits of applying the proposed plan-following criteria. 
+
+        % (TODO: make more formal)
+        % Simple tasks such as walking across a street often involve choosing predictability over a small but immediate gratification. Current reinforcement learning (RL) techniques often fail to capitalize on the benefits of planning and commitment. Even when a plan is formed, if there is any benefit, no matter how small, most agent designs will not hesitate to abandon the plan. This paper proposes a method allowing an agent follow a plan so long as there is minimal impact on total reward. The work includes both theoretical bounds on the reward impact and supporting experimental data.
+    \end{abstract}
+
+    % 
+    % Intro
+    % 
+    \section{Introduction}
+        
+        % What is the motivation for this paper?
+        
+        The typical structure of an RL problem, is to provide an observation value, expect the agent to produce a single action value, and respond with a new observation and reward. This design of a Markov decision process (MDP), has been used to model many domains. Deep reinforcement learning are considered state of the art for solving MDP's, even surpassing human control in some areas~\cite{haarnoja2018soft,schulman2017proximal,mnih2015human}. Examples include robotics~\cite{haarnoja2018soft,dey2021jirl}, traffic management~\cite{Ault2021signals,ault2020learning}, autonomous driving~\cite{8793742,sallab2017deep}, and energy management~\cite{gao2014machine,vandael2015reinforcement}. 
+        
+        While the single time step design has had great success, there has also been evidence that planning (FIXME: citation) and predictability are beneficial in multi-agent domains (FIXME: citation) and safety-critical domains. This is reason to believe that creating an agent capable of partially committing to a plan is a worthwhile endeavor.
+        
+        % \subsection{Approach}
+        
+        (TODO: change to answer: "Here we show" instead of an intro to the problem)
+        
+        To add planning and commitment to an agent, the proposed framework requires the handling three basic tasks. The first is choosing an action (\(\pi(a | s)\)), the second task is determining the long term value of an action in a given state \(Q(s,a)\), and the third is to create a projection of planned actions given the current state and action \(P(s' | s,a)\). The first two tasks can easily be addressed with an actor and critic from a standard Soft Actor-Critic (SAC) design ~\cite{haarnoja2018soft}. For the state prediction task, a simple environment model is used for predicting state values given a current state and action. To generate an \textit{imaginary plan}~\cite{racaniere2017imagination}, the environment model is used to produce an estimated next state, which is then fed to actor to produce an action. This process is repeated, to generate plans of arbitrary length. These are specific choices, and the approach should hold for any agent capable of the three core tasks.
+        
+        With basic requirements addressed, we now focus on the challenger of committing to a plan. A straightforward approach could be an agent that unconditionally commits to a plan for n time steps. We will refer to this approach as N-step, which will be used as a baseline for the experimental method. A second way to address the challenger would be a conditional commitment. In particular, an $\epsilon$-partial commitment where an agent follows a plan as long as possible, but will adjust it if an unplanned action is $\epsilon$ better. This adjustment check is performed at every time step using the critic to determine the relative penalty. As soon as a plan is adjusted, the agent creates a new plan using the latest environment information. We refer to this approach as the partially predictably actor critic (PPAC) framework, which is illustrated in Figure \ref{pac-system}.
+        
+        (TODO: redo image, fix resolution)
+        
+        \begin{figure}
+            \includegraphics[width=0.8\linewidth]{figures/pac-system.png}
+            \caption{An overview of the PPAC framework. A predicted (imagined) plan is computed in order to provide predictable control. At each step the previously predicted plan is evaluated to determine whether replanning should be initiated at the expense of reduced predictability.}
+            \label{pac-system}
+        \end{figure}
+        
+        Under this approach with simplifying assumptions, we show applying PPAC to a static policy would not degrade the expected sum of discounted rewards by more than $\frac{\epsilon}{1-\gamma}$, where $\gamma$ is the domain discount factor. Additionally, experimental results show some domains, such as LunarLander~\cite{gym}, Walker, and Hopper~\cite{pybullet}, PPAC results in little or no performance degradation while predicting an average of 12, 5, and 4 actions into the future, respectively. Meanwhile for other domains, such as Cheetah and Humanoid~\cite{pybullet}, PPAC incurs substantial ($\sim$22\%) performance degradation to produce an average of only 3 and 2 forecasted actions, respectively.
+        
+        (FIXME: update planlen numbers)
+        
+        (FIXME: is the Preliminaries section necessary?)
+
+        \subsection{Preliminaries}
+            This paper addresses control problems modeled as \textit{Markov Decision Processes} (MDPs)~\cite{puterman2014markov}, each with state space, $\mathcal{S}$, action space, $\mathcal{A}$, transition probabilities, $P$, reward function, $R$, and discount factor, $\gamma$. 
+            An agent is assumed to start from state $s_0$ and select action $a_0$ according to a \textit{policy}, $\pi$. The policy is commonly assumed to be stochastic (soft policy)~\cite{haarnoja2018soft}, i.e., mapping states to a distribution over actions.
+            Given a soft policy, an action is selected by sampling the affiliated distribution, $a_t \sim \pi(s_t)$. Based on the chosen action and transition probability, $P(s_{t+1} | s_t, a_t)$, the agent receives a reward, $r_t \sim R(s_t, a_t, s_{t+1})$, from the environment and observes the next state, $s_{t+1}$. A transition is a tuple of the form $(s_t,a_t,r_t,s_{t+1})$. A set of consecutive transitions generates a (stochastic) trajectory, $\tau = (s_0, a_0, r_0, s_1, s_1, a_1, r_1, s_2,\ldots)$. A solution for a given MDP is a policy, $\pi^* = \argmax_{\pi} V^{\pi}(s_0)$, where $V^{\pi}(s)=\mathbb{E}_{\tau \sim \pi| s_0=s}[\sum_{t=0}^{\infty}\gamma^t r_t]$ is called the state value function. In this paper, we quantify an algorithm's \textit{performance} as $V(s_0)$. An action-state ($Q$) value is defined over a policy, $\pi$, as $Q^\pi(s,a)=\mathbb{E}_{\tau \sim \pi | s_0=s, a_0=a}[\sum_{t=0}^{\infty}\gamma^t r_t]$. $Q^*$ is the $Q$ value obtained under the optimal policy ($\pi^*$). %We define a \textit{$Q$-greedy policy} as $\pi^Q(s)$ which returns $\argmax_a\hat{Q}(s,a)$, where $\hat{Q}$ is some approximation function for the $q$-values.
+
+            State-of-the-art RL algorithms~\cite{haarnoja2018soft} use an actor-critic framework where an action-state value approximator ($Q$) is trained. Following the Policy-Gradient Theorem~\cite{reinforce}, the approximated $Q$ values are used to compute and apply a policy gradient step with respect to the expected sum of discounted rewards.
+
+    \section{Related work}
+        
+        (TODO: mention there are better ways to predict state, and Actor-Critic but that's not the focus)
+        
+        Approximating $P(s'|s,a)$ based on observed transitions, is commonly done as part of a \textit{model-based RL}~\cite{kaiser2019model,xu2020prediction} approach. Such a model can be used to produce imaginary trajectories~\cite{racaniere2017imagination} that improve training sample efficiency in many domains. The imagined trajectory is a simulated future trajectory based on the learned model and current policy. We differentiate between the imaginary trajectory, which is a set of predicted $(s,a,r,s')$ transitions, and the imaginary plan, which is simply a sequence of actions.
+
+        For computing the imaginary trajectory, Racaniere et al.~\citeyear{racaniere2017imagination} trained an environment model with a recurrent architecture. The proposed environment model extended on the notion of action-conditional next-step predictors~\cite{oh2015action,chiappa2017recurrent,leibfried2017deep}, which predicts the next state, and potentially the reward, received after following a given action at a given state (or history of states).
+        It is important to note that modeling errors can compound over long trajectories resulting in an unlikely imaginary trajectory and a risky imaginary plan. Such modeling errors were shown to be common in complex domains~\cite{talvitie2014model,talvitie2015agnostic}.
+
+        In order to reduce environment modeling errors, Ke et al.~\citeyear{ke2018modeling} proposed building a latent-variable autoregressive model~\cite{gulrajani2016pixelvae} by leveraging recent ideas in variational inference~\cite{zhang2018advances}. Another recent approach for reducing modeling errors~\cite{nagabandi2018neural} suggests training a prediction model, $\hat{f}_\phi(s_t, a_t)$, that outputs not the next state, $s_{t+1}$, but the resulting change to the current state, $s_{t+a}-s_t$. The affiliated ($l2$) loss function is defined as $L_\phi(s_t,a_t,s_{t+1})=\Vert (s_{t+1}-s_t) -  \hat{f}_\phi(s_t, a_t) \Vert ^2$; see Eq2 in Nagabandi et al.
+        % one line inclusion of world models
+
+        %The agent generates an imaginary $n$-step plan of its next n actions it intends to take (including the action it plans to take in the current timestep). In this work, when we say plan, we are referring to such an imaginary plan. 
+        Kim et al.~\citeyear{kim2020communication} proposed to utilize imaginary plans towards intention sharing in multiagent RL scenarios. It was demonstrated that broadcasting agents' imagined plans improved coordination and overall performance when compared to broadcasting the current and past states of agents~\cite{foerster2016learning,sukhbaatar2016learning,jiang2018learning,das2019tarmac}.  
+
+
+        %\cite{sun2018probabilistic} - AVs have to accurately predict the behavior of surrounding vehicles and plan accordingly. Such prediction should also be interactive, since the distribution over all possible trajectories of the predicted vehicle depends not only on historical information, but also on future plans of other vehicles that interact with it. To achieve such interaction-aware predictions, we propose a probabilistic prediction approach based on hierarchical inverse reinforcement learning (IRL).
+
+        %\cite{kim2020communication} - Communication is one of the core components for learning coordinated behavior in multiagent systems. In this paper, we propose a new communication scheme named Intention Sharing (IS) for multiagent reinforcement learning in order to enhance the coordination among agents. In the proposed IS scheme, each agent generates an imagined trajectory by modeling the environment dynamics and other agents’ actions. The imagined trajectory is a simulated future trajectory of each agent based on the learned model of the environment dynamics and other agents and represents each agent’s future action plan. Each agent compresses this imagined trajectory capturing its future action plan to generate its intention message for communication by applying an attention mechanism to learn the relative importance of the components in the imagined trajectory based on the received message from other agents.
+
+
+        % communication protocol for coordination among multiple agents (Foerster et al. (2016); Sukhbaatar et al.
+        % (2016); Jiang & Lu (2018); Das et al. (2019))
+        % It has been shown that due to the capability of sharing observation information, this kind of communication scheme has good performance as compared to communication-free MARL algorithms such as independent learning, which is widely used in MARL, in partially observable environments.
+        % The message-generation networks in the aforementioned algorithms are conditioned on the current observation or a hidden state of LSTM. Under partially
+        % observable environments, such messages which encode past and current observations are useful but
+        % do not capture any future intentions.
+
+        %Strouse et al. (2018) introduced information-regularizer to share or hide agent’s intention to other agents for a multi-goal MARL setting in which some agents know the goal and other agents do not know the goal. By maximizing (or minimizing) the mutual information between the goal and action, an agent knowing the goal learns to share (or hide) its intention to other agents not knowing the goal in cooperative (or competitive) tasks. They showed that sharing intention is effective in the cooperative case.
+
+        %predict other agents’ behaviors: Neil C Rabinowitz, Frank Perbet, H Francis Song, Chiyuan Zhang, SM Eslami, and Matthew Botvinick. Machine theory of mind; Roberta Raileanu, Emily Denton, Arthur Szlam, and Rob Fergus. Modeling others using oneself in multiagent reinforcement learning; 
+
+
+        %Jakob N Foerster, Gregory Farquhar, Triantafyllos Afouras, Nantas Nardelli, and Shimon Whiteson. Counterfactual multiagent policy gradients. In Thirty-second AAAI conference on artificial intelligence, 2018
+
+        %Sainbayar Sukhbaatar, Rob Fergus, et al. Learning multiagent communication with backpropagation. In Advances in neural information processing systems, pp. 2244–2252, 2016.
+
+        %Jiechuan Jiang and Zongqing Lu. Learning attentional communication for multiagent cooperation. In Advances in neural information processing systems, pp. 7254–7264, 2018.
+
+        %Abhishek Das, Th ́eophile Gervet, Joshua Romoff, Dhruv Batra, Devi Parikh, Mike Rabbat, and Joelle Pineau. Tarmac: Targeted multiagent communication. In International Conference on Machine Learning, pp. 1538–1546, 2019.
+
+        %DJ Strouse, Max Kleiman-Weiner, Josh Tenenbaum, Matt Botvinick, and David J Schwab. Learning to share and hide intentions using information regularization. In Advances in Neural Information Processing Systems, pp. 10249–10259, 2018.
+
+        %\cite{racaniere2017imagination} - proposing Imagination-Augmented Agents, which use approximate environment models by "learning to interpret" their imperfect predictions. Our algorithm can be trained directly on low-level observations with little domain knowledge, similarly to recent model-free successes. 
+
+        % The environment model is any recurrent architecture which can be trained in an unsupervised
+        % fashion from agent trajectories: given a past state and current action, the environment model predicts
+        % the next state and any number of signals from the environment. In this work, we will consider
+        % in particular environment models that build on recent successes of action-conditional next-step
+        % predictors [Junhyuk Oh, Xiaoxiao Guo, Honglak Lee, Richard L Lewis, and Satinder Singh. Action-conditional video
+        % prediction using deep networks in atari games. In Advances in Neural Information Processing Systems,
+        % pages 2863–2871, 2015. ; Silvia Chiappa, Sébastien Racaniere, Daan Wierstra, and Shakir Mohamed. Recurrent environment simulators. In 5th International Conference on Learning Representations, 2017. ; Felix Leibfried, Nate Kushman, and Katja Hofmann. A deep learning approach for joint video frame and reward prediction in atari games.], which receive as input the current observation (or history of observations) and
+        % current action, and predict the next observation, and potentially the next reward. We roll out the
+        % environment model over multiple time steps into the future, by initializing the imagined trajectory
+        % with the present time real observation, and subsequently feeding simulated observations into the
+        % model. The I2A therefore learns to combine information from its
+        % model-free and imagination-augmented paths. 2As can thus be thought of as augmenting model-free agents by
+        % providing additional information from model-based planning, and as having strictly more expressive
+        % power than the underlying model-free agent.
+
+        % In complex domains for which a simulator is
+        % not available to the agent, recent successes are dominated by model-free methods. In such
+        % domains, the performance of model-based agents employing standard planning methods usually
+        % suffers from model errors resulting from function approximation [Erik Talvitie. Model regularization for stable sample rollouts. In UAI, pages 780–789, 2014.], [Erik Talvitie. Agnostic system identification for monte carlo planning. In AAAI, pages 2986–2992, 2015.].
+        % These errors compound
+        % during planning, causing over-optimism and poor agent performance.
+
+
+        % \cite{ke2018modeling} - In model-based reinforcement learning, the agent interleaves between model
+        % learning and planning. These two components are inextricably intertwined. If the model is not able to provide sensible long-term prediction, the executed planner would exploit model flaws, which can yield catastrophic failures. This paper
+        % focuses on building a model that reasons about the long-term future and demonstrates how to use this for efficient planning and exploration. To this end, we
+        % build a latent-variable autoregressive model by leveraging recent ideas in variational inference.
+
+
+        % \cite{wen2019probabilistic} - The social skill is critical in daily life for reasoning about the
+        % potential consequences of others’ behaviors so as to plan ahead. Our hypothesis is that it is beneficial for each agent to account for how the opponents would react to its future behaviors. Our framework adopts
+        % variational Bayes methods to approximate the opponents’ conditional policies.
+
+    \section{Predictable Actor-Critic in theory} \label{section:PAC}
+
+        %In this section, we present our method (PAC) for generating an imaginary future plan for any agent which learns $Q$-values. We then show that the suboptimaity (over a $Q$-optimal policy) incurred by PAC is bounded by a constant value.
+        
+        (TODO: why is a theoretical bound useful?)
+        
+        To add planning and commitment to an agent, the proposed framework requires the handling three basic tasks. The first is choosing an action (\(\pi(a | s)\)), the second task is determining the long term value of an action in a given state \(Q(s,a)\), and the third is to create a projection of planned actions given the current state and action \(P(s' | s,a)\). The first two tasks can easily be addressed with an actor and critic from a standard Soft Actor-Critic (SAC) design ~\cite{haarnoja2018soft}. For the state prediction task, a simple environment model is used for predicting state values given a current state and action. To generate an \textit{imaginary plan}~\cite{racaniere2017imagination}, the environment model is used to produce an estimated next state, which is then fed to actor to produce an action. This process is repeated, to generate plans of arbitrary length. These are specific choices, and the approach should hold for any agent capable of the three core tasks.
+
+        Formally, for the theoretical bounds of PPAC, a performance degradation tolerance value $\epsilon$, an optimal policy \(\pi(a | s)\), an optimal Q-function \(Q(s,a)\), and a predictor \(P(s'|s,a)\) are expected as input. Using these there are two core algorithms that compose PPAC, the runtime algorithm Algorithm~\ref{algo:ppac} and the replanning algorithm Algorithm~\ref{algo:replan}.
+        
+        All stochastic environments, by definition, cannot be predicted with perfect accuracy. This means that total commitment to any plan, even given an optimal predictor, will necessarily fail to guarantee optimal behavior. For PPAC, the value of \(\epsilon\) works as a slider allowing the user a tradeoff between commitment and optimality. At \(\epsilon = \infinity\) the plan will be followed unconditionally, and at \(\epsilon = 0\) the plan will be ignored entirely. The precise measure of $\epsilon$ is the acceptable gap between two Q-values, the planned action compared against the best unplanned action.
+        
+        During the replanning process, updates are performed sparingly but proactively. At each time step there are conceptually two plans, the current plan, plan-(t-1) and the latest projection plan-(t). Plan-(t) is created by iteratively generating predicted states using \(P\), applying the policy to the predicted state, and repeating this for fixed number of cycles (the horizon \(h\)). Once the new information has been utilized for plan-(t), it is compared to the older plan. For any time step in plan-(t-1) where the action is expected to be \(\epsilon\)-worse than the action in plan-(t), the agent's plan is updated. This can be seen in in Lines~\ref{ln:loopplan}-\ref{ln:criteria} of Algorithm~\ref{algo:replan}. The reasoning being that, if a commitment must be broken, it is best to adjust the plan as little as necessary but as early as possible. Note, the proactive aspect of this method has performance implications which are addressed in the implementation section.
+        
+        As seen in Algorithm~\ref{algo:ppac} Line~\ref{ln:init_plan}, the replanning process occurs at each time step of each episode. The initial plan is a simple rollout of the current policy ($\pi$) on top of the current model approximation ($P$). Next, for each environment step, a first-in-first-out action is retrieved from the imagined plan queue (Line~\ref{ln:dequeue}) and executed (Line~\ref{ln:execute}). Once the next state is observed, a replan operation is initiated, where the current imaginary plan is reevaluated and adjusted (Line~\ref{ln:replan}).
+        
+        (FIXME: discuss the gradient update step and learning offline)
+        
+        \begin{algorithm}[h]%H
+            % \SetAlgoLined\
+            \SetKwInOut{Input}{Input}
+            \SetKwInOut{Output}{Output}
+            \Input{Suboptimality tolerance $\epsilon$}
+            Initialize: policy ($\pi$) parameters $\theta$, action-value function ($Q$) parameters $\psi$, model approximation ($P$) parameters $\phi$, empty replay buffer $\mathcal{D}$ \label{ln:init}\\
+            \For{each episode}{
+                reset environment: $s \gets s_0$\\
+                $plan \leftarrow$REPLAN($s, plan:=\text{empty array}, \pi_\theta, P_\phi, Q_\psi, \epsilon$) \label{ln:init_plan}\\
+                \For{each environment step}{
+                    $a \gets dequeue(plan)$ \label{ln:dequeue}\\
+                    execute $a$ and observe $r, s'$ \label{ln:execute}\\
+                    store $(s, a, r, s')$ in $\mathcal{D}$\\
+                    $s \gets s'$ \\
+                    $plan \gets$REPLAN($s, plan, \pi_\theta, P_\phi, Q_\psi, \epsilon$)\label{ln:replan} \textit{\color{OliveGreen} // reuses as much of the old plan as possible} \\
+                }
+                \For{each gradient step}{
+                    \label{ln:loopgrad}
+                    $\psi = \psi - \lambda_Q \nabla_\psi [Q(s_t,a_t)-(r_t+\gamma (Q(s_{t+1},a_{t+1})-\alpha \log \pi(a_{t+1}, a_{t+1})))]$\\
+                    
+                    $\theta = \theta - \lambda_\pi \nabla_\theta [\alpha \log \pi(a_t|s_t) - Q(s_t,a_t)]$\\
+                    
+                    $\phi = \phi - \lambda_P \nabla_\phi [P(s_t,a_t)-s_{t+1}]^2$\label{ln:endgrad} \\
+                }
+            }
+            \caption{Predictable Actor-Critic (PPAC)}
+            \label{algo:ppac}
+        \end{algorithm}
+
+        \begin{algorithm}[h]
+            % \SetAlgoLined\
+            \SetKwInOut{Input}{Input}
+            \SetKwInOut{Output}{Output}
+            \Input{state $s$, current plan $plan$, policy $\pi$, action-value function $Q$, model approximation $P$, performance degradation tolerance $\epsilon$}
+            \Output{a new plan $plan'$}
+            Initialize an empty array $plan'$\\
+            \For{$t$ in $[0,..., length(plan)-1]$}{\label{ln:loopplan}
+                $a \gets plan[t]$\\
+                \If{$Q(s, a) + \epsilon < Q(s, \pi(\cdot|s))$}{\label{ln:criteria}
+                    \textit{break} \textit{\color{OliveGreen} // 
+            critic says that following our last plan is  $\epsilon$-suboptimal. Abort.}\\
+                }
+                append $a$ to $plan'$\label{ln:reappend}\\ 
+                $s \sim P(\cdot|s, a)$\\
+            }
+            \For{2 iterations}{\label{ln:loopimagine}
+                $a \sim \pi(\cdot|s)$\\
+                append $a$ to $plan'$ \\
+                $s \sim P(\cdot|s, a)$ \label{ln:endimagine}\\
+            }
+            \Return{$plan'$}
+            \caption{Replan}
+            \label{algo:replan}
+        \end{algorithm}    
+        
+        \subsection{Performance bounds}
+
+            % We show that, under simplifying assumptions, the proposed plan-following criterion bounds the performance degradation incurred by PPAC. 
+
+            % For our theoretical analysis, we assume function approximation is not used and PAC has been executed to convergence visiting each state infinitely often. In this case the entropy term is reduced to 0 and may be omitted. Furthermore, we also assume that the model is unbiased; and as such, bounding the value function bounds the performance degradation of the forecast plan taken by PAC.
+
+            \begin{lemma}
+                Assuming known state-action ($Q$) values for a policy $\pi$, and a discount factor, $0<\gamma<1$, applying PPAC on top of $\pi$ would not degrade the sum of discounted rewards by more than $\frac{\epsilon}{1-\gamma}$.
+            \end{lemma}
+
+            \begin{proof}
+                At every state, $s$, PPAC applies action, $a^p$, which satisfies: 
+                \begin{equation}\label{eq:local_bound}
+                    V^\pi(s) \le Q^\pi(s,a^p) + \epsilon 
+                \end{equation}
+                By definition: 
+                \begin{equation}\label{eq:q_def}
+                    Q^\pi(s,a^p)=E_{s'\sim P(s'|s,a^p)}\left[R(s,a^p)+\gamma V^\pi(s')\right] 
+                \end{equation}
+                Combining \ref{eq:local_bound} and~\ref{eq:q_def} yields:
+                \begin{equation}\label{eq:v_bound}
+                    V^\pi(s) \le E_{s'\sim P(s'|s,a^p)}\left[R(s,a^p)+\gamma V^\pi(s')\right] + \epsilon
+                \end{equation}
+                Equation~\ref{eq:v_bound} results in a recursive definition over successive state values $V^\pi(s)$ and $V^\pi(s')$. Considering the PPAC state-value definition, $V^p(s)=E_{\tau \sim PPAC|s_0 = s}\sum_t \gamma^t R(s_t,a^p)$, and expanding the recursive term results in:
+                \begin{equation}\label{eq:global_bound}
+                    V^\pi(s) \le V^p(s) + \sum_t \gamma^t \epsilon
+                \end{equation}
+                
+                As a result, assuming $\gamma < 1$, the performance degradation of PPAC can be bounded by $\sum_{t=0}^\infty \gamma^t \epsilon = \frac{\epsilon}{1-\gamma}$.
+            \end{proof}
+
+            
+            (FIXME: note about approximate-Q for all states is unlikely because of bias from optimal actors)
+            
+            In many realistic scenarios, it is not reasonable to assume that $Q^\pi$ is known but that it is only approximated. Nonetheless, we present empirical results showing that this bound also holds, in expectancy, for cases where $Q^\pi$ is only approximated, as is the case in actor-critic algorithms
+
+    \section{Predictable Actor-Critic in practice} \label{section:PAC}
+
+        While stochastic environments alone guarantee suboptimaity, in practice there are many additional reasons that contribute to suboptimaity. As stated above, Racaniere et al.~\citeyear{racaniere2017imagination} used imagined trajectories to provide context to model-based algorithms. However, using those trajectories as a planned control sequence presents a challenge. Following noisy predictions of imaginary trajectories may reduce final performance or prevent policy convergence altogether. This noise or variance in the imagined trajectory is determined by the two components which produce it: the agent's policy and the model of the environment. When the policy is suboptimal or the model is inaccurate, approximation of the trajectory may fail to correctly predict the future. Even with an optimal policy and fully known model, a stochastic environment could push the agent off a predicted trajectory. As such, new predictions must be produced when the current one is evaluated as insufficient.
+
+        Perpetually changing the predicted (imaginary) trajectory, however, does not lend well to predicting which actions an agent will take in the future.
+        In our approach, Predictable Actor-Critic (PPAC), we suggest a method of merging these two goals in a generalized framework by reviewing the current plan at each new state and preserving planned steps for as long as some performance degradation threshold is met.
+        A predictable control plan is therefore a trade-off between maximizing the length of predicted plans and minimizing performance degradation. We utilize values learned by the critic component of a $Q$-learning actor-critic RL algorithm to evaluate trajectories imagined through an approximated model.
+
+        Algorithm~\ref{algo:ppac} presents the PPAC framework when applied on top of Soft Actor-Critic (SAC)~\cite{haarnoja2018soft}. PPAC can be extended to other algorithms which learn and store Q-values such as DQN~\cite{mnih2015human}. However, studying the impact of PPAC in such cases is beyond the scope of this paper. We note that SAC might seem incompatible with PPAC as it does not converge on exact $Q$ values but some combination of the $Q$ values and a bias towards high entropy in the $Q$-value distribution. However, if the temperature parameter ($\alpha$) in SAC is reduced over time to zero, as proposed by Haarnoja et al.~\citeyear{haarnoja2018soft}, then the learned $Q$-values are eventually unbiased.  
+        
+        In line~\ref{ln:init}, PPAC starts by initializing three function approximators, a policy ($\pi_\theta$), an action-value function ($Q_\psi$), and a transition function ($P_\phi$).  
+        PPAC receives, as input, a performance degradation tolerance value, $\epsilon$. 
+        % SAC is augmented with a learned environment model $\hat{P}$ similar to \cite{racaniere2017imagination}, which predicts a future state given the current state and an action. PAC further deviates by forming a plan and acting according to that plan as much as possible rather than drawing directly from the policy $\pi$. 
+        At the beginning of each episode a new plan is imagined (Line~\ref{ln:init_plan}). The initial plan is a simple rollout of the current policy ($\pi$) on top of the current model approximation ($P$). Next, for each environment step, a first-in-first-out action is retrieved from the imagined plan queue (Line~\ref{ln:dequeue}) and executed (Line~\ref{ln:execute}). Once the next state is observed, a replan operation is initiated, where the current imaginary plan is reevaluated and adjusted (Line~\ref{ln:replan}). Finally, in Lines \ref{ln:loopgrad}--\ref{ln:endgrad}, the policy, action-state approximator, and model approximator are updated using gradient descent. As presented, the policy ($\pi$) and state-action approximator ($Q$) updates follow the SAC, entropy-adjusted loss function. As such, these include a learning rate parameter, $\lambda_Q$ and $\lambda_\pi$, respectively, as well as the temperature parameter, $\alpha$. We note that these update rules are not inherent to PPAC and thus refer the reader to Haarnoja et al.~\citeyear{haarnoja2018soft} which provides full details regarding these parameters and suggested value assignments.
+        The gradient step update for the model approximator ($P$) follows the model loss function proposed in Nagabandi et al.~\citeyear{nagabandi2018neural} along with a learning rate parameter, $\lambda_P$.    %The plan is initially filled using the current policy (e.g. underlying SAC policy). Upon revisiting the plan, we use the action-value function to compare the expected reward for following the plan versus generating a new action (and thus new plan) from the current state. If the Q values diverge by more than a threshold $\epsilon$, we break from our current plan and generate a new one.
+
+        Algorithm 2 details how an imaginary plan is evaluated and updated within the \textit{Replan} procedure. As input, it takes the current state of the environment ($s$), the current imagined plan ($plan$), the policy ($\pi$), state-action function ($Q$), environment model ($P$), and performance degradation tolerance parameter ($\epsilon$). Each action in the current imagined plan, starting from the earliest planned action and moving forwards in time, is checked against the plan-following criteria. This criteria determines whether an action and its succeeding plan, should still be considered as the projected plan. The proposed criteria compares the state-action value of the preplanned (imaginary) action against the state-action value of an action drawn from the behavior policy ($\pi$). For an action to remain in the imaginary (predicted) plan its value must be within $\epsilon$ of the value that a newly recalculated imagined plan would have taken. The tolerance parameter $\epsilon$ bounds the acceptable degradation in performance for facilitating a predictable control plan.
+        The criteria is checked for each action in Lines~\ref{ln:loopplan}-\ref{ln:criteria}; if passed, the plan is preserved in Line~\ref{ln:reappend}. The imaginary plan validation process continues as the following state is sampled from the approximated environment model. It should be noted that the model may predict different state transitions than it predicted when the plan was originally formed. So long as the planed action meets the criteria, no adjustment is necessary. However, once an action is found in violation of the criteria then the future plan from that point onward should be recomputed. The preservation of the plan up to this action provides the predictable portion of the plan.
+
+        In Algorithm 2, the imagination core function from Racaniere et al.~\citeyear{racaniere2017imagination} is used in Lines~\ref{ln:loopimagine}-\ref{ln:endimagine}. An action is first sampled from the policy at the final state in the current imaginary plan. Then the state transition is predicted by the environment model given both the state and action. This process could be repeated to produce an arbitrary length imaginary plan. 
+
+        % \begin{lemma}
+        % When assuming unbiased model approximation, $\hat{P}(s'|s,a)=\mathbb{E}[P(s'|s,a)]$, and a static policy, $\pi$, the imaginary plan is an unbiased estimation of the future plan.
+        % \end{lemma}
+
+        % \begin{proof}
+        % The states visited along the most likely trajectory, $\tau$, is defined by $\argmax_{(s_o,...,s_T)} \prod_i \mathbb{E}[\pi(a_i|s_i)P(s_{i+1}|s_i,a_i)]=\mathbb{E}[\prod_iP(s_{i+1}|s_i,a_i)]$.
+        % \end{proof}
+
+        Line~\ref{ln:loopimagine} of Algorithm~\ref{algo:replan} presents a method for slowly building up the length of the imaginary plan (1 step beyond the current plan length per step) as we can consistently follow the plan that we have. However, if we break from our current plan, this logic resets our plan length. This approach is preferable for computational reasons. In cases where computational resources are sufficient, one can set a constant $n$-step prediction horizon. This would always result in a constant length imaginary plan, even when the model approximation is not reliable enough to allow following lengthy plans. In such cases, the plan following criteria will often truncate the imaginary plan.  
+
+
+    \section{Experimental Study} 
+
+        % Experimental results suggest that in some domains, e.g., LunarLanderContinuous-v2~\cite{gym}, setting $\varepsilon=0.01\delta$, results in no performance degradation while providing a 10 step forecasted plan on average. Similarly for BipedalWalker-v3\JC{cite pybullet} which results in no performance degradation at $\varepsilon=0.01\delta$ and yet can provide a 4.9 forecasted plan on average.  In other domains however, e.g., Humanoid~\cite{pybullet}, the same $\varepsilon$ factor, $0.01$, yields 23\% reduced performance and a 2.1 step forecasted plan on average.
+
+
+        The experimental study is designed towards the following objectives:
+        \begin{enumerate}
+            \item Investigate to what extent does the theoretical performance bound for PPAC hold when $Q$-values are approximated.
+            
+            \item Present the trade-off between performance degradation and predicted plan length in several domains, both for the case when we use PPAC during training and the case where we train the baseline policy and then apply PPAC. 
+        \end{enumerate}
+
+
+        %has been designed to investigate the plans generated by PAC applied to SAC and the empirical performance degradation of those policies under varied values of $\epsilon$. We show empirically that PAC respects the lower bound performance degradation constraints derived in Section \ref{section:PAC}. We follow this with an examination of the effect of $\epsilon$ on the forecast. 
+
+        \subsection{Domains}
+            Results for six continuous-action domains are presented in this section. These include: HumanoidBulletEnv-v0, HopperBulletEnv-v0, HalfCheetahBulletEnv-v0, Walker2DBulletEnv-v0, and AntBulletEnv-v0. 
+            These domains were selected to be similar to those used to study SAC~\cite{haarnoja2018soft}. 
+            Additionally, we present results for the LunarLanderContinuous-v2. %This environment requires considerably fewer computational resources facilitating future research.
+            A snapshot from all six domains can be seen in Figure~\ref{domains}.
+
+
+
+            The domains included here have state spaces which are vectors of high-level features (i.e. not images). For the PyBullet robotic domains, the state space consists of physics descriptors for the agent. For example, for the Ant domain, the state space consists of the position and orientation of the torso and the joint angles, the velocity of the agent and the external forces applied to each of the links at the center of mass.
+
+            The action spaces in all environments are continuous. For the PyBullet robotic domains, the action spaces are the amount of torque applied to each actuator. Humanoid is especially challenging because it has 17 actuators. Refer to Table \ref{table:state-action-dim} for the state and action space size for each environment we use.
+
+            \begin{center}
+                \begin{table}
+                    \centering
+                    \caption{State and Action Space Size for Environments}
+                    \begin{tabular}{ | c c c | }
+                        \hline
+                        Environment & Action Dim. & State Dim. \\
+                        \hline
+                        Lander & 2 & 8 \\ 
+                        Hopper & 3 & 15 \\  
+                        Walker & 6 & 22 \\    
+                        Cheetah & 6 & 26 \\  
+                        Ant & 8 & 28 \\  
+                        Humanoid & 17 & 44 \\
+                        \hline
+                    \end{tabular}
+                    \label{table:state-action-dim}
+                \end{table}
+            \end{center}
+            
+            (TODO: check table format)
+
+
+            \begin{figure}
+                \includegraphics[width=0.48\textwidth]{figures/domains.png}
+                \caption{Snapshots from the domains used in the experimental section.}
+                \label{domains}
+            \end{figure}
+
+        \subsection{Hyper-parameter settings}
+
+            The reported PPAC implementation utilizes the open-source Stable Baselines~\cite{stable-baselines} implementation of SAC. Stable Baselines maintains a well-documented library of benchmark reinforcement-learning algorithms. The code for our experiments is available at [omitted for blind review].
+
+            In our experiments many hyper-parameters were constant between the domains and were selected to match the tuned parameters made available in the Stable Baselines Zoo~\cite{rl-zoo3}. These were as follows: A 3e-4 learning rate for both the actor ($\lambda_\pi$) and the critic ($\lambda_Q$), a 1e6 buffer size, 100 random actions before starting learning, a minibatch size for each gradient update of 256, a soft polyak update coefficient ($\tau$) of 0.005, a discount factor ($\gamma$) of 0.98, and a training frequency of every step with one gradient step per training and a target network update frequency of every step.
+            The entropy coefficient ($\alpha$) in SAC, equivalent to the inverse of reward scale in the original SAC paper, was dynamically adjusted using the Stable Baselines implementation.
+
+            \begin{figure*}
+                \includegraphics[width=\textwidth]{figures/bounds-combined.png}
+                \caption{Left: normalized performance between random performance (red) and optimal performance (green) along with the theoretical performance bounds (yellow) and observed PPAC performance (blue) for different epsilon coefficient values. Right: average forecast as a function of the epsilon coefficient value. Shaded regions represent a 1 standard deviation over 20 runs per setting.}
+                \label{bounds}
+            \end{figure*}
+
+            The Humanoid and Cheetah domains required some parameters to be adjusted from other domains. In the Humanoid domain a batch size of 64 was used and the number of random acts pre-training was raised to 1,000. In the Cheetah domain the number of random acts pre-training was raised to 10,000, learning rate ($\lambda_\pi$, $\lambda_Q$) set to 7.3e-4, a 3e-5 buffer size, $\tau=0.02$, and an update frequency of once every 8 steps with 8 gradient steps.
+            The environment model for all domains uses a small network with 4 hidden layers, each with 64 nodes and relu activation functions. The Adam optimizer with learning rate ($\lambda_P$) of 1e-4 was used to optimize parameters.
+
+
+
+        \subsection{Computing resources}
+
+            Modest compute was necessary to conduct our experiments. Amazon EC2 type t3.large instances were used. This type contains 2 vCPUs and 2 GB of memory. Experiments were run on the Amazon Linux 2 operating system and require the following open-source Python packages: NumPy (1.19.5), Gym (0.18.0), Torch (1.8.1), PyBullet (3.1.4) and Stable Baselines3 (1.1.0).
+
+        \subsection{Theoretical validation}
+
+            We start by investigating the performance degradation introduced by PPAC as a function of the tolerance parameter $\epsilon$. The theoretical analysis in Section~\ref{section:PAC} relies on several limiting assumptions. However, we find that in pPactice this bound still holds in empirical evaluation. In order to present a clearer trend over several domains, we report the normalized performance for PPAC where the normalized performance is defined as follows.
+
+            \begin{definition}[Normalized performance]
+                $$NP(PPAC)=\frac{V^{PPAC}(s_0) -V^{rand}(s_0)}{V^{\pi^*}(s_0)-V^{rand}(s_0)}$$
+                $V^{rand}$ is the expected sum of discounted returns following a random policy.\\
+                $V^{\pi^*}$ is the expected sum of discounted returns following a $Q$-greedy policy, i.e., $\pi^*(s)=\argmax_aQ(s,a)$. 
+            \end{definition}
+
+            In the left-hand side of Figure \ref{bounds}, the theoretical bound is plotted in yellow as a function of the $\epsilon$ coefficient on the horizontal axis with $\gamma = 0.98$. The lower-bound formula derived from Section \ref{section:PAC} is used here. The bound decreases as $\epsilon$ increases. On the vertical axis, the performance of a random baseline (red) and the SAC policy $\pi$ value (green) is plotted. The blue line, $V^{PPAC}(s_0)$, represents the normalized performance of PPAC. In Lander, Hopper and Walker environments, we can see that the forecast decreases very little while providing a multistep action plan. Performance of other environments, namely Humanoid, Cheetah and Ant do slightly worse and experience some noticeable performance degradation. This is likely because they are harder environments to model (Table \ref{table:state-action-dim} shows the increased state space size for these environments, making an environment model harder to learn.) Nevertheless, all environments respect the theoretical bounds in expectation.  
+
+            %$V^{PPAC}(s_0)$ decreases with epsilon increase in humanoid, cheetah, ant
+            %other domains $V^{PPAC}(s_0)$ remains close to $V^{\pi}(s_0)$
+            %
+
+            \begin{figure*}
+                \includegraphics[width=\textwidth]{figures/training.png}
+                \caption{Top: training curves from representative environments. The $y$ axis is the normalized episode reward. Bottom: The associated forecast for the environments. The baseline algorithm shows SAC without any modifications. Experiments run with 5 replications of each setting. Shown with 1 std. Mean and std aggregated over rolling window of 20 episodes. The forecast of PPAC(0.1) for cheetah and humanoid has been capped at 16 and 20, respectively, for computational considerations. Humanoid-0.1 is stopped after 3e6 steps as it fails to improve beyond random.}
+                \label{figure:training}
+            \end{figure*}
+
+            The hyper-parameter epsilon that we introduce with PPAC has the intuition that $\epsilon=0$ reduces to a plan generator with no additional care given to retaining the current plan, e.g. the type of plan generators in \cite{racaniere2017imagination} and \cite{kim2020communication}. We would expect a very small forecast with $\epsilon=0$. On the other hand, a $\epsilon=\infty$ is a plan generator which never deviates from the current plan and thus would have a high forecast and low performance. The epsilon coefficient equal to $\epsilon / (V^{\pi}(s_0)-V^{rand}(s_0))$ is used to generalize the epsilon hyper-parameter better across domains.
+
+
+
+        \subsection{Predictability-performance trade-off}
+            % # How to choose an Epsilon?
+            
+            (TODO: refresh/integrate this better "how we picked it, but you can predict it differently" )
+
+            The value of epsilon is both impactful, non-linear, and environment dependent, making the choice of this value non-trivial. Applications, such as predictability of a single vehicle, or predictability of millions of cellular agents, can desire very different points on the trade-off curve. Additionally, while theoretical bounds are useful, since we have found performance to be significantly above the theoretical lower bound, to get an optimal trade-off, we must calculate an epsilon for each environment and each agent.  
+
+            Algorithm 3 allows the user to select the amount of per-episode degradation, and then generate an epsilon that approximately achieves that target. In particular, the algorithm is designed to quickly converge despite high variance in environments and agents. 
+            
+            The design of PPAC leads to a trade-off between agent performance and plan reliability. We seek to characterize this relationship through a series of experiments that showcase both use cases for PPAC. PPAC can be applied both during training and after training. This makes PPAC a versatile addition to any RL agent which learns Q-values. If predictability is desired during training, then training-\textit{with}-PPAC should be considered, else training-\textit{then}-PPAC can be used to apply PPAC to an already fully trained agent. We analyze and report results on both training-\textit{with}-PPAC and training-\textit{then}-PPAC.
+
+            \textbf{Forecast}: This is our measure (scalar) of predictability or how far into the future PPAC provides a reliable plan. This value is computed per time step and in hindsight. When applying action $a_t$, forecast$_t$ is defined as $f_t=t+1-i$, where $a_t$ was originally determined during the $Replan$ procedure (Algorithm~\ref{algo:replan}) at time step $i$. The forecast value of a full episode (of length $T$) is defined as $\frac{1}{T}\sum_{t=0}^Tf_t$.
+
+            In Figure~\ref{figure:training} the learning curves of 3 representative domains are presented when PPAC's imagined plans are used while the agent is learning. Learning curves for decreasing values of $\epsilon$ are shown against a learning curve for baseline Soft Actor-Critic.
+
+            In the LunarLander domain (the leftmost plot in Figure~\ref{figure:training}), values smaller than $0.01$ achieve the domain goal of a 200 point reward. The rate of reaching this reward is similar to the baseline for each as well. However, PPAC additionally offers a forecast of about 5 during this training which provides additional predictability. When the epsilon coefficient is increased to $0.1$, forecast length is increased dramatically; but the agent is too stubborn on keeping its old plan instead of replanning, so the episode reward never reaches the final baseline episode reward.
+
+            A similar trend is observed in the Cheetah domain (the center plot in Figure~\ref{figure:training}). When the $\epsilon$ coefficient is large, e.g. 0.1, episode reward is greatly reduced with an improvement in forecasting. Using PPAC for this coefficient is impPactical. In Cheetah, we can start to observe the trade-off at $0.01$ and $0.001$. For a small incurred reward penalty, we gain a forecast. The fact that the episode returns from PPAC(0.001) are slightly higher than the baseline for Cheetah is likely a random artifact.
+
+            With humanoid (the rightmost plot in Figure~\ref{figure:training}), we can see that a large epsilon coefficient totally obstructs the policy from learning. The episode reward stays consistent with that of a random agent. However, for smaller values of the epsilon coefficient, the agent does indeed learn and obtains a final episode reward within 75\% of the baseline agent learned policy. 
+
+            Overall, we observe a trend across the studied environments\textemdash decreased performance yields improved forecasting. This tradeoff occurs in both training-with-PPAC and training-then-PPAC. Next, we observe the effect of first training a baseline model to convergence and then applying PPAC on a static underlying policy. The results from these experiments are shown in the right-hand side of Figure~\ref{bounds} and in Figure~\ref{forecast-dist}. In Figure~\ref{bounds} and Figure~\ref{forecast-dist}, agents were trained to convergence without using PPAC's imagined plans. Only post-convergence were the imagined plans followed. At low values of $\epsilon$, some domains see no loss in performance, while others experience very little. As $\epsilon$ increases, performance decreases across all environments. An opposite reaction applies to forecast lengths. As $\epsilon$ increases, forecasts improve. Across environments, our empirical findings show that an imagined plan can predict, on average, 5 steps into the future at a cost of a 25\% performance degradation.
+
+            The forecast distributions shown in Figure~\ref{forecast-dist} give us greater insight into the type of reliability we can expect out of a PPAC agent. We see that the forecast distributions are generally right skewed, although for four of the environments, the distribution is not right skewed on PPAC(0.1). We speculate that this is because these PPAC(0.1) has chosen to be completely stubborn in this case and not change plans for the sacrifice of totally degraded performance. Such a historical forecast distribution as presented here could help a supervising agent interpret the plans being generated by the PPAC agent to know how confident it can be in the plans generated.
+
+            % Put discussion here about why better forecast when train with PAC
+
+            % \subsection{Conclusions}
+
+            % \JC{Not sure what to put here. Recap the trend that we see?}
+
+            %However, those domains were based in the Mujoco physics simulator. Mujoco requires a license that can be a limiting factor for those seeking to replicate and further research. For this reason we have elected to present results in the Bullet open-source physics simulator. Similar environments to those in Mujoco are available in Bullet allowing wider accessibility. Additionally we have chosen to present results from LunarLander environment. This environment requires considerably fewer computational resources facilitating future research. Our implementation of PAC is built on top of the open-source Stable Baselines~\cite{stable-baselines} implementation of SAC. Stable Baslines maintains a well-documented library of benchmark reinforcement learning algorithms. All code for our experiments is available at (omitted for blind review).
+
+
+
+            %\textbf{Performance Range}: To normalize and better interpret PAC results, we define a performance interval $$\delta:=V^{\pi}(s_0)-V^{rand}(s_0)$$ where $V^{\pi}(s_0)$ is the SOTA performance of the baseline SAC agent from Stable Baselines \cite{stable-baselines} and $V^{rand}(s_0)$ is the performance of a random agent.
+
+            %\textbf{Normalized Performance}: We report the normalized performance of our algorithm $$\frac{V^{PAC}(s_0) - V^{rand}(s_0)}{\delta}$$
+            %This allows us to evaluate the trade-off between performance and forecast.
+
+
+
+            %The forecast of an action $a$ is the number of steps in the past that we planned on taking $a$. More formally, if at timestep $t$ we execute an action $a$ that we had originally chosen $t+1-h$ steps ago, our forecast for $a$ would be $h$.
+
+            %A baseline RL algorithm such as SAC has a forecast of 0 since at timestep t, we generate and execute an action we generated $t+1-0$ timesteps ago. The intuition behind this metric is that it can be thought of as a proxy for the level of confidence we can have in the plan that is generated. A planner which changes plans at every timestep, and thus can not be counted on to produce reliable plans, would have a forecast of 1, even though it might generate $n>1$ step plans. 
+
+
+
+
+
+            % \begin{figure}
+            %     \includegraphics[width=0.5\textwidth]{figures/results_stacked.png}
+            %     \caption{Train-\textit{then}-PAC. Error bars are 1 std. 10 runs for each setting. Baseline has performance=1 (i.e. $V^\pi$) and forecast=1.}
+            %     \label{results_stacked}
+            % \end{figure}
+
+
+    \section{Summary}
+        Our research examines augmentations to RL algorithms that provide robust long-horizon planning. Doing so is of high importance in domains that require human supervision and in multiagent settings that require communicating behavior intentions. As a result, this research is expected to have a substantial impact on state-of-the-art deep RL technology for autonomous driving and similar safety critical / multiagent domains.
+
+        In this work, we have proposed a solution to give our intention (forecast) of what we plan to do in the future. Furthermore, we propose an easily adopted method to allow for reliability in this plan via action-value evaluations of our plan. We have proven a theoretical lower bound for the performance degradation for the PPAC policy. We have also shown empirically that PPAC respects these bounds in the expectation even under biases that result from model approximation. Finally, we have shown empirically the trade-off between plan consistency and performance degradation. Reinforcement learning has great promise for real world applications but many of these applications are in safety critical and multiagent settings. By proposing a system for generating reliable future intention, we open up the door to applications where predictability is of high importance.
+
+    % 
+    % 
+    % 
+    % Acknowledgments
+    % 
+    % 
+    % 
+        % \begin{ack}
+        %     FIXME
+        %     Do {\bf not} include this section in the anonymized submission, only in the final paper.
+            
+        %     Use unnumbered first level headings for the acknowledgments.
+        %     All acknowledgments go at the end of the paper before the list of references.
+        %     - declare funding (financial activities supporting the submitted work)
+        %     - competing interests (related financial activities outside the submitted work)
+        % \end{ack}
+
+
+    % 
+    % 
+    % 
+    % References
+    % 
+    % 
+    % 
+    \section*{References}
+        Use unnumbered first-level heading for references.
+        Any choice of citation style is acceptable as long as you are consistent.
+        Reference section does not count towards the page limit.
+    \medskip
+    
+    \bibliography{ref.bib}
+
+
+
+    % 
+    % 
+    % 
+    % Checklist
+    % 
+    % 
+    % 
+    \section*{Checklist}
+    % change the default \answerTODO{} to \answerYes{}, \answerNo{}, or \answerNA{}
+    % examples:
+    % \begin{itemize}
+    %   \item Did you include the license to the code and datasets? \answerYes{See Section~\ref{gen_inst}.}
+    %   \item Did you include the license to the code and datasets? \answerNo{The code and the data are proprietary.}
+    %   \item Did you include the license to the code and datasets? \answerNA{}
+    % \end{itemize}
+    \begin{enumerate}
+
+
+        \item For all authors...
+            \begin{enumerate}
+                \item Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+                    \answerTODO{}
+                \item Did you describe the limitations of your work?
+                    \answerTODO{}
+                \item Did you discuss any potential negative societal impacts of your work?
+                    \answerTODO{}
+                \item Have you read the ethics review guidelines and ensured that your paper conforms to them?
+                    \answerTODO{}
+            \end{enumerate}
+
+
+        \item If you are including theoretical results...
+            \begin{enumerate}
+                \item Did you state the full set of assumptions of all theoretical results?
+                    \answerTODO{}
+                \item Did you include complete proofs of all theoretical results?
+                    \answerTODO{}
+            \end{enumerate}
+
+
+        \item If you ran experiments...
+            \begin{enumerate}
+                    \item Did you include the code, data, and instructions needed to reproduce the main experimental results (either in the supplemental material or as a URL)?
+                        \answerTODO{}
+                    \item Did you specify all the training details (e.g., data splits, hyperparameters, how they were chosen)?
+                        \answerTODO{}
+                    \item Did you report error bars (e.g., with respect to the random seed after running experiments multiple times)?
+                        \answerTODO{}
+                    \item Did you include the total amount of compute and the type of resources used (e.g., type of GPUs, internal cluster, or cloud provider)?
+                        \answerTODO{}
+            \end{enumerate}
+
+
+        \item If you are using existing assets (e.g., code, data, models) or curating/releasing new assets...
+            \begin{enumerate}
+                \item If your work uses existing assets, did you cite the creators?
+                    \answerTODO{}
+                \item Did you mention the license of the assets?
+                    \answerTODO{}
+                \item Did you include any new assets either in the supplemental material or as a URL?
+                    \answerTODO{}
+                \item Did you discuss whether and how consent was obtained from people whose data you're using/curating?
+                    \answerTODO{}
+                \item Did you discuss whether the data you are using/curating contains personally identifiable information or offensive content?
+                    \answerTODO{}
+            \end{enumerate}
+
+
+        \item If you used crowdsourcing or conducted research with human subjects...
+            \begin{enumerate}
+                \item Did you include the full text of instructions given to participants and screenshots, if applicable?
+                    \answerTODO{}
+                \item Did you describe any potential participant risks, with links to Institutional Review Board (IRB) approvals, if applicable?
+                    \answerTODO{}
+                \item Did you include the estimated hourly wage paid to participants and the total amount spent on participant compensation?
+                    \answerTODO{}
+            \end{enumerate}
+
+
+    \end{enumerate}
+
+
+    % 
+    % 
+    % Appendix
+    % 
+    % 
+    \appendix
+    \section{Appendix}
+    
+            \begin{figure}[!h]
+                \includegraphics[width=0.5\textwidth]{figures/forecast_dist.png}
+                \caption{A histogram of the forecast length when applying  PPAC after training the underlying policy. The mean forecast is shown with a red bar. The columns are separated by epsilon coefficient and the rows are separated by environment. The $x$ axis is the forecast and the $y$ axis is the normalized count. We run 10 replications for each plot. Each environment has had the 0.1 forecast capped to 25 for computational considerations.}
+                \label{forecast-dist}
+            \end{figure}
+    
+        % 
+        % epsilon optimizer
+        % 
+        \begin{algorithm}[ht]
+            
+            \newcommand{\planlensPerEpsilon}{planlens_\epsilon}
+            \newcommand{\discountedRewards}{discountedRewards}
+            \newcommand{\episodeRewards}{e_r}
+            \newcommand{\minimumAcceptableReward}{b_{lower}}
+            \newcommand{\numberOfbaselineSamples}{b_{sz}}
+            \newcommand{\initialEpsilon}{\epsilon_{i}}
+            \newcommand{\runningEpsilon}{\epsilon_{r}}
+            \newcommand{\finalEpsilon}{\epsilon_{o}}
+            \newcommand{\allEpsilons}{a_\epsilon}
+            \newcommand{\intialHorizon}{h_{i}}
+            \newcommand{\finalHorizon}{h_{o}}
+            \newcommand{\planLengths}{planlens}
+            
+            % \SetAlgoLined\
+            \SetKwInOut{Input}{Input}
+            \SetKwInOut{Output}{Output}
+            \Input{ \\
+                $\mathrm{\minimumAcceptableReward}$, minimum acceptable reward \\
+                $\mathrm{iter}$ , number of iterations of refinement \\
+                $\mathrm{inc}$, scale multiplier for epsilon \\
+                $\mathrm{\numberOfbaselineSamples}$, number of baseline samples \\
+                $\mathrm{b_{min}}$, min confidence interval of baseline \\
+                $\mathrm{b_{ci}}$, baseline confidence interval width \\
+                $\mathrm{ci_{lvl}}$, confidence level  \\
+                $\mathrm{\initialEpsilon}$, initial epsilon \\
+                $\mathrm{\intialHorizon}$, initial horizon \\
+            }
+            \Output{
+                \\
+                $\mathrm{\finalEpsilon}$, a refined epsilon\\
+                $\mathrm{\finalHorizon}$, a refined horizon\\
+            }
+            \caption{Find Epsilon}
+            \label{algo:find_epsilon}
+            \vspace{8pt}
+            
+            
+            \(\runningEpsilon \gets  \initialEpsilon \)                                                           \\
+            \(\allEpsilons \gets []\) \# empty array                                                              \\
+            \(\planlensPerEpsilon \gets \{\}\) \# empty hashmap                                                   \\
+            \# Note: requesting a non-existent key for this hash-map returns an array containing $\intialHorizon$ \\
+            \For{$i$ in $[0,..., iter]$}{
+                % \label{ln:loopplan1}
+                \(\episodeRewards \gets []\) \# empty array \\
+                \For{$j$ in $[0,..., \numberOfbaselineSamples]$}{
+                    % \label{ln:loopsample1}
+                    \(  \discountedRewards, \planLengths \gets runEpisode(\epsilon=\runningEpsilon) \)                      \\
+                    $\episodeRewards.push(\SUM(\discountedRewards))$                                                        \\
+                    $\planlensPerEpsilon[\runningEpsilon] \gets concat(\planlensPerEpsilon[\runningEpsilon], \planLengths)$ \\
+                    \If{$length(\episodeRewards) < 2$} {
+                        $continue$
+                    }
+                    
+                    $s_{max}, s_{min} \gets confidenceInterval(ci_{lvl}, \episodeRewards)$ \\
+                    $s_{ci} \gets s_{max} - s_{min}$ \\
+                    \If{$ (s_{max} < \minimumAcceptableReward) \OR (s_{ci} < b_{ci}) $}{
+                        $break$
+                    }
+                }
+                
+                \If{$mean(\episodeRewards) \geq \minimumAcceptableReward$}{
+                    $\runningEpsilon \gets \runningEpsilon \MULT inc $
+                }
+                \Else{
+                    $\runningEpsilon \gets \runningEpsilon / inc $
+                }
+                
+                $\allEpsilons.push(\runningEpsilon)$
+            }
+            $\finalEpsilon \gets median(\allEpsilons)$
+
+            $\finalHorizon \gets max(median(\planlensPerEpsilon[\finalEpsilon]), 1) \MULT 2$
+
+            \Return{
+                $\mathrm{\finalEpsilon}, \mathrm{\finalHorizon}$
+            }
+        \end{algorithm}
+
+
+\end{document}

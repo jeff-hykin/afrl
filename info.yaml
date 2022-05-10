@@ -7,7 +7,7 @@
         - How do I judge performance?:
             - Smaller epsilon (lieniency of predicted_state ~~== actual_future_state)
             - Larger forcast (the avergage length of predictions that were correct)
-            - Rewards that are most similar to the optimial policy (green line in .ipynb graph)
+            - Rewards that are most similar to the optimal policy (green line in .ipynb graph)
         - What is the main loss function?: |
             there's a few, and they're defined in main/training/coach_settings.py on the CoachClass class
             
@@ -41,6 +41,7 @@
             experiment_name: null
             env_name: "LunarLanderContinuous-v2" # can be any of: "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
             force_cpu: false
+            
             load:
                 agent_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
                 coach_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
@@ -53,6 +54,7 @@
             agent_settings:
                 model_name: default_sac_4 # was the best (by far) out of 10 for lunar lander
                 number_of_timesteps: 200000
+                reward_discount: 0.98
                 force_retrain: false
                     
             coach_settings:
@@ -72,15 +74,19 @@
                 batch_size: 1024
     
             predictor_settings:
+                override_save_path: false
+                # available_methods: [ ppac, n_step, random, optimal ]
                 force_recompute: false
                 graph_smoothing: 0 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
-                initial_epsilon: 100.1 # overshooting this initial value is better than undershooting
-                initial_horizon: 16 # units = timesteps. Mostly irrelevent
+                initial_epsilon: 3.5 # overshooting this initial value is better than undershooting
+                initial_horizon: 10 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
+                acceptable_performance_levels: [ 0.8, 0.9, 0.95, 0.98, 0.99 ]
                 acceptable_performance_loss: 1 # units = standard deviations
+                acceptable_performance_level: 0.8 # proportion
                 confidence_interval_for_convergence: 90
                 # horizons: # this is part of the v1 settings api but not v2
                 #     0.001: 5
@@ -110,6 +116,8 @@
                     0.01: 20
         ENV=HOPPER:
             env_name: "HopperBulletEnv-v0"    
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/HopperBulletEnv-v0_1/HopperBulletEnv-v0.zip" 
             agent_settings:
                 reward_discount: 0.98
             predictor_settings:
@@ -147,6 +155,8 @@
                 learning_starts: 10000
         ENV=WALKER:
             env_name: "BipedalWalker-v3"    
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/Walker2d-v3_1/Walker2d-v3.zip" 
             agent_settings:
                 reward_discount: 0.98
             predictor_settings:
@@ -174,8 +184,15 @@
             # Min Episode Reward: 153.87762677698575
             # Max Timestep Reward: 2.3122164298644683
             # Min Timestep Reward: -1.7494330256972288
+        ENV=REACHER:
+            env_name: "ReacherBulletEnv-v0"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/ReacherBulletEnv-v0_1/ReacherBulletEnv-v0.zip" 
+                
         ENV=HUMANOID:
-            env_name: "HumanoidBulletEnv-v0"
+            env_name: "HumanoidPyBulletEnv-v0"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/Humanoid-v3_1/Humanoid-v3.zip" 
             reward_discount: 0.98
             agent_settings:
                 learning_rate: 0.0003
@@ -235,7 +252,7 @@
                 number_of_episodes: 100
                 number_of_epochs: 100 # should be 100
                 train_test_split: 0.7
-                batch_size: 1024
+                batch_size: 128
                 with_card: true
             coach_settings:
                 force_retrain: false

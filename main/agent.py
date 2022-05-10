@@ -118,7 +118,7 @@ class Agent(SAC):
         #     q, _ = torch.min(q, dim=1, keepdim=True)
         #     return q.item()
     
-    @cache(depends_on=lambda:[config.agent_settings])
+    @cache(depends_on=lambda:[config.agent_settings, config.experiment_name])
     def gather_experience(self, env, number_of_episodes):
         episodes = [None]*number_of_episodes
         reward_per_episode = []

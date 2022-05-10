@@ -22,6 +22,7 @@ scipy = "^1.8.0"
 cool-cache = "^0.0.2"
 super-map = "1.2.2"
 sb3-contrib = "^1.5.0"
+# gym = {version = "0.21", extras = ["atari"]}
 
 [tool.poetry.dev-dependencies]
 

@@ -62,9 +62,12 @@ load = [ "llvmPackages","openmp",]
 
 [[packages]] # for carla
 load = [ "xdg-user-dirs",]
+onlyIf = [ [ "stdenv", "isLinux",],]
+
 
 [[packages]] # for carla
 load = [ "xdg-utils",]
+onlyIf = [ [ "stdenv", "isLinux",],]
 
 [[packages]] # for carla
 load = [ "xorg", "xhost",]
@@ -98,9 +101,9 @@ load = [ "python38Packages", "setuptools",]
 from = "c82b46413401efa740a0b994f52e9903a4f6dcd5"
 
 [[packages]]
+onlyIf = [ [ "stdenv", "isLinux",],]
 load = [ "python38Packages", "pybullet",]
 from = "c82b46413401efa740a0b994f52e9903a4f6dcd5"
-onlyIf = [ [ "stdenv", "isLinux",],]
 
 # [[packages]]
 # load = [ "python38Packages", "pytorchWithCuda",]
@@ -108,6 +111,7 @@ onlyIf = [ [ "stdenv", "isLinux",],]
 # onlyIf = [ [ "stdenv", "isLinux",],]
 
 [[packages]]
+onlyIf = [ [ "stdenv", "isLinux",],]
 load = [ "python38Packages", "pyopengl",]
 from = "c82b46413401efa740a0b994f52e9903a4f6dcd5"
 
@@ -188,11 +192,6 @@ asNativeBuildInput = true
 onlyIf = [ [ "stdenv", "isLinux",],]
 
 [[packages]]
-load = [ "cmake",]
-asNativeBuildInput = true
-onlyIf = [ [ "stdenv", "isLinux",],]
-
-[[packages]]
 load = [ "stdenv", "cc",]
 onlyIf = [ [ "stdenv", "isLinux",],]
 
@@ -253,6 +252,12 @@ onlyIf = [ [ "stdenv", "isDarwin",],]
 load = [ "darwin", "apple_sdk", "frameworks", "Security" ]
 asNativeBuildInput = true
 onlyIf = [ [ "stdenv", "isDarwin",],]
+
+[[packages]]
+load = [ "darwin", "apple_sdk", "frameworks", "Cocoa" ]
+asNativeBuildInput = true
+onlyIf = [ [ "stdenv", "isDarwin",],]
+
 
 # 
 # both often need
@@ -327,7 +332,6 @@ onlyIf = [ [ "stdenv", "isLinux",],]
 [[packages]]
 load = [ "cmake",]
 asNativeBuildInput = true
-onlyIf = [ [ "stdenv", "isLinux",],]
 
 [[packages]]
 load = [ "libGLU",]

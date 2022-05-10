@@ -50,8 +50,10 @@ from stable_baselines3.common.utils import gym
 from sb3_contrib.common.wrappers import TimeFeatureWrapper
 import pybullet_envs
 def get_env(env_name):
-    # might intercept names in the future 
-    env = TimeFeatureWrapper(gym.make(env_name))
+    env = gym.make(env_name)
+    # this is needed to load pretrained models (for some reason)
+    if "Lunar" not in env_name and "BipedalWalker" not in env_name:
+        env = TimeFeatureWrapper(env)
     env.name = env_name
     return env
 config.get_env = get_env
