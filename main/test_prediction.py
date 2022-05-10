@@ -782,9 +782,6 @@ class Tester:
         plot_epsilon_1(**plot_kwargs)
         plot_epsilon_2(**plot_kwargs)
         
-        sleep(0.5)
-        save_all_charts_to(f"{self.path}/charts.html")
-        
         
         plot_data = self.settings.plot
         # 
@@ -828,6 +825,9 @@ class Tester:
                 random='#c7cbcd',
             )
         )
+        
+        sleep(0.5)
+        save_all_charts_to(f"{self.path}/charts.html")
         
         return self
     
