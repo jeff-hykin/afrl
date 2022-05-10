@@ -53,6 +53,7 @@
             agent_settings:
                 model_name: default_sac_4 # was the best (by far) out of 10 for lunar lander
                 number_of_timesteps: 200000
+                reward_discount: 0.98
                 force_retrain: false
                     
             coach_settings:
@@ -77,7 +78,7 @@
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 15
                 number_of_episodes_for_testing: 10 # original value is 50 
-                initial_epsilon: 100.1 # overshooting this initial value is better than undershooting
+                initial_epsilon: 10.1 # overshooting this initial value is better than undershooting
                 initial_horizon: 16 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
                 acceptable_performance_loss: 1 # units = standard deviations

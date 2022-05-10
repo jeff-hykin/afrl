@@ -6,6 +6,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from collections import defaultdict
 from time import sleep
+from random import random
 
 import gym
 import numpy as np
@@ -30,6 +31,8 @@ from info import path_to, config, print
 from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats, save_all_charts_to, confidence_interval
 from main.agent import Agent
 from main.coach import Coach
+
+force_recompute_value = random() if config.predictor_settings.force_recompute else False
 
 class Tester:
     def __init__(self, settings, predictor, path, attribute_overrides={}):
@@ -87,7 +90,7 @@ class Tester:
     # main algorithms
     # 
     @cache(
-        depends_on=lambda:[config.env_name, config.agent_settings],
+        depends_on=lambda:[config.env_name, config.agent_settings, config.experiment_name, force_recompute_value],
         watch_attributes=lambda self: (
             self.settings.number_of_episodes_for_baseline,
             self.settings.agent.path,
@@ -104,7 +107,7 @@ class Tester:
         return discounted_rewards_per_episode
     
     @cache(
-        depends_on=lambda:[ config.env_name, config.agent_settings, config.coach_settings ],
+        depends_on=lambda:[ config.env_name, config.agent_settings, config.coach_settings, config.experiment_name, force_recompute_value],
         watch_attributes=lambda self: (
             self.settings.acceptable_performance_loss,
             self.settings.confidence_interval_for_convergence,
