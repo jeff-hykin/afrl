@@ -599,7 +599,7 @@ class Tester:
             # 
             # ppac
             # 
-            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, acceptable_performance_level)
+            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
             # saves these
             self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
             epsiode_lengths = []
@@ -620,7 +620,7 @@ class Tester:
                     episode_index=episode_index,
                     should_record=True,
                 )
-                epsiode_lengths.append(len(discounted_reward))
+                epsiode_lengths.append(len(discounted_rewards))
                 reward_sums.append(sum(discounted_rewards))
                 failure_point_averages.append(average(failure_points))
             plot_data.ppac_reward_points.append(average(reward_sums))
