@@ -12,7 +12,7 @@ PyVirtualDisplay = "^3.0"
 slick-siphon = "^0.1.1"
 notebook = "^6.4.8"
 jupyterthemes = "0.20.0"
-file-system-py = "^0.0.6"
+file-system-py = "^0.0.7"
 simple-namespace = "^1.0.0"
 rigorous-recorder = "1.1.0"
 silver-spectacle = "^0.7.1"
@@ -23,6 +23,7 @@ cool-cache = "^0.0.2"
 super-map = "1.2.2"
 sb3-contrib = "^1.5.0"
 # gym = {version = "0.21", extras = ["atari"]}
+json-fix = "^0.1.3"
 
 [tool.poetry.dev-dependencies]
 
