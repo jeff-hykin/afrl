@@ -156,7 +156,7 @@
         ENV=WALKER:
             env_name: "BipedalWalker-v3"    
             load:
-                agent_path: "./subrepos/rl-trained-agents/sac/Walker2d-v3_1/Walker2d-v3.zip" 
+                agent_path: "./subrepos/rl-trained-agents/sac/BipedalWalker-v3_1/BipedalWalker-v3.zip" 
             agent_settings:
                 reward_discount: 0.98
             predictor_settings:
