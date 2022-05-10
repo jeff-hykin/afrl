@@ -27,8 +27,9 @@ from simple_namespace import namespace
 from rigorous_recorder import Recorder
 from cool_cache import cache
 
+from debug import debug
 from info import path_to, config, print
-from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats, save_all_charts_to, confidence_interval
+from tools import get_discounted_rewards, divide_chunks, minibatch, ft, TimestepSeries, to_numpy, average, median, normalize, rolling_average, key_prepend, simple_stats, log_scale, confidence_interval_size, stats, save_all_charts_to, confidence_interval, multi_plot
 from main.agent import Agent
 from main.coach import Coach
 
@@ -122,20 +123,20 @@ class Tester:
         increment_amount = config.predictor_settings.increment_factor
         
         baseline = simple_stats(baseline_samples)
-        print(f'''    baseline = {baseline}''')
+        print(f'''        baseline = {baseline}''')
         
         baseline_population_stdev   = baseline.stdev / math.sqrt(baseline.count)
         baseline_population_average = baseline.average
         baseline_worst_value        = baseline.average * acceptable_performance_level
         baseline_min, baseline_max = confidence_interval(confidence_interval_percent, baseline_samples)
-        print(f'''    baseline_min = {baseline_min}, baseline_max = {baseline_max},''')
+        print(f'''        baseline_min = {baseline_min}, baseline_max = {baseline_max},''')
         baseline_confidence_size = (baseline_max - baseline_min)/2
-        print(f'''    baseline_confidence_size = {baseline_confidence_size}''')
+        print(f'''        baseline_confidence_size = {baseline_confidence_size}''')
         
         # 
         # hone in on acceptable epsilon
         # 
-        print("    ----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------")
+        print(f'''        ----- finding optimal epsilon -------------------------------------------------------------------------------------------------------------------------------------''')
         new_epsilon = self.settings.initial_epsilon
         new_horizon = self.settings.initial_horizon
         epsilon_attempts = []
@@ -157,7 +158,7 @@ class Tester:
                 failure_points_per_epsilon[new_epsilon] += failure_points
                 reward_single_sum = sum(discounted_rewards)
                 sampled_rewards.append(reward_single_sum)
-                print(f'''            reward_single_sum={reward_single_sum}, ''', end="")
+                print(f'''                reward_single_sum={reward_single_sum}, ''', end="")
                 
                 if len(sampled_rewards) < 2: # need at least 2 to perform a confidence interval
                     print()
@@ -165,7 +166,7 @@ class Tester:
                 new_horizon     = max(stats(failure_points_per_epsilon[new_epsilon]).median, 1) * 2 # new
                 min_with_epsilon, confidence_max = confidence_interval(confidence_interval_percent, sampled_rewards)
                 confidence_size = confidence_interval_size(confidence_interval_percent, sampled_rewards)
-                print(f'''confidence_size={confidence_size}, confidence_max={confidence_max}, new_horizon={horizon_for_epsilon(new_epsilon)}''')
+                print(f'''    confidence_size={confidence_size}, confidence_max={confidence_max}, new_horizon={horizon_for_epsilon(new_epsilon)}''')
                 # if the ranges don't overlap: fail early
                 if confidence_max < baseline_min:
                     break
@@ -174,7 +175,7 @@ class Tester:
                     break
                 # prevent stupidly long runs because of volatile outcomes
                 if loop_number >= self.settings.number_of_episodes_for_baseline:
-                    print(f'''        hit cap of: {self.settings.number_of_episodes_for_baseline} iterations''')
+                    print(f'''            hit cap of: {self.settings.number_of_episodes_for_baseline} iterations''')
                     break
             # then compare the mean
             sample_stats = simple_stats(sampled_rewards)
@@ -187,13 +188,13 @@ class Tester:
                 new_epsilon /= increment_amount
             
             epsilon_attempts.append(new_epsilon)
-            print(f'''        episode={episode_index}, horizon={horizon_for_epsilon(new_epsilon)}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
+            print(f'''            episode={episode_index}, horizon={horizon_for_epsilon(new_epsilon)}, effective_score={sample_stats.average:.2f}, baseline_lowerbound={baseline_worst_value:.2f} baseline_stdev={baseline_population_stdev:.2f}, new_epsilon={new_epsilon:.4f}, bad={not epsilon_isnt_a_problem}, gap_average={average(epoch_q_value_gaps)}''')
                 
         # take median to ignore outliers and find the converged-value even if the above process wasnt converging
         optimal_epsilon = simple_stats(epsilon_attempts).median
         optimal_horizon = horizon_for_epsilon(optimal_epsilon)
-        print(f'''    optimal_epsilon = {optimal_epsilon}''')
-        print(f'''    optimal_horizon = {optimal_horizon}''')
+        print(f'''        optimal_epsilon = {optimal_epsilon}''')
+        print(f'''        optimal_horizon = {optimal_horizon}''')
         return optimal_epsilon, optimal_horizon
     
     def ppac_experience_episode(
@@ -575,11 +576,11 @@ class Tester:
         settings, predictor = self.settings, self.predictor
         predictor.agent.gamma = config.agent_settings.reward_discount
         
-        plot_data = self.settings.plot = LazyDict()
+        plot_data = LazyDict()
         # 
         # optimal
         # 
-        print("  running optimal method")
+        print("    running optimal method")
         optimal_samples = self.gather_optimal()
         average_optimal_reward = simple_stats(optimal_samples).average
         plot_data.optimal_reward_points = [
@@ -589,7 +590,7 @@ class Tester:
         # 
         # TODO: random
         # 
-        print("  running random method")
+        print("    running random method")
         average_random_performance = 0 # FIXME
         plot_data.random_reward_points = [
             (each_level, average_random_performance) for each_level in self.settings.acceptable_performance_levels
@@ -604,13 +605,13 @@ class Tester:
         plot_data.n_step_horizon_plan_length_points = []
         plot_data.n_step_planlen_plan_length_points = []
         for each_level in self.settings.acceptable_performance_levels:
-            print(f'''# ''')
-            print(f'''# acceptable_performance_level = {each_level}''')
-            print(f'''# ''')
+            print(f'''    # ''')
+            print(f'''    # acceptable_performance_level = {each_level}''')
+            print(f'''    # ''')
             # 
             # ppac
             # 
-            print("  running ppac method")
+            print("    running ppac method")
             optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
             # saves these
             self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
@@ -635,22 +636,22 @@ class Tester:
                 epsiode_lengths.append(len(discounted_rewards))
                 reward_sums.append(sum(discounted_rewards))
                 failure_point_averages.append(average(failure_points))
-            plot_data.ppac_reward_points.append((each_level, average(reward_sums)))
-            plot_data.ppac_plan_length_points.append((each_level, average(failure_point_averages)))
+            plot_data.ppac_reward_points.append([each_level, average(reward_sums)])
+            plot_data.ppac_plan_length_points.append([each_level, average(failure_point_averages)])
             
             # 
             # theory
             # 
-            print("  running theory method")
-            plot_data.theory_reward_points.append((
+            print("    running theory method")
+            plot_data.theory_reward_points.append([
                 each_level,
                 average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
-            ))
+            ])
             
             # 
             # n_step horizon
             # 
-            print("  running n_step horizon method")
+            print("    running n_step horizon method")
             reward_sums     = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 (
@@ -666,13 +667,13 @@ class Tester:
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_horizon_reward_points.append((each_level, average(reward_sums)))
-            plot_data.n_step_horizon_plan_length_points.append((each_level, optimal_horizon))
+            plot_data.n_step_horizon_reward_points.append([each_level, average(reward_sums)])
+            plot_data.n_step_horizon_plan_length_points.append([each_level, optimal_horizon])
             
             # 
             # n_step planlen
             # 
-            print("  running n_step planlen method")
+            print("    running n_step planlen method")
             reward_sums     = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 (
@@ -688,9 +689,12 @@ class Tester:
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_planlen_reward_points.append((each_level, average(reward_sums)))
-            plot_data.n_step_planlen_plan_length_points.append((each_level, optimal_horizon))
-        
+            plot_data.n_step_planlen_reward_points.append([each_level, average(reward_sums)])
+            plot_data.n_step_planlen_plan_length_points.append([each_level, optimal_horizon])
+            
+            self.settings = LazyDict(self.settings)
+            self.settings.plot = None
+            self.settings.plot = plot_data
             self.save()
     # 
     # misc helpers
@@ -779,6 +783,51 @@ class Tester:
         
         sleep(0.5)
         save_all_charts_to(f"{self.path}/charts.html")
+        
+        
+        plot_data = self.settings.plot
+        # 
+        # reward plot
+        # 
+        ss.DisplayCard("multiLine", dict(
+            optimal=plot_data.optimal_reward_points,
+            random=plot_data.random_reward_points,
+            theory=plot_data.theory_reward_points,
+            ppac=plot_data.ppac_reward_points,
+            n_step_horizon=plot_data.n_step_horizon_reward_points,
+            n_step_planlen=plot_data.n_step_planlen_reward_points,
+        ))
+        # 
+        # forcast plot
+        # 
+        ss.DisplayCard("multiLine", dict(
+            ppac=plot_data.ppac_plan_length_points,
+            n_step_horizon=plot_data.n_step_horizon_plan_length_points,
+            n_step_planlen=plot_data.n_step_planlen_plan_length_points,
+        ))
+        
+        multi_plot(
+            dict(
+                optimal=plot_data.optimal_reward_points,
+                random=plot_data.random_reward_points,
+                theory=plot_data.theory_reward_points,
+                ppac=plot_data.ppac_reward_points,
+                n_step_horizon=plot_data.n_step_horizon_reward_points,
+                n_step_planlen=plot_data.n_step_planlen_reward_points,
+            ),
+            vertical_label="reward",
+            horizonal_label="acceptance level",
+            title=None,
+            color_key=dict(
+                optimal='#83ecc9',
+                ppac='#89ddff',
+                theory='#e57eb3',
+                n_step_planlen='#fec355',
+                n_step_horizon='#f07178',
+                random='#c7cbcd',
+            )
+        )
+        
         return self
     
     def init_live_graphs(self):
@@ -910,9 +959,7 @@ class Tester:
         import json
         simple_data_path = f"{path}/simple_data.json"
         FS.clear_a_path_for(simple_data_path, overwrite=True)
-        with open(simple_data_path, 'w') as outfile:
-            json.dump(dict(self.settings), outfile)
-        # ez_yaml.to_file(obj=dict(self.settings), file_path=simple_data_path)
+        FS.write(json.dumps(dict(self.settings)), to=simple_data_path)
         
         # save csv
         FS.clear_a_path_for(self.csv_path, overwrite=True)

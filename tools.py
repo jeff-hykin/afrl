@@ -452,9 +452,12 @@ def multi_plot(data, vertical_label=None, horizonal_label=None, title=None, colo
         datasets.append(dict(
             label=each_key,
             data=values,
-            fill=True,
-            tension=0.1,
-            backgroundColor=color_key.get(label, 'rgb(0, 292, 192, 0.5)'),
+            fill=False,
+            tension=0.4,
+            cubicInterpolationMode='monotone',
+            backgroundColor=color_key.get(each_key, 'rgb(0, 292, 192, 0.5)'),
+            borderColor=color_key.get(each_key, 'rgb(0, 292, 192, 0.5)'),
+            color=color_key.get(each_key, 'rgb(0, 292, 192, 0.5)'),
         ))
         
     
@@ -476,14 +479,14 @@ def multi_plot(data, vertical_label=None, horizonal_label=None, title=None, colo
             "scales": {
                 "x": {
                     "title": {
-                        "display": True,
-                        "text": 'seconds',
+                        "display": horizonal_label,
+                        "text": horizonal_label,
                     },
                 },
                 "y": {
                     "title": {
-                        "display": True,
-                        "text": 'seconds',
+                        "display": vertical_label,
+                        "text": vertical_label,
                     },
                     # "min": 50,
                     # "max": 100,

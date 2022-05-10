@@ -27,7 +27,7 @@ def shuffled(thing):
 
 # For each #value create a plot for each env of the theory bound (function of epsilon) and the emperical bound
 
-source = f"{path_to.folder.results}/final_1"
+source = f"{path_to.folder.results}/final_2"
 for each_env_path in FS.list_folder_paths_in(source):
     env_name = FS.basename(each_env_path)
     
@@ -54,9 +54,9 @@ for each_env_path in FS.list_folder_paths_in(source):
     # forcast plot
     # 
     ss.DisplayCard("multiLine", dict(
-        plot_data.ppac_plan_length_points
-        plot_data.n_step_horizon_plan_length_points
-        plot_data.n_step_planlen_plan_length_points
+        ppac=plot_data.ppac_plan_length_points,
+        n_step_horizon=plot_data.n_step_horizon_plan_length_points,
+        n_step_planlen=plot_data.n_step_planlen_plan_length_points,
     ))
     
     multi_plot(
@@ -72,8 +72,8 @@ for each_env_path in FS.list_folder_paths_in(source):
         horizonal_label="acceptance level",
         title=None,
         color_key=dict(
-            optimal='#04d895',
-            ppac='#00aeff',
+            optimal='#83ecc9',
+            ppac='#89ddff',
             theory='#e57eb3',
             n_step_planlen='#fec355',
             n_step_horizon='#f07178',
@@ -82,6 +82,15 @@ for each_env_path in FS.list_folder_paths_in(source):
     )
 
 
+        # "#83ecc9",
+        # "#89ddff",
+        # "#82aaff",
+        # "#c792ea",
+        # "#e57eb3",
+        # "#fec355",
+        # "#f07178",
+        # "#f78c6c",
+        # "#c3e88d",
         # black          : &black          '#000000'
         # white          : &white          '#ffffff'
         # light_gray     : &light_gray     '#c7cbcd'
