@@ -674,6 +674,7 @@ class Tester:
             # n_step planlen
             # 
             print("    running n_step planlen method")
+            print(f'''        plot_data.ppac_plan_length_points[-1][1] = {plot_data.ppac_plan_length_points[-1][1]}''')
             reward_sums     = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 (
@@ -682,7 +683,7 @@ class Tester:
                     discounted_rewards,
                     *_,
                 ) = self.n_step_experience_episode(
-                    number_of_steps=math.ceil(plot_data.ppac_plan_length_points[-1][1]), # average failure point, ciel so that never goes to 0
+                    number_of_steps=plot_data.ppac_plan_length_points[-1][1], # average failure point, ciel so that never goes to 0
                     scaled_epsilon=optimal_epsilon,
                     horizon=optimal_horizon,
                     episode_index=episode_index,
@@ -817,7 +818,7 @@ class Tester:
             ),
             vertical_label="reward",
             horizonal_label="acceptance level",
-            title=None,
+            title=config.env_name,
             color_key=dict(
                 optimal='#83ecc9',
                 ppac='#89ddff',

@@ -61,16 +61,16 @@ for each_env_path in FS.list_folder_paths_in(source):
     
     multi_plot(
         dict(
-            optimal=plot_data.optimal_reward_points,
-            random=plot_data.random_reward_points,
-            theory=plot_data.theory_reward_points,
-            ppac=plot_data.ppac_reward_points,
-            n_step_horizon=plot_data.n_step_horizon_reward_points,
-            n_step_planlen=plot_data.n_step_planlen_reward_points,
+            optimal=       [ (f"{int(x*100)}%", y) for x,y in plot_data.optimal_reward_points       ],
+            random=        [ (f"{int(x*100)}%", y) for x,y in plot_data.random_reward_points        ],
+            theory=        [ (f"{int(x*100)}%", y) for x,y in plot_data.theory_reward_points        ],
+            ppac=          [ (f"{int(x*100)}%", y) for x,y in plot_data.ppac_reward_points          ],
+            n_step_horizon=[ (f"{int(x*100)}%", y) for x,y in plot_data.n_step_horizon_reward_points],
+            n_step_planlen=[ (f"{int(x*100)}%", y) for x,y in plot_data.n_step_planlen_reward_points],
         ),
         vertical_label="reward",
         horizonal_label="acceptance level",
-        title=None,
+        title=env_name,
         color_key=dict(
             optimal='#83ecc9',
             ppac='#89ddff',
