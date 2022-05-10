@@ -501,7 +501,7 @@ class Tester:
         # 
         epoch_recorder = Recorder(
             horizon=horizon,
-            scaled_epsilon=scaled_epsilon,
+            scaled_epsilon=optimal_epsilon,
         ).set_parent(self.recorder)
         
         forecast_slices = []
@@ -516,7 +516,7 @@ class Tester:
                 real_q_values,
                 q_value_gaps
             ) = self.ppac_experience_episode(
-                scaled_epsilon=scaled_epsilon,
+                scaled_epsilon=optimal_epsilon,
                 horizon=horizon,
                 episode_index=episode_index,
                 should_record=True,
@@ -648,7 +648,7 @@ class Tester:
                     _
                 ) = self.n_step_experience_episode(
                     number_of_steps=optimal_horizon,
-                    scaled_epsilon=scaled_epsilon,
+                    scaled_epsilon=optimal_epsilon,
                     horizon=optimal_horizon,
                     episode_index=episode_index,
                     should_record=False,
@@ -672,7 +672,7 @@ class Tester:
                     _
                 ) = self.n_step_experience_episode(
                     number_of_steps=math.ciel(plot_data.ppac_plan_length_points[-1]), # average failure point, ciel so that never goes to 0
-                    scaled_epsilon=scaled_epsilon,
+                    scaled_epsilon=optimal_epsilon,
                     horizon=optimal_horizon,
                     episode_index=episode_index,
                     should_record=False,
@@ -739,7 +739,7 @@ class Tester:
         ))
         
         threshold_card = ss.DisplayCard("multiLine", dict(
-            scaled_epsilon=scaled_epsilons,
+            scaled_epsilon=optimal_epsilons,
             q_final_gaps_average=q_final_gaps_average,
             q_gaps_average=q_gaps_average,
             # q_gaps_min=q_gaps_min,
