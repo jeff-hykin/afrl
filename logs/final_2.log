@@ -305,3 +305,6 @@ argv[0]=
             episode=14, horizon=20, effective_score=10.43, baseline_lowerbound=14.68 baseline_stdev=1.09, new_epsilon=0.2272, bad=True, gap_average=0.14165761605457022
         optimal_epsilon = 0.8139881377648227
         optimal_horizon = 8
+    running theory method
+    running n_step horizon method
+    running n_step planlen method
