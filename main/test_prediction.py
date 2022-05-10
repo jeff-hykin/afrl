@@ -583,7 +583,7 @@ class Tester:
         # TODO: random
         # 
         average_random_performance = 0 # FIXME
-        plot_data.ranom_reward_points = [
+        plot_data.random_reward_points = [
             (each_level, average_random_performance) for each_level in self.settings.acceptable_performance_levels
         ]
         
