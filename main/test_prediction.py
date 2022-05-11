@@ -4,7 +4,7 @@ from typing import List
 from copy import deepcopy
 from dataclasses import dataclass
 from collections import defaultdict
-from time import sleep
+from time import sleep, time
 from random import random
 
 import gym
@@ -720,6 +720,7 @@ class Tester:
     
     @log_func
     def tuned_comparisons(self):
+        print(f'''time is: {time()}''')
         settings, predictor = self.settings, self.predictor
         predictor.agent.gamma = config.agent_settings.reward_discount
         reward_discount       = config.agent_settings.reward_discount
@@ -939,9 +940,12 @@ class Tester:
                     **self.settings,
                     "plot": plot_data[Map.Dict],
                 })
+                print(f'''time is: {time()}''')
                 self.save()
                 try: self.generate_graphs()
                 except Exception as error: print(error)
+        
+        print(f'''time is: {time()}''')
     # 
     # misc helpers
     # 
