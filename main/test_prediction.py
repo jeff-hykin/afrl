@@ -696,7 +696,6 @@ class Tester:
             # n_step planlen
             # 
             print("running n_step planlen method")
-            print(f'''    plot_data.ppac_plan_length_points[-1][1] = {plot_data.ppac_plan_length_points[-1][1]}''')
             reward_sums     = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 (
@@ -911,7 +910,7 @@ class Tester:
                 # n_step planlen
                 # 
                 with block_indent("running n_step planlen method"):
-                    print(f'''plot_data.ppac_plan_length_points[-1][1] = {plot_data.ppac_plan_length_points[-1][1]}''')
+                    prev_average_failure_point = plot_data.ppac_plan_length_points[-1][1]
                     reward_sums     = []
                     for episode_index in range(settings.number_of_episodes_for_testing):
                         (
@@ -920,7 +919,7 @@ class Tester:
                             discounted_rewards,
                             *_,
                         ) = self.n_step_experience_episode(
-                            number_of_steps=plot_data.ppac_plan_length_points[-1][1], # average failure point, ciel so that never goes to 0
+                            number_of_steps=prev_average_failure_point, # average failure point, ciel so that never goes to 0
                             scaled_epsilon=tuning.epsilon,
                             horizon=tuning.horizon,
                             episode_index=episode_index,
@@ -928,7 +927,7 @@ class Tester:
                         )
                         reward_sums.append(sum(discounted_rewards))
                     plot_data.n_step_planlen_reward_points.append([each_performance_level, average(reward_sums)])
-                    plot_data.n_step_planlen_plan_length_points.append([each_performance_level, tuning.horizon])
+                    plot_data.n_step_planlen_plan_length_points.append([each_performance_level, prev_average_failure_point])
                 
                 self.settings = LazyDict(self.settings)
                 self.settings.plot = None
