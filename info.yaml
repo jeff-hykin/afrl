@@ -92,7 +92,8 @@
                 min_sample_size: 12
                 min_reward_single_timestep: 0
                 max_reward_single_timestep: 100
-                horizon_cap: 20
+                horizon_ceiling: 20
+                horizon_floor: 4
         
         FORCE_CPU_PROFILE:
             force_cpu: true

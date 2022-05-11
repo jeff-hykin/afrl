@@ -63,7 +63,7 @@ test settings = {
     "min_sample_size": 12, 
     "min_reward_single_timestep": 0, 
     "max_reward_single_timestep": 100, 
-    "horizon_cap": 20, 
+    "horizon_ceiling": 20, 
 }
     running optimal method
     optimal_stats = {
@@ -378,7 +378,7 @@ test settings = {
     "min_sample_size": 12, 
     "min_reward_single_timestep": 19, 
     "max_reward_single_timestep": 105, 
-    "horizon_cap": 20, 
+    "horizon_ceiling": 20, 
     "horizons": {0: 1, 0.0007: 4, 0.0015: 16, 0.002: 26, }, 
 }
     running optimal method
@@ -693,7 +693,7 @@ test settings = {
     "min_sample_size": 12, 
     "min_reward_single_timestep": -23, 
     "max_reward_single_timestep": 5, 
-    "horizon_cap": 20, 
+    "horizon_ceiling": 20, 
     "horizons": {0.1: 26, 0.01: 16, 0.001: 11, }, 
 }
     running optimal method
@@ -1006,7 +1006,7 @@ test settings = {
     "min_sample_size": 12, 
     "min_reward_single_timestep": -60, 
     "max_reward_single_timestep": 100, 
-    "horizon_cap": 20, 
+    "horizon_ceiling": 20, 
     "horizons": {0: 1, 0.001: 11, 0.01: 13, 0.1: 26, }, 
 }
     running optimal method
@@ -1527,7 +1527,7 @@ test settings = {
     "min_sample_size": 12, 
     "min_reward_single_timestep": 18, 
     "max_reward_single_timestep": 110, 
-    "horizon_cap": 20, 
+    "horizon_ceiling": 20, 
     "horizons": {0.1: 26, 0.01: 16, 0.001: 11, }, 
 }
     running optimal method
@@ -2095,7 +2095,7 @@ test settings = {
     "min_sample_size": 12, 
     "min_reward_single_timestep": -100, 
     "max_reward_single_timestep": 70, 
-    "horizon_cap": 20, 
+    "horizon_ceiling": 20, 
     "horizons": {0.0: 1, 0.005: 10, 0.01: 20, }, 
 }
     running optimal method

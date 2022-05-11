@@ -481,6 +481,58 @@ class Tester:
             self.q_value_gaps_per_episode_per_timestep[episode_index]        = q_value_gaps_per_timestep       
         return failure_points, rewards_per_timestep, discounted_rewards_per_timestep, stopped_early_per_timestep, real_q_values_per_timestep, q_value_gaps_per_timestep
     
+    def record_episode(self, episode_index, horizon, epsilon, forecast_slices, alt_forecast_slices, epoch_recorder, output_of_experience):
+        (
+            forecast,
+            rewards,
+            discounted_rewards,
+            failure_points,
+            stopped_earlies,
+            real_q_values,
+            q_value_gaps
+        ) = output_of_experience
+        
+        scaled_epsilon = epsilon
+        
+        reward_stats            = simple_stats(rewards)
+        discounted_reward_stats = simple_stats(discounted_rewards)
+        failure_point_stats     = simple_stats(failure_points)
+        real_q_value_stats      = simple_stats(real_q_values)
+        
+        normalized_rewards = normalize(rewards, min=self.settings.min_reward_single_timestep, max=self.settings.max_reward_single_timestep)
+        
+        # 
+        # forecast stats
+        # 
+        forecast_slices.append(forecast[horizon:])
+        alt_forecast_slices.append(forecast)
+        # NOTE: double averaging might not be the desired metric but its probably alright
+        grand_forecast_average = average(average(each) for each in forecast_slices)
+        alt_forecast_average   = average(average(each) for each in alt_forecast_slices)
+        
+        # save self.csv_data
+        epoch_recorder.push(
+            episode_index=episode_index,
+            timestep_count=len(rewards),
+            forecast_average=grand_forecast_average,
+            alt_forecast_average=alt_forecast_average,
+            normalized_reward_average=simple_stats(normalized_rewards).average,
+            **key_prepend("reward", reward_stats), # reward_average, reward_median, reward_min, reward_max, etc
+            **key_prepend("discounted_reward", discounted_reward_stats), # discounted_reward_average, discounted_reward_median, discounted_reward_min, discounted_reward_max, etc
+            **key_prepend("failure_point", failure_point_stats),
+            **key_prepend("q", real_q_value_stats),
+            **key_prepend("q_gaps", simple_stats(flatten(q_value_gaps) or [0])),
+            **key_prepend("q_final_gaps", simple_stats([each[-1] for each in q_value_gaps if len(each) > 0] or [0])),
+        )
+        
+        # record for CSV backwards compatibility
+        # self.csv_data.epsilon.append(scaled_epsilon)
+        # self.csv_data.rewards.append(reward_stats.sum)
+        # self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
+        # self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
+        
+        print(f"scaled_epsilon: {scaled_epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
+    
     # 
     # setup for testing
     #
@@ -519,6 +571,12 @@ class Tester:
         forecast_slices = []
         alt_forecast_slices = []
         for episode_index in range(settings.number_of_episodes_for_testing):
+            output_of_experience = self.ppac_experience_episode(
+                scaled_epsilon=optimal_epsilon,
+                horizon=horizon,
+                episode_index=episode_index,
+                should_record=True,
+            )
             (
                 forecast,
                 rewards,
@@ -527,52 +585,10 @@ class Tester:
                 stopped_earlies,
                 real_q_values,
                 q_value_gaps
-            ) = self.ppac_experience_episode(
-                scaled_epsilon=optimal_epsilon,
-                horizon=horizon,
-                episode_index=episode_index,
-                should_record=True,
-            )
+            ) = output_of_experience
             
-            reward_stats            = simple_stats(rewards)
-            discounted_reward_stats = simple_stats(discounted_rewards)
-            failure_point_stats     = simple_stats(failure_points)
-            real_q_value_stats      = simple_stats(real_q_values)
-            
-            normalized_rewards = normalize(rewards, min=settings.min_reward_single_timestep, max=settings.max_reward_single_timestep)
-            
-            # 
-            # forecast stats
-            # 
-            forecast_slices.append(forecast[horizon:])
-            alt_forecast_slices.append(forecast)
-            # NOTE: double averaging might not be the desired metric but its probably alright
-            grand_forecast_average = average(average(each) for each in forecast_slices)
-            alt_forecast_average   = average(average(each) for each in alt_forecast_slices)
-            
-            # save self.csv_data
-            epoch_recorder.push(
-                episode_index=episode_index,
-                timestep_count=len(rewards),
-                forecast_average=grand_forecast_average,
-                alt_forecast_average=alt_forecast_average,
-                normalized_reward_average=simple_stats(normalized_rewards).average,
-                **key_prepend("reward", reward_stats), # reward_average, reward_median, reward_min, reward_max, etc
-                **key_prepend("discounted_reward", discounted_reward_stats), # discounted_reward_average, discounted_reward_median, discounted_reward_min, discounted_reward_max, etc
-                **key_prepend("failure_point", failure_point_stats),
-                **key_prepend("q", real_q_value_stats),
-                **key_prepend("q_gaps", simple_stats(flatten(q_value_gaps) or [0])),
-                **key_prepend("q_final_gaps", simple_stats([each[-1] for each in q_value_gaps if len(each) > 0] or [0])),
-            )
+            self.record_episode(episode_index, horizon, scaled_epsilon, forecast_slices, alt_forecast_slices, epoch_recorder, output_of_experience)
             self.increment_live_graphs() # uses latest record
-            
-            # record for CSV backwards compatibility
-            self.csv_data.epsilon.append(scaled_epsilon)
-            self.csv_data.rewards.append(reward_stats.sum)
-            self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
-            self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
-            
-            print(f"scaled_epsilon: {scaled_epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
         
         self.save()
         return self
@@ -747,46 +763,56 @@ class Tester:
             print(f'''# ''')
             with indent:
                 # 
+                # 
                 # ppac
                 # 
+                # 
                 with block_indent("running ppac method"):
+                    # 
+                    # setup values
+                    # 
                     minimum_performace = average_optimal_reward * each_performance_level
-                    epsilon = (1 - reward_discount) * (minimum_performace + average_optimal_reward)
+                    epsilon = (1 - reward_discount) * (minimum_performace + average_optimal_reward) # real_reward_lowerbound == optimal_rewards - self.epsilon / (1 - gamma) # and we just rearrage it because we need to compute an epsilon
                     tuning = LazyDict(
                         confidence_percent=config.predictor_settings.confidence_interval_for_convergence,
                         horizon=self.settings.initial_horizon,
-                        # real_reward_lowerbound == optimal_rewards - self.epsilon / (1 - gamma) # and we just rearrage it because we need to compute an epsilon
                         epsilon=epsilon,
                         minimum_performace=minimum_performace,
-                        # delta starts of as a double-er later: self.epsilon+=self.delta
-                        delta=epsilon,
+                        delta=epsilon, # delta starts of as a double-er later: self.epsilon+=self.delta
                     )
+                    print(f'''minimum_performace = {minimum_performace}''')
+                    
                     # 
-                    # data recording
+                    # setup data recording
                     # 
                     episode_recorder = Recorder(
                         method="ppac",
                         performance_level=each_performance_level,
                         minimum_performace=minimum_performace,
-                    ).set_parent(mid_recorder)
-                    episode_recorder.frame = LazyDict(episode_recorder.frame)
-                    confidence_recorder = Recorder().set_parent(episode_recorder)
+                    ).set_parent(mid_recorder); episode_recorder.frame = LazyDict(episode_recorder.frame)
+                    confidence_recorder  = Recorder().set_parent(episode_recorder)
+                    old_episode_recorder = Recorder().set_parent(episode_recorder)
                     
-                    print(f'''minimum_performace = {minimum_performace}''')
-                    
+                    # 
+                    # run episodes
+                    # 
                     sample      = []
                     old_samples = []
+                    forecast_slices, alt_forecast_slices = [], []
                     with indent:
                         for episode_index in range(settings.number_of_episodes_for_testing):
-                            _, _, discounted_rewards, failure_points, *_ = self.ppac_experience_episode(
+                            experience_outputs = self.ppac_experience_episode(
                                 episode_index=episode_index,
                                 scaled_epsilon=tuning.epsilon,
                                 horizon=tuning.horizon,
                                 should_record=True,
                             )
+                            # keep old recording method so graphs work
+                            self.record_episode(episode_index, tuning.horizon, tuning.epsilon, forecast_slices, alt_forecast_slices, old_episode_recorder, experience_outputs)
+                            
+                            _, _, discounted_rewards, failure_points, *_ = experience_outputs
                             reward_sum = sum(discounted_rewards)
-                            print(f'''episode_index={episode_index}, reward_sum={reward_sum:.4f}, tuning.epsilon={tuning.epsilon}, tuning.horizon={tuning.horizon}''')
-                            with indent:
+                            with block_indent(f'''episode_index={episode_index}, reward_sum={reward_sum:.4f}, tuning.epsilon={tuning.epsilon}, tuning.horizon={tuning.horizon}'''):
                                 episode_recorder.push(
                                     episode_index=episode_index,
                                     scaled_epsilon=tuning.epsilon,
@@ -796,10 +822,10 @@ class Tester:
                                     failure_point_average=average(failure_points),
                                 )
                                 
-                                # make sure the horizon is big enough
-                                tuning.horizon = int(max(1.5 * average(episode_recorder.frame.failure_point_average[-min_sample_size:]), 4))
-                                if tuning.horizon > config.predictor_settings.horizon_cap: # for practical purposes
-                                    tuning.horizon = config.predictor_settings.horizon_cap
+                                # make sure the horizon is big enough, and within bounds
+                                tuning.horizon = int(1.5 * average(episode_recorder.frame.failure_point_average[-min_sample_size:]))
+                                tuning.horizon = max(tuning.horizon, config.predictor_settings.horizon_floor  ) # no lower than (too low-> horizon gets stuck at ~1 and nearly all epsilons falsely "perform well")
+                                tuning.horizon = min(tuning.horizon, config.predictor_settings.horizon_ceiling) # no higher than (high-> runaway epsilon, and increases computation significantly)
                                 # build up sample for the confidence interval check
                                 sample.append(episode_recorder.frame.reward_sum[-1])
                                 
@@ -817,6 +843,7 @@ class Tester:
                                     upper = little_interval_lower
                                     lower = big_interval_lower
                                     confidence_recorder.push(
+                                        episode_index=episode_index,
                                         little_interval_upper=little_interval_upper, 
                                         little_interval_lower=little_interval_lower,
                                         big_interval_upper=big_interval_upper, 
