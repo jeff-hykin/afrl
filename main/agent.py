@@ -9,7 +9,7 @@ from trivial_torch_tools import to_tensor, init, convert_each_arg
 
 from cool_cache import cache
 from info import path_to, config, print
-from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, ft, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average
+from tools import flatten, get_discounted_rewards, divide_chunks, minibatch, Episode, train_test_split, TimestepSeries, to_numpy, feed_forward, bundle, average
 
 class Agent(SAC):
     # 

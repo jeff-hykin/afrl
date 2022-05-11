@@ -154,11 +154,6 @@ def rolling_average(a_list, window):
         results.append(sum(average_items)/len(average_items))
     return results
 
-def ft(arg):
-    from torch import FloatTensor
-    from info import config, print
-    return FloatTensor(arg).to(config.device)
-
 def log_scale(number):
     import math
     if number > 0:
@@ -494,3 +489,88 @@ def multi_plot(data, vertical_label=None, horizonal_label=None, title=None, colo
             }
         }
     })
+
+
+# 
+# override print
+# 
+real_print = print
+def print(*args, to_string=False, **kwargs): # print(value, ..., sep=' ', end='\n', file=sys.stdout, flush=False)
+    from io import StringIO
+    if to_string:
+        string_stream = StringIO()
+        # dump to string
+        real_print(*args, **{ "flush": True, **kwargs, "file":string_stream })
+        output_str = string_stream.getvalue()
+        string_stream.close()
+        return output_str
+        
+    if hasattr(print, "disable") and print.disable:
+        return
+        
+    if hasattr(print, "indent"):
+        if print.indent > 0:
+            indent = print.indent_string*print.indent
+            # dump to string
+            output_str = print(*args, **{ **kwargs, "to_string":True})
+            # indent it
+            output_str = indent+output_str.replace("\n", "\n"+indent)[0:-len(indent)]
+            # print it
+            return real_print(output_str, **{ "flush": print.flush, **kwargs, "end":""}) 
+    
+    return real_print(*args, **{ "flush": print.flush, **kwargs})
+print.indent_string = "    "
+print.indent = 0
+print.flush = True
+print.disable = False
+
+# @indent_prints
+def indent_prints(function_being_wrapped):
+    def wrapper(*args, **kwargs):
+        original_value = print.indent
+        print.indent += 1
+        output = function_being_wrapped(*args, **kwargs)
+        print.indent = original_value
+        return output
+    return wrapper
+
+def log_func(function_being_wrapped):
+    def wrapper(*args, **kwargs):
+        original_value = print.indent
+        if hasattr(function_being_wrapped, "__name__"):
+            print(function_being_wrapped.__name__)
+        print.indent += 1
+        output = function_being_wrapped(*args, **kwargs)
+        print.indent = original_value
+        return output
+    return wrapper
+
+# with indent: print("howdy")
+class Indent(object):
+    """
+    with indent:
+        print("howdy1")
+        with indent:
+            print("howdy2")
+        print("howdy3")
+    """
+    def __init__(self, *args, **kwargs):
+        self.indent_before = []
+    
+    def __enter__(self):
+        self.indent_before.append(print.indent)
+        print.indent += 1
+        return print
+    
+    def __exit__(self, _, error, traceback):
+        # restore prev indent
+        print.indent = self.indent_before.pop()
+        if error is not None:
+            # error cleanup HERE
+            raise error
+indent = Indent()
+
+# with block("staring iterations"):
+def block_indent(*args):
+    print(*args)
+    return indent
