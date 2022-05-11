@@ -1,0 +1,792 @@
+
+
+-------------------------------------------------------
+
+ Environment: ReacherBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/ReacherBulletEnv-v0_1/ReacherBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Coach Model Exists, loading: models.ignore/coach/ReacherBulletEnv-v0/baseline_3
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+    test settings = {
+        "override_save_path": False, 
+        "increment_factor": 1.2, 
+        "force_recompute": False, 
+        "graph_smoothing": 0, 
+        "number_of_episodes_for_baseline": 30, 
+        "number_of_epochs_for_optimal_parameters": 50, 
+        "number_of_episodes_for_testing": 150, 
+        "initial_epsilon": 3.5, 
+        "initial_horizon": 10, 
+        "reward_discount": 0.98, 
+        "acceptable_performance_levels": [0.5, 0.8, 0.9, 0.95, 0.97, 0.99, 1.0, ], 
+        "acceptable_performance_loss": 1, 
+        "acceptable_performance_level": 0.8, 
+        "confidence_interval_for_convergence": 90, 
+        "min_sample_size": 12, 
+        "min_reward_single_timestep": 0, 
+        "max_reward_single_timestep": 100, 
+        "horizon_ceiling": 20, 
+        "horizon_floor": 4, 
+    }
+    generate_graphs
+        no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
+        no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
+tuned_comparisons
+    running optimal method
+        optimal_stats = {
+            "max": 28.414311740268797, 
+            "min": 4.444178160005469, 
+            "range": 23.97013358026333, 
+            "count": 30, 
+            "sum": 442.45521224455257, 
+            "average": 14.748507074818418, 
+            "stdev": 7.002800618068106, 
+            "median": 15.960619446216977, 
+        }
+    running random method
+    # 
+    # acceptable_performance_level = 0.5
+    # 
+        running ppac method
+            minimum_performance = 7.374253537409209
+argv[0]=
+argv[0]=
+                epsilon:   0.1475, forecast_average:   3.4214, raw_reward:     18.82,                 episode_index=0, discounted_reward_sum= 13.6721, horizon=10
+                epsilon:   0.1475, forecast_average:   3.3455, raw_reward:     13.95,                 episode_index=1, discounted_reward_sum= 10.4327, horizon=9
+                epsilon:   0.1475, forecast_average:   2.7820, raw_reward:     21.65,                 episode_index=2, discounted_reward_sum= 13.7611, horizon=8
+                epsilon:   0.1475, forecast_average:   2.7893, raw_reward:     32.57,                 episode_index=3, discounted_reward_sum= 25.8023, horizon=7
+                epsilon:   0.1475, forecast_average:   2.8678, raw_reward:     25.36,                 episode_index=4, discounted_reward_sum= 20.2268, horizon=7
+                epsilon:   0.1475, forecast_average:   2.8339, raw_reward:     10.15,                 episode_index=5, discounted_reward_sum= 10.6291, horizon=7
+                epsilon:   0.1475, forecast_average:   2.8726, raw_reward:     25.41,                 episode_index=6, discounted_reward_sum= 19.0584, horizon=7
+                epsilon:   0.1475, forecast_average:   2.9541, raw_reward:      8.33,                 episode_index=7, discounted_reward_sum=  7.3681, horizon=7
+                epsilon:   0.1475, forecast_average:   2.9157, raw_reward:     10.56,                 episode_index=8, discounted_reward_sum= 10.2627, horizon=7
+                epsilon:   0.1475, forecast_average:   2.8644, raw_reward:      8.77,                 episode_index=9, discounted_reward_sum=  8.2518, horizon=6
+                epsilon:   0.1475, forecast_average:   2.8016, raw_reward:      9.16,                 episode_index=10, discounted_reward_sum=  7.5979, horizon=6
+                epsilon:   0.1475, forecast_average:   2.7799, raw_reward:     30.58,                 episode_index=11, discounted_reward_sum= 22.3006, horizon=6
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=17.3498, little_upper=14.3454, upper=13.8819, minimum_performance=7.3743, lower=10.8774
+                epsilon:   0.4425, forecast_average:   2.8834, raw_reward:     13.76,                 episode_index=12, discounted_reward_sum= 11.7528, horizon=6
+                epsilon:   0.4425, forecast_average:   2.8992, raw_reward:      0.86,                 episode_index=13, discounted_reward_sum=  2.6293, horizon=6
+                epsilon:   0.4425, forecast_average:   2.9989, raw_reward:     16.42,                 episode_index=14, discounted_reward_sum= 12.8319, horizon=6
+                epsilon:   0.4425, forecast_average:   3.1010, raw_reward:     12.18,                 episode_index=15, discounted_reward_sum=  9.9986, horizon=6
+                epsilon:   0.4425, forecast_average:   3.1179, raw_reward:     -1.00,                 episode_index=16, discounted_reward_sum= -1.8100, horizon=6
+                epsilon:   0.4425, forecast_average:   3.1611, raw_reward:     23.66,                 episode_index=17, discounted_reward_sum= 18.0706, horizon=6
+                epsilon:   0.4425, forecast_average:   3.1914, raw_reward:      6.35,                 episode_index=18, discounted_reward_sum=  8.0009, horizon=6
+                epsilon:   0.4425, forecast_average:   3.2381, raw_reward:      8.70,                 episode_index=19, discounted_reward_sum=  5.8505, horizon=6
+                epsilon:   0.4425, forecast_average:   3.2651, raw_reward:     11.40,                 episode_index=20, discounted_reward_sum=  8.1994, horizon=6
+                epsilon:   0.4425, forecast_average:   3.2054, raw_reward:     -4.82,                 episode_index=21, discounted_reward_sum= -1.4110, horizon=6
+                epsilon:   0.4425, forecast_average:   3.2267, raw_reward:     15.84,                 episode_index=22, discounted_reward_sum=  7.5658, horizon=6
+                epsilon:   0.4425, forecast_average:   3.2800, raw_reward:      2.85,                 episode_index=23, discounted_reward_sum=  1.6992, horizon=6
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=10.0262, little_upper=7.1686, upper=6.7278, minimum_performance=7.3743, lower=3.8701
+                epsilon:   0.1475, forecast_average:   3.2571, raw_reward:     32.82,                 episode_index=24, discounted_reward_sum= 24.1229, horizon=6
+                epsilon:   0.1475, forecast_average:   3.2010, raw_reward:     12.72,                 episode_index=25, discounted_reward_sum= 10.2201, horizon=6
+                epsilon:   0.1475, forecast_average:   3.2080, raw_reward:     -7.70,                 episode_index=26, discounted_reward_sum= -5.0963, horizon=6
+                epsilon:   0.1475, forecast_average:   3.1753, raw_reward:      4.55,                 episode_index=27, discounted_reward_sum=  1.0110, horizon=6
+                epsilon:   0.1475, forecast_average:   3.1383, raw_reward:      8.26,                 episode_index=28, discounted_reward_sum=  6.0384, horizon=6
+                epsilon:   0.1475, forecast_average:   3.0902, raw_reward:      7.80,                 episode_index=29, discounted_reward_sum=  6.1458, horizon=6
+                epsilon:   0.1475, forecast_average:   3.0043, raw_reward:     13.28,                 episode_index=30, discounted_reward_sum= 13.3745, horizon=5
+                epsilon:   0.1475, forecast_average:   2.9645, raw_reward:     34.87,                 episode_index=31, discounted_reward_sum= 25.2309, horizon=5
+                epsilon:   0.1475, forecast_average:   2.9347, raw_reward:     10.19,                 episode_index=32, discounted_reward_sum=  7.3533, horizon=5
+                epsilon:   0.1475, forecast_average:   2.9096, raw_reward:     14.88,                 episode_index=33, discounted_reward_sum= 13.4317, horizon=4
+                epsilon:   0.1475, forecast_average:   2.8895, raw_reward:     20.58,                 episode_index=34, discounted_reward_sum= 15.9508, horizon=4
+                epsilon:   0.1475, forecast_average:   2.8745, raw_reward:     19.29,                 episode_index=35, discounted_reward_sum= 15.7801, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.6993, little_upper=11.4574, upper=10.8031, minimum_performance=7.3743, lower=6.5613
+                epsilon:   0.1475, forecast_average:   2.8390, raw_reward:     19.62,                 episode_index=36, discounted_reward_sum= 12.5043, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.4113, little_upper=11.5366, upper=10.9353, minimum_performance=7.3743, lower=7.0607
+                epsilon:   0.1475, forecast_average:   2.8072, raw_reward:     10.79,                 episode_index=37, discounted_reward_sum=  8.6638, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.9069, little_upper=11.3311, upper=10.7733, minimum_performance=7.3743, lower=7.1975
+                epsilon:   0.1475, forecast_average:   2.7738, raw_reward:     25.16,                 episode_index=38, discounted_reward_sum= 18.1625, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=15.1916, little_upper=11.7925, upper=11.2600, minimum_performance=7.3743, lower=7.8609
+                epsilon:   0.2950, forecast_average:   2.7429, raw_reward:     20.82,                 episode_index=39, discounted_reward_sum= 18.2785, horizon=4
+                epsilon:   0.2950, forecast_average:   2.7411, raw_reward:     25.92,                 episode_index=40, discounted_reward_sum= 18.7223, horizon=4
+                epsilon:   0.2950, forecast_average:   2.7269, raw_reward:     17.41,                 episode_index=41, discounted_reward_sum= 14.9968, horizon=4
+                epsilon:   0.2950, forecast_average:   2.7226, raw_reward:     12.03,                 episode_index=42, discounted_reward_sum= 13.2616, horizon=4
+                epsilon:   0.2950, forecast_average:   2.7051, raw_reward:     21.02,                 episode_index=43, discounted_reward_sum= 17.8802, horizon=4
+                epsilon:   0.2950, forecast_average:   2.6938, raw_reward:     20.52,                 episode_index=44, discounted_reward_sum= 11.9582, horizon=4
+                epsilon:   0.2950, forecast_average:   2.6921, raw_reward:     11.45,                 episode_index=45, discounted_reward_sum=  9.2221, horizon=4
+                epsilon:   0.2950, forecast_average:   2.6858, raw_reward:     31.23,                 episode_index=46, discounted_reward_sum= 21.7009, horizon=4
+                epsilon:   0.2950, forecast_average:   2.6734, raw_reward:      8.11,                 episode_index=47, discounted_reward_sum= 11.1575, horizon=4
+                epsilon:   0.2950, forecast_average:   2.6706, raw_reward:     30.32,                 episode_index=48, discounted_reward_sum= 23.0981, horizon=4
+                epsilon:   0.2950, forecast_average:   2.6672, raw_reward:     18.19,                 episode_index=49, discounted_reward_sum= 13.9828, horizon=4
+                epsilon:   0.2950, forecast_average:   2.6695, raw_reward:     17.55,                 episode_index=50, discounted_reward_sum= 12.8495, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=17.8318, little_upper=15.7527, upper=15.4320, minimum_performance=7.3743, lower=13.3530
+                epsilon:   0.4425, forecast_average:   2.6578, raw_reward:     10.26,                 episode_index=51, discounted_reward_sum=  8.7026, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6563, raw_reward:      8.97,                 episode_index=52, discounted_reward_sum=  5.7085, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6536, raw_reward:     31.19,                 episode_index=53, discounted_reward_sum= 23.8215, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6389, raw_reward:     17.05,                 episode_index=54, discounted_reward_sum=  8.1798, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6241, raw_reward:     -3.19,                 episode_index=55, discounted_reward_sum= -6.0282, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6183, raw_reward:     22.15,                 episode_index=56, discounted_reward_sum= 14.3772, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6128, raw_reward:     14.86,                 episode_index=57, discounted_reward_sum=  8.7241, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6164, raw_reward:     30.10,                 episode_index=58, discounted_reward_sum= 23.3016, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6106, raw_reward:     31.26,                 episode_index=59, discounted_reward_sum= 23.0790, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6058, raw_reward:     -3.88,                 episode_index=60, discounted_reward_sum= -2.4743, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6029, raw_reward:     18.26,                 episode_index=61, discounted_reward_sum= 10.8255, horizon=4
+                epsilon:   0.4425, forecast_average:   2.6018, raw_reward:     26.79,                 episode_index=62, discounted_reward_sum= 19.0492, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.5123, little_upper=11.8022, upper=11.0756, minimum_performance=7.3743, lower=6.3654
+                epsilon:   0.4425, forecast_average:   2.6065, raw_reward:      1.87,                 episode_index=63, discounted_reward_sum=  3.5560, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.5885, little_upper=11.1750, upper=10.4900, minimum_performance=7.3743, lower=6.0765
+                epsilon:   0.4425, forecast_average:   2.6115, raw_reward:      8.56,                 episode_index=64, discounted_reward_sum=  7.8768, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.0124, little_upper=10.9391, upper=10.3037, minimum_performance=7.3743, lower=6.2303
+                epsilon:   0.4425, forecast_average:   2.6019, raw_reward:      8.27,                 episode_index=65, discounted_reward_sum=  3.6009, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.3017, little_upper=10.4547, upper=9.8520, minimum_performance=7.3743, lower=6.0050
+                epsilon:   0.4425, forecast_average:   2.6053, raw_reward:     13.73,                 episode_index=66, discounted_reward_sum=  7.7541, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8746, little_upper=10.2856, upper=9.7212, minimum_performance=7.3743, lower=6.1322
+                epsilon:   0.4425, forecast_average:   2.6097, raw_reward:     -0.35,                 episode_index=67, discounted_reward_sum= -2.4364, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.1119, little_upper=9.5525, upper=8.9908, minimum_performance=7.3743, lower=5.4314
+                epsilon:   0.4425, forecast_average:   2.6117, raw_reward:     -1.48,                 episode_index=68, discounted_reward_sum=  3.2177, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.5900, little_upper=9.2033, upper=8.6673, minimum_performance=7.3743, lower=5.2806
+                epsilon:   0.4425, forecast_average:   2.6096, raw_reward:     -3.98,                 episode_index=69, discounted_reward_sum= -1.3322, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.9660, little_upper=8.6574, upper=8.1324, minimum_performance=7.3743, lower=4.8238
+                epsilon:   0.4425, forecast_average:   2.6138, raw_reward:      2.79,                 episode_index=70, discounted_reward_sum= -0.0573, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.4287, little_upper=8.2269, upper=7.7177, minimum_performance=7.3743, lower=4.5159
+                epsilon:   0.4425, forecast_average:   2.6078, raw_reward:      9.59,                 episode_index=71, discounted_reward_sum=  9.7705, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.3405, little_upper=8.3002, upper=7.8157, minimum_performance=7.3743, lower=4.7753
+                epsilon:   0.4425, forecast_average:   2.6050, raw_reward:     10.09,                 episode_index=72, discounted_reward_sum=  7.4888, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.1550, little_upper=8.2629, upper=7.8012, minimum_performance=7.3743, lower=4.9091
+                epsilon:   0.4425, forecast_average:   2.6070, raw_reward:     13.77,                 episode_index=73, discounted_reward_sum= 10.2366, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.1103, little_upper=8.3487, upper=7.9071, minimum_performance=7.3743, lower=5.1455
+                epsilon:   0.4425, forecast_average:   2.6050, raw_reward:      2.15,                 episode_index=74, discounted_reward_sum=  1.8714, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.7520, little_upper=8.0811, upper=7.6534, minimum_performance=7.3743, lower=4.9824
+                epsilon:   0.4425, forecast_average:   2.6003, raw_reward:     24.35,                 episode_index=75, discounted_reward_sum= 18.5007, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.1490, little_upper=8.5046, upper=8.0805, minimum_performance=7.3743, lower=5.4362
+                epsilon:   0.4425, forecast_average:   2.6008, raw_reward:      3.32,                 episode_index=76, discounted_reward_sum=  3.1449, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.8553, little_upper=8.2997, upper=7.8894, minimum_performance=7.3743, lower=5.3338
+                epsilon:   0.4425, forecast_average:   2.6012, raw_reward:     11.61,                 episode_index=77, discounted_reward_sum=  7.9833, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.7431, little_upper=8.2878, upper=7.8931, minimum_performance=7.3743, lower=5.4378
+                epsilon:   0.4425, forecast_average:   2.6019, raw_reward:      1.71,                 episode_index=78, discounted_reward_sum=  2.7665, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.4734, little_upper=8.0919, upper=7.7087, minimum_performance=7.3743, lower=5.3272
+                epsilon:   0.4425, forecast_average:   2.6006, raw_reward:     19.10,                 episode_index=79, discounted_reward_sum= 13.7651, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.6059, little_upper=8.2892, upper=7.9159, minimum_performance=7.3743, lower=5.5992
+                epsilon:   0.4425, forecast_average:   2.6006, raw_reward:     24.32,                 episode_index=80, discounted_reward_sum= 17.1938, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.8755, little_upper=8.5899, upper=8.2213, minimum_performance=7.3743, lower=5.9357
+                epsilon:   0.4425, forecast_average:   2.5991, raw_reward:     23.40,                 episode_index=81, discounted_reward_sum= 17.8258, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.1509, little_upper=8.8918, upper=8.5272, minimum_performance=7.3743, lower=6.2681
+                epsilon:   0.4425, forecast_average:   2.5953, raw_reward:     27.74,                 episode_index=82, discounted_reward_sum= 21.2132, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.5528, little_upper=9.2835, upper=8.9169, minimum_performance=7.3743, lower=6.6476
+                epsilon:   0.4425, forecast_average:   2.5884, raw_reward:      7.80,                 episode_index=83, discounted_reward_sum=  8.7839, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.4655, little_upper=9.2682, upper=8.9130, minimum_performance=7.3743, lower=6.7157
+                epsilon:   0.4425, forecast_average:   2.5902, raw_reward:     32.73,                 episode_index=84, discounted_reward_sum= 26.4107, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.0581, little_upper=9.7840, upper=9.4161, minimum_performance=7.3743, lower=7.1420
+                epsilon:   0.4425, forecast_average:   2.5917, raw_reward:     10.13,                 episode_index=85, discounted_reward_sum= 10.5295, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.0118, little_upper=9.8052, upper=9.4480, minimum_performance=7.3743, lower=7.2414
+                epsilon:   0.4425, forecast_average:   2.5879, raw_reward:     16.28,                 episode_index=86, discounted_reward_sum= 15.5172, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=12.1228, little_upper=9.9650, upper=9.6155, minimum_performance=7.3743, lower=7.4576
+                epsilon:   0.5899, forecast_average:   2.5878, raw_reward:      0.48,                 episode_index=87, discounted_reward_sum= -1.6034, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5871, raw_reward:     30.58,                 episode_index=88, discounted_reward_sum= 22.7891, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5859, raw_reward:    -13.70,                 episode_index=89, discounted_reward_sum= -6.0413, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5873, raw_reward:      8.29,                 episode_index=90, discounted_reward_sum= 10.8867, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5904, raw_reward:      1.89,                 episode_index=91, discounted_reward_sum=  2.7334, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5896, raw_reward:     14.79,                 episode_index=92, discounted_reward_sum= 12.6084, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5839, raw_reward:      2.86,                 episode_index=93, discounted_reward_sum=  1.1001, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5873, raw_reward:      8.80,                 episode_index=94, discounted_reward_sum=  9.3196, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5906, raw_reward:      6.67,                 episode_index=95, discounted_reward_sum=  5.1405, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5908, raw_reward:      8.34,                 episode_index=96, discounted_reward_sum=  9.8457, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5885, raw_reward:     11.77,                 episode_index=97, discounted_reward_sum=  3.1791, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5909, raw_reward:     13.95,                 episode_index=98, discounted_reward_sum=  9.0056, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=10.4925, little_upper=6.8604, upper=6.3002, minimum_performance=7.3743, lower=2.6681
+                epsilon:   0.4425, forecast_average:   2.5922, raw_reward:     -0.24,                 episode_index=99, discounted_reward_sum=  0.9676, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5802, raw_reward:     17.01,                 episode_index=100, discounted_reward_sum= 16.6542, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5800, raw_reward:     11.91,                 episode_index=101, discounted_reward_sum= 13.0907, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5757, raw_reward:     16.03,                 episode_index=102, discounted_reward_sum=  7.9756, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5733, raw_reward:     12.85,                 episode_index=103, discounted_reward_sum= 12.3229, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5730, raw_reward:     14.60,                 episode_index=104, discounted_reward_sum= 12.4215, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5686, raw_reward:      8.28,                 episode_index=105, discounted_reward_sum= 10.1624, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5691, raw_reward:     13.40,                 episode_index=106, discounted_reward_sum=  8.9200, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5664, raw_reward:     -8.50,                 episode_index=107, discounted_reward_sum= -1.5240, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5636, raw_reward:     19.68,                 episode_index=108, discounted_reward_sum= 11.4596, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5637, raw_reward:     14.59,                 episode_index=109, discounted_reward_sum= 13.3905, horizon=4
+                epsilon:   0.4425, forecast_average:   2.5599, raw_reward:      4.70,                 episode_index=110, discounted_reward_sum=  1.7169, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.9046, little_upper=9.1738, upper=8.7525, minimum_performance=7.3743, lower=6.0218
+                epsilon:   0.4425, forecast_average:   2.5605, raw_reward:     15.57,                 episode_index=111, discounted_reward_sum= 11.2950, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.8467, little_upper=9.3373, upper=8.9478, minimum_performance=7.3743, lower=6.4384
+                epsilon:   0.4425, forecast_average:   2.5587, raw_reward:      7.30,                 episode_index=112, discounted_reward_sum=  8.6930, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.5987, little_upper=9.2905, upper=8.9304, minimum_performance=7.3743, lower=6.6221
+                epsilon:   0.4425, forecast_average:   2.5608, raw_reward:     16.63,                 episode_index=113, discounted_reward_sum= 11.1211, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.5604, little_upper=9.4127, upper=9.0762, minimum_performance=7.3743, lower=6.9285
+                epsilon:   0.4425, forecast_average:   2.5584, raw_reward:     33.56,                 episode_index=114, discounted_reward_sum= 24.5980, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=12.9389, little_upper=10.4035, upper=10.0047, minimum_performance=7.3743, lower=7.4693
+                epsilon:   0.5162, forecast_average:   2.5579, raw_reward:     27.88,                 episode_index=115, discounted_reward_sum= 20.1491, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5556, raw_reward:     11.19,                 episode_index=116, discounted_reward_sum=  9.1109, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5590, raw_reward:     16.85,                 episode_index=117, discounted_reward_sum=  8.2742, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5576, raw_reward:     -9.20,                 episode_index=118, discounted_reward_sum= -1.4301, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5586, raw_reward:     -5.54,                 episode_index=119, discounted_reward_sum= -4.5114, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5607, raw_reward:      3.49,                 episode_index=120, discounted_reward_sum=  3.7551, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5568, raw_reward:     11.85,                 episode_index=121, discounted_reward_sum=  7.5395, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5563, raw_reward:     27.82,                 episode_index=122, discounted_reward_sum= 15.7050, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5589, raw_reward:     21.17,                 episode_index=123, discounted_reward_sum= 18.8063, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5585, raw_reward:     25.33,                 episode_index=124, discounted_reward_sum= 16.9648, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5586, raw_reward:     12.19,                 episode_index=125, discounted_reward_sum=  6.5983, horizon=4
+                epsilon:   0.5162, forecast_average:   2.5598, raw_reward:     14.05,                 episode_index=126, discounted_reward_sum= 11.1488, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.3563, little_upper=9.6299, upper=9.0551, minimum_performance=7.3743, lower=5.3287
+                epsilon:   0.5162, forecast_average:   2.5577, raw_reward:     13.14,                 episode_index=127, discounted_reward_sum= 10.4931, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.0986, little_upper=9.6952, upper=9.1669, minimum_performance=7.3743, lower=5.7635
+                epsilon:   0.5162, forecast_average:   2.5604, raw_reward:     12.81,                 episode_index=128, discounted_reward_sum= 11.1589, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.9354, little_upper=9.7991, upper=9.3098, minimum_performance=7.3743, lower=6.1735
+                epsilon:   0.5162, forecast_average:   2.5612, raw_reward:     25.37,                 episode_index=129, discounted_reward_sum= 15.8180, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.1877, little_upper=10.2057, upper=9.7384, minimum_performance=7.3743, lower=6.7564
+                epsilon:   0.5162, forecast_average:   2.5535, raw_reward:      1.35,                 episode_index=130, discounted_reward_sum=  4.7518, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.6938, little_upper=9.8680, upper=9.4236, minimum_performance=7.3743, lower=6.5978
+                epsilon:   0.5162, forecast_average:   2.5546, raw_reward:     17.16,                 episode_index=131, discounted_reward_sum= 15.5029, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.9045, little_upper=10.2034, upper=9.7772, minimum_performance=7.3743, lower=7.0762
+                epsilon:   0.5162, forecast_average:   2.5553, raw_reward:     16.59,                 episode_index=132, discounted_reward_sum= 10.0533, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.7314, little_upper=10.1945, upper=9.7931, minimum_performance=7.3743, lower=7.2562
+                epsilon:   0.5162, forecast_average:   2.5503, raw_reward:     14.32,                 episode_index=133, discounted_reward_sum=  5.6369, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.3762, little_upper=9.9564, upper=9.5725, minimum_performance=7.3743, lower=7.1528
+                epsilon:   0.5162, forecast_average:   2.5509, raw_reward:     22.07,                 episode_index=134, discounted_reward_sum= 11.1495, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.3073, little_upper=10.0159, upper=9.6516, minimum_performance=7.3743, lower=7.3602
+                epsilon:   0.5162, forecast_average:   2.5439, raw_reward:     11.66,                 episode_index=135, discounted_reward_sum=  7.0471, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.0590, little_upper=9.8750, upper=9.5271, minimum_performance=7.3743, lower=7.3431
+                epsilon:   0.5162, forecast_average:   2.5438, raw_reward:      6.54,                 episode_index=136, discounted_reward_sum=  6.7744, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.8227, little_upper=9.7347, upper=9.4014, minimum_performance=7.3743, lower=7.3133
+                epsilon:   0.5162, forecast_average:   2.5440, raw_reward:     25.67,                 episode_index=137, discounted_reward_sum= 18.9541, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=12.2373, little_upper=10.1435, upper=9.8087, minimum_performance=7.3743, lower=7.7149
+                epsilon:   0.5899, forecast_average:   2.5427, raw_reward:      5.62,                 episode_index=138, discounted_reward_sum=  1.7751, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5450, raw_reward:      6.95,                 episode_index=139, discounted_reward_sum=  6.8425, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5466, raw_reward:     -5.87,                 episode_index=140, discounted_reward_sum= -4.4462, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5471, raw_reward:     23.31,                 episode_index=141, discounted_reward_sum= 17.7638, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5460, raw_reward:      2.72,                 episode_index=142, discounted_reward_sum= -2.1294, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5461, raw_reward:     20.01,                 episode_index=143, discounted_reward_sum= 18.6320, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5478, raw_reward:     13.10,                 episode_index=144, discounted_reward_sum= 10.2921, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5496, raw_reward:     24.56,                 episode_index=145, discounted_reward_sum= 17.1878, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5486, raw_reward:     -4.95,                 episode_index=146, discounted_reward_sum=  2.7772, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5517, raw_reward:      6.90,                 episode_index=147, discounted_reward_sum=  8.4625, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5520, raw_reward:     14.11,                 episode_index=148, discounted_reward_sum=  6.3849, horizon=4
+                epsilon:   0.5899, forecast_average:   2.5507, raw_reward:     14.72,                 episode_index=149, discounted_reward_sum=  7.2022, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=11.4670, little_upper=7.8417, upper=7.2824, minimum_performance=7.3743, lower=3.6571
+        running theory method
+        running n_step horizon method
+        running n_step planlen method
+        generate_graphs
+            no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
+            no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
+    # 
+    # acceptable_performance_level = 0.8
+    # 
+        running ppac method
+            minimum_performance = 11.798805659854736
+                epsilon:   0.0590, forecast_average:   1.6143, raw_reward:      4.22,                 episode_index=0, discounted_reward_sum=  5.6672, horizon=10
+                epsilon:   0.0590, forecast_average:   1.6796, raw_reward:     13.42,                 episode_index=1, discounted_reward_sum= 10.5930, horizon=5
+                epsilon:   0.0590, forecast_average:   1.3229, raw_reward:     18.73,                 episode_index=2, discounted_reward_sum= 15.0680, horizon=4
+                epsilon:   0.0590, forecast_average:   1.3141, raw_reward:     11.77,                 episode_index=3, discounted_reward_sum= 10.6298, horizon=4
+                epsilon:   0.0590, forecast_average:   1.1965, raw_reward:     14.92,                 episode_index=4, discounted_reward_sum= 11.3997, horizon=4
+                epsilon:   0.0590, forecast_average:   1.3669, raw_reward:     27.52,                 episode_index=5, discounted_reward_sum= 21.2535, horizon=4
+                epsilon:   0.0590, forecast_average:   1.3057, raw_reward:     10.28,                 episode_index=6, discounted_reward_sum= 10.3239, horizon=4
+                epsilon:   0.0590, forecast_average:   1.4011, raw_reward:     28.93,                 episode_index=7, discounted_reward_sum= 21.0778, horizon=4
+                epsilon:   0.0590, forecast_average:   1.4326, raw_reward:     18.67,                 episode_index=8, discounted_reward_sum= 16.3598, horizon=4
+                epsilon:   0.0590, forecast_average:   1.3969, raw_reward:      2.00,                 episode_index=9, discounted_reward_sum=  1.3540, horizon=4
+                epsilon:   0.0590, forecast_average:   1.3851, raw_reward:     17.63,                 episode_index=10, discounted_reward_sum= 14.9479, horizon=4
+                epsilon:   0.0590, forecast_average:   1.4032, raw_reward:     32.07,                 episode_index=11, discounted_reward_sum= 24.1685, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.0094, little_upper=13.8165, upper=13.3240, minimum_performance=11.7988, lower=10.1311
+                epsilon:   0.0590, forecast_average:   1.3580, raw_reward:     18.36,                 episode_index=12, discounted_reward_sum= 14.3974, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.7756, little_upper=13.8601, upper=13.4076, minimum_performance=11.7988, lower=10.4922
+                epsilon:   0.0590, forecast_average:   1.3075, raw_reward:     12.24,                 episode_index=13, discounted_reward_sum=  6.8764, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.1651, little_upper=13.3693, upper=12.9331, minimum_performance=11.7988, lower=10.1373
+                epsilon:   0.0590, forecast_average:   1.3386, raw_reward:     10.93,                 episode_index=14, discounted_reward_sum=  9.0815, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.7110, little_upper=13.0856, upper=12.6742, minimum_performance=11.7988, lower=10.0488
+                epsilon:   0.0590, forecast_average:   1.3422, raw_reward:     15.81,                 episode_index=15, discounted_reward_sum= 10.6051, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.3853, little_upper=12.9307, upper=12.5447, minimum_performance=11.7988, lower=10.0901
+                epsilon:   0.0590, forecast_average:   1.3173, raw_reward:     -1.53,                 episode_index=16, discounted_reward_sum= -0.8178, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=14.7816, little_upper=12.1481, upper=11.7326, minimum_performance=11.7988, lower=9.0991
+                epsilon:   0.0000, forecast_average:   1.2810, raw_reward:     19.31,                 episode_index=17, discounted_reward_sum= 13.9383, horizon=4
+                epsilon:   0.0000, forecast_average:   1.2222, raw_reward:     14.32,                 episode_index=18, discounted_reward_sum= 12.1322, horizon=4
+                epsilon:   0.0000, forecast_average:   1.1779, raw_reward:     10.81,                 episode_index=19, discounted_reward_sum=  8.3536, horizon=4
+                epsilon:   0.0000, forecast_average:   1.1609, raw_reward:     20.11,                 episode_index=20, discounted_reward_sum= 16.3074, horizon=4
+                epsilon:   0.0000, forecast_average:   1.1465, raw_reward:     31.73,                 episode_index=21, discounted_reward_sum= 24.6947, horizon=4
+                epsilon:   0.0000, forecast_average:   1.1210, raw_reward:     18.47,                 episode_index=22, discounted_reward_sum= 14.1726, horizon=4
+                epsilon:   0.0000, forecast_average:   1.1009, raw_reward:     11.88,                 episode_index=23, discounted_reward_sum=  9.9835, horizon=4
+                epsilon:   0.0000, forecast_average:   1.0738, raw_reward:     15.91,                 episode_index=24, discounted_reward_sum= 13.0213, horizon=4
+                epsilon:   0.0000, forecast_average:   1.0483, raw_reward:     18.88,                 episode_index=25, discounted_reward_sum= 15.4544, horizon=4
+                epsilon:   0.0000, forecast_average:   1.0199, raw_reward:      4.42,                 episode_index=26, discounted_reward_sum=  3.8015, horizon=4
+                epsilon:   0.0000, forecast_average:   1.0013, raw_reward:     27.28,                 episode_index=27, discounted_reward_sum= 22.0198, horizon=4
+                epsilon:   0.0000, forecast_average:   0.9770, raw_reward:     13.44,                 episode_index=28, discounted_reward_sum=  7.7744, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.5103, little_upper=13.6888, upper=13.2535, minimum_performance=11.7988, lower=10.4319
+                epsilon:   0.0000, forecast_average:   0.9544, raw_reward:     14.11,                 episode_index=29, discounted_reward_sum= 11.0138, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.0770, little_upper=13.4834, upper=13.0808, minimum_performance=11.7988, lower=10.4872
+                epsilon:   0.0000, forecast_average:   0.9455, raw_reward:     26.80,                 episode_index=30, discounted_reward_sum= 21.4009, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.6306, little_upper=14.0624, upper=13.6617, minimum_performance=11.7988, lower=11.0934
+                epsilon:   0.0000, forecast_average:   0.9301, raw_reward:     14.08,                 episode_index=31, discounted_reward_sum=  8.8951, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.1598, little_upper=13.7219, upper=13.3399, minimum_performance=11.7988, lower=10.9020
+                epsilon:   0.0000, forecast_average:   0.9285, raw_reward:     -0.70,                 episode_index=32, discounted_reward_sum= -0.9784, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.5426, little_upper=12.8368, upper=12.4113, minimum_performance=11.7988, lower=9.7055
+                epsilon:   0.0000, forecast_average:   0.9163, raw_reward:     32.53,                 episode_index=33, discounted_reward_sum= 25.5454, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.4199, little_upper=13.6061, upper=13.1622, minimum_performance=11.7988, lower=10.3484
+                epsilon:   0.0000, forecast_average:   0.8938, raw_reward:     13.15,                 episode_index=34, discounted_reward_sum= 10.2941, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.0799, little_upper=13.4227, upper=13.0022, minimum_performance=11.7988, lower=10.3451
+                epsilon:   0.0000, forecast_average:   0.8789, raw_reward:      1.40,                 episode_index=35, discounted_reward_sum=  3.7540, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.5528, little_upper=12.9233, upper=12.5061, minimum_performance=11.7988, lower=9.8766
+                epsilon:   0.0000, forecast_average:   0.8655, raw_reward:     20.25,                 episode_index=36, discounted_reward_sum= 15.1360, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.5287, little_upper=13.0341, upper=12.6374, minimum_performance=11.7988, lower=10.1428
+                epsilon:   0.0000, forecast_average:   0.8580, raw_reward:     19.73,                 episode_index=37, discounted_reward_sum= 13.9807, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.4470, little_upper=13.0789, upper=12.7016, minimum_performance=11.7988, lower=10.3335
+                epsilon:   0.0000, forecast_average:   0.8468, raw_reward:      0.43,                 episode_index=38, discounted_reward_sum=  3.4653, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=15.0032, little_upper=12.6497, upper=12.2740, minimum_performance=11.7988, lower=9.9205
+                epsilon:   0.0000, forecast_average:   0.8482, raw_reward:      5.95,                 episode_index=39, discounted_reward_sum=  5.6158, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.6408, little_upper=12.3475, upper=11.9809, minimum_performance=11.7988, lower=9.6876
+                epsilon:   0.0000, forecast_average:   0.8452, raw_reward:     19.11,                 episode_index=40, discounted_reward_sum= 16.0678, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.7098, little_upper=12.5035, upper=12.1502, minimum_performance=11.7988, lower=9.9438
+                epsilon:   0.0000, forecast_average:   0.8447, raw_reward:     18.42,                 episode_index=41, discounted_reward_sum= 14.6308, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.7062, little_upper=12.5888, upper=12.2492, minimum_performance=11.7988, lower=10.1318
+                epsilon:   0.0000, forecast_average:   0.8279, raw_reward:     12.52,                 episode_index=42, discounted_reward_sum=  7.9073, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.4593, little_upper=12.4100, upper=12.0809, minimum_performance=11.7988, lower=10.0316
+                epsilon:   0.0000, forecast_average:   0.8209, raw_reward:     17.74,                 episode_index=43, discounted_reward_sum= 14.7105, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.4696, little_upper=12.4954, upper=12.1781, minimum_performance=11.7988, lower=10.2040
+                epsilon:   0.0000, forecast_average:   0.8119, raw_reward:     19.39,                 episode_index=44, discounted_reward_sum= 14.7379, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.4801, little_upper=12.5758, upper=12.2693, minimum_performance=11.7988, lower=10.3649
+                epsilon:   0.0000, forecast_average:   0.8090, raw_reward:     18.44,                 episode_index=45, discounted_reward_sum= 14.8716, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.4951, little_upper=12.6552, upper=12.3588, minimum_performance=11.7988, lower=10.5189
+                epsilon:   0.0000, forecast_average:   0.8026, raw_reward:      8.99,                 episode_index=46, discounted_reward_sum= 10.6902, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.3676, little_upper=12.5897, upper=12.3031, minimum_performance=11.7988, lower=10.5253
+                epsilon:   0.0000, forecast_average:   0.7939, raw_reward:      5.75,                 episode_index=47, discounted_reward_sum=  7.5337, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.1634, little_upper=12.4280, upper=12.1479, minimum_performance=11.7988, lower=10.4124
+                epsilon:   0.0000, forecast_average:   0.7873, raw_reward:     24.55,                 episode_index=48, discounted_reward_sum= 19.0100, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.3467, little_upper=12.6361, upper=12.3599, minimum_performance=11.7988, lower=10.6493
+                epsilon:   0.0000, forecast_average:   0.7784, raw_reward:     29.23,                 episode_index=49, discounted_reward_sum= 18.8272, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.5091, little_upper=12.8258, upper=12.5538, minimum_performance=11.7988, lower=10.8705
+                epsilon:   0.0000, forecast_average:   0.7746, raw_reward:     35.90,                 episode_index=50, discounted_reward_sum= 26.2795, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.9782, little_upper=13.2308, upper=12.9482, minimum_performance=11.7988, lower=11.2008
+                epsilon:   0.0000, forecast_average:   0.7640, raw_reward:      0.41,                 episode_index=51, discounted_reward_sum=  0.3524, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.6585, little_upper=12.8703, upper=12.5809, minimum_performance=11.7988, lower=10.7926
+                epsilon:   0.0000, forecast_average:   0.7654, raw_reward:     14.91,                 episode_index=52, discounted_reward_sum= 13.8253, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.6338, little_upper=12.8968, upper=12.6155, minimum_performance=11.7988, lower=10.8784
+                epsilon:   0.0000, forecast_average:   0.7613, raw_reward:     12.08,                 episode_index=53, discounted_reward_sum=  9.7348, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.5045, little_upper=12.8116, upper=12.5373, minimum_performance=11.7988, lower=10.8444
+                epsilon:   0.0000, forecast_average:   0.7562, raw_reward:     17.11,                 episode_index=54, discounted_reward_sum= 13.9505, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.4889, little_upper=12.8416, upper=12.5745, minimum_performance=11.7988, lower=10.9272
+                epsilon:   0.0000, forecast_average:   0.7448, raw_reward:     10.30,                 episode_index=55, discounted_reward_sum=  7.3449, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.3194, little_upper=12.7018, upper=12.4393, minimum_performance=11.7988, lower=10.8216
+                epsilon:   0.0000, forecast_average:   0.7394, raw_reward:     25.39,                 episode_index=56, discounted_reward_sum= 20.6136, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.5085, little_upper=12.9020, upper=12.6412, minimum_performance=11.7988, lower=11.0347
+                epsilon:   0.0000, forecast_average:   0.7358, raw_reward:     17.13,                 episode_index=57, discounted_reward_sum= 13.0760, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.4720, little_upper=12.9062, upper=12.6519, minimum_performance=11.7988, lower=11.0860
+                epsilon:   0.0000, forecast_average:   0.7305, raw_reward:     18.04,                 episode_index=58, discounted_reward_sum= 15.8060, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.5068, little_upper=12.9755, upper=12.7267, minimum_performance=11.7988, lower=11.1954
+                epsilon:   0.0000, forecast_average:   0.7229, raw_reward:      9.86,                 episode_index=59, discounted_reward_sum= 12.4455, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.4576, little_upper=12.9631, upper=12.7202, minimum_performance=11.7988, lower=11.2257
+                epsilon:   0.0000, forecast_average:   0.7146, raw_reward:     17.41,                 episode_index=60, discounted_reward_sum= 10.3244, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.3653, little_upper=12.9033, upper=12.6656, minimum_performance=11.7988, lower=11.2036
+                epsilon:   0.0000, forecast_average:   0.7116, raw_reward:     18.36,                 episode_index=61, discounted_reward_sum= 15.3482, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.3890, little_upper=12.9578, upper=12.7250, minimum_performance=11.7988, lower=11.2939
+                epsilon:   0.0000, forecast_average:   0.7097, raw_reward:      9.78,                 episode_index=62, discounted_reward_sum=  7.7136, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.2543, little_upper=12.8447, upper=12.6153, minimum_performance=11.7988, lower=11.2056
+                epsilon:   0.0000, forecast_average:   0.7122, raw_reward:     13.47,                 episode_index=63, discounted_reward_sum= 12.3571, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.2130, little_upper=12.8343, upper=12.6098, minimum_performance=11.7988, lower=11.2311
+                epsilon:   0.0000, forecast_average:   0.7151, raw_reward:     17.12,                 episode_index=64, discounted_reward_sum=  9.9069, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.1256, little_upper=12.7735, upper=12.5533, minimum_performance=11.7988, lower=11.2012
+                epsilon:   0.0000, forecast_average:   0.7080, raw_reward:     13.34,                 episode_index=65, discounted_reward_sum= 11.5929, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.0735, little_upper=12.7494, upper=12.5337, minimum_performance=11.7988, lower=11.2096
+                epsilon:   0.0000, forecast_average:   0.7070, raw_reward:     25.19,                 episode_index=66, discounted_reward_sum= 20.0900, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.2150, little_upper=12.8978, upper=12.6832, minimum_performance=11.7988, lower=11.3660
+                epsilon:   0.0000, forecast_average:   0.7026, raw_reward:     16.53,                 episode_index=67, discounted_reward_sum= 12.8453, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.1873, little_upper=12.8968, upper=12.6864, minimum_performance=11.7988, lower=11.3958
+                epsilon:   0.0000, forecast_average:   0.7047, raw_reward:      1.05,                 episode_index=68, discounted_reward_sum=  0.4904, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9794, little_upper=12.6624, upper=12.4476, minimum_performance=11.7988, lower=11.1306
+                epsilon:   0.0000, forecast_average:   0.6973, raw_reward:      4.81,                 episode_index=69, discounted_reward_sum=  6.5171, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8508, little_upper=12.5474, upper=12.3348, minimum_performance=11.7988, lower=11.0314
+                epsilon:   0.0000, forecast_average:   0.6887, raw_reward:     16.14,                 episode_index=70, discounted_reward_sum= 10.9675, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.7975, little_upper=12.5182, upper=12.3094, minimum_performance=11.7988, lower=11.0301
+                epsilon:   0.0000, forecast_average:   0.6845, raw_reward:     23.21,                 episode_index=71, discounted_reward_sum= 18.1346, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8867, little_upper=12.6211, upper=12.4145, minimum_performance=11.7988, lower=11.1489
+                epsilon:   0.0000, forecast_average:   0.6779, raw_reward:     18.57,                 episode_index=72, discounted_reward_sum= 12.9596, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8696, little_upper=12.6271, upper=12.4243, minimum_performance=11.7988, lower=11.1818
+                epsilon:   0.0000, forecast_average:   0.6790, raw_reward:     18.99,                 episode_index=73, discounted_reward_sum= 15.7637, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9056, little_upper=12.6824, upper=12.4826, minimum_performance=11.7988, lower=11.2594
+                epsilon:   0.0000, forecast_average:   0.6768, raw_reward:     22.33,                 episode_index=74, discounted_reward_sum= 13.7358, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9025, little_upper=12.7005, upper=12.5042, minimum_performance=11.7988, lower=11.3022
+                epsilon:   0.0000, forecast_average:   0.6729, raw_reward:     23.50,                 episode_index=75, discounted_reward_sum= 17.0171, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9609, little_upper=12.7741, upper=12.5803, minimum_performance=11.7988, lower=11.3935
+                epsilon:   0.0000, forecast_average:   0.6666, raw_reward:     15.90,                 episode_index=76, discounted_reward_sum= 13.0710, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9456, little_upper=12.7791, upper=12.5885, minimum_performance=11.7988, lower=11.4220
+                epsilon:   0.0000, forecast_average:   0.6662, raw_reward:     12.21,                 episode_index=77, discounted_reward_sum= 10.6831, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8928, little_upper=12.7448, upper=12.5572, minimum_performance=11.7988, lower=11.4092
+                epsilon:   0.0000, forecast_average:   0.6597, raw_reward:     16.25,                 episode_index=78, discounted_reward_sum= 13.7149, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8898, little_upper=12.7604, upper=12.5759, minimum_performance=11.7988, lower=11.4465
+                epsilon:   0.0000, forecast_average:   0.6534, raw_reward:     29.89,                 episode_index=79, discounted_reward_sum= 20.6911, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.0160, little_upper=12.8877, upper=12.7033, minimum_performance=11.7988, lower=11.5750
+                epsilon:   0.0000, forecast_average:   0.6509, raw_reward:     19.18,                 episode_index=80, discounted_reward_sum=  9.9856, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9548, little_upper=12.8425, upper=12.6607, minimum_performance=11.7988, lower=11.5484
+                epsilon:   0.0000, forecast_average:   0.6439, raw_reward:      9.31,                 episode_index=81, discounted_reward_sum=  7.8862, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8676, little_upper=12.7668, upper=12.5867, minimum_performance=11.7988, lower=11.4859
+                epsilon:   0.0000, forecast_average:   0.6370, raw_reward:      8.75,                 episode_index=82, discounted_reward_sum=  7.1794, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.7740, little_upper=12.6827, upper=12.5042, minimum_performance=11.7988, lower=11.4128
+                epsilon:   0.0000, forecast_average:   0.6325, raw_reward:     14.47,                 episode_index=83, discounted_reward_sum= 10.7527, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.7295, little_upper=12.6539, upper=12.4780, minimum_performance=11.7988, lower=11.4025
+                epsilon:   0.0000, forecast_average:   0.6298, raw_reward:      8.19,                 episode_index=84, discounted_reward_sum=  6.9252, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.6373, little_upper=12.5703, upper=12.3957, minimum_performance=11.7988, lower=11.3287
+                epsilon:   0.0000, forecast_average:   0.6314, raw_reward:      4.72,                 episode_index=85, discounted_reward_sum=  1.1625, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.4886, little_upper=12.4074, upper=12.2305, minimum_performance=11.7988, lower=11.1493
+                epsilon:   0.0000, forecast_average:   0.6298, raw_reward:     16.88,                 episode_index=86, discounted_reward_sum= 12.5415, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.4748, little_upper=12.4093, upper=12.2349, minimum_performance=11.7988, lower=11.1695
+                epsilon:   0.0000, forecast_average:   0.6240, raw_reward:     19.15,                 episode_index=87, discounted_reward_sum= 15.1807, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.5004, little_upper=12.4485, upper=12.2763, minimum_performance=11.7988, lower=11.2243
+                epsilon:   0.0000, forecast_average:   0.6261, raw_reward:     12.81,                 episode_index=88, discounted_reward_sum= 11.1312, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.4676, little_upper=12.4302, upper=12.2604, minimum_performance=11.7988, lower=11.2230
+                epsilon:   0.0000, forecast_average:   0.6254, raw_reward:     13.87,                 episode_index=89, discounted_reward_sum= 11.1545, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.4359, little_upper=12.4128, upper=12.2452, minimum_performance=11.7988, lower=11.2220
+                epsilon:   0.0000, forecast_average:   0.6254, raw_reward:      9.06,                 episode_index=90, discounted_reward_sum=  7.8320, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.3646, little_upper=12.3512, upper=12.1852, minimum_performance=11.7988, lower=11.1718
+                epsilon:   0.0000, forecast_average:   0.6226, raw_reward:     38.02,                 episode_index=91, discounted_reward_sum= 28.4732, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.6240, little_upper=12.5706, upper=12.3980, minimum_performance=11.7988, lower=11.3445
+                epsilon:   0.0000, forecast_average:   0.6180, raw_reward:      5.16,                 episode_index=92, discounted_reward_sum=  3.3410, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.5062, little_upper=12.4504, upper=12.2775, minimum_performance=11.7988, lower=11.2218
+                epsilon:   0.0000, forecast_average:   0.6197, raw_reward:     36.43,                 episode_index=93, discounted_reward_sum= 28.7411, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.7581, little_upper=12.6661, upper=12.4872, minimum_performance=11.7988, lower=11.3952
+                epsilon:   0.0000, forecast_average:   0.6169, raw_reward:     20.14,                 episode_index=94, discounted_reward_sum= 12.4123, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.7405, little_upper=12.6628, upper=12.4863, minimum_performance=11.7988, lower=11.4086
+                epsilon:   0.0000, forecast_average:   0.6125, raw_reward:     34.80,                 episode_index=95, discounted_reward_sum= 26.9552, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9468, little_upper=12.8467, upper=12.6664, minimum_performance=11.7988, lower=11.5664
+                epsilon:   0.0000, forecast_average:   0.6111, raw_reward:     25.32,                 episode_index=96, discounted_reward_sum= 21.0445, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.0478, little_upper=12.9501, upper=12.7702, minimum_performance=11.7988, lower=11.6726
+                epsilon:   0.0000, forecast_average:   0.6089, raw_reward:      8.30,                 episode_index=97, discounted_reward_sum=  9.7023, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9957, little_upper=12.9102, upper=12.7322, minimum_performance=11.7988, lower=11.6467
+                epsilon:   0.0000, forecast_average:   0.6104, raw_reward:      6.11,                 episode_index=98, discounted_reward_sum=  4.8549, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8952, little_upper=12.8128, upper=12.6353, minimum_performance=11.7988, lower=11.5529
+                epsilon:   0.0000, forecast_average:   0.6092, raw_reward:     13.62,                 episode_index=99, discounted_reward_sum= 11.5292, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8666, little_upper=12.7973, upper=12.6220, minimum_performance=11.7988, lower=11.5527
+                epsilon:   0.0000, forecast_average:   0.6070, raw_reward:     23.90,                 episode_index=100, discounted_reward_sum= 18.1207, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.9221, little_upper=12.8611, upper=12.6871, minimum_performance=11.7988, lower=11.6261
+                epsilon:   0.0000, forecast_average:   0.6114, raw_reward:     11.59,                 episode_index=101, discounted_reward_sum=  9.3106, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.8696, little_upper=12.8194, upper=12.6472, minimum_performance=11.7988, lower=11.5971
+                epsilon:   0.0000, forecast_average:   0.6117, raw_reward:     33.18,                 episode_index=102, discounted_reward_sum= 26.0696, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=14.0405, little_upper=12.9757, upper=12.8011, minimum_performance=11.7988, lower=11.7363
+                epsilon:   0.0000, forecast_average:   0.6128, raw_reward:     27.61,                 episode_index=103, discounted_reward_sum= 19.4956, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=14.1099, little_upper=13.0512, upper=12.8775, minimum_performance=11.7988, lower=11.8188
+                epsilon:   0.0295, forecast_average:   0.6174, raw_reward:     21.52,                 episode_index=104, discounted_reward_sum= 16.9884, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6219, raw_reward:     11.77,                 episode_index=105, discounted_reward_sum=  9.9842, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6257, raw_reward:     18.33,                 episode_index=106, discounted_reward_sum= 10.3367, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6260, raw_reward:     14.77,                 episode_index=107, discounted_reward_sum= 13.3853, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6259, raw_reward:     22.48,                 episode_index=108, discounted_reward_sum= 17.8839, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6251, raw_reward:     21.03,                 episode_index=109, discounted_reward_sum= 15.1519, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6295, raw_reward:      9.70,                 episode_index=110, discounted_reward_sum=  8.4259, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6314, raw_reward:     17.11,                 episode_index=111, discounted_reward_sum= 15.4429, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6382, raw_reward:     -0.22,                 episode_index=112, discounted_reward_sum=  1.2218, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6418, raw_reward:     25.67,                 episode_index=113, discounted_reward_sum= 19.2859, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6475, raw_reward:     26.94,                 episode_index=114, discounted_reward_sum= 21.0032, horizon=4
+                epsilon:   0.0295, forecast_average:   0.6505, raw_reward:     18.30,                 episode_index=115, discounted_reward_sum= 12.7606, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=16.3162, little_upper=13.6917, upper=13.2868, minimum_performance=11.7988, lower=10.6622
+                epsilon:   0.0295, forecast_average:   0.6507, raw_reward:     28.96,                 episode_index=116, discounted_reward_sum= 24.2769, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.2936, little_upper=14.5333, upper=14.1049, minimum_performance=11.7988, lower=11.3445
+                epsilon:   0.0295, forecast_average:   0.6551, raw_reward:     32.02,                 episode_index=117, discounted_reward_sum= 24.8917, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=18.1199, little_upper=15.2946, upper=14.8539, minimum_performance=11.7988, lower=12.0286
+                epsilon:   0.0590, forecast_average:   0.6637, raw_reward:      5.48,                 episode_index=118, discounted_reward_sum=  4.5849, horizon=4
+                epsilon:   0.0590, forecast_average:   0.6760, raw_reward:     16.48,                 episode_index=119, discounted_reward_sum= 14.3559, horizon=4
+                epsilon:   0.0590, forecast_average:   0.6735, raw_reward:      3.38,                 episode_index=120, discounted_reward_sum=  4.9692, horizon=4
+                epsilon:   0.0590, forecast_average:   0.6787, raw_reward:     20.58,                 episode_index=121, discounted_reward_sum= 17.3939, horizon=4
+                epsilon:   0.0590, forecast_average:   0.6819, raw_reward:      9.04,                 episode_index=122, discounted_reward_sum=  6.1734, horizon=4
+                epsilon:   0.0590, forecast_average:   0.6848, raw_reward:     27.91,                 episode_index=123, discounted_reward_sum= 18.6706, horizon=4
+                epsilon:   0.0590, forecast_average:   0.6845, raw_reward:     16.82,                 episode_index=124, discounted_reward_sum= 11.0593, horizon=4
+                epsilon:   0.0590, forecast_average:   0.6952, raw_reward:     35.45,                 episode_index=125, discounted_reward_sum= 27.7793, horizon=4
+                epsilon:   0.0590, forecast_average:   0.7023, raw_reward:     27.99,                 episode_index=126, discounted_reward_sum= 19.9002, horizon=4
+                epsilon:   0.0590, forecast_average:   0.7107, raw_reward:      9.70,                 episode_index=127, discounted_reward_sum=  9.2022, horizon=4
+                epsilon:   0.0590, forecast_average:   0.7172, raw_reward:     35.89,                 episode_index=128, discounted_reward_sum= 26.7168, horizon=4
+                epsilon:   0.0590, forecast_average:   0.7273, raw_reward:     15.62,                 episode_index=129, discounted_reward_sum= 12.5743, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.5322, little_upper=14.7408, upper=14.1559, minimum_performance=11.7988, lower=10.3644
+                epsilon:   0.0590, forecast_average:   0.7253, raw_reward:     14.06,                 episode_index=130, discounted_reward_sum= 13.7360, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.1230, little_upper=14.6621, upper=14.1250, minimum_performance=11.7988, lower=10.6641
+                epsilon:   0.0590, forecast_average:   0.7323, raw_reward:     30.71,                 episode_index=131, discounted_reward_sum= 24.5590, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.7835, little_upper=15.3848, upper=14.8545, minimum_performance=11.7988, lower=11.4558
+                epsilon:   0.0590, forecast_average:   0.7361, raw_reward:     36.59,                 episode_index=132, discounted_reward_sum= 26.5384, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=19.5286, little_upper=16.1459, upper=15.6159, minimum_performance=11.7988, lower=12.2332
+                epsilon:   0.0885, forecast_average:   0.7471, raw_reward:     24.79,                 episode_index=133, discounted_reward_sum= 20.1497, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7450, raw_reward:     13.19,                 episode_index=134, discounted_reward_sum= 10.1166, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7542, raw_reward:     24.15,                 episode_index=135, discounted_reward_sum= 19.6606, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7616, raw_reward:     17.98,                 episode_index=136, discounted_reward_sum= 14.9554, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7707, raw_reward:     31.39,                 episode_index=137, discounted_reward_sum= 24.0066, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7723, raw_reward:      1.89,                 episode_index=138, discounted_reward_sum=  5.2824, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7758, raw_reward:     31.78,                 episode_index=139, discounted_reward_sum= 22.7002, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7831, raw_reward:     34.10,                 episode_index=140, discounted_reward_sum= 27.2443, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7908, raw_reward:     10.11,                 episode_index=141, discounted_reward_sum=  8.5502, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7932, raw_reward:     10.39,                 episode_index=142, discounted_reward_sum=  9.2051, horizon=4
+                epsilon:   0.0885, forecast_average:   0.7968, raw_reward:     19.34,                 episode_index=143, discounted_reward_sum= 17.2980, horizon=4
+                epsilon:   0.0885, forecast_average:   0.8057, raw_reward:     30.36,                 episode_index=144, discounted_reward_sum= 22.3654, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=20.4701, little_upper=17.0577, upper=16.5314, minimum_performance=11.7988, lower=13.1190
+                epsilon:   0.1180, forecast_average:   0.8139, raw_reward:     11.67,                 episode_index=145, discounted_reward_sum= 10.7635, horizon=4
+                epsilon:   0.1180, forecast_average:   0.8171, raw_reward:     17.35,                 episode_index=146, discounted_reward_sum=  9.3750, horizon=4
+                epsilon:   0.1180, forecast_average:   0.8258, raw_reward:     12.93,                 episode_index=147, discounted_reward_sum= 10.3732, horizon=4
+                epsilon:   0.1180, forecast_average:   0.8302, raw_reward:     23.32,                 episode_index=148, discounted_reward_sum= 19.2929, horizon=4
+                epsilon:   0.1180, forecast_average:   0.8351, raw_reward:     11.92,                 episode_index=149, discounted_reward_sum=  9.6280, horizon=4
+        running theory method
+        running n_step horizon method
+        running n_step planlen method
+        generate_graphs
+            no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
+            no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
+    # 
+    # acceptable_performance_level = 0.9
+    # 
+        running ppac method
+            minimum_performance = 13.273656367336576
+                epsilon:   0.0295, forecast_average:   0.8000, raw_reward:     20.02,                 episode_index=0, discounted_reward_sum= 14.3668, horizon=10
+                epsilon:   0.0295, forecast_average:   0.9411, raw_reward:     20.08,                 episode_index=1, discounted_reward_sum= 16.3675, horizon=4
+                epsilon:   0.0295, forecast_average:   0.9676, raw_reward:     15.53,                 episode_index=2, discounted_reward_sum= 13.0482, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0904, raw_reward:     33.89,                 episode_index=3, discounted_reward_sum= 26.9047, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0175, raw_reward:      3.01,                 episode_index=4, discounted_reward_sum=  1.9991, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0397, raw_reward:     30.31,                 episode_index=5, discounted_reward_sum= 22.0663, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0341, raw_reward:     32.42,                 episode_index=6, discounted_reward_sum= 26.7670, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0572, raw_reward:     14.41,                 episode_index=7, discounted_reward_sum= 12.0063, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0737, raw_reward:     23.27,                 episode_index=8, discounted_reward_sum= 18.7127, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0259, raw_reward:     15.30,                 episode_index=9, discounted_reward_sum= 15.3758, horizon=4
+                epsilon:   0.0295, forecast_average:   1.0621, raw_reward:      8.61,                 episode_index=10, discounted_reward_sum=  7.2548, horizon=4
+                epsilon:   0.0295, forecast_average:   1.1180, raw_reward:     12.88,                 episode_index=11, discounted_reward_sum= 11.3573, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=19.3418, little_upper=15.7926, upper=15.2451, minimum_performance=13.2737, lower=11.6960
+                epsilon:   0.0295, forecast_average:   1.1358, raw_reward:     20.47,                 episode_index=12, discounted_reward_sum= 16.3215, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=19.0723, little_upper=15.8321, upper=15.3292, minimum_performance=13.2737, lower=12.0890
+                epsilon:   0.0295, forecast_average:   1.1633, raw_reward:     23.52,                 episode_index=13, discounted_reward_sum= 19.1516, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=19.0793, little_upper=16.0704, upper=15.6010, minimum_performance=13.2737, lower=12.5920
+                epsilon:   0.0295, forecast_average:   1.1780, raw_reward:     12.00,                 episode_index=14, discounted_reward_sum= 11.3718, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.5868, little_upper=15.7596, upper=15.3166, minimum_performance=13.2737, lower=12.4894
+                epsilon:   0.0295, forecast_average:   1.1626, raw_reward:     24.14,                 episode_index=15, discounted_reward_sum= 18.2578, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.5621, little_upper=15.9162, upper=15.5000, minimum_performance=13.2737, lower=12.8541
+                epsilon:   0.0295, forecast_average:   1.1885, raw_reward:     25.37,                 episode_index=16, discounted_reward_sum= 20.9261, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=18.7382, little_upper=16.2142, upper=15.8159, minimum_performance=13.2737, lower=13.2919
+                epsilon:   0.0885, forecast_average:   1.2362, raw_reward:     22.88,                 episode_index=17, discounted_reward_sum= 16.3586, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2256, raw_reward:      6.02,                 episode_index=18, discounted_reward_sum=  5.1354, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2171, raw_reward:     26.18,                 episode_index=19, discounted_reward_sum= 19.9856, horizon=4
+                epsilon:   0.0885, forecast_average:   1.1950, raw_reward:     10.54,                 episode_index=20, discounted_reward_sum= 11.0440, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2428, raw_reward:     32.76,                 episode_index=21, discounted_reward_sum= 23.5278, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2531, raw_reward:      8.61,                 episode_index=22, discounted_reward_sum=  6.1322, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2408, raw_reward:     32.48,                 episode_index=23, discounted_reward_sum= 23.5687, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2605, raw_reward:     10.54,                 episode_index=24, discounted_reward_sum= 10.5656, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2634, raw_reward:     13.42,                 episode_index=25, discounted_reward_sum=  9.2282, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2790, raw_reward:     22.99,                 episode_index=26, discounted_reward_sum= 19.5626, horizon=4
+                epsilon:   0.0885, forecast_average:   1.2979, raw_reward:     35.07,                 episode_index=27, discounted_reward_sum= 24.5583, horizon=4
+                epsilon:   0.0885, forecast_average:   1.3205, raw_reward:     12.34,                 episode_index=28, discounted_reward_sum= 10.7584, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.6932, little_upper=15.2974, upper=14.7735, minimum_performance=13.2737, lower=11.3777
+                epsilon:   0.0885, forecast_average:   1.3278, raw_reward:      3.60,                 episode_index=29, discounted_reward_sum=  2.7715, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.8307, little_upper=14.3613, upper=13.8228, minimum_performance=13.2737, lower=10.3535
+                epsilon:   0.0885, forecast_average:   1.3378, raw_reward:      4.39,                 episode_index=30, discounted_reward_sum=  3.6718, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=17.0309, little_upper=13.6143, upper=13.0813, minimum_performance=13.2737, lower=9.6646
+                epsilon:   0.0295, forecast_average:   1.3170, raw_reward:     28.75,                 episode_index=31, discounted_reward_sum= 21.0162, horizon=4
+                epsilon:   0.0295, forecast_average:   1.3156, raw_reward:     18.05,                 episode_index=32, discounted_reward_sum= 15.5177, horizon=4
+                epsilon:   0.0295, forecast_average:   1.3126, raw_reward:     21.89,                 episode_index=33, discounted_reward_sum= 17.4645, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2904, raw_reward:      4.74,                 episode_index=34, discounted_reward_sum=  6.2977, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2798, raw_reward:     18.57,                 episode_index=35, discounted_reward_sum= 16.8212, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2649, raw_reward:     18.10,                 episode_index=36, discounted_reward_sum= 13.7707, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2501, raw_reward:     11.97,                 episode_index=37, discounted_reward_sum=  8.3658, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2427, raw_reward:     19.54,                 episode_index=38, discounted_reward_sum= 14.0064, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2606, raw_reward:     16.28,                 episode_index=39, discounted_reward_sum= 13.3302, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2469, raw_reward:     14.72,                 episode_index=40, discounted_reward_sum=  5.8537, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2297, raw_reward:      9.55,                 episode_index=41, discounted_reward_sum= 11.1881, horizon=4
+                epsilon:   0.0295, forecast_average:   1.2445, raw_reward:     16.92,                 episode_index=42, discounted_reward_sum= 13.6048, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=15.4625, little_upper=13.2720, upper=12.9341, minimum_performance=13.2737, lower=10.7437
+                epsilon:  -0.0000, forecast_average:   1.2212, raw_reward:     23.80,                 episode_index=43, discounted_reward_sum= 15.6522, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.2018, raw_reward:     10.52,                 episode_index=44, discounted_reward_sum=  8.7399, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.1845, raw_reward:     18.18,                 episode_index=45, discounted_reward_sum= 13.8530, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.1667, raw_reward:     13.28,                 episode_index=46, discounted_reward_sum= 11.5455, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.1508, raw_reward:      4.60,                 episode_index=47, discounted_reward_sum=  2.4495, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.1372, raw_reward:      2.36,                 episode_index=48, discounted_reward_sum=  2.1956, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.1245, raw_reward:     22.62,                 episode_index=49, discounted_reward_sum= 17.1867, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.1178, raw_reward:     29.41,                 episode_index=50, discounted_reward_sum= 23.7249, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.1067, raw_reward:     17.15,                 episode_index=51, discounted_reward_sum= 13.4995, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.0902, raw_reward:      2.12,                 episode_index=52, discounted_reward_sum= -0.0883, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.0775, raw_reward:     26.35,                 episode_index=53, discounted_reward_sum= 18.9414, horizon=4
+                epsilon:  -0.0000, forecast_average:   1.0712, raw_reward:      2.90,                 episode_index=54, discounted_reward_sum=  1.9155, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=14.8180, little_upper=11.0889, upper=10.5137, minimum_performance=13.2737, lower=6.7845
+                epsilon:  -0.0147, forecast_average:   1.0556, raw_reward:     18.31,                 episode_index=55, discounted_reward_sum= 14.4142, horizon=4
+                epsilon:  -0.0147, forecast_average:   1.0393, raw_reward:     10.47,                 episode_index=56, discounted_reward_sum= 10.4856, horizon=4
+                epsilon:  -0.0147, forecast_average:   1.0275, raw_reward:     18.14,                 episode_index=57, discounted_reward_sum= 12.7445, horizon=4
+                epsilon:  -0.0147, forecast_average:   1.0125, raw_reward:     21.15,                 episode_index=58, discounted_reward_sum= 14.4660, horizon=4
+                epsilon:  -0.0147, forecast_average:   1.0034, raw_reward:      3.17,                 episode_index=59, discounted_reward_sum=  3.1734, horizon=4
+                epsilon:  -0.0147, forecast_average:   0.9904, raw_reward:     19.34,                 episode_index=60, discounted_reward_sum= 12.6587, horizon=4
+                epsilon:  -0.0147, forecast_average:   0.9780, raw_reward:     33.70,                 episode_index=61, discounted_reward_sum= 25.4547, horizon=4
+                epsilon:  -0.0147, forecast_average:   0.9670, raw_reward:     36.82,                 episode_index=62, discounted_reward_sum= 28.7691, horizon=4
+                epsilon:  -0.0147, forecast_average:   0.9541, raw_reward:     26.59,                 episode_index=63, discounted_reward_sum= 20.0462, horizon=4
+                epsilon:  -0.0147, forecast_average:   0.9431, raw_reward:     25.60,                 episode_index=64, discounted_reward_sum= 20.1891, horizon=4
+                epsilon:  -0.0147, forecast_average:   0.9339, raw_reward:     24.83,                 episode_index=65, discounted_reward_sum= 11.9109, horizon=4
+                epsilon:  -0.0147, forecast_average:   0.9257, raw_reward:     15.81,                 episode_index=66, discounted_reward_sum= 12.7359, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=19.1969, little_upper=15.8458, upper=15.3289, minimum_performance=13.2737, lower=11.9778
+                epsilon:  -0.0147, forecast_average:   0.9156, raw_reward:     26.24,                 episode_index=67, discounted_reward_sum= 19.2037, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=19.1978, little_upper=16.1055, upper=15.6256, minimum_performance=13.2737, lower=12.5332
+                epsilon:  -0.0147, forecast_average:   0.9046, raw_reward:     12.11,                 episode_index=68, discounted_reward_sum=  9.3301, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.5737, little_upper=15.6284, upper=15.1690, minimum_performance=13.2737, lower=12.2238
+                epsilon:  -0.0147, forecast_average:   0.8926, raw_reward:     31.23,                 episode_index=69, discounted_reward_sum= 25.2516, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=19.2147, little_upper=16.2851, upper=15.8261, minimum_performance=13.2737, lower=12.8964
+                epsilon:  -0.0147, forecast_average:   0.8830, raw_reward:     27.39,                 episode_index=70, discounted_reward_sum= 17.8091, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=19.1127, little_upper=16.3801, upper=15.9503, minimum_performance=13.2737, lower=13.2177
+                epsilon:  -0.0147, forecast_average:   0.8736, raw_reward:      6.76,                 episode_index=71, discounted_reward_sum=  5.1381, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.4974, little_upper=15.7345, upper=15.2985, minimum_performance=13.2737, lower=12.5356
+                epsilon:  -0.0147, forecast_average:   0.8728, raw_reward:     26.60,                 episode_index=72, discounted_reward_sum= 21.4849, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.7072, little_upper=16.0577, upper=15.6385, minimum_performance=13.2737, lower=12.9890
+                epsilon:  -0.0147, forecast_average:   0.8667, raw_reward:     37.39,                 episode_index=73, discounted_reward_sum= 27.0347, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=19.3195, little_upper=16.6487, upper=16.2250, minimum_performance=13.2737, lower=13.5542
+                epsilon:  -0.0074, forecast_average:   0.8560, raw_reward:     13.70,                 episode_index=74, discounted_reward_sum=  9.9168, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.8480, raw_reward:     28.15,                 episode_index=75, discounted_reward_sum= 20.4530, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.8416, raw_reward:      3.10,                 episode_index=76, discounted_reward_sum=  2.6062, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.8342, raw_reward:     31.96,                 episode_index=77, discounted_reward_sum= 23.9313, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.8255, raw_reward:     27.98,                 episode_index=78, discounted_reward_sum= 21.0076, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.8162, raw_reward:     16.71,                 episode_index=79, discounted_reward_sum= 16.5625, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.8080, raw_reward:     18.54,                 episode_index=80, discounted_reward_sum= 10.0620, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.8021, raw_reward:     26.36,                 episode_index=81, discounted_reward_sum= 16.2780, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.7997, raw_reward:     14.42,                 episode_index=82, discounted_reward_sum=  9.7587, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.7946, raw_reward:     30.75,                 episode_index=83, discounted_reward_sum= 22.7922, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.7863, raw_reward:     15.21,                 episode_index=84, discounted_reward_sum= 12.6485, horizon=4
+                epsilon:  -0.0074, forecast_average:   0.7838, raw_reward:     15.07,                 episode_index=85, discounted_reward_sum= 12.4602, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.2017, little_upper=15.1114, upper=14.6347, minimum_performance=13.2737, lower=11.5444
+                epsilon:  -0.0074, forecast_average:   0.7792, raw_reward:     18.15,                 episode_index=86, discounted_reward_sum= 14.0679, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.8519, little_upper=15.0301, upper=14.5922, minimum_performance=13.2737, lower=11.7704
+                epsilon:  -0.0074, forecast_average:   0.7726, raw_reward:     17.92,                 episode_index=87, discounted_reward_sum= 13.9271, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.5475, little_upper=14.9506, upper=14.5455, minimum_performance=13.2737, lower=11.9485
+                epsilon:  -0.0074, forecast_average:   0.7660, raw_reward:     20.86,                 episode_index=88, discounted_reward_sum= 16.0271, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.4296, little_upper=15.0219, upper=14.6447, minimum_performance=13.2737, lower=12.2369
+                epsilon:  -0.0074, forecast_average:   0.7590, raw_reward:     34.88,                 episode_index=89, discounted_reward_sum= 26.1934, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=18.2622, little_upper=15.7415, upper=15.3451, minimum_performance=13.2737, lower=12.8244
+                epsilon:  -0.0074, forecast_average:   0.7521, raw_reward:      8.92,                 episode_index=90, discounted_reward_sum=  8.3362, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.7684, little_upper=15.3131, upper=14.9256, minimum_performance=13.2737, lower=12.4703
+                epsilon:  -0.0074, forecast_average:   0.7469, raw_reward:     24.31,                 episode_index=91, discounted_reward_sum= 19.4421, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.8829, little_upper=15.5445, upper=15.1745, minimum_performance=13.2737, lower=12.8361
+                epsilon:  -0.0074, forecast_average:   0.7413, raw_reward:      9.48,                 episode_index=92, discounted_reward_sum=  9.2598, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.4820, little_upper=15.2180, upper=14.8589, minimum_performance=13.2737, lower=12.5949
+                epsilon:  -0.0074, forecast_average:   0.7356, raw_reward:     24.55,                 episode_index=93, discounted_reward_sum= 22.3802, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.8027, little_upper=15.5821, upper=15.2290, minimum_performance=13.2737, lower=13.0084
+                epsilon:  -0.0074, forecast_average:   0.7311, raw_reward:     14.46,                 episode_index=94, discounted_reward_sum=  9.9582, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.4640, little_upper=15.3172, upper=14.9751, minimum_performance=13.2737, lower=12.8283
+                epsilon:  -0.0074, forecast_average:   0.7264, raw_reward:     24.48,                 episode_index=95, discounted_reward_sum= 20.4657, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.6318, little_upper=15.5538, upper=15.2221, minimum_performance=13.2737, lower=13.1441
+                epsilon:  -0.0074, forecast_average:   0.7226, raw_reward:     20.64,                 episode_index=96, discounted_reward_sum= 15.7939, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=17.5454, little_upper=15.5640, upper=15.2472, minimum_performance=13.2737, lower=13.2658
+                epsilon:  -0.0074, forecast_average:   0.7180, raw_reward:     33.24,                 episode_index=97, discounted_reward_sum= 26.3954, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=18.0537, little_upper=16.0259, upper=15.7011, minimum_performance=13.2737, lower=13.6733
+                epsilon:  -0.0000, forecast_average:   0.7145, raw_reward:     18.76,                 episode_index=98, discounted_reward_sum= 15.2135, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.7092, raw_reward:     29.92,                 episode_index=99, discounted_reward_sum= 24.7037, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.7059, raw_reward:     30.45,                 episode_index=100, discounted_reward_sum= 22.4883, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.7041, raw_reward:     20.25,                 episode_index=101, discounted_reward_sum= 13.1287, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.7017, raw_reward:     29.24,                 episode_index=102, discounted_reward_sum= 21.8376, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6975, raw_reward:     35.04,                 episode_index=103, discounted_reward_sum= 25.7638, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6961, raw_reward:     32.00,                 episode_index=104, discounted_reward_sum= 24.8629, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6929, raw_reward:      4.99,                 episode_index=105, discounted_reward_sum=  6.1287, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6916, raw_reward:     34.54,                 episode_index=106, discounted_reward_sum= 26.7164, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6883, raw_reward:     -0.81,                 episode_index=107, discounted_reward_sum= -0.0308, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6847, raw_reward:     28.45,                 episode_index=108, discounted_reward_sum= 22.2657, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6834, raw_reward:     19.80,                 episode_index=109, discounted_reward_sum= 15.3016, horizon=4
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=22.5798, little_upper=18.5121, upper=17.8846, minimum_performance=13.2737, lower=13.8169
+                epsilon:   0.0074, forecast_average:   0.6802, raw_reward:      5.46,                 episode_index=110, discounted_reward_sum=  6.1752, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6824, raw_reward:     14.96,                 episode_index=111, discounted_reward_sum= 11.7354, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6841, raw_reward:     25.34,                 episode_index=112, discounted_reward_sum= 19.9041, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6821, raw_reward:      6.45,                 episode_index=113, discounted_reward_sum=  5.7205, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6793, raw_reward:     10.63,                 episode_index=114, discounted_reward_sum=  8.9775, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6775, raw_reward:     26.17,                 episode_index=115, discounted_reward_sum= 20.3701, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6778, raw_reward:     25.29,                 episode_index=116, discounted_reward_sum= 20.2881, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6750, raw_reward:     14.83,                 episode_index=117, discounted_reward_sum=  9.7976, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6765, raw_reward:     14.13,                 episode_index=118, discounted_reward_sum= 10.8887, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6770, raw_reward:     21.62,                 episode_index=119, discounted_reward_sum= 16.5501, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6778, raw_reward:     10.00,                 episode_index=120, discounted_reward_sum=  9.1999, horizon=4
+                epsilon:   0.0074, forecast_average:   0.6808, raw_reward:     19.08,                 episode_index=121, discounted_reward_sum= 15.6607, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=15.7406, little_upper=13.1396, upper=12.7384, minimum_performance=13.2737, lower=10.1374
+                epsilon:  -0.0000, forecast_average:   0.6774, raw_reward:      7.42,                 episode_index=122, discounted_reward_sum=  6.5852, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6787, raw_reward:     33.34,                 episode_index=123, discounted_reward_sum= 25.8460, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6772, raw_reward:     23.29,                 episode_index=124, discounted_reward_sum= 16.0736, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6764, raw_reward:     17.51,                 episode_index=125, discounted_reward_sum= 15.1415, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6763, raw_reward:      2.39,                 episode_index=126, discounted_reward_sum=  2.5054, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6778, raw_reward:      6.43,                 episode_index=127, discounted_reward_sum=  5.5595, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6774, raw_reward:      1.25,                 episode_index=128, discounted_reward_sum=  1.4085, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6783, raw_reward:     21.57,                 episode_index=129, discounted_reward_sum= 17.0303, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6831, raw_reward:      6.75,                 episode_index=130, discounted_reward_sum=  5.6326, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6800, raw_reward:     34.75,                 episode_index=131, discounted_reward_sum= 26.4252, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6788, raw_reward:      7.34,                 episode_index=132, discounted_reward_sum=  5.9801, horizon=4
+                epsilon:  -0.0000, forecast_average:   0.6777, raw_reward:     30.72,                 episode_index=133, discounted_reward_sum= 23.1196, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=17.3518, little_upper=12.9486, upper=12.2693, minimum_performance=13.2737, lower=7.8661
+                epsilon:  -0.0037, forecast_average:   0.6744, raw_reward:     12.77,                 episode_index=134, discounted_reward_sum= 10.3231, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6724, raw_reward:     18.48,                 episode_index=135, discounted_reward_sum= 15.4679, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6697, raw_reward:     22.82,                 episode_index=136, discounted_reward_sum= 18.5950, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6669, raw_reward:      3.02,                 episode_index=137, discounted_reward_sum=  2.3116, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6633, raw_reward:     32.15,                 episode_index=138, discounted_reward_sum= 24.8554, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6611, raw_reward:     16.61,                 episode_index=139, discounted_reward_sum= 12.6965, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6590, raw_reward:     16.61,                 episode_index=140, discounted_reward_sum= 14.0413, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6571, raw_reward:     13.93,                 episode_index=141, discounted_reward_sum= 11.4048, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6541, raw_reward:     18.44,                 episode_index=142, discounted_reward_sum= 17.6722, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6540, raw_reward:      6.01,                 episode_index=143, discounted_reward_sum=  5.2257, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6517, raw_reward:      7.10,                 episode_index=144, discounted_reward_sum=  6.4586, horizon=4
+                epsilon:  -0.0037, forecast_average:   0.6477, raw_reward:     11.44,                 episode_index=145, discounted_reward_sum= 11.0376, horizon=4
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=15.7453, little_upper=12.7393, upper=12.2756, minimum_performance=13.2737, lower=9.2696
+                epsilon:  -0.0055, forecast_average:   0.6474, raw_reward:      6.06,                 episode_index=146, discounted_reward_sum=  5.8999, horizon=4
+                epsilon:  -0.0055, forecast_average:   0.6448, raw_reward:      7.17,                 episode_index=147, discounted_reward_sum=  5.7800, horizon=4
+                epsilon:  -0.0055, forecast_average:   0.6413, raw_reward:     15.52,                 episode_index=148, discounted_reward_sum= 11.8301, horizon=4
+                epsilon:  -0.0055, forecast_average:   0.6395, raw_reward:      6.64,                 episode_index=149, discounted_reward_sum=  4.0098, horizon=4
+        running theory method
+        running n_step horizon method
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/compare_tuner.py", line 50, in <module>
+    full_run(
+  File "./main/run/compare_tuner.py", line 26, in full_run
+    results = Tester.smart_load(
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 543, in wrapper
+    output = function_being_wrapped(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 943, in tuned_comparisons
+    print(f'''self.settings = {self.settings}''')
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 911, in tuned_comparisons
+    plot_data.n_step_horizon_plan_length_points.append([each_performance_level, tuning.horizon])
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 902, in tuned_comparisons
+    ) = self.n_step_experience_episode(
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 532, in wrapper
+    output = function_being_wrapped(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 357, in n_step_experience_episode
+    real_action    = choose_action(state)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 339, in <lambda>
+    choose_action      = lambda state: actor_model(state, deterministic=True)[0]
+  File "/home/jeffhykin/repos/AFRL/main/agent.py", line 75, in predict
+    return super().predict(state, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/common/base_class.py", line 562, in predict
+    return self.policy.predict(observation, state, episode_start, deterministic)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/common/policies.py", line 338, in predict
+    actions = self._predict(observation, deterministic=deterministic)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/sac/policies.py", line 359, in _predict
+    return self.actor(observation, deterministic)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/sac/policies.py", line 175, in forward
+    mean_actions, log_std, kwargs = self.get_action_dist_params(obs)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/stable_baselines3/sac/policies.py", line 163, in get_action_dist_params
+    latent_pi = self.latent_pi(features)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/nn/modules/container.py", line 139, in forward
+    input = module(input)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/nn/modules/linear.py", line 96, in forward
+    return F.linear(input, self.weight, self.bias)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/nn/functional.py", line 1847, in linear
+    return torch._C._nn.linear(input, weight, bias)
+KeyboardInterrupt

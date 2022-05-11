@@ -1210,3 +1210,12 @@ KeyboardInterrupt
 [silver_spectacle] So the display server is still running at: http://localhost:9900
 [silver_spectacle] (use the stop server button to kill it now)
 
+Error handling request
+Traceback (most recent call last):
+  File "/nix/store/zwzwycj4bixml1rs3fc37hlifpcpajd3-python3.8-aiohttp-3.8.1/lib/python3.8/site-packages/aiohttp/web_protocol.py", line 435, in _handle_request
+    resp = await request_handler(request)
+  File "/nix/store/zwzwycj4bixml1rs3fc37hlifpcpajd3-python3.8-aiohttp-3.8.1/lib/python3.8/site-packages/aiohttp/web_app.py", line 504, in _handle
+    resp = await handler(request)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/silver_spectacle/server.py", line 1674, in new_card
+    print('backend: emitted new_card')
+BrokenPipeError: [Errno 32] Broken pipe
