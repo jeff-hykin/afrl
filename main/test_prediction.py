@@ -50,12 +50,13 @@ class Tester:
         self.settings.api = "v1" if hasattr(self.settings, "number_of_episodes") else "v2"
         if self.settings.api == "v1": self.settings.number_of_episodes_for_testing = self.settings.number_of_episodes
         
-        self.rewards_per_episode_per_timestep            = [None] * settings.number_of_episodes_for_testing
-        self.discounted_rewards_per_episode_per_timestep = [None] * settings.number_of_episodes_for_testing
-        self.failure_points_per_episode_per_timestep     = [None] * settings.number_of_episodes_for_testing
-        self.stopped_early_per_episode_per_timestep      = [None] * settings.number_of_episodes_for_testing
-        self.real_q_values_per_episode_per_timestep      = [None] * settings.number_of_episodes_for_testing
-        self.q_value_gaps_per_episode_per_timestep       = [None] * settings.number_of_episodes_for_testing
+        episode_max = sum([settings.number_of_episodes_for_baseline,settings.number_of_epochs_for_optimal_parameters,settings.number_of_episodes_for_testing,])
+        self.rewards_per_episode_per_timestep            = [None] * episode_max
+        self.discounted_rewards_per_episode_per_timestep = [None] * episode_max
+        self.failure_points_per_episode_per_timestep     = [None] * episode_max
+        self.stopped_early_per_episode_per_timestep      = [None] * episode_max
+        self.real_q_values_per_episode_per_timestep      = [None] * episode_max
+        self.q_value_gaps_per_episode_per_timestep       = [None] * episode_max
         
         # for loading from a file
         for each_key, each_value in attribute_overrides.items():
@@ -584,7 +585,7 @@ class Tester:
         optimal_samples = self.gather_optimal()
         average_optimal_reward = simple_stats(optimal_samples).average
         plot_data.optimal_reward_points = [
-            (each_level, average_optimal_reward) for each_level in self.settings.acceptable_performance_levels
+            (each_performance_level, average_optimal_reward) for each_performance_level in self.settings.acceptable_performance_levels
         ]
         
         # 
@@ -593,7 +594,7 @@ class Tester:
         print("    running random method")
         average_random_performance = 0 # FIXME
         plot_data.random_reward_points = [
-            (each_level, average_random_performance) for each_level in self.settings.acceptable_performance_levels
+            (each_performance_level, average_random_performance) for each_performance_level in self.settings.acceptable_performance_levels
         ]
         
         plot_data.theory_reward_points = []
@@ -604,20 +605,20 @@ class Tester:
         plot_data.ppac_plan_length_points   = []
         plot_data.n_step_horizon_plan_length_points = []
         plot_data.n_step_planlen_plan_length_points = []
-        for each_level in self.settings.acceptable_performance_levels:
+        for each_performance_level in self.settings.acceptable_performance_levels:
             print(f'''    # ''')
-            print(f'''    # acceptable_performance_level = {each_level}''')
+            print(f'''    # acceptable_performance_level = {each_performance_level}''')
             print(f'''    # ''')
             # 
             # ppac
             # 
             print("    running ppac method")
-            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_level)
+            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_performance_level)
             # saves these
-            self.settings[str(each_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
+            self.settings[str(each_performance_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
             epsiode_lengths = []
             reward_sums     = []
-            failure_point_averages  = []
+            failure_point_averages = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 (
                     _,
@@ -636,15 +637,15 @@ class Tester:
                 epsiode_lengths.append(len(discounted_rewards))
                 reward_sums.append(sum(discounted_rewards))
                 failure_point_averages.append(average(failure_points))
-            plot_data.ppac_reward_points.append([each_level, average(reward_sums)])
-            plot_data.ppac_plan_length_points.append([each_level, average(failure_point_averages)])
+            plot_data.ppac_reward_points.append([each_performance_level, average(reward_sums)])
+            plot_data.ppac_plan_length_points.append([each_performance_level, average(failure_point_averages)])
             
             # 
             # theory
             # 
             print("    running theory method")
             plot_data.theory_reward_points.append([
-                each_level,
+                each_performance_level,
                 average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
             ])
             
@@ -667,8 +668,8 @@ class Tester:
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_horizon_reward_points.append([each_level, average(reward_sums)])
-            plot_data.n_step_horizon_plan_length_points.append([each_level, optimal_horizon])
+            plot_data.n_step_horizon_reward_points.append([each_performance_level, average(reward_sums)])
+            plot_data.n_step_horizon_plan_length_points.append([each_performance_level, optimal_horizon])
             
             # 
             # n_step planlen
@@ -690,8 +691,183 @@ class Tester:
                     should_record=False,
                 )
                 reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_planlen_reward_points.append([each_level, average(reward_sums)])
-            plot_data.n_step_planlen_plan_length_points.append([each_level, optimal_horizon])
+            plot_data.n_step_planlen_reward_points.append([each_performance_level, average(reward_sums)])
+            plot_data.n_step_planlen_plan_length_points.append([each_performance_level, optimal_horizon])
+            
+            self.settings = LazyDict(self.settings)
+            self.settings.plot = None
+            self.settings.plot = plot_data
+            self.save()
+    
+    def tuned_comparisons(self):
+        settings, predictor = self.settings, self.predictor
+        predictor.agent.gamma = config.agent_settings.reward_discount
+        reward_discount       = config.agent_settings.reward_discount
+        min_sample_size       = config.predictor_settings.min_sample_size
+        
+        plot_data = LazyDict()
+        # 
+        # optimal
+        # 
+        print("    running optimal method")
+        optimal_samples = self.gather_optimal()
+        average_optimal_reward = simple_stats(optimal_samples).average
+        plot_data.optimal_reward_points = [
+            (each_performance_level, average_optimal_reward) for each_performance_level in self.settings.acceptable_performance_levels
+        ]
+        
+        # 
+        # TODO: random
+        # 
+        print("    running random method")
+        average_random_performance = 0 # FIXME
+        plot_data.random_reward_points = [
+            (each_performance_level, average_random_performance) for each_performance_level in self.settings.acceptable_performance_levels
+        ]
+        
+        plot_data.theory_reward_points = []
+        plot_data.ppac_reward_points   = []
+        plot_data.n_step_horizon_reward_points = []
+        plot_data.n_step_planlen_reward_points = []
+        
+        plot_data.ppac_plan_length_points   = []
+        plot_data.n_step_horizon_plan_length_points = []
+        plot_data.n_step_planlen_plan_length_points = []
+        for each_performance_level in self.settings.acceptable_performance_levels:
+            print(f'''    # ''')
+            print(f'''    # acceptable_performance_level = {each_performance_level}''')
+            print(f'''    # ''')
+            # 
+            # ppac
+            # 
+            print("    running ppac method")
+            minimum_performace = optimal_episode_reward * each_performance_level
+            epsilon = (1 - reward_discount) * (minimum_performace + average_optimal_reward)
+            tuning = LazyDict(
+                confidence_percent=config.predictor_settings.confidence_interval_for_convergence,
+                horizon=self.settings.initial_horizon,
+                # real_reward_lowerbound == optimal_rewards - self.epsilon / (1 - gamma) # and we just rearrage it because we need to compute an epsilon
+                epsilon=epsilon,
+                minimum_performace=minimum_performace,
+                # delta starts of as a double-er later: self.epsilon+=self.delta
+                delta=epsilon,
+            )
+            
+            epsiode_lengths = []
+            reward_sums     = []
+            failure_point_averages = []
+            sample      = []
+            prev_sample = []
+            for episode_index in range(settings.number_of_episodes_for_testing):
+                _, _, discounted_rewards, failure_points, *_ = self.ppac_experience_episode(
+                    scaled_epsilon=tuning.epsilon,
+                    horizon=tuning.horizon,
+                    episode_index=episode_index,
+                    should_record=True,
+                )
+                if 1: # logging
+                    epsiode_lengths.append(len(discounted_rewards))
+                    reward_sums.append(sum(discounted_rewards))
+                    failure_point_averages.append(average(failure_points))
+                
+                # make sure the horizon is big enough
+                tuning.horizon = max(2 * average(failure_point_averages[-min_sample_size:]), 4)
+                # build up sample for the confidence interval check
+                sample.append(reward_sums[-1])
+                
+                # optimization to seed/kick-start the next iteration (very safe because it will expand the confidence interval, its just that sometimes that doesnt matter which is good)
+                missing_amount = min_sample_size - len(reward_sums)
+                reward_sums_temp = reward_sums + prev_sample[-missing_amount:] if missing_amount > 0 else reward_sums
+                # size check
+                if len(reward_sums_temp) >= min_sample_size:
+                    
+                    #        <--little-->
+                    # <-----------big---------->
+                    #                   |------| <- this segment is what we're interested in
+                    #                       |  
+                    #                       ^ minimum_performace should be near or in the segment
+                    
+                    _, little_interval_lower = confidence_interval(1-tuning.confidence_percent, reward_sum) # like a 20% confidence interval
+                    _, big_interval_lower    = confidence_interval(  tuning.confidence_percent, reward_sum) # like a 80% confidence interval
+                    upper = little_interval_lower
+                    lower = big_interval_lower
+                    
+                    # tune-epsilon check
+                    if lower > minimum_performace:
+                        # we are safely above the minimum, lets change that and commit to plans a bit more!
+                        tuning.epsilon += tuning.delta
+                        # reset the values used for a confidence interval
+                        prev_sample = sample
+                        sample = []
+                    elif minimum_performace > upper:
+                        # epsilon is so big its causing performance problems, lets scale back and cool down
+                        tuning.delta /= 2
+                        tuning.epsilon -= tuning.delta
+                        # reset the values used for a confidence interval
+                        prev_sample = sample
+                        sample = []
+                    else:
+                        # we need more samples to shrink the confidence interval!
+                        # (shrinking it will force one of the two cases above to be true)
+                        # (continue)
+                        pass
+            
+            plot_data.ppac_reward_points.append([each_performance_level, average(reward_sums)])
+            plot_data.ppac_plan_length_points.append([each_performance_level, average(failure_point_averages)])
+            
+            # 
+            # theory
+            # 
+            print("    running theory method")
+            plot_data.theory_reward_points.append([
+                each_performance_level,
+                average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
+            ])
+            
+            # 
+            # n_step horizon
+            # 
+            print("    running n_step horizon method")
+            reward_sums     = []
+            for episode_index in range(settings.number_of_episodes_for_testing):
+                (
+                    _,
+                    _,
+                    discounted_rewards,
+                    *_,
+                ) = self.n_step_experience_episode(
+                    number_of_steps=tuning.horizon,
+                    scaled_epsilon=tuning.epsilon,
+                    horizon=tuning.horizon,
+                    episode_index=episode_index,
+                    should_record=False,
+                )
+                reward_sums.append(sum(discounted_rewards))
+            plot_data.n_step_horizon_reward_points.append([each_performance_level, average(reward_sums)])
+            plot_data.n_step_horizon_plan_length_points.append([each_performance_level, tuning.horizon])
+            
+            # 
+            # n_step planlen
+            # 
+            print("    running n_step planlen method")
+            print(f'''        plot_data.ppac_plan_length_points[-1][1] = {plot_data.ppac_plan_length_points[-1][1]}''')
+            reward_sums     = []
+            for episode_index in range(settings.number_of_episodes_for_testing):
+                (
+                    _,
+                    _,
+                    discounted_rewards,
+                    *_,
+                ) = self.n_step_experience_episode(
+                    number_of_steps=plot_data.ppac_plan_length_points[-1][1], # average failure point, ciel so that never goes to 0
+                    scaled_epsilon=tuning.epsilon,
+                    horizon=tuning.horizon,
+                    episode_index=episode_index,
+                    should_record=False,
+                )
+                reward_sums.append(sum(discounted_rewards))
+            plot_data.n_step_planlen_reward_points.append([each_performance_level, average(reward_sums)])
+            plot_data.n_step_planlen_plan_length_points.append([each_performance_level, optimal_horizon])
             
             self.settings = LazyDict(self.settings)
             self.settings.plot = None
