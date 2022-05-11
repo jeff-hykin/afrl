@@ -1,6 +1,5 @@
 import os
 import math
-from types import FunctionType
 from typing import List
 from copy import deepcopy
 from dataclasses import dataclass
@@ -50,13 +49,12 @@ class Tester:
         self.settings.api = "v1" if hasattr(self.settings, "number_of_episodes") else "v2"
         if self.settings.api == "v1": self.settings.number_of_episodes_for_testing = self.settings.number_of_episodes
         
-        episode_max = sum([settings.number_of_episodes_for_baseline,settings.number_of_epochs_for_optimal_parameters,settings.number_of_episodes_for_testing,])
-        self.rewards_per_episode_per_timestep            = [None] * episode_max
-        self.discounted_rewards_per_episode_per_timestep = [None] * episode_max
-        self.failure_points_per_episode_per_timestep     = [None] * episode_max
-        self.stopped_early_per_episode_per_timestep      = [None] * episode_max
-        self.real_q_values_per_episode_per_timestep      = [None] * episode_max
-        self.q_value_gaps_per_episode_per_timestep       = [None] * episode_max
+        self.rewards_per_episode_per_timestep            = {}
+        self.discounted_rewards_per_episode_per_timestep = {}
+        self.failure_points_per_episode_per_timestep     = {}
+        self.stopped_early_per_episode_per_timestep      = {}
+        self.real_q_values_per_episode_per_timestep      = {}
+        self.q_value_gaps_per_episode_per_timestep       = {}
         
         # for loading from a file
         for each_key, each_value in attribute_overrides.items():
@@ -531,7 +529,7 @@ class Tester:
         # self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
         # self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
         
-        print(f"scaled_epsilon: {scaled_epsilon:.4f}, forecast_average: {grand_forecast_average:.4f}, episode_reward:{reward_stats.sum:.2f}, max_timestep_reward: {reward_stats.max:.2f}, min_timestep_reward: {reward_stats.min:.2f}")
+        print(f"epsilon: {scaled_epsilon:8.4f}, forecast_average: {grand_forecast_average:8.4f}, raw_reward:{reward_stats.sum:10.2f},                 ", flush=False, end="")
     
     # 
     # setup for testing
@@ -766,8 +764,8 @@ class Tester:
                 # ppac
                 # 
                 # 
-                minimum_performace = average_optimal_reward * each_performance_level
-                epsilon_for_lowerbound_goal = (1 - reward_discount) * (average_optimal_reward - minimum_performace) # real_reward_lowerbound == optimal_rewards - self.epsilon / (1 - gamma) # and we just rearrage it because we need to compute an epsilon
+                minimum_performance = average_optimal_reward * each_performance_level
+                epsilon_for_lowerbound_goal = (1 - reward_discount) * (average_optimal_reward - minimum_performance) # real_reward_lowerbound == optimal_rewards - self.epsilon / (1 - gamma) # and we just rearrage it because we need to compute an epsilon
                 with block_indent("running ppac method"):
                     # 
                     # setup values
@@ -776,10 +774,11 @@ class Tester:
                         confidence_percent=config.predictor_settings.confidence_interval_for_convergence,
                         horizon=self.settings.initial_horizon,
                         epsilon=epsilon_for_lowerbound_goal,
-                        minimum_performace=minimum_performace,
+                        minimum_performance=minimum_performance,
                         delta=epsilon_for_lowerbound_goal, # delta starts of as a double-er later: self.epsilon+=self.delta
+                        inital_acceleration=True,
                     )
-                    print(f'''minimum_performace = {minimum_performace}''')
+                    print(f'''minimum_performance = {minimum_performance}''')
                     
                     # 
                     # setup data recording
@@ -787,7 +786,7 @@ class Tester:
                     episode_recorder = Recorder(
                         method="ppac",
                         performance_level=each_performance_level,
-                        minimum_performace=minimum_performace,
+                        minimum_performance=minimum_performance,
                     ).set_parent(mid_recorder); episode_recorder.frame = LazyDict(episode_recorder.frame)
                     confidence_recorder  = Recorder().set_parent(episode_recorder)
                     old_episode_recorder = Recorder().set_parent(episode_recorder)
@@ -811,7 +810,7 @@ class Tester:
                             
                             _, _, discounted_rewards, failure_points, *_ = experience_outputs
                             reward_sum = sum(discounted_rewards)
-                            with block_indent(f'''episode_index={episode_index}, reward_sum={reward_sum:.4f}, tuning.epsilon={tuning.epsilon}, tuning.horizon={tuning.horizon}'''):
+                            with block_indent(f'''episode_index={episode_index}, discounted_reward_sum={reward_sum:8.4f}, horizon={tuning.horizon}'''):
                                 episode_recorder.push(
                                     episode_index=episode_index,
                                     scaled_epsilon=tuning.epsilon,
@@ -835,7 +834,7 @@ class Tester:
                                     # <-----------big---------->
                                     #                   |------| <- this segment is what we're interested in
                                     #                       |  
-                                    #                       ^ minimum_performace should be near or in the segment
+                                    #                       ^ minimum_performance should be near or in the segment
                                     
                                     little_interval_lower, little_interval_upper = confidence_interval(100-tuning.confidence_percent, sample) # like a 20% confidence interval
                                     big_interval_lower   , big_interval_upper    = confidence_interval(    tuning.confidence_percent, sample) # like a 80% confidence interval
@@ -849,18 +848,23 @@ class Tester:
                                         big_interval_lower=big_interval_lower,
                                         delta=tuning.delta,
                                         sample_size=len(sample),
-                                        will_increase_epsilon=lower > minimum_performace,
-                                        will_decrease_epsilon=minimum_performace > upper,
+                                        will_increase_epsilon=lower > minimum_performance,
+                                        will_decrease_epsilon=minimum_performance > upper,
                                     )
-                                    print(f'''will_increase_epsilon={lower > minimum_performace}, will_decrease_epsilon={minimum_performace > upper}, big_upper={big_interval_upper}, little_upper={little_interval_upper}, upper={upper}, minimum_performace={minimum_performace}, lower={lower}''')
+                                    print(f'''will_increase_epsilon={lower > minimum_performance}, will_decrease_epsilon={minimum_performance > upper}, big_upper={big_interval_upper:0.4f}, little_upper={little_interval_upper:0.4f}, upper={upper:0.4f}, minimum_performance={minimum_performance:0.4f}, lower={lower:0.4f}''')
                                     
                                     # tune-epsilon check
-                                    if lower > minimum_performace:
+                                    if lower > minimum_performance:
+                                        # accelerate at the begining (helps when the theortical bound is way way way below the actual impact to rewards)
+                                        if tuning.inital_acceleration:
+                                            tuning.delta *= 2
                                         # we are safely above the minimum, lets change that and commit to plans a bit more!
                                         tuning.epsilon += tuning.delta
                                         # reset the values used for a confidence interval
                                         sample = []
-                                    elif minimum_performace > upper:
+                                    elif minimum_performance > upper:
+                                        # disable acceleration after first negative outcome
+                                        tuning.inital_acceleration = False
                                         # epsilon is so big its causing performance problems, lets scale back and cool down
                                         tuning.epsilon -= tuning.delta
                                         tuning.delta /= 2
@@ -881,7 +885,7 @@ class Tester:
                 with block_indent("running theory method"):
                     plot_data.theory_reward_points.append([
                         each_performance_level,
-                        minimum_performace, # theory lowerbound
+                        minimum_performance, # theory lowerbound
                     ])
                 
                 # 
