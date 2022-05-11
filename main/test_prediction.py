@@ -529,7 +529,7 @@ class Tester:
         # self.csv_data.discounted_rewards.append(discounted_reward_stats.sum)
         # self.csv_data.forecast.append(forecast[horizon:]) # BOOKMARK: len(forecast) == number_of_timesteps, so I have no idea why horizon is being used to slice it
         
-        print(f"epsilon: {scaled_epsilon:8.4f}, forecast_average: {grand_forecast_average:8.4f}, raw_reward:{reward_stats.sum:10.2f},                 ", flush=False, end="")
+        print(f"epsilon: {scaled_epsilon:8.4f}, forecast_average: {alt_forecast_average:8.4f}, raw_reward:{reward_stats.sum:10.2f},                 ", flush=False, end="")
     
     # 
     # setup for testing
@@ -592,133 +592,6 @@ class Tester:
         return self
     
     @log_func
-    def create_comparisons(self):
-        settings, predictor = self.settings, self.predictor
-        predictor.agent.gamma = config.agent_settings.reward_discount
-        
-        plot_data = Map()
-        # 
-        # optimal
-        # 
-        print("running optimal method")
-        optimal_samples = self.gather_optimal()
-        average_optimal_reward = simple_stats(optimal_samples).average
-        plot_data.optimal_reward_points = [
-            (each_performance_level, average_optimal_reward) for each_performance_level in self.settings.acceptable_performance_levels
-        ]
-        
-        # 
-        # TODO: random
-        # 
-        print("running random method")
-        average_random_performance = 0 # FIXME
-        plot_data.random_reward_points = [
-            (each_performance_level, average_random_performance) for each_performance_level in self.settings.acceptable_performance_levels
-        ]
-        
-        plot_data.theory_reward_points = []
-        plot_data.ppac_reward_points   = []
-        plot_data.n_step_horizon_reward_points = []
-        plot_data.n_step_planlen_reward_points = []
-        
-        plot_data.ppac_plan_length_points   = []
-        plot_data.n_step_horizon_plan_length_points = []
-        plot_data.n_step_planlen_plan_length_points = []
-        for each_performance_level in self.settings.acceptable_performance_levels:
-            print(f'''# ''')
-            print(f'''# acceptable_performance_level = {each_performance_level}''')
-            print(f'''# ''')
-            # 
-            # ppac
-            # 
-            print("running ppac method")
-            optimal_epsilon, optimal_horizon = self.gather_optimal_parameters(optimal_samples, each_performance_level)
-            # saves these
-            self.settings[str(each_performance_level)] = LazyDict(optimal_epsilon=optimal_epsilon, optimal_horizon=optimal_horizon)
-            epsiode_lengths = []
-            reward_sums     = []
-            failure_point_averages = []
-            for episode_index in range(settings.number_of_episodes_for_testing):
-                (
-                    _,
-                    _,
-                    discounted_rewards,
-                    failure_points,
-                    _,
-                    _,
-                    _
-                ) = self.ppac_experience_episode(
-                    scaled_epsilon=optimal_epsilon,
-                    horizon=optimal_horizon,
-                    episode_index=episode_index,
-                    should_record=True,
-                )
-                epsiode_lengths.append(len(discounted_rewards))
-                reward_sums.append(sum(discounted_rewards))
-                failure_point_averages.append(average(failure_points))
-            plot_data.ppac_reward_points.append([each_performance_level, average(reward_sums)])
-            plot_data.ppac_plan_length_points.append([each_performance_level, average(failure_point_averages)])
-            
-            # 
-            # theory
-            # 
-            print("running theory method")
-            plot_data.theory_reward_points.append([
-                each_performance_level,
-                average_optimal_reward - ( max(epsiode_lengths) * optimal_epsilon )
-            ])
-            
-            # 
-            # n_step horizon
-            # 
-            print("running n_step horizon method")
-            reward_sums     = []
-            for episode_index in range(settings.number_of_episodes_for_testing):
-                (
-                    _,
-                    _,
-                    discounted_rewards,
-                    *_,
-                ) = self.n_step_experience_episode(
-                    number_of_steps=optimal_horizon,
-                    scaled_epsilon=optimal_epsilon,
-                    horizon=optimal_horizon,
-                    episode_index=episode_index,
-                    should_record=False,
-                )
-                reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_horizon_reward_points.append([each_performance_level, average(reward_sums)])
-            plot_data.n_step_horizon_plan_length_points.append([each_performance_level, optimal_horizon])
-            
-            # 
-            # n_step planlen
-            # 
-            print("running n_step planlen method")
-            reward_sums     = []
-            for episode_index in range(settings.number_of_episodes_for_testing):
-                (
-                    _,
-                    _,
-                    discounted_rewards,
-                    *_,
-                ) = self.n_step_experience_episode(
-                    number_of_steps=plot_data.ppac_plan_length_points[-1][1], # average failure point, ceil so that never goes to 0
-                    scaled_epsilon=optimal_epsilon,
-                    horizon=optimal_horizon,
-                    episode_index=episode_index,
-                    should_record=False,
-                )
-                reward_sums.append(sum(discounted_rewards))
-            plot_data.n_step_planlen_reward_points.append([each_performance_level, average(reward_sums)])
-            plot_data.n_step_planlen_plan_length_points.append([each_performance_level, optimal_horizon])
-            
-            self.settings = LazyDict({
-                **self.settings,
-                "plot": plot_data[Map.Dict],
-            })
-            self.save()
-    
-    @log_func
     def tuned_comparisons(self):
         print(f'''time is: {time()}''')
         settings, predictor = self.settings, self.predictor
@@ -752,10 +625,13 @@ class Tester:
         plot_data.ppac_reward_points   = []
         plot_data.n_step_horizon_reward_points = []
         plot_data.n_step_planlen_reward_points = []
+        plot_data.n_step_median_reward_points = []
         
-        plot_data.ppac_plan_length_points   = []
+        plot_data.ppac_plan_length_points_average   = []
+        plot_data.ppac_plan_length_points_median    = []
         plot_data.n_step_horizon_plan_length_points = []
         plot_data.n_step_planlen_plan_length_points = []
+        plot_data.n_step_median_plan_length_points = []
         for each_performance_level in self.settings.acceptable_performance_levels:
             print(f'''# ''')
             print(f'''# acceptable_performance_level = {each_performance_level}''')
@@ -812,14 +688,16 @@ class Tester:
                             
                             _, _, discounted_rewards, failure_points, *_ = experience_outputs
                             reward_sum = sum(discounted_rewards)
-                            with block_indent(f'''episode_index={episode_index}, discounted_reward_sum={reward_sum:8.4f}, horizon={tuning.horizon}'''):
+                            failure_point_stats = stats(failure_points)
+                            with block_indent(f'''episode_index={episode_index}, discounted_reward_sum={reward_sum:8.4f}, failure_point_average={failure_point_stats.average:8.4f}, failure_point_median={failure_point_stats.median:8.4f}, horizon={tuning.horizon}'''):
                                 episode_recorder.push(
                                     episode_index=episode_index,
                                     scaled_epsilon=tuning.epsilon,
                                     horizon=tuning.horizon,
                                     epsiode_length=len(discounted_rewards),
                                     reward_sum=reward_sum,
-                                    failure_point_average=average(failure_points),
+                                    failure_point_average=failure_point_stats.average,
+                                    failure_point_median=failure_point_stats.median,
                                 )
                                 
                                 # make sure the horizon is big enough, and within bounds
@@ -879,7 +757,8 @@ class Tester:
                                         pass
                     
                     plot_data.ppac_reward_points.append([each_performance_level, average(episode_recorder.frame.reward_sum)])
-                    plot_data.ppac_plan_length_points.append([each_performance_level, average(episode_recorder.frame.failure_point_average)])
+                    plot_data.ppac_plan_length_points_average.append([each_performance_level, average(episode_recorder.frame.failure_point_average)])
+                    plot_data.ppac_plan_length_points_median.append([each_performance_level, average(episode_recorder.frame.failure_point_median)])
             
                 # 
                 # theory
@@ -915,8 +794,31 @@ class Tester:
                 # 
                 # n_step planlen
                 # 
+                with block_indent("running n_step median method"):
+                    prev_average_failure_point = math.ceil(plot_data.ppac_plan_length_points_median[-1][1])
+                    reward_sums     = []
+                    for episode_index in range(settings.number_of_episodes_for_testing):
+                        (
+                            _,
+                            _,
+                            discounted_rewards,
+                            *_,
+                        ) = self.n_step_experience_episode(
+                            number_of_steps=prev_average_failure_point, # average failure point, ceil so that never goes to 0
+                            scaled_epsilon=tuning.epsilon,
+                            horizon=tuning.horizon,
+                            episode_index=episode_index,
+                            should_record=False,
+                        )
+                        reward_sums.append(sum(discounted_rewards))
+                    plot_data.n_step_median_reward_points.append([each_performance_level, average(reward_sums)])
+                    plot_data.n_step_median_plan_length_points.append([each_performance_level, prev_average_failure_point])
+
+                # 
+                # n_step planlen
+                # 
                 with block_indent("running n_step planlen method"):
-                    prev_average_failure_point = math.ceil(plot_data.ppac_plan_length_points[-1][1])
+                    prev_average_failure_point = math.ceil(plot_data.ppac_plan_length_points_average[-1][1])
                     reward_sums     = []
                     for episode_index in range(settings.number_of_episodes_for_testing):
                         (
@@ -1048,14 +950,16 @@ class Tester:
                 ppac=plot_data.ppac_reward_points,
                 n_step_horizon=plot_data.n_step_horizon_reward_points,
                 n_step_planlen=plot_data.n_step_planlen_reward_points,
+                n_step_median=plot_data.n_step_median_reward_points,
             ))
             # 
             # forcast plot
             # 
             ss.DisplayCard("multiLine", dict(
-                ppac=plot_data.ppac_plan_length_points,
+                ppac=plot_data.ppac_plan_length_points_average,
                 n_step_horizon=plot_data.n_step_horizon_plan_length_points,
                 n_step_planlen=plot_data.n_step_planlen_plan_length_points,
+                n_step_median=plot_data.n_step_median_plan_length_points,
             ))
             
             multi_plot(
@@ -1066,6 +970,7 @@ class Tester:
                     ppac=plot_data.ppac_reward_points,
                     n_step_horizon=plot_data.n_step_horizon_reward_points,
                     n_step_planlen=plot_data.n_step_planlen_reward_points,
+                    n_step_median=plot_data.n_step_median_reward_points,
                 ),
                 vertical_label="reward",
                 horizonal_label="acceptance level",
@@ -1075,6 +980,7 @@ class Tester:
                     ppac='#89ddff',
                     theory='#e57eb3',
                     n_step_planlen='#fec355',
+                    n_step_median='#ddd790',
                     n_step_horizon='#f07178',
                     random='#c7cbcd',
                 )
@@ -1104,7 +1010,7 @@ class Tester:
         # forcast plot
         # 
         ss.DisplayCard("multiLine", dict(
-            ppac=plot_data.ppac_plan_length_points,
+            ppac=plot_data.ppac_plan_length_points_average,
             n_step_horizon=plot_data.n_step_horizon_plan_length_points,
             n_step_planlen=plot_data.n_step_planlen_plan_length_points,
         ))

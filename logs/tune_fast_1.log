@@ -63,11 +63,14 @@ coach settings = {
         "min_sample_size": 30, 
         "min_reward_single_timestep": 0, 
         "max_reward_single_timestep": 100, 
-        "horizon_ceiling": 20, 
+        "horizon_ceiling": 25, 
         "horizon_floor": 4, 
     }
+    generate_graphs
+        no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
+        no data found for: results/tune_fast_1/ReacherBulletEnv-v0//experiments.csv
 tuned_comparisons
-    time is: 1652291976.1055436
+    time is: 1652293606.6789584
     running optimal method
         optimal_stats = {
             "max": 28.414311740268797, 
@@ -87,52 +90,183 @@ tuned_comparisons
             minimum_performance = 7.374253537409209
 argv[0]=
 argv[0]=
-                epsilon:   0.1475, forecast_average:   2.4500, raw_reward:     24.00,                 episode_index=0, discounted_reward_sum= 17.3839, horizon=10
-                epsilon:   0.1475, forecast_average:   2.7143, raw_reward:     23.54,                 episode_index=1, discounted_reward_sum= 18.5682, horizon=10
-                epsilon:   0.1475, forecast_average:   2.0469, raw_reward:      6.49,                 episode_index=2, discounted_reward_sum=  7.8870, horizon=11
-                epsilon:   0.1475, forecast_average:   2.2709, raw_reward:     35.89,                 episode_index=3, discounted_reward_sum= 28.2279, horizon=10
-                epsilon:   0.1475, forecast_average:   2.6253, raw_reward:     12.52,                 episode_index=4, discounted_reward_sum= 11.4977, horizon=10
-                epsilon:   0.1475, forecast_average:   2.6985, raw_reward:     12.04,                 episode_index=5, discounted_reward_sum=  9.4212, horizon=10
-                epsilon:   0.1475, forecast_average:   2.6511, raw_reward:      8.62,                 episode_index=6, discounted_reward_sum=  4.3454, horizon=11
-                epsilon:   0.1475, forecast_average:   2.7144, raw_reward:     17.09,                 episode_index=7, discounted_reward_sum= 15.8047, horizon=10
-                epsilon:   0.1475, forecast_average:   2.4903, raw_reward:     -1.29,                 episode_index=8, discounted_reward_sum=  0.1824, horizon=11
-                epsilon:   0.1475, forecast_average:   2.5627, raw_reward:     15.37,                 episode_index=9, discounted_reward_sum= 11.2535, horizon=10
-                epsilon:   0.1475, forecast_average:   2.6646, raw_reward:      8.47,                 episode_index=10, discounted_reward_sum=  6.4791, horizon=11
-                epsilon:   0.1475, forecast_average:   2.7267, raw_reward:     -0.86,                 episode_index=11, discounted_reward_sum=  1.4080, horizon=11
-                epsilon:   0.1475, forecast_average:   2.7964, raw_reward:      9.39,                 episode_index=12, discounted_reward_sum=  6.1369, horizon=11
-                epsilon:   0.1475, forecast_average:   2.8058, raw_reward:     16.79,                 episode_index=13, discounted_reward_sum= 12.1155, horizon=11
-                epsilon:   0.1475, forecast_average:   2.8792, raw_reward:     10.44,                 episode_index=14, discounted_reward_sum= 10.3701, horizon=11
-                epsilon:   0.1475, forecast_average:   2.9320, raw_reward:     13.80,                 episode_index=15, discounted_reward_sum= 13.2495, horizon=12
-                epsilon:   0.1475, forecast_average:   3.0256, raw_reward:     23.27,                 episode_index=16, discounted_reward_sum= 16.1811, horizon=12
-                epsilon:   0.1475, forecast_average:   3.0149, raw_reward:     10.80,                 episode_index=17, discounted_reward_sum=  7.7145, horizon=12
-                epsilon:   0.1475, forecast_average:   2.9451, raw_reward:      1.97,                 episode_index=18, discounted_reward_sum=  3.6613, horizon=12
-                epsilon:   0.1475, forecast_average:   3.1011, raw_reward:      4.10,                 episode_index=19, discounted_reward_sum=  1.8716, horizon=12
-                epsilon:   0.1475, forecast_average:   3.1470, raw_reward:     10.08,                 episode_index=20, discounted_reward_sum=  9.9024, horizon=12
-                epsilon:   0.1475, forecast_average:   3.0860, raw_reward:     -7.92,                 episode_index=21, discounted_reward_sum= -4.7413, horizon=12
-                epsilon:   0.1475, forecast_average:   3.0466, raw_reward:      4.76,                 episode_index=22, discounted_reward_sum=  7.3948, horizon=12
-                epsilon:   0.1475, forecast_average:   3.0800, raw_reward:     19.29,                 episode_index=23, discounted_reward_sum= 12.4748, horizon=12
-                epsilon:   0.1475, forecast_average:   3.1322, raw_reward:      8.95,                 episode_index=24, discounted_reward_sum=  9.1160, horizon=12
-                epsilon:   0.1475, forecast_average:   3.1655, raw_reward:     25.16,                 episode_index=25, discounted_reward_sum= 19.0773, horizon=12
-                epsilon:   0.1475, forecast_average:   3.1672, raw_reward:      0.49,                 episode_index=26, discounted_reward_sum=  0.5345, horizon=12
-                epsilon:   0.1475, forecast_average:   3.2000, raw_reward:     19.00,                 episode_index=27, discounted_reward_sum= 13.7660, horizon=12
-                epsilon:   0.1475, forecast_average:   3.1881, raw_reward:      7.36,                 episode_index=28, discounted_reward_sum=  3.9568, horizon=13
-                epsilon:   0.1475, forecast_average:   3.1860, raw_reward:      8.48,                 episode_index=29, discounted_reward_sum=  9.3986, horizon=13
-                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=11.5991, little_upper=9.6455, upper=9.3305, minimum_performance=7.3743, lower=7.3769
-                epsilon:   0.4425, forecast_average:   3.2574, raw_reward:      0.88,                 episode_index=30, discounted_reward_sum=  0.5576, horizon=13
-                epsilon:   0.4425, forecast_average:   3.3379, raw_reward:      1.33,                 episode_index=31, discounted_reward_sum=  6.6756, horizon=13
-                epsilon:   0.4425, forecast_average:   3.3929, raw_reward:     13.07,                 episode_index=32, discounted_reward_sum= 12.9680, horizon=13
-                epsilon:   0.4425, forecast_average:   3.4776, raw_reward:      9.30,                 episode_index=33, discounted_reward_sum=  6.3490, horizon=14
-                epsilon:   0.4425, forecast_average:   3.5904, raw_reward:     23.13,                 episode_index=34, discounted_reward_sum= 16.7867, horizon=14
-                epsilon:   0.4425, forecast_average:   3.6416, raw_reward:      0.97,                 episode_index=35, discounted_reward_sum=  5.2833, horizon=14
-                epsilon:   0.4425, forecast_average:   3.7030, raw_reward:     10.37,                 episode_index=36, discounted_reward_sum=  9.3381, horizon=14
-                epsilon:   0.4425, forecast_average:   3.8044, raw_reward:     -0.37,                 episode_index=37, discounted_reward_sum=  4.6156, horizon=14
-                epsilon:   0.4425, forecast_average:   3.8547, raw_reward:     -0.61,                 episode_index=38, discounted_reward_sum= -1.4620, horizon=14
-                epsilon:   0.4425, forecast_average:   3.9719, raw_reward:      1.11,                 episode_index=39, discounted_reward_sum=  1.8368, horizon=14
-                epsilon:   0.4425, forecast_average:   4.0366, raw_reward:     18.43,                 episode_index=40, discounted_reward_sum= 10.8716, horizon=15
-                epsilon:   0.4425, forecast_average:   4.0646, raw_reward:     15.42,                 episode_index=41, discounted_reward_sum= 10.3783, horizon=15
-                epsilon:   0.4425, forecast_average:   4.0941, raw_reward:     11.76,                 episode_index=42, discounted_reward_sum=  5.0084, horizon=15
-                epsilon:   0.4425, forecast_average:   4.1263, raw_reward:     14.72,                 episode_index=43, discounted_reward_sum= 12.8286, horizon=16
-                epsilon:   0.4425, forecast_average:   4.2680, raw_reward:     22.12,                 episode_index=44, discounted_reward_sum= 18.5870, horizon=17
-                epsilon:   0.4425, forecast_average:   4.2940, raw_reward:     10.99,                 episode_index=45, discounted_reward_sum=  8.5550, horizon=19
-                epsilon:   0.4425, forecast_average:   4.3009, raw_reward:     25.81,                 episode_index=46, discounted_reward_sum= 20.1653, horizon=19
-                epsilon:   0.4425, forecast_average:   4.3416, raw_reward:      9.07,                 episode_index=47, discounted_reward_sum=  9.6697, horizon=20
+                epsilon:   0.1475, forecast_average:   3.6067, raw_reward:     18.32,                 episode_index=0, discounted_reward_sum= 13.8968, failure_point_average=  6.9400, failure_point_median=  9.0000, horizon=10
+                epsilon:   0.1475, forecast_average:   3.8867, raw_reward:     20.33,                 episode_index=1, discounted_reward_sum= 14.4322, failure_point_average=  9.1533, failure_point_median= 12.0000, horizon=13
+                epsilon:   0.1475, forecast_average:   4.1978, raw_reward:     14.76,                 episode_index=2, discounted_reward_sum= 13.3150, failure_point_average= 10.2867, failure_point_median= 14.0000, horizon=16
+                epsilon:   0.1475, forecast_average:   4.1950, raw_reward:     29.66,                 episode_index=3, discounted_reward_sum= 22.9906, failure_point_average= 11.5200, failure_point_median= 16.0000, horizon=18
+                epsilon:   0.1475, forecast_average:   4.2480, raw_reward:     14.90,                 episode_index=4, discounted_reward_sum=  9.3750, failure_point_average= 12.7600, failure_point_median= 17.0000, horizon=19
+                epsilon:   0.1475, forecast_average:   4.0789, raw_reward:     34.67,                 episode_index=5, discounted_reward_sum= 25.3538, failure_point_average= 12.7000, failure_point_median= 18.0000, horizon=20
+                epsilon:   0.1475, forecast_average:   3.7733, raw_reward:     15.21,                 episode_index=6, discounted_reward_sum=  9.7521, failure_point_average=  8.7067, failure_point_median=  8.5000, horizon=21
+                epsilon:   0.1475, forecast_average:   3.5492, raw_reward:      0.12,                 episode_index=7, discounted_reward_sum=  0.6527, failure_point_average=  9.9067, failure_point_median= 15.5000, horizon=20
+                epsilon:   0.1475, forecast_average:   3.5756, raw_reward:     11.41,                 episode_index=8, discounted_reward_sum=  9.5226, failure_point_average= 12.7467, failure_point_median= 18.0000, horizon=20
+                epsilon:   0.1475, forecast_average:   3.8153, raw_reward:     11.46,                 episode_index=9, discounted_reward_sum= 12.5434, failure_point_average= 13.8733, failure_point_median= 18.0000, horizon=20
+                epsilon:   0.1475, forecast_average:   3.6618, raw_reward:     -5.59,                 episode_index=10, discounted_reward_sum= -0.3462, failure_point_average=  8.0600, failure_point_median=  5.5000, horizon=21
+                epsilon:   0.1475, forecast_average:   3.7117, raw_reward:     21.33,                 episode_index=11, discounted_reward_sum= 13.3061, failure_point_average= 12.4667, failure_point_median= 18.0000, horizon=20
+                epsilon:   0.1475, forecast_average:   3.7744, raw_reward:     -2.23,                 episode_index=12, discounted_reward_sum= -1.7947, failure_point_average= 13.7000, failure_point_median= 19.0000, horizon=21
+                epsilon:   0.1475, forecast_average:   3.6986, raw_reward:     31.35,                 episode_index=13, discounted_reward_sum= 23.1875, failure_point_average= 11.7867, failure_point_median= 13.0000, horizon=23
+                epsilon:   0.1475, forecast_average:   3.6907, raw_reward:     11.16,                 episode_index=14, discounted_reward_sum=  8.9945, failure_point_average= 13.0867, failure_point_median= 16.0000, horizon=23
+                epsilon:   0.1475, forecast_average:   3.6125, raw_reward:      9.09,                 episode_index=15, discounted_reward_sum=  7.7593, failure_point_average= 12.2867, failure_point_median= 14.0000, horizon=23
+                epsilon:   0.1475, forecast_average:   3.7082, raw_reward:     19.56,                 episode_index=16, discounted_reward_sum= 15.8019, failure_point_average= 13.9467, failure_point_median= 18.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.7207, raw_reward:     25.08,                 episode_index=17, discounted_reward_sum= 19.2826, failure_point_average= 12.3067, failure_point_median= 12.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.7218, raw_reward:     14.39,                 episode_index=18, discounted_reward_sum= 12.1084, failure_point_average= 13.8200, failure_point_median= 17.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6890, raw_reward:     29.77,                 episode_index=19, discounted_reward_sum= 22.3279, failure_point_average= 13.2000, failure_point_median= 16.5000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.5879, raw_reward:     16.53,                 episode_index=20, discounted_reward_sum= 15.2562, failure_point_average= 10.4267, failure_point_median=  3.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.5597, raw_reward:     10.56,                 episode_index=21, discounted_reward_sum=  8.8410, failure_point_average= 12.1400, failure_point_median= 11.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6704, raw_reward:     20.38,                 episode_index=22, discounted_reward_sum= 16.1618, failure_point_average= 15.0267, failure_point_median= 20.5000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6542, raw_reward:     12.99,                 episode_index=23, discounted_reward_sum= 10.5138, failure_point_average= 11.7200, failure_point_median= 10.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6168, raw_reward:     11.78,                 episode_index=24, discounted_reward_sum= 11.0817, failure_point_average= 12.4133, failure_point_median= 13.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6067, raw_reward:     19.33,                 episode_index=25, discounted_reward_sum= 15.1967, failure_point_average= 14.3000, failure_point_median= 22.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6249, raw_reward:     27.00,                 episode_index=26, discounted_reward_sum= 20.1337, failure_point_average= 12.0800, failure_point_median= 11.5000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6240, raw_reward:     13.54,                 episode_index=27, discounted_reward_sum= 11.4426, failure_point_average= 12.9800, failure_point_median= 13.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.6331, raw_reward:      2.52,                 episode_index=28, discounted_reward_sum=  1.4067, failure_point_average= 12.8000, failure_point_median= 13.0000, horizon=24
+                epsilon:   0.1475, forecast_average:   3.5651, raw_reward:      6.06,                 episode_index=29, discounted_reward_sum=  5.7384, failure_point_average= 12.5333, failure_point_median= 22.0000, horizon=24
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=14.4261, little_upper=12.4350, upper=12.1139, minimum_performance=7.3743, lower=10.1228
+                epsilon:   0.4425, forecast_average:   3.6194, raw_reward:     20.72,                 episode_index=30, discounted_reward_sum= 13.9704, failure_point_average= 17.7200, failure_point_median= 23.0000, horizon=24
+                epsilon:   0.4425, forecast_average:   3.6927, raw_reward:     23.06,                 episode_index=31, discounted_reward_sum= 16.9923, failure_point_average= 18.5933, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   3.7289, raw_reward:      9.42,                 episode_index=32, discounted_reward_sum=  7.6364, failure_point_average= 17.7200, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   3.7996, raw_reward:     13.19,                 episode_index=33, discounted_reward_sum= 10.7117, failure_point_average= 16.9467, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   3.8598, raw_reward:     21.00,                 episode_index=34, discounted_reward_sum= 12.7606, failure_point_average= 17.3533, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.0326, raw_reward:     16.58,                 episode_index=35, discounted_reward_sum= 13.1536, failure_point_average= 19.9133, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.0724, raw_reward:      0.49,                 episode_index=36, discounted_reward_sum=  2.6696, failure_point_average= 17.8800, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.1291, raw_reward:      0.50,                 episode_index=37, discounted_reward_sum=  0.9427, failure_point_average= 18.0733, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.2062, raw_reward:     15.21,                 episode_index=38, discounted_reward_sum=  7.9303, failure_point_average= 16.8667, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.3110, raw_reward:      6.11,                 episode_index=39, discounted_reward_sum=  2.7026, failure_point_average= 19.5400, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.3478, raw_reward:     12.05,                 episode_index=40, discounted_reward_sum=  4.5665, failure_point_average= 19.0733, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.3706, raw_reward:      9.84,                 episode_index=41, discounted_reward_sum=  6.9246, failure_point_average= 18.0000, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.3826, raw_reward:      2.15,                 episode_index=42, discounted_reward_sum=  5.8831, failure_point_average= 17.1467, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.4514, raw_reward:     11.25,                 episode_index=43, discounted_reward_sum= 12.7464, failure_point_average= 17.8733, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.5003, raw_reward:      9.60,                 episode_index=44, discounted_reward_sum=  9.6556, failure_point_average= 18.9267, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.4823, raw_reward:     15.74,                 episode_index=45, discounted_reward_sum=  7.7050, failure_point_average= 16.8267, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.5306, raw_reward:      5.03,                 episode_index=46, discounted_reward_sum=  4.5504, failure_point_average= 18.8667, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.5542, raw_reward:     14.05,                 episode_index=47, discounted_reward_sum=  8.7867, failure_point_average= 18.9800, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6215, raw_reward:      2.70,                 episode_index=48, discounted_reward_sum=  3.7641, failure_point_average= 18.6400, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6135, raw_reward:      6.46,                 episode_index=49, discounted_reward_sum=  6.4956, failure_point_average= 16.5000, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6613, raw_reward:     26.37,                 episode_index=50, discounted_reward_sum= 19.5671, failure_point_average= 18.4600, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6773, raw_reward:     -0.32,                 episode_index=51, discounted_reward_sum=  1.5119, failure_point_average= 18.6467, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6592, raw_reward:      2.91,                 episode_index=52, discounted_reward_sum= -1.1682, failure_point_average= 17.6200, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6033, raw_reward:      1.23,                 episode_index=53, discounted_reward_sum=  2.5668, failure_point_average= 15.2533, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.5705, raw_reward:      7.09,                 episode_index=54, discounted_reward_sum=  8.7586, failure_point_average= 14.2467, failure_point_median= 21.5000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6117, raw_reward:     12.95,                 episode_index=55, discounted_reward_sum= 12.0911, failure_point_average= 18.8733, failure_point_median= 23.5000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6724, raw_reward:     15.08,                 episode_index=56, discounted_reward_sum=  9.0910, failure_point_average= 18.7867, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.6789, raw_reward:     28.77,                 episode_index=57, discounted_reward_sum= 21.6244, failure_point_average= 15.9267, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.7393, raw_reward:     25.46,                 episode_index=58, discounted_reward_sum= 16.7497, failure_point_average= 19.8533, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   4.7708, raw_reward:     11.01,                 episode_index=59, discounted_reward_sum=  9.3944, failure_point_average= 19.1800, failure_point_median= 24.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.4316, little_upper=8.8210, upper=8.5613, minimum_performance=7.3743, lower=6.9508
+                epsilon:   0.4425, forecast_average:   4.7774, raw_reward:     28.30,                 episode_index=60, discounted_reward_sum= 17.1806, failure_point_average= 18.0733, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.7095, little_upper=9.0953, upper=8.8348, minimum_performance=7.3743, lower=7.2205
+                epsilon:   0.4425, forecast_average:   4.8047, raw_reward:      2.84,                 episode_index=61, discounted_reward_sum=  4.2206, failure_point_average= 20.8200, failure_point_median= 24.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.5228, little_upper=8.9442, upper=8.6893, minimum_performance=7.3743, lower=7.1107
+                epsilon:   0.4425, forecast_average:   4.7932, raw_reward:      4.74,                 episode_index=62, discounted_reward_sum=  7.3860, failure_point_average= 12.2667, failure_point_median=  9.5000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.4270, little_upper=8.8970, upper=8.6498, minimum_performance=7.3743, lower=7.1198
+                epsilon:   0.4425, forecast_average:   4.8692, raw_reward:    -10.76,                 episode_index=63, discounted_reward_sum= -4.2137, failure_point_average= 19.6133, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.1196, little_upper=8.5207, upper=8.2621, minimum_performance=7.3743, lower=6.6632
+                epsilon:   0.4425, forecast_average:   4.8848, raw_reward:     -5.24,                 episode_index=64, discounted_reward_sum= -1.5044, failure_point_average= 18.2467, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=9.8522, little_upper=8.2392, upper=7.9781, minimum_performance=7.3743, lower=6.3652
+                epsilon:   0.4425, forecast_average:   4.9879, raw_reward:      6.13,                 episode_index=65, discounted_reward_sum=  5.8221, failure_point_average= 20.2000, failure_point_median= 24.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=9.7416, little_upper=8.1723, upper=7.9181, minimum_performance=7.3743, lower=6.3488
+                epsilon:   0.4425, forecast_average:   5.0946, raw_reward:     11.53,                 episode_index=66, discounted_reward_sum=  8.6012, failure_point_average= 20.2600, failure_point_median= 24.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=9.7091, little_upper=8.1838, upper=7.9366, minimum_performance=7.3743, lower=6.4113
+                epsilon:   0.4425, forecast_average:   5.1115, raw_reward:      8.57,                 episode_index=67, discounted_reward_sum= 10.7488, failure_point_average= 17.3733, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=9.7391, little_upper=8.2516, upper=8.0103, minimum_performance=7.3743, lower=6.5228
+                epsilon:   0.4425, forecast_average:   5.0859, raw_reward:     12.59,                 episode_index=68, discounted_reward_sum=  5.2645, failure_point_average= 15.3467, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=9.6277, little_upper=8.1753, upper=7.9396, minimum_performance=7.3743, lower=6.4872
+                epsilon:   0.4425, forecast_average:   5.1114, raw_reward:     31.84,                 episode_index=69, discounted_reward_sum= 26.7950, failure_point_average= 17.4133, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.2470, little_upper=8.6551, upper=8.3967, minimum_performance=7.3743, lower=6.8047
+                epsilon:   0.4425, forecast_average:   5.1147, raw_reward:     22.34,                 episode_index=70, discounted_reward_sum= 18.9573, failure_point_average= 15.9667, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.5118, little_upper=8.9104, upper=8.6503, minimum_performance=7.3743, lower=7.0489
+                epsilon:   0.4425, forecast_average:   5.1043, raw_reward:      2.27,                 episode_index=71, discounted_reward_sum=  4.7385, failure_point_average= 18.2667, failure_point_median= 24.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.3806, little_upper=8.8115, upper=8.5566, minimum_performance=7.3743, lower=6.9876
+                epsilon:   0.4425, forecast_average:   5.1332, raw_reward:     14.35,                 episode_index=72, discounted_reward_sum= 12.7933, failure_point_average= 19.2400, failure_point_median= 23.5000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.4431, little_upper=8.9047, upper=8.6546, minimum_performance=7.3743, lower=7.1162
+                epsilon:   0.4425, forecast_average:   5.1304, raw_reward:     12.20,                 episode_index=73, discounted_reward_sum= 12.9257, failure_point_average= 17.1867, failure_point_median= 23.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=10.5059, little_upper=8.9966, upper=8.7512, minimum_performance=7.3743, lower=7.2418
+                epsilon:   0.4425, forecast_average:   5.1577, raw_reward:     23.26,                 episode_index=74, discounted_reward_sum= 20.3442, failure_point_average= 19.3600, failure_point_median= 24.0000, horizon=25
+                    will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=10.7799, little_upper=9.2530, upper=9.0046, minimum_performance=7.3743, lower=7.4777
+                epsilon:   1.0324, forecast_average:   5.2151, raw_reward:      3.02,                 episode_index=75, discounted_reward_sum=  3.2948, failure_point_average= 20.7333, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.2543, raw_reward:     -1.38,                 episode_index=76, discounted_reward_sum=  6.9390, failure_point_average= 20.5933, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.3156, raw_reward:      9.75,                 episode_index=77, discounted_reward_sum= -6.0559, failure_point_average= 20.7067, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.3381, raw_reward:     20.91,                 episode_index=78, discounted_reward_sum=  6.4490, failure_point_average= 20.0800, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.4382, raw_reward:      9.37,                 episode_index=79, discounted_reward_sum=  1.9127, failure_point_average= 21.8333, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.5374, raw_reward:    -12.07,                 episode_index=80, discounted_reward_sum= -0.3056, failure_point_average= 22.6200, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.6195, raw_reward:      1.40,                 episode_index=81, discounted_reward_sum= -3.9357, failure_point_average= 22.2467, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.6394, raw_reward:     14.72,                 episode_index=82, discounted_reward_sum=  8.7309, failure_point_average= 19.8533, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.7166, raw_reward:     17.04,                 episode_index=83, discounted_reward_sum=  8.0325, failure_point_average= 21.8000, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.7811, raw_reward:      8.08,                 episode_index=84, discounted_reward_sum=  9.2446, failure_point_average= 21.9667, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.8680, raw_reward:     -1.94,                 episode_index=85, discounted_reward_sum= -4.0572, failure_point_average= 21.8867, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   5.9503, raw_reward:     -5.26,                 episode_index=86, discounted_reward_sum= -7.3427, failure_point_average= 22.4733, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.0133, raw_reward:     -9.39,                 episode_index=87, discounted_reward_sum=  4.1208, failure_point_average= 20.8200, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.0643, raw_reward:     19.62,                 episode_index=88, discounted_reward_sum= 10.2274, failure_point_average= 21.4667, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.0460, raw_reward:    -21.51,                 episode_index=89, discounted_reward_sum= -3.9063, failure_point_average= 16.8667, failure_point_median= 23.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.1297, raw_reward:     -5.06,                 episode_index=90, discounted_reward_sum= -9.9834, failure_point_average= 22.0267, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.1982, raw_reward:     23.34,                 episode_index=91, discounted_reward_sum= 17.9105, failure_point_average= 22.2200, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.2672, raw_reward:    -11.04,                 episode_index=92, discounted_reward_sum= -2.9436, failure_point_average= 22.3533, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.2843, raw_reward:      8.22,                 episode_index=93, discounted_reward_sum=  2.5900, failure_point_average= 20.4667, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.3221, raw_reward:      4.31,                 episode_index=94, discounted_reward_sum=  7.0608, failure_point_average= 21.7933, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.3592, raw_reward:     21.40,                 episode_index=95, discounted_reward_sum=  7.9883, failure_point_average= 21.5600, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.4599, raw_reward:     -0.35,                 episode_index=96, discounted_reward_sum=  4.2811, failure_point_average= 22.3733, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.5613, raw_reward:      0.89,                 episode_index=97, discounted_reward_sum=  5.7418, failure_point_average= 22.4733, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.6400, raw_reward:     -7.47,                 episode_index=98, discounted_reward_sum=  4.5361, failure_point_average= 21.4000, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.6865, raw_reward:      8.30,                 episode_index=99, discounted_reward_sum=  6.8181, failure_point_average= 21.0200, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.6785, raw_reward:    -13.67,                 episode_index=100, discounted_reward_sum= -5.8691, failure_point_average= 20.0200, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.6826, raw_reward:      7.41,                 episode_index=101, discounted_reward_sum=  4.4114, failure_point_average= 20.2800, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.7194, raw_reward:     22.24,                 episode_index=102, discounted_reward_sum= 17.2374, failure_point_average= 21.2533, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.7408, raw_reward:     21.86,                 episode_index=103, discounted_reward_sum= 18.3529, failure_point_average= 19.9667, failure_point_median= 24.0000, horizon=25
+                epsilon:   1.0324, forecast_average:   6.8102, raw_reward:     -0.40,                 episode_index=104, discounted_reward_sum=  0.5191, failure_point_average= 22.5000, failure_point_median= 24.0000, horizon=25
+                    will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=5.9850, little_upper=3.9013, upper=3.5653, minimum_performance=7.3743, lower=1.4817
+                epsilon:   0.4425, forecast_average:   6.8164, raw_reward:     -5.90,                 episode_index=105, discounted_reward_sum= -4.3389, failure_point_average= 20.8467, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8139, raw_reward:     22.96,                 episode_index=106, discounted_reward_sum= 11.6688, failure_point_average= 18.4800, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8232, raw_reward:     17.82,                 episode_index=107, discounted_reward_sum= 12.7992, failure_point_average= 20.4933, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8006, raw_reward:     15.35,                 episode_index=108, discounted_reward_sum=  5.7941, failure_point_average= 18.2200, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8066, raw_reward:     11.20,                 episode_index=109, discounted_reward_sum=  7.4418, failure_point_average= 17.6067, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8109, raw_reward:     18.87,                 episode_index=110, discounted_reward_sum= 14.9642, failure_point_average= 19.8400, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8107, raw_reward:      3.59,                 episode_index=111, discounted_reward_sum=  3.2189, failure_point_average= 18.5733, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8084, raw_reward:      5.34,                 episode_index=112, discounted_reward_sum=  7.4931, failure_point_average= 20.1267, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8024, raw_reward:     12.25,                 episode_index=113, discounted_reward_sum=  7.2982, failure_point_average= 17.4467, failure_point_median= 23.5000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8022, raw_reward:     -1.82,                 episode_index=114, discounted_reward_sum=  0.4694, failure_point_average= 19.2133, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.7704, raw_reward:     18.75,                 episode_index=115, discounted_reward_sum= 16.1042, failure_point_average= 15.7333, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.7728, raw_reward:     10.10,                 episode_index=116, discounted_reward_sum=  3.1662, failure_point_average= 19.5800, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.7769, raw_reward:     15.76,                 episode_index=117, discounted_reward_sum= 12.1671, failure_point_average= 18.5467, failure_point_median= 23.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.7952, raw_reward:     -3.49,                 episode_index=118, discounted_reward_sum=  0.8592, failure_point_average= 20.7600, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.7974, raw_reward:      9.41,                 episode_index=119, discounted_reward_sum=  8.7822, failure_point_average= 20.7733, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.8012, raw_reward:     11.14,                 episode_index=120, discounted_reward_sum= 11.7639, failure_point_average= 19.5933, failure_point_median= 24.0000, horizon=25
+                epsilon:   0.4425, forecast_average:   6.7852, raw_reward:      9.26,                 episode_index=121, discounted_reward_sum=  9.7606, failure_point_average= 19.1000, failure_point_median= 24.0000, horizon=25
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/compare_tuner.py", line 50, in <module>
+    full_run(
+  File "./main/run/compare_tuner.py", line 26, in full_run
+    results = Tester.smart_load(
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 543, in wrapper
+    output = function_being_wrapped(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 848, in tuned_comparisons
+    except Exception as error: print(error)
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 761, in tuned_comparisons
+    plot_data.ppac_plan_length_points_median.append([each_performance_level, average(episode_recorder.frame.failure_point_median)])
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 757, in tuned_comparisons
+    pass
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 680, in tuned_comparisons
+    experience_outputs = self.ppac_experience_episode(
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 532, in wrapper
+    output = function_being_wrapped(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 290, in ppac_experience_episode
+    plan, failure_point, stopped_early, q_value_gaps = replan(state, plan,)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 259, in replan
+    expected_state = predict_next_state(expected_state, old_plan_action)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/model.py", line 140, in wrapper2
+    return function_being_wrapped(self, *args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/model.py", line 158, in wrapper2
+    args, kwargs = apply_to_selected(converter, which_args, args, kwargs)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/generics.py", line 220, in apply_to_selected
+    new_args = tuple(func(each) for each in args)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/generics.py", line 220, in <genexpr>
+    new_args = tuple(func(each) for each in args)
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/model.py", line 155, in converter
+    return value.to(self_device)
+KeyboardInterrupt

@@ -81,18 +81,19 @@
                 graph_smoothing: 0 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 50
-                number_of_episodes_for_testing: 500 # original value is 50 
+                number_of_episodes_for_testing: 250 # original value is 50 
                 initial_epsilon: 3.5 # overshooting this initial value is better than undershooting
                 initial_horizon: 10 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98
-                acceptable_performance_levels: [ 0.5, 0.8, 0.9, 0.95, 0.97, 0.99, 1.00 ]
+                acceptable_performance_levels: [ 1.00, 0.95, 0.9, 0.8,  0.5, ]
+                # acceptable_performance_levels: [ 0.5, 0.8, 0.9, 0.95, 1.00 ]
                 acceptable_performance_loss: 1 # units = standard deviations
                 acceptable_performance_level: 0.8 # proportion
                 confidence_interval_for_convergence: 90
                 min_sample_size: 30
                 min_reward_single_timestep: 0
                 max_reward_single_timestep: 100
-                horizon_ceiling: 20
+                horizon_ceiling: 25
                 horizon_floor: 4
         
         FORCE_CPU_PROFILE:
