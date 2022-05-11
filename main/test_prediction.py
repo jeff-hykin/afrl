@@ -711,8 +711,9 @@ class Tester:
         # optimal
         # 
         print("    running optimal method")
-        optimal_samples = self.gather_optimal()
-        average_optimal_reward = simple_stats(optimal_samples).average
+        optimal_stats = simple_stats(self.gather_optimal())
+        print(f'''    optimal_stats = {optimal_stats}''')
+        average_optimal_reward = optimal_stats.average
         plot_data.optimal_reward_points = [
             (each_performance_level, average_optimal_reward) for each_performance_level in self.settings.acceptable_performance_levels
         ]
@@ -762,7 +763,7 @@ class Tester:
             confidence_recorder = Recorder().set_parent(episode_recorder)
             
             sample      = []
-            prev_sample = []
+            old_samples = []
             for episode_index in range(settings.number_of_episodes_for_testing):
                 _, _, discounted_rewards, failure_points, *_ = self.ppac_experience_episode(
                     episode_index=episode_index,
@@ -782,15 +783,12 @@ class Tester:
                 )
                 
                 # make sure the horizon is big enough
-                tuning.horizon = max(2 * average(episode_recorder.frame.failure_point_average[-min_sample_size:]), 4)
+                tuning.horizon = int(max(1.5 * average(episode_recorder.frame.failure_point_average[-min_sample_size:]), 4))
                 # build up sample for the confidence interval check
                 sample.append(episode_recorder.frame.reward_sum[-1])
                 
-                # optimization to seed/kick-start the next iteration (very safe because it will expand the confidence interval, its just that sometimes that doesnt matter which is good)
-                missing_amount = min_sample_size - len(sample)
-                sample_temp = sample + prev_sample[-missing_amount:] if missing_amount > 0 else sample
                 # size check
-                if len(sample_temp) >= min_sample_size:
+                if len(sample) >= min_sample_size:
                     
                     #        <--little-->
                     # <-----------big---------->
@@ -798,8 +796,8 @@ class Tester:
                     #                       |  
                     #                       ^ minimum_performace should be near or in the segment
                     
-                    little_interval_upper, little_interval_lower = confidence_interval(1-tuning.confidence_percent, sample) # like a 20% confidence interval
-                    big_interval_upper   , big_interval_lower    = confidence_interval(  tuning.confidence_percent, sample) # like a 80% confidence interval
+                    little_interval_upper, little_interval_lower = confidence_interval(100-tuning.confidence_percent, sample) # like a 20% confidence interval
+                    big_interval_upper   , big_interval_lower    = confidence_interval(    tuning.confidence_percent, sample) # like a 80% confidence interval
                     upper = little_interval_lower
                     lower = big_interval_lower
                     confidence_recorder.push(
@@ -812,20 +810,23 @@ class Tester:
                         will_increase_epsilon=lower > minimum_performace,
                         will_decrease_epsilon=minimum_performace > upper,
                     )
+                    debug.sample = sample
+                    debug.confidence_percent = tuning.confidence_percent
+                    debug.confidence_interval = confidence_interval
+                    debug.tuning = tuning
+                    print(f'''              will_increase_epsilon={lower > minimum_performace}, will_decrease_epsilon={minimum_performace > upper}, big_upper={big_interval_upper}, little_upper={little_interval_upper}, upper={upper}, minimum_performace={minimum_performace}, lower={lower}''')
                     
                     # tune-epsilon check
                     if lower > minimum_performace:
                         # we are safely above the minimum, lets change that and commit to plans a bit more!
                         tuning.epsilon += tuning.delta
                         # reset the values used for a confidence interval
-                        prev_sample = sample
                         sample = []
                     elif minimum_performace > upper:
                         # epsilon is so big its causing performance problems, lets scale back and cool down
-                        tuning.delta /= 2
                         tuning.epsilon -= tuning.delta
+                        tuning.delta /= 2
                         # reset the values used for a confidence interval
-                        prev_sample = sample
                         sample = []
                     else:
                         # we need more samples to shrink the confidence interval!

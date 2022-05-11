@@ -89,7 +89,7 @@
                 acceptable_performance_loss: 1 # units = standard deviations
                 acceptable_performance_level: 0.8 # proportion
                 confidence_interval_for_convergence: 90
-                min_sample_size: 12
+                min_sample_size: 6
                 min_reward_single_timestep: 0
                 max_reward_single_timestep: 100
         
