@@ -941,128 +941,136 @@ class Tester:
     def generate_graphs(self):
         smoothing = self.settings.graph_smoothing
         
-        discounted_rewards       = []
-        rewards                  = []
-        q_values                 = []
-        q_final_gaps_average     = []
-        q_gaps_average           = []
-        q_gaps_min               = []
-        q_gaps_max               = []
-        scaled_epsilons          = []
-        forecasts_average        = []
-        failure_points_average   = []
-        horizons                 = []
-        
-        # for each epsilon-horizon pair
-        for each_recorder in self.recorder.sub_recorders:
-            discounted_rewards       += rolling_average(each_recorder.frame["discounted_reward_sum"]    , smoothing)
-            rewards                  += rolling_average(each_recorder.frame["reward_sum"]               , smoothing)
-            q_values                 += rolling_average(each_recorder.frame["q_average"]                , smoothing)
-            q_final_gaps_average     += rolling_average(each_recorder.frame["q_final_gaps_average"]     , smoothing)
-            q_gaps_average           += rolling_average(each_recorder.frame["q_gaps_average"]           , smoothing)
-            q_gaps_min               += rolling_average(each_recorder.frame["q_gaps_min"]               , smoothing)
-            q_gaps_max               += rolling_average(each_recorder.frame["q_gaps_max"]               , smoothing)
-            forecasts_average        += rolling_average(each_recorder.frame["forecast_average"]         , smoothing)
-            failure_points_average   += rolling_average(each_recorder.frame["failure_point_average"]    , smoothing)
+        # 
+        # older logging method
+        # 
+        try:
+            discounted_rewards       = []
+            rewards                  = []
+            q_values                 = []
+            q_final_gaps_average     = []
+            q_gaps_average           = []
+            q_gaps_min               = []
+            q_gaps_max               = []
+            scaled_epsilons          = []
+            forecasts_average        = []
+            failure_points_average   = []
+            horizons                 = []
             
-            count = len(each_recorder.frame["reward_average"])
-            scaled_epsilons += [ each_recorder["scaled_epsilon"] ]*count
-            horizons        += [ each_recorder["horizon"]        ]*count
-        
-        # add indicies to all of them
-        discounted_rewards       = tuple(enumerate(discounted_rewards       ))
-        rewards                  = tuple(enumerate(rewards                  ))
-        q_values                 = tuple(enumerate(q_values                 ))
-        q_final_gaps_average     = tuple(enumerate(q_final_gaps_average     ))
-        q_gaps_average           = tuple(enumerate(q_gaps_average           ))
-        q_gaps_min               = tuple(enumerate(q_gaps_min               ))
-        q_gaps_max               = tuple(enumerate(q_gaps_max               ))
-        scaled_epsilons          = tuple(enumerate(scaled_epsilons          ))
-        forecasts_average        = tuple(enumerate(forecasts_average        ))
-        failure_points_average   = tuple(enumerate(failure_points_average   ))
-        horizons                 = tuple(enumerate(horizons                 ))
-        
+            # for each epsilon-horizon pair
+            for each_recorder in self.recorder.sub_recorders:
+                if "q_gaps_average" in each_recorder.frame:
+                    discounted_rewards       += rolling_average(each_recorder.frame["discounted_reward_sum"]    , smoothing)
+                    rewards                  += rolling_average(each_recorder.frame["reward_sum"]               , smoothing)
+                    q_values                 += rolling_average(each_recorder.frame["q_average"]                , smoothing)
+                    q_final_gaps_average     += rolling_average(each_recorder.frame["q_final_gaps_average"]     , smoothing)
+                    q_gaps_average           += rolling_average(each_recorder.frame["q_gaps_average"]           , smoothing)
+                    q_gaps_min               += rolling_average(each_recorder.frame["q_gaps_min"]               , smoothing)
+                    q_gaps_max               += rolling_average(each_recorder.frame["q_gaps_max"]               , smoothing)
+                    forecasts_average        += rolling_average(each_recorder.frame["forecast_average"]         , smoothing)
+                    failure_points_average   += rolling_average(each_recorder.frame["failure_point_average"]    , smoothing)
+                    
+                    count = len(each_recorder.frame["reward_average"])
+                    scaled_epsilons += [ each_recorder["scaled_epsilon"] ]*count
+                    horizons        += [ each_recorder["horizon"]        ]*count
+            
+            # add indicies to all of them
+            discounted_rewards       = tuple(enumerate(discounted_rewards       ))
+            rewards                  = tuple(enumerate(rewards                  ))
+            q_values                 = tuple(enumerate(q_values                 ))
+            q_final_gaps_average     = tuple(enumerate(q_final_gaps_average     ))
+            q_gaps_average           = tuple(enumerate(q_gaps_average           ))
+            q_gaps_min               = tuple(enumerate(q_gaps_min               ))
+            q_gaps_max               = tuple(enumerate(q_gaps_max               ))
+            scaled_epsilons          = tuple(enumerate(scaled_epsilons          ))
+            forecasts_average        = tuple(enumerate(forecasts_average        ))
+            failure_points_average   = tuple(enumerate(failure_points_average   ))
+            horizons                 = tuple(enumerate(horizons                 ))
+            
+            # 
+            # display the actual cards
+            # 
+            reward_card = ss.DisplayCard("multiLine", dict(
+                discounted_reward=discounted_rewards,
+                reward=rewards,
+            ))
+            
+            threshold_card = ss.DisplayCard("multiLine", dict(
+                scaled_epsilon=scaled_epsilons,
+                q_final_gaps_average=q_final_gaps_average,
+                q_gaps_average=q_gaps_average,
+                # q_gaps_min=q_gaps_min,
+                # q_gaps_max=q_gaps_max,
+                # timestep_q_average=q_values,
+            ))
+            prediction_card = ss.DisplayCard("multiLine", dict(
+                forecast_average=forecasts_average,
+                failure_point_average=failure_points_average,
+                **(dict(
+                    horizon=horizons,
+                ) if self.settings.api == "v1" else {}),
+            ))
+            text_card = ss.DisplayCard("quickMarkdown", f"""## Experiment: {config.experiment_name}""")
+        except Exception as error:
+            print("error inside older graphing method", error)
+            
         # 
-        # display the actual cards
+        # newer logging method
         # 
-        reward_card = ss.DisplayCard("multiLine", dict(
-            discounted_reward=discounted_rewards,
-            reward=rewards,
-        ))
-        
-        threshold_card = ss.DisplayCard("multiLine", dict(
-            scaled_epsilon=scaled_epsilons,
-            q_final_gaps_average=q_final_gaps_average,
-            q_gaps_average=q_gaps_average,
-            # q_gaps_min=q_gaps_min,
-            # q_gaps_max=q_gaps_max,
-            # timestep_q_average=q_values,
-        ))
-        prediction_card = ss.DisplayCard("multiLine", dict(
-            forecast_average=forecasts_average,
-            failure_point_average=failure_points_average,
-            **(dict(
-                horizon=horizons,
-            ) if self.settings.api == "v1" else {}),
-        ))
-        text_card = ss.DisplayCard("quickMarkdown", f"""## Experiment: {config.experiment_name}""")
-        
-        # 
-        # save plots
-        # 
-        plot_kwargs = dict(
-            csv_path=self.csv_path,
-            output_folder=f"{self.path}/visuals",
-            reward_discount=self.settings.agent.gamma,
-            min_reward_single_timestep=self.settings.min_reward_single_timestep,
-            max_reward_single_timestep=self.settings.max_reward_single_timestep,
-        )
-        plot_epsilon_1(**plot_kwargs)
-        plot_epsilon_2(**plot_kwargs)
-        
-        
-        plot_data = self.settings.plot
-        # 
-        # reward plot
-        # 
-        ss.DisplayCard("multiLine", dict(
-            optimal=plot_data.optimal_reward_points,
-            random=plot_data.random_reward_points,
-            theory=plot_data.theory_reward_points,
-            ppac=plot_data.ppac_reward_points,
-            n_step_horizon=plot_data.n_step_horizon_reward_points,
-            n_step_planlen=plot_data.n_step_planlen_reward_points,
-        ))
-        # 
-        # forcast plot
-        # 
-        ss.DisplayCard("multiLine", dict(
-            ppac=plot_data.ppac_plan_length_points,
-            n_step_horizon=plot_data.n_step_horizon_plan_length_points,
-            n_step_planlen=plot_data.n_step_planlen_plan_length_points,
-        ))
-        
-        multi_plot(
-            dict(
+        if 1:
+            plot_kwargs = dict(
+                csv_path=self.csv_path,
+                output_folder=f"{self.path}/visuals",
+                reward_discount=self.settings.agent.gamma,
+                min_reward_single_timestep=self.settings.min_reward_single_timestep,
+                max_reward_single_timestep=self.settings.max_reward_single_timestep,
+            )
+            plot_epsilon_1(**plot_kwargs)
+            plot_epsilon_2(**plot_kwargs)
+            
+            
+            plot_data = self.settings.plot
+            # 
+            # reward plot
+            # 
+            ss.DisplayCard("multiLine", dict(
                 optimal=plot_data.optimal_reward_points,
                 random=plot_data.random_reward_points,
                 theory=plot_data.theory_reward_points,
                 ppac=plot_data.ppac_reward_points,
                 n_step_horizon=plot_data.n_step_horizon_reward_points,
                 n_step_planlen=plot_data.n_step_planlen_reward_points,
-            ),
-            vertical_label="reward",
-            horizonal_label="acceptance level",
-            title=config.env_name,
-            color_key=dict(
-                optimal='#83ecc9',
-                ppac='#89ddff',
-                theory='#e57eb3',
-                n_step_planlen='#fec355',
-                n_step_horizon='#f07178',
-                random='#c7cbcd',
+            ))
+            # 
+            # forcast plot
+            # 
+            ss.DisplayCard("multiLine", dict(
+                ppac=plot_data.ppac_plan_length_points,
+                n_step_horizon=plot_data.n_step_horizon_plan_length_points,
+                n_step_planlen=plot_data.n_step_planlen_plan_length_points,
+            ))
+            
+            multi_plot(
+                dict(
+                    optimal=plot_data.optimal_reward_points,
+                    random=plot_data.random_reward_points,
+                    theory=plot_data.theory_reward_points,
+                    ppac=plot_data.ppac_reward_points,
+                    n_step_horizon=plot_data.n_step_horizon_reward_points,
+                    n_step_planlen=plot_data.n_step_planlen_reward_points,
+                ),
+                vertical_label="reward",
+                horizonal_label="acceptance level",
+                title=config.env_name,
+                color_key=dict(
+                    optimal='#83ecc9',
+                    ppac='#89ddff',
+                    theory='#e57eb3',
+                    n_step_planlen='#fec355',
+                    n_step_horizon='#f07178',
+                    random='#c7cbcd',
+                )
             )
-        )
         
         sleep(0.5)
         save_all_charts_to(f"{self.path}/charts.html")
