@@ -332,3 +332,43 @@ argv[0]=
                 epsilon:  -0.0138, forecast_average:   0.4475, raw_reward:      6.92,                 episode_index=194, discounted_reward_sum=  6.6476, failure_point_average=  0.1800, failure_point_median=  0.0000, horizon=4
                 epsilon:  -0.0138, forecast_average:   0.4462, raw_reward:     23.58,                 episode_index=195, discounted_reward_sum= 14.2578, failure_point_average=  0.2133, failure_point_median=  0.0000, horizon=4
                 epsilon:  -0.0138, forecast_average:   0.4466, raw_reward:      8.44,                 episode_index=196, discounted_reward_sum=  6.9084, failure_point_average=  0.5600, failure_point_median=  0.0000, horizon=4
+                epsilon:  -0.0138, forecast_average:   0.4446, raw_reward:     27.36,                 episode_index=197, discounted_reward_sum= 22.0311, failure_point_average=  0.0600, failure_point_median=  0.0000, horizon=4
+                epsilon:  -0.0138, forecast_average:   0.4427, raw_reward:      9.62,                 episode_index=198, discounted_reward_sum=  7.0637, failure_point_average=  0.0533, failure_point_median=  0.0000, horizon=4
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/compare_tuner.py", line 50, in <module>
+    full_run(
+  File "./main/run/compare_tuner.py", line 26, in full_run
+    results = Tester.smart_load(
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 543, in wrapper
+    output = function_being_wrapped(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 848, in tuned_comparisons
+    except Exception as error: print(error)
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 761, in tuned_comparisons
+    plot_data.ppac_plan_length_points_median.append([each_performance_level, average(episode_recorder.frame.failure_point_median)])
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 757, in tuned_comparisons
+    pass
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 570, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 687, in tuned_comparisons
+    self.record_episode(episode_index, tuning.horizon, tuning.epsilon, forecast_slices, alt_forecast_slices, old_episode_recorder, experience_outputs)
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 509, in record_episode
+    alt_forecast_average   = average(average(each) for each in alt_forecast_slices)
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 4, in average
+    return mean(tuple(to_pure(each) for each in iterable))
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 4, in <genexpr>
+    return mean(tuple(to_pure(each) for each in iterable))
+  File "/home/jeffhykin/repos/AFRL/main/test_prediction.py", line 509, in <genexpr>
+    alt_forecast_average   = average(average(each) for each in alt_forecast_slices)
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 4, in average
+    return mean(tuple(to_pure(each) for each in iterable))
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 4, in <genexpr>
+    return mean(tuple(to_pure(each) for each in iterable))
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/generics.py", line 99, in to_pure
+    class PlaceHolder:
+KeyboardInterrupt
