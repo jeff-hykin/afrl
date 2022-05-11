@@ -823,7 +823,7 @@ class Tester:
                                 )
                                 
                                 # make sure the horizon is big enough, and within bounds
-                                tuning.horizon = int(1.5 * average(episode_recorder.frame.failure_point_average[-min_sample_size:]))
+                                tuning.horizon = int(2 * median(episode_recorder.frame.failure_point_average[-min_sample_size:]))
                                 tuning.horizon = max(tuning.horizon, config.predictor_settings.horizon_floor  ) # no lower than (too low-> horizon gets stuck at ~1 and nearly all epsilons falsely "perform well")
                                 tuning.horizon = min(tuning.horizon, config.predictor_settings.horizon_ceiling) # no higher than (high-> runaway epsilon, and increases computation significantly)
                                 # build up sample for the confidence interval check
