@@ -21,7 +21,7 @@ from torch.optim.adam import Adam
 from tqdm import tqdm
 from trivial_torch_tools import to_tensor, Sequential, init, convert_each_arg
 from trivial_torch_tools.generics import to_pure, flatten, large_pickle_load, large_pickle_save
-from super_map import LazyDict
+from super_map import LazyDict, Map
 from simple_namespace import namespace
 from rigorous_recorder import Recorder
 from cool_cache import cache
@@ -596,7 +596,7 @@ class Tester:
         settings, predictor = self.settings, self.predictor
         predictor.agent.gamma = config.agent_settings.reward_discount
         
-        plot_data = LazyDict()
+        plot_data = Map()
         # 
         # optimal
         # 
@@ -702,7 +702,7 @@ class Tester:
                     discounted_rewards,
                     *_,
                 ) = self.n_step_experience_episode(
-                    number_of_steps=plot_data.ppac_plan_length_points[-1][1], # average failure point, ciel so that never goes to 0
+                    number_of_steps=plot_data.ppac_plan_length_points[-1][1], # average failure point, ceil so that never goes to 0
                     scaled_epsilon=optimal_epsilon,
                     horizon=optimal_horizon,
                     episode_index=episode_index,
@@ -712,9 +712,10 @@ class Tester:
             plot_data.n_step_planlen_reward_points.append([each_performance_level, average(reward_sums)])
             plot_data.n_step_planlen_plan_length_points.append([each_performance_level, optimal_horizon])
             
-            self.settings = LazyDict(self.settings)
-            self.settings.plot = None
-            self.settings.plot = plot_data
+            self.settings = LazyDict({
+                **self.settings,
+                "plot": plot_data[Map.Dict],
+            })
             self.save()
     
     @log_func
@@ -725,7 +726,7 @@ class Tester:
         min_sample_size       = config.predictor_settings.min_sample_size
         mid_recorder = Recorder().set_parent(self.recorder)
         
-        plot_data = LazyDict()
+        plot_data = Map()
         # 
         # optimal
         # 
@@ -914,7 +915,7 @@ class Tester:
                 # n_step planlen
                 # 
                 with block_indent("running n_step planlen method"):
-                    prev_average_failure_point = plot_data.ppac_plan_length_points[-1][1]
+                    prev_average_failure_point = math.ceil(plot_data.ppac_plan_length_points[-1][1])
                     reward_sums     = []
                     for episode_index in range(settings.number_of_episodes_for_testing):
                         (
@@ -923,7 +924,7 @@ class Tester:
                             discounted_rewards,
                             *_,
                         ) = self.n_step_experience_episode(
-                            number_of_steps=prev_average_failure_point, # average failure point, ciel so that never goes to 0
+                            number_of_steps=prev_average_failure_point, # average failure point, ceil so that never goes to 0
                             scaled_epsilon=tuning.epsilon,
                             horizon=tuning.horizon,
                             episode_index=episode_index,
@@ -933,9 +934,11 @@ class Tester:
                     plot_data.n_step_planlen_reward_points.append([each_performance_level, average(reward_sums)])
                     plot_data.n_step_planlen_plan_length_points.append([each_performance_level, prev_average_failure_point])
                 
-                self.settings = LazyDict(self.settings)
-                self.settings.plot = None
-                self.settings.plot = plot_data
+                # for some reason it doesn't want to update itself
+                self.settings = LazyDict({
+                    **self.settings,
+                    "plot": plot_data[Map.Dict],
+                })
                 self.save()
                 try: self.generate_graphs()
                 except Exception as error: print(error)
@@ -1030,7 +1033,7 @@ class Tester:
             plot_epsilon_2(**plot_kwargs)
             
             
-            plot_data = self.settings.plot
+            plot_data = Map(self.settings.plot)
             # 
             # reward plot
             # 
