@@ -1,0 +1,168 @@
+
+
+-------------------------------------------------------
+
+ Environment: ReacherBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: ./subrepos/rl-trained-agents/sac/ReacherBulletEnv-v0_1/ReacherBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Coach Model Exists, loading: models.ignore/coach/ReacherBulletEnv-v0/baseline_3
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "state_prediction_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 128, 
+    "with_card": True, 
+}
+
+
+-----------------------------------------------------------------------------------------------------
+ Testing Agent+Coach
+-----------------------------------------------------------------------------------------------------
+
+
+test settings = {
+    "override_save_path": False, 
+    "increment_factor": 1.2, 
+    "force_recompute": False, 
+    "graph_smoothing": 0, 
+    "number_of_episodes_for_baseline": 30, 
+    "number_of_epochs_for_optimal_parameters": 50, 
+    "number_of_episodes_for_testing": 150, 
+    "initial_epsilon": 3.5, 
+    "initial_horizon": 10, 
+    "reward_discount": 0.98, 
+    "acceptable_performance_levels": [0.5, 0.8, 0.9, 0.95, 0.97, 0.99, 1.0, ], 
+    "acceptable_performance_loss": 1, 
+    "acceptable_performance_level": 0.8, 
+    "confidence_interval_for_convergence": 90, 
+    "min_sample_size": 12, 
+    "min_reward_single_timestep": 0, 
+    "max_reward_single_timestep": 100, 
+    "horizon_cap": 20, 
+}
+    running optimal method
+    optimal_stats = {
+    "max": 27.892595385165144, 
+    "min": 2.9092152628274914, 
+    "range": 24.983380122337653, 
+    "count": 30, 
+    "sum": 448.5641004541369, 
+    "average": 14.952136681804564, 
+    "stdev": 6.971417260629574, 
+    "median": 13.472245151044762, 
+}
+    running random method
+    # 
+    # acceptable_performance_level = 0.5
+    # 
+    running ppac method
+argv[0]=
+argv[0]=
+          episode_index=0, reward_sum=14.2177, tuning.epsilon=0.44856410045413736, tuning.horizon=10
+          episode_index=1, reward_sum=20.2404, tuning.epsilon=0.44856410045413736, tuning.horizon=11
+          episode_index=2, reward_sum=19.0154, tuning.epsilon=0.44856410045413736, tuning.horizon=11
+          episode_index=3, reward_sum=-1.6553, tuning.epsilon=0.44856410045413736, tuning.horizon=11
+          episode_index=4, reward_sum=7.0011, tuning.epsilon=0.44856410045413736, tuning.horizon=11
+          episode_index=5, reward_sum=8.9820, tuning.epsilon=0.44856410045413736, tuning.horizon=12
+          episode_index=6, reward_sum=9.0431, tuning.epsilon=0.44856410045413736, tuning.horizon=12
+          episode_index=7, reward_sum=12.6843, tuning.epsilon=0.44856410045413736, tuning.horizon=12
+          episode_index=8, reward_sum=11.8809, tuning.epsilon=0.44856410045413736, tuning.horizon=12
+          episode_index=9, reward_sum=4.2768, tuning.epsilon=0.44856410045413736, tuning.horizon=12
+          episode_index=10, reward_sum=-3.0204, tuning.epsilon=0.44856410045413736, tuning.horizon=12
+          episode_index=11, reward_sum=6.0873, tuning.epsilon=0.44856410045413736, tuning.horizon=12
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.78981968246012, little_upper=9.329642694522452, upper=8.795893377394705, minimum_performace=7.476068340902282, lower=5.335716389457035
+          episode_index=12, reward_sum=17.2520, tuning.epsilon=0.44856410045413736, tuning.horizon=13
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=13.275594902040673, little_upper=9.950722057317943, upper=9.434695265555174, minimum_performace=7.476068340902282, lower=6.109822420832442
+          episode_index=13, reward_sum=1.6683, tuning.epsilon=0.44856410045413736, tuning.horizon=13
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.568272908916585, little_upper=9.369075210333557, upper=8.869996120812782, minimum_performace=7.476068340902282, lower=5.670798422229751
+          episode_index=14, reward_sum=6.7219, tuning.epsilon=0.44856410045413736, tuning.horizon=13
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.16523307078747, little_upper=9.192578053600549, upper=8.726807582829121, minimum_performace=7.476068340902282, lower=5.7541525656421975
+          episode_index=15, reward_sum=10.7274, tuning.epsilon=0.44856410045413736, tuning.horizon=14
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.06089953929953, little_upper=9.288213878789662, upper=8.85213590168542, minimum_performace=7.476068340902282, lower=6.079450241175549
+          episode_index=16, reward_sum=-1.1135, tuning.epsilon=0.44856410045413736, tuning.horizon=13
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.458033265421523, little_upper=8.689557679474518, upper=8.252711747055113, minimum_performace=7.476068340902282, lower=5.484236161108107
+          episode_index=17, reward_sum=18.8791, tuning.epsilon=0.44856410045413736, tuning.horizon=14
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.030150378853971, little_upper=9.267913966596325, upper=8.83079546210758, minimum_performace=7.476068340902282, lower=6.0685590498499336
+          episode_index=18, reward_sum=10.1166, tuning.epsilon=0.44856410045413736, tuning.horizon=14
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.917778432179206, little_upper=9.312214006527002, upper=8.898835980593978, minimum_performace=7.476068340902282, lower=6.293271554941772
+          episode_index=19, reward_sum=0.2937, tuning.epsilon=0.44856410045413736, tuning.horizon=14
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.4322203541932, little_upper=8.868747561737795, upper=8.461122076874501, minimum_performace=7.476068340902282, lower=5.897649284729805
+          episode_index=20, reward_sum=8.0441, tuning.epsilon=0.44856410045413736, tuning.horizon=14
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.26135811986504, little_upper=8.82914128049971, upper=8.441597900626572, minimum_performace=7.476068340902282, lower=6.009381061489419
+          episode_index=21, reward_sum=22.6899, tuning.epsilon=0.44856410045413736, tuning.horizon=14
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=12.003404311419626, little_upper=9.475943246352823, upper=9.07248257154541, minimum_performace=7.476068340902282, lower=6.5450215066644315
+          episode_index=22, reward_sum=6.6302, tuning.epsilon=0.44856410045413736, tuning.horizon=15
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.769110376543845, little_upper=9.352463028317988, upper=8.966047876259886, minimum_performace=7.476068340902282, lower=6.549400528174854
+          episode_index=23, reward_sum=1.1186, tuning.epsilon=0.44856410045413736, tuning.horizon=15
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.383456821054484, little_upper=9.013954540160048, upper=8.634501943374472, minimum_performace=7.476068340902282, lower=6.264999662590611
+          episode_index=24, reward_sum=5.7917, tuning.epsilon=0.44856410045413736, tuning.horizon=15
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.162144512507648, little_upper=8.88547469771379, upper=8.520381576800885, minimum_performace=7.476068340902282, lower=6.243711762092909
+          episode_index=25, reward_sum=16.1773, tuning.epsilon=0.44856410045413736, tuning.horizon=15
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.399923811171032, little_upper=9.169472524106371, upper=8.811334745781712, minimum_performace=7.476068340902282, lower=6.580883458779441
+          episode_index=26, reward_sum=21.9266, tuning.epsilon=0.44856410045413736, tuning.horizon=15
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.924650932780255, little_upper=9.652178014883976, upper=9.286864011140164, minimum_performace=7.476068340902282, lower=7.014391093243885
+          episode_index=27, reward_sum=10.6796, tuning.epsilon=0.44856410045413736, tuning.horizon=16
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.87647513889075, little_upper=9.688771893019936, upper=9.336703048680258, minimum_performace=7.476068340902282, lower=7.148999802809442
+          episode_index=28, reward_sum=8.5462, tuning.epsilon=0.44856410045413736, tuning.horizon=16
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.757997233884549, little_upper=9.64925857696623, upper=9.30955578517839, minimum_performace=7.476068340902282, lower=7.20081712826007
+          episode_index=29, reward_sum=3.6328, tuning.epsilon=0.44856410045413736, tuning.horizon=16
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.508050297755439, little_upper=9.450411650072114, upper=9.118630383101111, minimum_performace=7.476068340902282, lower=7.060991735417787
+          episode_index=30, reward_sum=4.8356, tuning.epsilon=0.44856410045413736, tuning.horizon=17
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.303016262054616, little_upper=9.302437225307346, upper=8.979575006834162, minimum_performace=7.476068340902282, lower=6.978995970086891
+          episode_index=31, reward_sum=9.7186, tuning.epsilon=0.44856410045413736, tuning.horizon=17
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.2504884830735, little_upper=9.315334965620833, upper=9.002776843821957, minimum_performace=7.476068340902282, lower=7.06762332636929
+          episode_index=32, reward_sum=10.8199, tuning.epsilon=0.44856410045413736, tuning.horizon=17
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.236293739016073, little_upper=9.36094831897269, upper=9.05781898865561, minimum_performace=7.476068340902282, lower=7.182473554714285
+          episode_index=33, reward_sum=16.0303, tuning.epsilon=0.44856410045413736, tuning.horizon=18
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.403735204539078, little_upper=9.559180654911147, upper=9.260814839203446, minimum_performace=7.476068340902282, lower=7.416260277852624
+          episode_index=34, reward_sum=3.9888, tuning.epsilon=0.44856410045413736, tuning.horizon=18
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.20705009606229, little_upper=9.40125257309515, upper=9.10895926330804, minimum_performace=7.476068340902282, lower=7.303161730453677
+          episode_index=35, reward_sum=8.5916, tuning.epsilon=0.44856410045413736, tuning.horizon=18
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.132361979700002, little_upper=9.37869177475169, upper=9.094656016489804, minimum_performace=7.476068340902282, lower=7.340985811541492
+          episode_index=36, reward_sum=6.5580, tuning.epsilon=0.44856410045413736, tuning.horizon=19
+              will_increase_epsilon=False, will_decrease_epsilon=False, big_upper=11.010678774182054, little_upper=9.302680392437777, upper=9.025876448723496, minimum_performace=7.476068340902282, lower=7.317878066979219
+          episode_index=37, reward_sum=17.0358, tuning.epsilon=0.44856410045413736, tuning.horizon=19
+              will_increase_epsilon=True, will_decrease_epsilon=False, big_upper=11.200985117945926, little_upper=9.508636245126567, upper=9.234213458511274, minimum_performace=7.476068340902282, lower=7.541864585691915
+          episode_index=38, reward_sum=-3.2287, tuning.epsilon=0.8971282009082747, tuning.horizon=19
+          episode_index=39, reward_sum=3.2008, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=40, reward_sum=5.6336, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=41, reward_sum=4.3072, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=42, reward_sum=21.5512, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=43, reward_sum=16.6104, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=44, reward_sum=-7.8458, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=45, reward_sum=5.0990, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=46, reward_sum=2.9683, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=47, reward_sum=6.9276, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=48, reward_sum=2.9753, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+          episode_index=49, reward_sum=7.1221, tuning.epsilon=0.8971282009082747, tuning.horizon=20
+              will_increase_epsilon=False, will_decrease_epsilon=True, big_upper=9.458183106533475, little_upper=5.730900892850234, upper=5.155949281059543, minimum_performace=7.476068340902282, lower=1.4286670673762991
+          episode_index=50, reward_sum=17.5889, tuning.epsilon=0.44856410045413736, tuning.horizon=20
+          episode_index=51, reward_sum=10.3459, tuning.epsilon=0.44856410045413736, tuning.horizon=20
+          episode_index=52, reward_sum=11.4237, tuning.epsilon=0.44856410045413736, tuning.horizon=20
+          episode_index=53, reward_sum=11.5240, tuning.epsilon=0.44856410045413736, tuning.horizon=20
+          episode_index=54, reward_sum=-1.5439, tuning.epsilon=0.44856410045413736, tuning.horizon=20

@@ -772,7 +772,7 @@ class Tester:
                     should_record=True,
                 )
                 reward_sum = sum(discounted_rewards)
-                print(f'''          episode_index={episode_index}, reward_sum={reward_sum}, tuning.epsilon={tuning.epsilon}, tuning.horizon={tuning.horizon}''')
+                print(f'''          episode_index={episode_index}, reward_sum={reward_sum:.4f}, tuning.epsilon={tuning.epsilon}, tuning.horizon={tuning.horizon}''')
                 episode_recorder.push(
                     episode_index=episode_index,
                     scaled_epsilon=tuning.epsilon,
@@ -784,6 +784,8 @@ class Tester:
                 
                 # make sure the horizon is big enough
                 tuning.horizon = int(max(1.5 * average(episode_recorder.frame.failure_point_average[-min_sample_size:]), 4))
+                if tuning.horizon > config.predictor_settings.horizon_cap: # for practical purposes
+                    tuning.horizon = config.predictor_settings.horizon_cap
                 # build up sample for the confidence interval check
                 sample.append(episode_recorder.frame.reward_sum[-1])
                 
@@ -796,8 +798,8 @@ class Tester:
                     #                       |  
                     #                       ^ minimum_performace should be near or in the segment
                     
-                    little_interval_upper, little_interval_lower = confidence_interval(100-tuning.confidence_percent, sample) # like a 20% confidence interval
-                    big_interval_upper   , big_interval_lower    = confidence_interval(    tuning.confidence_percent, sample) # like a 80% confidence interval
+                    little_interval_lower, little_interval_upper = confidence_interval(100-tuning.confidence_percent, sample) # like a 20% confidence interval
+                    big_interval_lower   , big_interval_upper    = confidence_interval(    tuning.confidence_percent, sample) # like a 80% confidence interval
                     upper = little_interval_lower
                     lower = big_interval_lower
                     confidence_recorder.push(
@@ -810,10 +812,6 @@ class Tester:
                         will_increase_epsilon=lower > minimum_performace,
                         will_decrease_epsilon=minimum_performace > upper,
                     )
-                    debug.sample = sample
-                    debug.confidence_percent = tuning.confidence_percent
-                    debug.confidence_interval = confidence_interval
-                    debug.tuning = tuning
                     print(f'''              will_increase_epsilon={lower > minimum_performace}, will_decrease_epsilon={minimum_performace > upper}, big_upper={big_interval_upper}, little_upper={little_interval_upper}, upper={upper}, minimum_performace={minimum_performace}, lower={lower}''')
                     
                     # tune-epsilon check
@@ -843,7 +841,7 @@ class Tester:
             print("    running theory method")
             plot_data.theory_reward_points.append([
                 each_performance_level,
-                average_optimal_reward - ( max(episode_recorder.frame.epsiode_lengths) * tuning.epsilon )
+                (1 - reward_discount) * (minimum_performace + average_optimal_reward),
             ])
             
             # 
