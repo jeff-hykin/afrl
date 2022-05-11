@@ -81,7 +81,7 @@
                 graph_smoothing: 0 # rolling average of _ number values
                 number_of_episodes_for_baseline: 30
                 number_of_epochs_for_optimal_parameters: 50
-                number_of_episodes_for_testing: 150 # original value is 50 
+                number_of_episodes_for_testing: 5 # original value is 50 
                 initial_epsilon: 3.5 # overshooting this initial value is better than undershooting
                 initial_horizon: 10 # units = timesteps. Mostly irrelevent
                 reward_discount: 0.98

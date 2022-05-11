@@ -767,18 +767,18 @@ class Tester:
                 # ppac
                 # 
                 # 
+                minimum_performace = average_optimal_reward * each_performance_level
+                epsilon_for_lowerbound_goal = (1 - reward_discount) * (average_optimal_reward - minimum_performace) # real_reward_lowerbound == optimal_rewards - self.epsilon / (1 - gamma) # and we just rearrage it because we need to compute an epsilon
                 with block_indent("running ppac method"):
                     # 
                     # setup values
                     # 
-                    minimum_performace = average_optimal_reward * each_performance_level
-                    epsilon = (1 - reward_discount) * (minimum_performace + average_optimal_reward) # real_reward_lowerbound == optimal_rewards - self.epsilon / (1 - gamma) # and we just rearrage it because we need to compute an epsilon
                     tuning = LazyDict(
                         confidence_percent=config.predictor_settings.confidence_interval_for_convergence,
                         horizon=self.settings.initial_horizon,
-                        epsilon=epsilon,
+                        epsilon=epsilon_for_lowerbound_goal,
                         minimum_performace=minimum_performace,
-                        delta=epsilon, # delta starts of as a double-er later: self.epsilon+=self.delta
+                        delta=epsilon_for_lowerbound_goal, # delta starts of as a double-er later: self.epsilon+=self.delta
                     )
                     print(f'''minimum_performace = {minimum_performace}''')
                     
@@ -882,7 +882,7 @@ class Tester:
                 with block_indent("running theory method"):
                     plot_data.theory_reward_points.append([
                         each_performance_level,
-                        (1 - reward_discount) * (minimum_performace + average_optimal_reward),
+                        minimum_performace, # theory lowerbound
                     ])
                 
                 # 
@@ -934,16 +934,14 @@ class Tester:
                 self.settings.plot = None
                 self.settings.plot = plot_data
                 self.save()
+                try: self.generate_graphs()
+                except Exception as error: print(error)
     # 
     # misc helpers
     # 
     @log_func
     def generate_graphs(self):
         smoothing = self.settings.graph_smoothing
-        
-        # 
-        # older logging method
-        # 
         try:
             discounted_rewards       = []
             rewards                  = []
@@ -1072,6 +1070,57 @@ class Tester:
                 )
             )
         
+        sleep(0.5)
+        save_all_charts_to(f"{self.path}/charts.html")
+        
+        return self
+    
+    @log_func
+    def generate_final_graphs(self, name):
+        smoothing = self.settings.graph_smoothing
+        plot_data = self.settings.plot
+        # 
+        # reward plot
+        # 
+        ss.DisplayCard("multiLine", dict(
+            optimal=plot_data.optimal_reward_points,
+            random=plot_data.random_reward_points,
+            theory=plot_data.theory_reward_points,
+            ppac=plot_data.ppac_reward_points,
+            n_step_horizon=plot_data.n_step_horizon_reward_points,
+            n_step_planlen=plot_data.n_step_planlen_reward_points,
+        ))
+        # 
+        # forcast plot
+        # 
+        ss.DisplayCard("multiLine", dict(
+            ppac=plot_data.ppac_plan_length_points,
+            n_step_horizon=plot_data.n_step_horizon_plan_length_points,
+            n_step_planlen=plot_data.n_step_planlen_plan_length_points,
+        ))
+        
+        multi_plot(
+            dict(
+                optimal=plot_data.optimal_reward_points,
+                random=plot_data.random_reward_points,
+                theory=plot_data.theory_reward_points,
+                ppac=plot_data.ppac_reward_points,
+                n_step_horizon=plot_data.n_step_horizon_reward_points,
+                n_step_planlen=plot_data.n_step_planlen_reward_points,
+            ),
+            vertical_label="reward",
+            horizonal_label="acceptance level",
+            title=config.env_name,
+            color_key=dict(
+                optimal='#83ecc9',
+                ppac='#89ddff',
+                theory='#e57eb3',
+                n_step_planlen='#fec355',
+                n_step_horizon='#f07178',
+                random='#c7cbcd',
+            )
+        )
+    
         sleep(0.5)
         save_all_charts_to(f"{self.path}/charts.html")
         
