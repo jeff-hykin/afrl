@@ -490,7 +490,129 @@ def multi_plot(data, vertical_label=None, horizonal_label=None, title=None, colo
         }
     })
 
-
+def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_label=None, title=None, color_key={}):
+    import silver_spectacle as ss
+    from trivial_torch_tools.generics import to_pure
+    
+    from statistics import mean as average
+    from statistics import stdev
+    
+    def is_hex_string(string):
+        import re
+        match = re.match(r'^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})?$', string.lower())
+        return not not match
+    
+    def hex_string_to_rgb_list(string):
+        import re
+        match = re.match(r'^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})?$', string.lower())
+        if match:
+            base_rgb = [ int(match[1], base=16), int(match[2], base=16), int(match[3], base=16) ]
+            if match[4]:
+                base_rgb.append(int(match[4], base=16))
+            return base_rgb
+    
+    def rgb_string_to_rgb_list(string):
+        import re
+        match = re.match(r'^rgb\( *([1-2]?\d{1,2}) *, *([1-2]?\d{1,2}) *, *([1-2]?\d{1,2}) *(, *(?:\d+(?:\.\d+)?|\d*\.\d+))?\)$', string)
+        if match:
+            base_rgb = [ int(match[1]), int(match[2]), int(match[3]) ]
+            if match[4]:
+                base_rgb.append(float(match[4]))
+            return base_rgb
+    
+    datasets = []
+    labels = {}
+    for each_key, each_line in data.items():
+        color = color_key.get(each_key, 'rgb(0, 292, 192, 0.5)')
+        
+        # create lighter color
+        color_as_rgb_list = hex_string_to_rgb_list(color) if is_hex_string(color) else rgb_string_to_rgb_list(color)
+        if len(color_as_rgb_list) == 3:
+            color_as_rgb_list.push(1)
+        color_as_rgb_list[3] = color_as_rgb_list[3] / 2
+        lighter_color = f'''rgb({",".join(color_as_rgb_list)})'''
+        
+        values = []
+        for x, y in each_line:
+            labels[x] = None
+            values.append(to_pure(y))
+        
+        averages = values
+        if type(deviations) == type(None):
+            averages   = tuple(average(each) for each in values)
+            deviations = tuple(stdev(each) for each in values)
+            
+        tension = 0.4
+        # centerline
+        datasets.append(dict(
+            label=each_key,
+            data=averages,
+            fill=False,
+            tension=tension,
+            color=color,
+            borderColor=color,
+            backgroundColor=color,
+        ))
+        # lowerbound
+        datasets.append(dict(
+            data=tuple(each_average-each_deviation, for each_average, each_deviation zip(averages, deviations)),
+            tension=tension,
+            label= '',
+            fill= '-1',
+            pointBackgroundColor= 'rgba(0, 0, 0, 0.0)',
+            pointBorderColor= 'rgba(0, 0, 0, 0.0)',
+            pointBorderWidth= 1,
+            borderColor= 'rgba(0, 0, 0, 0.0)',
+            backgroundColor= lighter_color,
+            borderWidth= 1,
+        ))
+        # UpperBound
+        datasets.append(dict(
+            data=tuple(each_average+each_deviation, for each_average, each_deviation zip(averages, deviations)),
+            tension=tension,
+            label= '',
+            fill= '-2',
+            pointBackgroundColor= 'rgba(0, 0, 0, 0.0)',
+            pointBorderColor= 'rgba(0, 0, 0, 0.0)',
+            pointBorderWidth= 1,
+            borderColor= 'rgba(0, 0, 0, 0.0)',
+            backgroundColor= lighter_color,
+            borderWidth= 1,
+        ))
+        
+    labels = list(labels.keys())
+    return ss.DisplayCard("chartjs", {
+        "type": 'line',
+        "data": {
+            "labels": labels,
+            "datasets": datasets,
+        },
+        "options": {
+            "plugins": {
+                "title": {
+                    "display": (not (not title)),
+                    "text": title,
+                }
+            },
+            "pointRadius": 3, # the size of the dots
+            "scales": {
+                "x": {
+                    "title": {
+                        "display": horizonal_label,
+                        "text": horizonal_label,
+                    },
+                },
+                "y": {
+                    "title": {
+                        "display": vertical_label,
+                        "text": vertical_label,
+                    },
+                    # "min": 50,
+                    # "max": 100,
+                },
+            }
+        }
+    })
 # 
 # override print
 # 
