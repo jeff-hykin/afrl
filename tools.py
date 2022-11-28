@@ -517,7 +517,7 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
         if match:
             base_rgb = [ int(match[1]), int(match[2]), int(match[3]) ]
             if match[4]:
-                base_rgb.append(float(match[4]))
+                base_rgb.append(float(match[4].replace(",", "")))
             return base_rgb
     
     datasets = []
@@ -530,7 +530,7 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
         if len(color_as_rgb_list) == 3:
             color_as_rgb_list.push(1)
         color_as_rgb_list[3] = color_as_rgb_list[3] / 2
-        lighter_color = f'''rgb({",".join(color_as_rgb_list)})'''
+        lighter_color = f'''rgb({",".join([ f"{each}" for each in color_as_rgb_list])})'''
         
         values = []
         for x, y in each_line:
@@ -555,7 +555,7 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
         ))
         # lowerbound
         datasets.append(dict(
-            data=tuple(each_average-each_deviation, for each_average, each_deviation in zip(averages, deviations)),
+            data=tuple(each_average-each_deviation for each_average, each_deviation in zip(averages, deviations)),
             tension=tension,
             label= '',
             fill= '-1',
@@ -568,7 +568,7 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
         ))
         # UpperBound
         datasets.append(dict(
-            data=tuple(each_average+each_deviation, for each_average, each_deviation in zip(averages, deviations)),
+            data=tuple(each_average+each_deviation for each_average, each_deviation in zip(averages, deviations)),
             tension=tension,
             label= '',
             fill= '-2',
@@ -592,9 +592,12 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
                 "title": {
                     "display": (not (not title)),
                     "text": title,
-                }
+                },
+                "legend": {
+                    "display": False,
+                },
             },
-            "pointRadius": 3, # the size of the dots
+            "pointRadius": 5, # the size of the dots
             "scales": {
                 "x": {
                     "title": {
