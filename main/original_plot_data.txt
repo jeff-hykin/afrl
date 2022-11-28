@@ -86,115 +86,127 @@
 
 
 
-print("Lander")
+print("],")
+print("'Lander': [")
 x1 = (0.000, 19)
 x2 = (0.010, 367)
 y1 = (5, 64)
 y2 = (15, 204)
 pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
-y_offset = y1[1] - ((y1[0]-1)*pixel_ratio_y)
-y_ = lambda y : (y + y_offset)/pixel_ratio_y
+y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+y_ = lambda y : (y - y_offset)/pixel_ratio_y
+y_v = lambda y : (y)/pixel_ratio_y
 
 pixel_ratio = abs((x1[1] - x2[1])/(x1[0] - x2[0]) )
 x_offset = x1[1] - ((x1[0]-1)*pixel_ratio)
 x_ = lambda x : (x + x_offset)/pixel_ratio
-print("    (", x_(19) , ",", y_(11)  ,",", y_(0)   , ")" )
-print("    (", x_(53) , ",", y_(48)  ,",", y_(25/2), ")" )
-print("    (", x_(124), ",", y_(69)  ,",", y_(48/2), ")" )
-print("    (", x_(191), ",", y_(118) ,",", y_(32/2), ")" )
-print("    (", x_(296), ",", y_(163) ,",", y_(79/2), ")" )
-print("    (", x_(367), ",", y_(171) ,",", y_(99/2), ")" )
+print("    (", x_(19) , ",", y_(11)  ,",", y_v(0)   , ")" , ",")
+print("    (", x_(53) , ",", y_(48)  ,",", y_v(25/2), ")" , ",")
+print("    (", x_(124), ",", y_(69)  ,",", y_v(48/2), ")" , ",")
+print("    (", x_(191), ",", y_(118) ,",", y_v(32/2), ")" , ",")
+print("    (", x_(296), ",", y_(163) ,",", y_v(79/2), ")" , ",")
+print("    (", x_(367), ",", y_(171) ,",", y_v(99/2), ")" , ",")
 
-print("Hopper")
+print("],")
+print("'Hopper': [")
 x1 = 0.000, 19
 x2 = 0.010, 367
 y1 = 2, 65
 y2 = 4, 176
 pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
-y_offset = y1[1] - ((y1[0]-1)*pixel_ratio_y)
-y_ = lambda y : (y + y_offset)/pixel_ratio_y
+y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+y_ = lambda y : (y - y_offset)/pixel_ratio_y
+y_v = lambda y : (y)/pixel_ratio_y
 
 pixel_ratio = abs((x1[1] - x2[1])/(x1[0] - x2[0]) )
 x_offset = x1[1] - ((x1[0]-1)*pixel_ratio)
 x_ = lambda x : (x + x_offset)/pixel_ratio
-print("    (", x_(18) , ",",y_( 11)  ,",", y_(0)   , ")" )
-print("    (", x_(52) , ",",y_( 102) ,",", y_(0)   , ")" )
-print("    (", x_(123), ",", y_(162) ,",", y_(17/2), ")" )
-print("    (", x_(191), ",", y_(194) ,",", y_(21/2), ")" )
-print("    (", x_(295), ",", y_(199) ,",", y_(39/2), ")" )
-print("    (", x_(366), ",", y_(207) ,",", y_(22/2), ")" )
+print("    (", x_(18) , ",",y_( 11)  ,",", y_v(0)   , ")" , ",")
+print("    (", x_(52) , ",",y_( 102) ,",", y_v(0)   , ")" , ",")
+print("    (", x_(123), ",", y_(162) ,",", y_v(17/2), ")" , ",")
+print("    (", x_(191), ",", y_(194) ,",", y_v(21/2), ")" , ",")
+print("    (", x_(295), ",", y_(199) ,",", y_v(39/2), ")" , ",")
+print("    (", x_(366), ",", y_(207) ,",", y_v(22/2), ")" , ",")
 
-print("Ant")
-print("    (", x_(18), ",", y_(10)   ,",", y_(0)   , ")" )
+print("],")
+print("'Ant': [")
 x1 = 0.000, 19
 x2 = 0.010, 367
 y1 = 2, 68
 y2 = 4, 182
 pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
-y_offset = y1[1] - ((y1[0]-1)*pixel_ratio_y)
-y_ = lambda y : (y + y_offset)/pixel_ratio_y
+y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+y_ = lambda y : (y - y_offset)/pixel_ratio_y
+y_v = lambda y : (y)/pixel_ratio_y
 
 pixel_ratio = abs((x1[1] - x2[1])/(x1[0] - x2[0]) )
 x_offset = x1[1] - ((x1[0]-1)*pixel_ratio)
 x_ = lambda x : (x + x_offset)/pixel_ratio
-print("    (", x_(52), ",", y_(63)   ,",", y_(7/2) , ")" )
-print("    (", x_(123), ",", y_(115) ,",", y_(13/2), ")" )
-print("    (", x_(191), ",", y_(144) ,",", y_(44/2), ")" )
-print("    (", x_(295), ",", y_(154) ,",", y_(59/2), ")" )
-print("    (", x_(366), ",", y_(180) ,",", y_(75/2), ")" )
+print("    (", x_(18), ",", y_(10)   ,",", y_v(0)   , ")" , ",")
+print("    (", x_(52), ",", y_(63)   ,",", y_v(7/2) , ")" , ",")
+print("    (", x_(123), ",", y_(115) ,",", y_v(13/2), ")" , ",")
+print("    (", x_(191), ",", y_(144) ,",", y_v(44/2), ")" , ",")
+print("    (", x_(295), ",", y_(154) ,",", y_v(59/2), ")" , ",")
+print("    (", x_(366), ",", y_(180) ,",", y_v(75/2), ")" , ",")
 
-print("Humanoid")
+print("],")
+print("'Humanoid': [")
 x1 = 0.000, 19
 x2 = 0.010, 363
 y1 = 1, 10
 y2 = 2, 174
 pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
-y_offset = y1[1] - ((y1[0]-1)*pixel_ratio_y)
-y_ = lambda y : (y + y_offset)/pixel_ratio_y
+y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+y_ = lambda y : (y - y_offset)/pixel_ratio_y
+y_v = lambda y : (y)/pixel_ratio_y
 
 pixel_ratio = abs((x1[1] - x2[1])/(x1[0] - x2[0]) )
 x_offset = x1[1] - ((x1[0]-1)*pixel_ratio)
 x_ = lambda x : (x + x_offset)/pixel_ratio
-print("    (", x_(16), ",", y_(10)   ,",", y_(0)   , ")" )
-print("    (", x_(52), ",", y_(75)   ,",", y_(36/2), ")" )
-print("    (", x_(120), ",", y_(136) ,",", y_(82/2), ")" )
-print("    (", x_(191), ",", y_(138) ,",", y_(127/2), ")")
-print("    (", x_(295), ",", y_(154) ,",", y_(102/2), ")")
-print("    (", x_(363), ",", y_(170) ,",", y_(100/2), ")")
+print("    (", x_(16), ",", y_(10)   ,",", y_v(0)   , ")" , ",")
+print("    (", x_(52), ",", y_(75)   ,",", y_v(36/2), ")" , ",")
+print("    (", x_(120), ",", y_(136) ,",", y_v(82/2), ")" , ",")
+print("    (", x_(191), ",", y_(138) ,",", y_v(127/2), ")", ",")
+print("    (", x_(295), ",", y_(154) ,",", y_v(102/2), ")", ",")
+print("    (", x_(363), ",", y_(170) ,",", y_v(100/2), ")", ",")
 
-print("Cheetah ")
+print("],")
+print("'Cheetah': [")
 x1 = 0.000, 19
 x2 = 0.010, 363
 y1 = 1, 11
 y2 = 3, 178
 pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
-y_offset = y1[1] - ((y1[0]-1)*pixel_ratio_y)
-y_ = lambda y : (y + y_offset)/pixel_ratio_y
+y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+y_ = lambda y : (y - y_offset)/pixel_ratio_y
+y_v = lambda y : (y)/pixel_ratio_y
 
 pixel_ratio = abs((x1[1] - x2[1])/(x1[0] - x2[0]) )
 x_offset = x1[1] - ((x1[0]-1)*pixel_ratio)
 x_ = lambda x : (x + x_offset)/pixel_ratio
-print("    (", x_(19), ",", y_(11)   ,",", y_(0)   , ")" )
-print("    (", x_(51), ",", y_(109)  ,",", y_(0)   , ")" )
-print("    (", x_(119), ",", y_(171) ,",", y_(36/2), ")" )
-print("    (", x_(189), ",", y_(182) ,",", y_(30/2), ")" )
-print("    (", x_(294), ",", y_(195) ,",", y_(43/2), ")" )
-print("    (", x_(363), ",", y_(171) ,",", y_(75/2), ")" )
+print("    (", x_(19), ",", y_(11)   ,",", y_v(0)   , ")" , ",")
+print("    (", x_(51), ",", y_(109)  ,",", y_v(0)   , ")" , ",")
+print("    (", x_(119), ",", y_(171) ,",", y_v(36/2), ")" , ",")
+print("    (", x_(189), ",", y_(182) ,",", y_v(30/2), ")" , ",")
+print("    (", x_(294), ",", y_(195) ,",", y_v(43/2), ")" , ",")
+print("    (", x_(363), ",", y_(171) ,",", y_v(75/2), ")" , ",")
 
-print("Walker")
+print("],")
+print("'Walker': [")
 x1 = 0.000, 19
 x2 = 0.010, 363
 y1 = 2, 81
-y2 = 4, 255
+y2 = 4, 224
 pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
-y_offset = y1[1] - ((y1[0]-1)*pixel_ratio_y)
-y_ = lambda y : (y + y_offset)/pixel_ratio_y
+y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+y_ = lambda y : (y - y_offset)/pixel_ratio_y
+y_v = lambda y : (y)/pixel_ratio_y
 
 pixel_ratio = abs((x1[1] - x2[1])/(x1[0] - x2[0]) )
 x_offset = x1[1] - ((x1[0]-1)*pixel_ratio)
 x_ = lambda x : (x + x_offset)/pixel_ratio
-print("    (", x_(16), ",", y_(10)   ,",", y_(0)   , ")" )
-print("    (", x_(104), ",", y_(114) ,",", y_(0)   , ")" )
-print("    (", x_(191), ",", y_(142) ,",", y_(13/2), ")" )
-print("    (", x_(277), ",", y_(163) ,",", y_(13/2), ")" )
-print("    (", x_(363), ",", y_(20)  ,",", y_(23/2), ")" )
+print("    (", x_(16), ",", y_(10)   ,",", y_v(0)   , ")" , ",")
+print("    (", x_(104), ",", y_(114) ,",", y_v(0)   , ")" , ",")
+print("    (", x_(191), ",", y_(142) ,",", y_v(13/2), ")" , ",")
+print("    (", x_(277), ",", y_(163) ,",", y_v(13/2), ")" , ",")
+print("    (", x_(363), ",", y_(206)  ,",", y_v(23/2), ")" , ",")
