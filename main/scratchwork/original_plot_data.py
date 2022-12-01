@@ -210,3 +210,97 @@ print("    (", x_(104), ",", y_(114) ,",", y_v(0)   , ")" , ",")
 print("    (", x_(191), ",", y_(142) ,",", y_v(13/2), ")" , ",")
 print("    (", x_(277), ",", y_(163) ,",", y_v(13/2), ")" , ",")
 print("    (", x_(363), ",", y_(206)  ,",", y_v(23/2), ")" , ",")
+
+
+
+graph2 = {
+    "Lander": [
+        [ 22, 260, 30 ],
+        [ 64, 261, 23 ],
+        [ 154, 258, 19 ],
+        [ 241, 264, 28 ],
+        [ 373, 251, 31 ],
+        [ 460, 255, 27 ],
+    ],
+    "Hopper": [
+        [ 22, 263, 0 ],
+        [ 65, 261, 1 ],
+        [ 155, 259, 4 ],
+        [ 241, 256, 7 ],
+        [ 373, 250, 9 ],
+        [ 460, 243, 9 ],
+    ],
+    "Ant": [
+        [ 22, 263, 5 ],
+        [ 64, 256, 7 ],
+        [ 154, 249, 12 ],
+        [ 241, 241, 17 ],
+        [ 374, 228, 27 ],
+        [ 461, 230, 15 ],
+    ],
+    "Humanoid": [
+        [ 22, 263, 24 ],
+        [ 67, 259, 22 ],
+        [ 155, 240, 43 ],
+        [ 244, 240, 31 ],
+        [ 377, 215, 30 ],
+        [ 463, 205, 34 ],
+    ],
+    "Cheetah": [
+        [ 22, 263, 0 ],
+        [ 67, 257, 2 ],
+        [ 155, 247, 8 ],
+        [ 244, 244, 7 ],
+        [ 376, 216, 18 ],
+        [ 463, 210, 22 ],
+    ],
+    "Walker": [
+        [ 22, 263, 9 ],
+        [ 132, 256, 12 ],
+        [ 244, 257, 11 ],
+        [ 354, 245, 16 ],
+        [ 463, 249, 17 ],
+    ],
+}
+
+x_point2s = {
+    "Lander": 466,
+    "Hopper": 464,
+    "Ant": 444,
+    "Humanoid": 486,
+    "Cheetah": 476,
+    "Walker": 485,
+}
+
+x1 = 0.000, 22
+x2 = [0.010, 466]
+y1 = 0.0, 21
+y2 = 0.5, 141
+def y_(y):
+    pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
+    y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+    return (y - y_offset)/pixel_ratio_y
+
+def y_v(y):
+    pixel_ratio_y = abs((y1[1] - y2[1])/(y1[0] - y2[0]) )
+    y_offset = y1[1] - ((y1[0])*pixel_ratio_y)
+    return (y)/pixel_ratio_y
+
+def x_(x):
+    pixel_ratio_x = abs((x1[1] - x2[1])/(x1[0] - x2[0]) )
+    x_offset = x1[1] - ((x1[0])*pixel_ratio_x)
+    return (x - x_offset)/pixel_ratio_x
+
+print(f'''x_(22) = {x_(22)}''')
+
+for each_key, points in graph2.items():
+    x2[1] = x_point2s[each_key]
+    print(f'''each_key = {each_key}''')
+    for x,y,d in points:
+        print(f'''    x ({x}) =>  x_ ({x_(x)})''')
+        element = (x_(x), y_(y), y_v(d))
+    graph2[each_key] = [ (x_(x), y_(y), y_v(d)) for x,y,d in points ]
+
+from blissful_basics import LazyDict
+graph2 = LazyDict(graph2)
+print(graph2)

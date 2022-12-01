@@ -490,12 +490,15 @@ def multi_plot(data, vertical_label=None, horizonal_label=None, title=None, colo
         }
     })
 
-def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_label=None, title=None, color_key={}):
+def multi_variance_plot(data, vertical_label=None, horizonal_label=None, title=None, color_key={}, point_size=5, max_x=None, min_x=None, max_y=None, min_y=None):
     import silver_spectacle as ss
     from trivial_torch_tools.generics import to_pure
     
     from statistics import mean as average
     from statistics import stdev
+    
+    point_radius = point_size if not isinstance(point_size, (int, float)) else 5
+    point_size_for = {} if not isinstance(point_size, dict) else point_size
     
     def is_hex_string(string):
         import re
@@ -513,7 +516,7 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
     
     def rgb_string_to_rgb_list(string):
         import re
-        match = re.match(r'^rgb\( *([1-2]?\d{1,2}) *, *([1-2]?\d{1,2}) *, *([1-2]?\d{1,2}) *(, *(?:\d+(?:\.\d+)?|\d*\.\d+))?\)$', string)
+        match = re.match(r'^rgba?\( *([1-2]?\d{1,2}) *, *([1-2]?\d{1,2}) *, *([1-2]?\d{1,2}) *(, *(?:\d+(?:\.\d+)?|\d*\.\d+))?\)$', string)
         if match:
             base_rgb = [ int(match[1]), int(match[2]), int(match[3]) ]
             if match[4]:
@@ -521,41 +524,47 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
             return base_rgb
     
     datasets = []
-    labels = {}
+    labels = []
     for each_key, each_line in data.items():
         color = color_key.get(each_key, 'rgb(0, 292, 192, 0.5)')
+        each_point_radius = point_size_for.get(each_key, point_radius)
         
         # create lighter color
         color_as_rgb_list = hex_string_to_rgb_list(color) if is_hex_string(color) else rgb_string_to_rgb_list(color)
         if len(color_as_rgb_list) == 3:
-            color_as_rgb_list.push(1)
+            color_as_rgb_list.append(1)
         color_as_rgb_list[3] = color_as_rgb_list[3] / 2
         lighter_color = f'''rgb({",".join([ f"{each}" for each in color_as_rgb_list])})'''
         
         values = []
-        for x, y in each_line:
-            labels[x] = None
+        deviations = []
+        for x, y, d in each_line:
+            labels.append(x)
             values.append(to_pure(y))
+            deviations.append(d)
         
         averages = values
         if type(deviations) == type(None):
             averages   = tuple(average(each) for each in values)
             deviations = tuple(stdev(each) for each in values)
             
-        tension = 0.4
+        tension = None
+        each_labels = [ x for x,_,_ in each_line ]
         # centerline
         datasets.append(dict(
             label=each_key,
-            data=averages,
+            labels=each_labels,
+            data=[ dict(x=x,y=y) for x,y in zip(each_labels, averages)],
             fill=False,
             tension=tension,
             color=color,
             borderColor=color,
             backgroundColor=color,
+            pointRadius=each_point_radius,
         ))
         # lowerbound
         datasets.append(dict(
-            data=tuple(each_average-each_deviation for each_average, each_deviation in zip(averages, deviations)),
+            data=tuple(each_average-each_deviation if each_average != None else None for each_average, each_deviation in zip(averages, deviations)),
             tension=tension,
             label= '',
             fill= '-1',
@@ -568,7 +577,7 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
         ))
         # UpperBound
         datasets.append(dict(
-            data=tuple(each_average+each_deviation for each_average, each_deviation in zip(averages, deviations)),
+            data=tuple(each_average+each_deviation if each_average != None else None for each_average, each_deviation in zip(averages, deviations)),
             tension=tension,
             label= '',
             fill= '-2',
@@ -579,8 +588,10 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
             backgroundColor= lighter_color,
             borderWidth= 1,
         ))
-        
-    labels = list(labels.keys())
+    
+    labels = list(set(labels))
+    labels.sort()
+    from blissful_basics import LazyDict, stringify
     return ss.DisplayCard("chartjs", {
         "type": 'line',
         "data": {
@@ -597,21 +608,25 @@ def multi_variance_plot(data, deviations=None, vertical_label=None, horizonal_la
                     "display": False,
                 },
             },
-            "pointRadius": 5, # the size of the dots
+            "pointRadius": point_radius, # the size of the dots
             "scales": {
                 "x": {
                     "title": {
                         "display": horizonal_label,
                         "text": horizonal_label,
                     },
+                    "type": 'linear',
+                    **({"min": min_x,} if min_x != None else {}),
+                    **({"max": max_x,} if max_x != None else {}),
                 },
                 "y": {
                     "title": {
                         "display": vertical_label,
                         "text": vertical_label,
                     },
-                    # "min": 50,
-                    # "max": 100,
+                    "type": 'linear',
+                    **({"min": min_y,} if min_y != None else {}),
+                    **({"max": max_y,} if max_y != None else {}),
                 },
             }
         }
