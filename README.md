@@ -1,6 +1,11 @@
+# Project Overview
+
+<img width="1483" alt="afrl_poster" src="https://github.com/josiahcoad/AFRL/assets/17692058/7d82b6ad-762d-4b1c-93f0-e2a0b7ef73b9">
+
 # Tooling Setup
 
 Everything is detailed in the `documentation/setup.md`!
+
 
 # Running Code
 
