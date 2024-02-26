@@ -1,0 +1,651 @@
+(project):
+    Q&A:
+        - Whats the main idea(s)?:
+            - there are two models; the agent and the coach
+            - the agent is a SAC model that is pretty typical
+            - the coach tries to forcast multiple steps into the future in a way that helps the agent
+        - How do I judge performance?:
+            - Smaller epsilon (lieniency of predicted_state ~~== actual_future_state)
+            - Larger forcast (the avergage length of predictions that were correct)
+            - Rewards that are most similar to the optimal policy (green line in .ipynb graph)
+        - What is the main loss function?: |
+            there's a few, and they're defined in main/training/coach_settings.py on the CoachClass class
+            
+    tasks/questions:
+        - improving optimization method:
+            - todo: given a distribution of q gaps; as an average gap size for each +1 into the future, decide on a cutoff point there instead of an epsilon binary search guess.  (increment up and down the average gap size, good = averge gap for timestep+1, bad = average gap for timestep -1)
+        - loss optimizations:
+            - question: why would q do worse than state prediction
+            - possible_answer: because state has the most immediate and easy-to-follow reward function
+            - attempt: try different learning rates
+            - attempt: attempt phasing transition from state based to q loss and future
+            - attempt: attempt seperate optimizers for multiple losses
+            - attempt: look 2 or 3 steps into the future loss
+        - research direction:
+            - note: consider having lunar env, but increasing the state space, while adding a lot of random noise
+            - note: this technique doesnt make the actor themself any more stable, the actor is still jittery. Can we try giving the actor a reward for predicting itself (being predictable, not predicting a jittery agent)
+            - consider: spiking neural networks
+    notes:
+        - SAM does make it slower to converge in training (baseline 0.04, vs SAM baseline 0.07). Possible training time should be increased with SAM. Performance of baseline seems relatively unaffected.
+
+    # a central place for filepaths
+    (path_to):
+        folder:
+            agent_models: "./models.ignore/agents/"
+            coach_models: "./models.ignore/coach/"
+            results: "./results/"
+
+    (local_data): ./local_data.ignore.yaml
+    (profiles): # NOTE: more than one profile is picked, and the values are merged. The equal signs are just part of the name-string (not special)
+        (default):
+            experiment_name: null
+            env_name: "LunarLanderContinuous-v2" # can be any of: "LunarLanderContinuous-v2", "MountainCarContinuous-v0", "AntBulletEnv-v0", "HopperBulletEnv-v0", BipedalWalker-v3, "HalfCheetahBulletEnv-v0"
+            force_cpu: false
+            
+            load:
+                agent_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
+                coach_path: null # there is a default path, and this overrides the default path (designed to be used from CLI)
+            
+            agent_compare_test:
+                number_of_agents: 10
+                number_of_episodes: 10
+                base_name: default_sac
+            
+            agent_settings:
+                model_name: default_sac_4 # was the best (by far) out of 10 for lunar lander
+                number_of_timesteps: 200000
+                reward_discount: 0.98
+                force_retrain: false
+                    
+            coach_settings:
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
+                consistent_coach_loss:
+                    scale_future_state_loss: 1000000
+                delayed_coach_loss:
+                    epochs_of_delay: 50
+                value_plus_state_loss:
+                    value_proportion: 0.5
+                number_of_episodes: 100
+                number_of_epochs: 100 # should be 100
+                train_test_split: 0.7
+                batch_size: 1024
+    
+            predictor_settings:
+                override_save_path: false
+                increment_factor: 1.2
+                # available_methods: [ ppac, n_step, random, optimal ]
+                force_recompute: false
+                graph_smoothing: 0 # rolling average of _ number values
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 50
+                number_of_episodes_for_testing: 250 # original value is 50 
+                initial_epsilon: 3.5 # overshooting this initial value is better than undershooting
+                initial_horizon: 10 # units = timesteps. Mostly irrelevent
+                reward_discount: 0.98
+                acceptable_performance_levels: [ 0.95, 0.9, 0.8, 0.5, ]
+                # acceptable_performance_levels: [ 0.5, 0.8, 0.9, 0.95, 1.00 ]
+                acceptable_performance_loss: 1 # units = standard deviations
+                acceptable_performance_level: 0.8 # proportion
+                confidence_interval_for_convergence: 90
+                min_sample_size: 30
+                min_reward_single_timestep: 0
+                max_reward_single_timestep: 100
+                horizon_ceiling: 25
+                horizon_floor: 4
+        
+        FORCE_CPU_PROFILE:
+            force_cpu: true
+            
+        ENV=LUNAR:
+            env_name: "LunarLanderContinuous-v2"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/LunarLanderContinuous-v2_1/LunarLanderContinuous-v2.zip" 
+            agent_settings:
+                number_of_timesteps: 200000
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+            predictor_settings:
+                min_reward_single_timestep: -100
+                max_reward_single_timestep: 70
+                horizons:
+                    0.0: 1
+                    0.005: 10
+                    0.01: 20
+        ENV=HOPPER:
+            env_name: "HopperBulletEnv-v0"    
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/HopperBulletEnv-v0_1/HopperBulletEnv-v0.zip" 
+            agent_settings:
+                reward_discount: 0.98
+            predictor_settings:
+                min_reward_single_timestep: 18
+                max_reward_single_timestep: 110
+                horizons:
+                    0.1: 26
+                    0.01: 16
+                    0.001: 11
+        ENV=CHEETAH:
+            env_name: "HalfCheetahBulletEnv-v0"
+            load:
+                agent_path: "subrepos/rl-trained-agents/sac/HalfCheetahBulletEnv-v0_1/HalfCheetahBulletEnv-v0.zip"
+            agent_settings:
+                reward_discount: 0.98
+                learning_rate: 0.00073
+                number_of_timesteps: 1000000
+            predictor_settings:
+                min_reward_single_timestep: -60
+                max_reward_single_timestep: 100
+                horizons:
+                    0: 1
+                    0.001: 11
+                    0.01: 13
+                    0.1: 26
+            hparams: 
+                learning_rate: 7.3e-4
+                buffer_size: 300000
+                batch_size: 1024
+                ent_coef: auto
+                gamma: 0.98
+                tau: 0.02
+                train_freq: 8
+                gradient_steps: 8
+                learning_starts: 10000
+        ENV=WALKER:
+            env_name: "BipedalWalker-v3"    
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/BipedalWalker-v3_1/BipedalWalker-v3.zip" 
+            agent_settings:
+                reward_discount: 0.98
+            predictor_settings:
+                min_reward_single_timestep: -23
+                max_reward_single_timestep: 5
+                horizons:
+                    0.1: 26
+                    0.01: 16
+                    0.001: 11
+        ENV=ANT:
+            env_name: "AntBulletEnv-v0"    
+            load:
+                agent_path: "subrepos/rl-trained-agents/sac/AntBulletEnv-v0_1/AntBulletEnv-v0.zip"
+            agent_settings:
+                reward_discount: 0.98
+            predictor_settings:
+                min_reward_single_timestep: 19
+                max_reward_single_timestep: 105
+                horizons:
+                    0: 1
+                    0.0007: 4
+                    0.0015: 16
+                    0.0020: 26
+            # Max Episode Reward: 852.4950843086151
+            # Min Episode Reward: 153.87762677698575
+            # Max Timestep Reward: 2.3122164298644683
+            # Min Timestep Reward: -1.7494330256972288
+        ENV=REACHER:
+            env_name: "ReacherBulletEnv-v0"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/ReacherBulletEnv-v0_1/ReacherBulletEnv-v0.zip" 
+                
+        ENV=HUMANOID:
+            env_name: "HumanoidPyBulletEnv-v0"
+            load:
+                agent_path: "./subrepos/rl-trained-agents/sac/Humanoid-v3_1/Humanoid-v3.zip" 
+            reward_discount: 0.98
+            agent_settings:
+                learning_rate: 0.0003
+            coach_settings: {}
+            predictor_settings:
+                min_reward_single_timestep: -30
+                max_reward_single_timestep: 113
+                number_of_timesteps: 3000000
+                horizons:
+                    0.1: 26
+                    0.01: 11
+                    0.001: 5
+            hparams: 
+                learning_rate: 0.0003
+                buffer_size: 1000000
+                batch_size: 1024
+                ent_coef: auto
+                train_freq: 1
+                gradient_steps: 1
+                learning_starts: 1000
+                
+                # Available: 
+                    # Reacher-v2
+                    # Pusher-v2
+                    # Thrower-v2
+                    # Striker-v2
+                    # InvertedPendulum-v2
+                    # InvertedDoublePendulum-v2
+                    # HalfCheetah-v2
+                    # HalfCheetah-v3
+                    # Hopper-v2
+                    # Hopper-v3
+                    # Swimmer-v2
+                    # Swimmer-v3
+                    # Walker2d-v2
+                    # Walker2d-v3
+                    # Ant-v2
+                    # Ant-v3
+                    # Humanoid-v2
+                    # Humanoid-v3
+                    # HumanoidStandup-v2
+        # 
+        # BASELINE
+        # 
+        LOSS=BASELINE:
+            coach_settings:
+                force_retrain: false
+                learning_rate: 0.0001
+                hidden_sizes: [64, 64, 64, 64]
+                loss_function: state_prediction_loss # "value_prediction_loss", "action_prediction_loss", "state_prediction_loss", "consistent_coach_loss" <- each is a method on class Coach
+                consistent_coach_loss:
+                    scale_future_state_loss: 1000000
+                delayed_coach_loss:
+                    epochs_of_delay: 50
+                value_plus_state_loss:
+                    value_proportion: 0.5
+                number_of_episodes: 100
+                number_of_epochs: 100 # should be 100
+                train_test_split: 0.7
+                batch_size: 128
+                with_card: true
+            coach_settings:
+                force_retrain: false
+        
+        CUSTOM=LUNAR_BASELINE_V1:
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V1 experiment_name:baseline_1
+            (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
+            coach_settings:
+                number_of_episodes: 100
+            predictor_settings:
+                force_recompute: false
+                number_of_episodes: 10
+                horizons:
+                    0.0: 1
+                    0.005: 10
+                    0.01: 20
+        
+        CUSTOM=LUNAR_BASELINE_V2:
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V2 experiment_name:baseline_2
+            (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
+            predictor_settings:
+                acceptable_performance_loss: 2 # units = standard deviations
+                force_recompute: false
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: 2.1170
+                initial_horizon: 20
+        
+        CUSTOM=LUNAR_BASELINE_V3:
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_BASELINE_V3 experiment_name:baseline_3
+            (inherit): [ LOSS=BASELINE, ENV=LUNAR, ]
+            predictor_settings:
+                acceptable_performance_loss: 2 # units = standard deviations
+                force_recompute: false
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+                initial_epsilon: &baseline_lunar_initial_epsilon 1.5 
+                initial_horizon: &baseline_lunar_initial_horizon 45  
+        
+        CUSTOM=CHEETAH_BASELINE:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2
+            (inherit): [ LOSS=BASELINE, ENV=CHEETAH, ]
+            coach_settings:
+                force_retrain: false
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
+                initial_epsilon: 0.7
+                initial_horizon: 42
+        
+        CUSTOM=ANT_BASELINE:
+            # python ./main/run/full.py -- @CUSTOM=ANT_BASELINE experiment_name:baseline_2
+            (inherit): [ LOSS=BASELINE, ENV=ANT, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
+                initial_epsilon: 0.1316872427983539
+                initial_horizon: 8
+        
+        # 
+        # Q LOSS (aka value_prediction_loss)
+        # 
+        LOSS=Q:
+            coach_settings:
+                loss_function: "value_prediction_loss"
+                force_retrain: false
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                value_plus_state_loss:
+                    value_proportion: 0.5 # 50-50 split
+                number_of_epochs: 120
+                batch_size: 1024
+            predictor_settings:
+                force_recompute: false
+        
+        CUSTOM=LUNAR_Q:
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_Q experiment_name:q_loss_1
+            (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=CHEETAH_Q:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q experiment_name:q_loss_1
+            (inherit): [ LOSS=Q, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
+        
+        CUSTOM=ANT_Q:
+            # python ./main/run/full.py -- @CUSTOM=ANT_Q experiment_name:q_loss_1
+            (inherit): [ LOSS=Q, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 10
+        
+        # 
+        # Q PLUS STATE
+        # 
+        LOSS=Q_PLUS_STATE:
+            coach_settings:
+                loss_function: "value_plus_state_loss"
+                force_retrain: false
+                number_of_epochs: 120
+                batch_size: 1024
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+                value_plus_state_loss:
+                    value_proportion: 0.01
+        
+        CUSTOM=LUNAR_Q_PLUS_STATE:
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
+            (inherit): [ LOSS=Q, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE:
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
+            coach_settings:
+                force_retrain: false
+                value_plus_state_loss:
+                    value_proportion: 0.01
+        
+        CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
+            coach_settings:
+                value_plus_state_loss:
+                    value_proportion: 0
+        
+        CUSTOM=CHEETAH_Q_PLUS_STATE:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
+            (inherit): [ LOSS=Q, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            coach_settings:
+                force_retrain: false
+                value_plus_state_loss:
+                    value_proportion: 0.01
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            coach_settings:
+                value_plus_state_loss:
+                    value_proportion: 0
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_Q_PLUS_STATE:
+            # python ./main/run/full.py -- @CUSTOM=ANT_Q_PLUS_STATE experiment_name:q_plus_state_loss_1
+            (inherit): [ LOSS=Q, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE:
+            # python ./main/run/full.py -- @CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            coach_settings:
+                force_retrain: false
+                value_plus_state_loss:
+                    value_proportion: 0.01
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_Q_IGNORED_PLUS_STATE: # should be equivlent to baseline (sanity check)
+            # python ./main/run/full.py -- @CUSTOM=ANT_Q_IGNORED_PLUS_STATE experiment_name:q_ignored_plus_state_loss_1
+            (inherit): [ LOSS=Q_PLUS_STATE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            coach_settings:
+                value_plus_state_loss:
+                    value_proportion: 0
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        # 
+        # CONSISTENT_COACH (main loss function)
+        #
+        LOSS=CONSISTENT_COACH:
+            coach_settings:
+                loss_function: consistent_coach_loss
+                consistent_coach_loss:
+                    scale_future_state_loss: 1
+        
+        CUSTOM=LUNAR_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @CUSTOM=LUNAR_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
+            (inherit): [ LOSS=CONSISTENT_COACH, ENV=LUNAR, CUSTOM=LUNAR_BASELINE_V2, ]
+            predictor_settings:
+                force_recompute: false
+        
+        CUSTOM=CHEETAH_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
+            (inherit): [ LOSS=CONSISTENT_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_COACH experiment_name:consistent_coach_loss_1
+            (inherit): [ LOSS=CONSISTENT_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        # 
+        # CONSISTENT_VALUE
+        # 
+        LOSS=CONSISTENT_VALUE:
+            coach_settings:
+                loss_function: consistent_value_loss
+        
+        CUSTOM=CHEETAH_CONSISTENT_VALUE:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE experiment_name:consistent_value_loss_1
+            (inherit): [ LOSS=CONSISTENT_VALUE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_CONSISTENT_VALUE:
+            # python ./main/run/full.py -- @CUSTOM=ANT_CONSISTENT_VALUE experiment_name:consistent_value_loss_1
+            (inherit): [ LOSS=CONSISTENT_VALUE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        # 
+        # HALF_CONSISTENT_COACH
+        # 
+        LOSS=HALF_CONSISTENT_COACH:
+            coach_settings:
+                loss_function: half_consistent_coach_loss
+        
+        CUSTOM=CHEETAH_HALF_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
+            (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_HALF_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
+            (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        # 
+        # STATE_TRIPLE
+        # 
+        LOSS=STATE_TRIPLE:
+            coach_settings:
+                loss_function: state_triple_loss
+        
+        CUSTOM=CHEETAH_STATE_TRIPLE:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE experiment_name:state_triple_1
+            (inherit): [ LOSS=STATE_TRIPLE, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_STATE_TRIPLE:
+            # python ./main/run/full.py -- @CUSTOM=ANT_STATE_TRIPLE experiment_name:state_triple_1
+            (inherit): [ LOSS=STATE_TRIPLE, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        # 
+        # DELAYED_COACH_LOSS
+        # 
+        LOSS=DELAYED_COACH_LOSS:
+            coach_settings:
+                loss_function: delayed_coach_loss
+        
+        CUSTOM=CHEETAH_DELAYED_COACH_LOSS:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS experiment_name:delayed_coach_loss_1
+            (inherit): [ LOSS=DELAYED_COACH_LOSS, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_DELAYED_COACH_LOSS:
+            # python ./main/run/full.py -- @CUSTOM=ANT_DELAYED_COACH_LOSS experiment_name:delayed_coach_loss_1
+            (inherit): [ LOSS=DELAYED_COACH_LOSS, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        # 
+        # HALF_CONSISTENT_COACH
+        # 
+        LOSS=HALF_CONSISTENT_COACH:
+            coach_settings:
+                loss_function: half_consistent_coach_loss
+        
+        CUSTOM=CHEETAH_HALF_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
+            (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=CHEETAH, CUSTOM=CHEETAH_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9
+        
+        CUSTOM=ANT_HALF_CONSISTENT_COACH:
+            # python ./main/run/full.py -- @CUSTOM=ANT_HALF_CONSISTENT_COACH experiment_name:half_consistent_coach_loss_1
+            (inherit): [ LOSS=HALF_CONSISTENT_COACH, ENV=ANT, CUSTOM=ANT_BASELINE, ]
+            predictor_settings:
+                force_recompute: false
+                acceptable_performance_loss: 2 # units = standard deviations
+                number_of_episodes_for_baseline: 30
+                number_of_epochs_for_optimal_parameters: 15
+                number_of_episodes_for_testing: 9

@@ -1,0 +1,1 @@
+{"number_of_episodes_for_testing": 9, "acceptable_performance_loss": 2, "initial_epsilon": 0.026220759371288625, "initial_horizon": 40, "optimal_epsilon": 0.038089638584412486, "optimal_horizon": 16}

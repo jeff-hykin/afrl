@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+# . ./commands/project/run_cheetah
+
+mkdir -p logs/cheetah
+
+# python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:baseline_2 coach_settings:batch_size:1024 2>&1 | tee logs/cheetah/baseline_2.log && {
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE               experiment_name:baseline_3                    force_cpu:true "$@" &> logs/cheetah/baseline_3.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:q_plus_state_loss_1           force_cpu:true "$@" &> logs/cheetah/q_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:q_unfavored_plus_state_loss_1 force_cpu:true "$@" &> logs/cheetah/q_unfavored_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE   experiment_name:q_ignored_plus_state_loss_1   force_cpu:true "$@" &> logs/cheetah/q_ignored_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q                      experiment_name:q_loss_1                      force_cpu:true "$@" &> logs/cheetah/q_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH       experiment_name:consistent_coach_loss_1       force_cpu:true "$@" &> logs/cheetah/consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE       experiment_name:consistent_value_loss_1       force_cpu:true "$@" &> logs/cheetah/consistent_value_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1  force_cpu:true "$@" &> logs/cheetah/half_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE           experiment_name:state_triple_1                force_cpu:true "$@" &> logs/cheetah/state_triple_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS     experiment_name:delayed_coach_loss_1          force_cpu:true "$@" &> logs/cheetah/delayed_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:half_consistent_coach_loss_1  force_cpu:true "$@" &> logs/cheetah/half_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH          experiment_name:delayed_coach_loss_1          force_cpu:true "$@" &> logs/cheetah/delayed_coach_loss_1.log 
+# }
+
+# python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:sam_baseline_2 coach_settings:enable_sam:true 2>&1 | tee logs/cheetah/sam_baseline_2.log && {
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE               experiment_name:sam_baseline_3                    coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_baseline_3.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:sam_q_plus_state_loss_1           coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_q_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:sam_q_unfavored_plus_state_loss_1 coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_q_unfavored_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE   experiment_name:sam_q_ignored_plus_state_loss_1   coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_q_ignored_plus_state_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_Q                      experiment_name:sam_q_loss_1                      coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_q_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH       experiment_name:sam_consistent_coach_loss_1       coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE       experiment_name:sam_consistent_value_loss_1       coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_consistent_value_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:sam_half_consistent_coach_loss_1  coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_half_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE           experiment_name:sam_state_triple_1                coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_state_triple_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS     experiment_name:sam_delayed_coach_loss_1          coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_delayed_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:sam_half_consistent_coach_loss_1  coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_half_consistent_coach_loss_1.log 
+#     python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH          experiment_name:sam_delayed_coach_loss_1          coach_settings:enable_sam:true "$@" &> logs/cheetah/sam_delayed_coach_loss_1.log 
+# }
+
+python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE experiment_name:redone_baseline_2 2>&1 | tee logs/cheetah/redone_baseline_2.log && {
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_BASELINE               experiment_name:redone_baseline_3                    "$@" &> logs/cheetah/redone_baseline_3.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_PLUS_STATE           experiment_name:redone_q_plus_state_loss_1           "$@" &> logs/cheetah/redone_q_plus_state_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE experiment_name:redone_q_unfavored_plus_state_loss_1 "$@" &> logs/cheetah/redone_q_unfavored_plus_state_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE   experiment_name:redone_q_ignored_plus_state_loss_1   "$@" &> logs/cheetah/redone_q_ignored_plus_state_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_Q                      experiment_name:redone_q_loss_1                      "$@" &> logs/cheetah/redone_q_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_COACH       experiment_name:redone_consistent_coach_loss_1       "$@" &> logs/cheetah/redone_consistent_coach_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_CONSISTENT_VALUE       experiment_name:redone_consistent_value_loss_1       "$@" &> logs/cheetah/redone_consistent_value_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:redone_half_consistent_coach_loss_1  "$@" &> logs/cheetah/redone_half_consistent_coach_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_STATE_TRIPLE           experiment_name:redone_state_triple_1                "$@" &> logs/cheetah/redone_state_triple_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH_LOSS     experiment_name:redone_delayed_coach_loss_1          "$@" &> logs/cheetah/redone_delayed_coach_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_HALF_CONSISTENT_COACH  experiment_name:redone_half_consistent_coach_loss_1  "$@" &> logs/cheetah/redone_half_consistent_coach_loss_1.log 
+    python ./main/run/full.py -- @CUSTOM=CHEETAH_DELAYED_COACH          experiment_name:redone_delayed_coach_loss_1          "$@" &> logs/cheetah/redone_delayed_coach_loss_1.log 
+}

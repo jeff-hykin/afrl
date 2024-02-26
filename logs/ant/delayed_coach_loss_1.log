@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/quik_config/main.py", line 392, in find_and_load
+    config = recursive_update(config, available_profiles[each_option])
+KeyError: 'CUSTOM=ANT_DELAYED_COACH'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "./main/run/full.py", line 3, in <module>
+    from info import config, path_to, print
+  File "/home/jeffhykin/repos/AFRL/info.py", line 7, in <module>
+    info = find_and_load(
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/quik_config/main.py", line 394, in find_and_load
+    raise Exception(f"""
+Exception: 
+
+    ---------------------------------------------------------------------------------
+    Your local config choices in this file: ./local_data.ignore.yaml
+    selected these options: ['CUSTOM=ANT_DELAYED_COACH']
+    (and there's a problem with this one: CUSTOM=ANT_DELAYED_COACH)
+    
+    Your info file: /home/jeffhykin/repos/AFRL/info.yaml
+    only lists these options available: ['(default)', 'FORCE_CPU_PROFILE', 'ENV=LUNAR', 'ENV=HOPPER', 'ENV=CHEETAH', 'ENV=WALKER', 'ENV=ANT', 'ENV=HUMANOID', 'LOSS=BASELINE', 'LOSS=Q', 'LOSS=Q_PLUS_STATE', 'LOSS=CONSISTENT_COACH', 'LOSS=CONSISTENT_VALUE', 'LOSS=HALF_CONSISTENT_COACH', 'LOSS=STATE_TRIPLE', 'LOSS=DELAYED_COACH_LOSS', 'CUSTOM=LUNAR_BASELINE_V1', 'CUSTOM=LUNAR_BASELINE_V2', 'CUSTOM=LUNAR_BASELINE_V3', 'CUSTOM=CHEETAH_BASELINE', 'CUSTOM=ANT_BASELINE', 'CUSTOM=LUNAR_Q', 'CUSTOM=CHEETAH_Q', 'CUSTOM=ANT_Q', 'CUSTOM=LUNAR_Q_PLUS_STATE', 'CUSTOM=LUNAR_Q_UNFAVORED_PLUS_STATE', 'CUSTOM=LUNAR_Q_IGNORED_PLUS_STATE', 'CUSTOM=CHEETAH_Q_PLUS_STATE', 'CUSTOM=CHEETAH_Q_UNFAVORED_PLUS_STATE', 'CUSTOM=CHEETAH_Q_IGNORED_PLUS_STATE', 'CUSTOM=ANT_Q_PLUS_STATE', 'CUSTOM=ANT_Q_UNFAVORED_PLUS_STATE', 'CUSTOM=ANT_Q_IGNORED_PLUS_STATE', 'CUSTOM=LUNAR_CONSISTENT_COACH', 'CUSTOM=CHEETAH_CONSISTENT_COACH', 'CUSTOM=ANT_CONSISTENT_COACH', 'CUSTOM=CHEETAH_CONSISTENT_VALUE', 'CUSTOM=ANT_CONSISTENT_VALUE', 'CUSTOM=CHEETAH_HALF_CONSISTENT_COACH', 'CUSTOM=ANT_HALF_CONSISTENT_COACH', 'CUSTOM=CHEETAH_STATE_TRIPLE', 'CUSTOM=ANT_STATE_TRIPLE', 'CUSTOM=CHEETAH_DELAYED_COACH_LOSS', 'CUSTOM=ANT_DELAYED_COACH_LOSS']
+    Look for "(project)" -> "(profiles)" -> *option*,to see them
+    
+    LIKELY SOLUTION:
+        Edit your local config: ./local_data.ignore.yaml
+        And remove "- CUSTOM=ANT_DELAYED_COACH"
+    ---------------------------------------------------------------------------------
+    
+

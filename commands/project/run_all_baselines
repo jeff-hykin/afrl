@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# . ./commands/project/run_all_baselines
+
+python ./main/run/compare_tuner.py -- @ENV=REACHER @LOSS=BASELINE experiment_name:tune_fast_1
+python ./main/run/compare_tuner.py -- @ENV=ANT     @LOSS=BASELINE experiment_name:tune_fast_1
+python ./main/run/compare_tuner.py -- @ENV=WALKER  @LOSS=BASELINE experiment_name:tune_fast_1
+python ./main/run/compare_tuner.py -- @ENV=CHEETAH @LOSS=BASELINE experiment_name:tune_fast_1
+python ./main/run/compare_tuner.py -- @ENV=HOPPER  @LOSS=BASELINE experiment_name:tune_fast_1
+python ./main/run/compare_tuner.py -- @ENV=LUNAR   @LOSS=BASELINE experiment_name:tune_fast_1

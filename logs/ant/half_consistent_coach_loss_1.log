@@ -1,0 +1,70 @@
+
+
+-------------------------------------------------------
+
+ Environment: AntBulletEnv-v0
+
+-------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------------------------------------------
+ Agent Model Exists, loading: subrepos/rl-trained-agents/sac/AntBulletEnv-v0_1/AntBulletEnv-v0.zip
+-----------------------------------------------------------------------------------------------------
+
+
+pybullet build time: Oct 11 2021 20:52:37
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+
+
+-----------------------------------------------------------------------------------------------------
+ Training Coach Model from scrach
+-----------------------------------------------------------------------------------------------------
+
+
+coach settings = {
+    "force_retrain": False, 
+    "learning_rate": 0.0001, 
+    "hidden_sizes": [64, 64, 64, 64, ], 
+    "loss_function": "half_consistent_coach_loss", 
+    "consistent_coach_loss": {"scale_future_state_loss": 1000000, }, 
+    "delayed_coach_loss": {"epochs_of_delay": 50, }, 
+    "value_plus_state_loss": {"value_proportion": 0.5, }, 
+    "number_of_episodes": 100, 
+    "number_of_epochs": 100, 
+    "train_test_split": 0.7, 
+    "batch_size": 1024, 
+    "with_card": True, 
+}
+Starting Train/Test
+/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/gym/spaces/box.py:73: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "./main/run/full.py", line 50, in <module>
+    full_run(
+  File "./main/run/full.py", line 21, in full_run
+    coach = Coach.smart_load(
+  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 82, in smart_load
+    coach.train_with(
+  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 506, in train_with
+    print(f'''    Epoch: {epochs_index}''')
+  File "/home/jeffhykin/repos/AFRL/.venv/lib/python3.8/site-packages/trivial_torch_tools/model.py", line 118, in __exit__
+    raise error
+  File "/home/jeffhykin/repos/AFRL/main/coach.py", line 469, in train_with
+    per_batch_data[name+"_train"].append(to_pure(loss))
+  File "/home/jeffhykin/repos/AFRL/tools.py", line 397, in __exit__
+    self.optimizer.step()
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/optim/optimizer.py", line 88, in wrapper
+    return func(*args, **kwargs)
+  File "/nix/store/a3spwij3rjh41ygskg9g4l4xd6264d8c-python3.8-pytorch-1.9.0/lib/python3.8/site-packages/torch/autograd/grad_mode.py", line 28, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/jeffhykin/repos/AFRL/main/optimizer/sam.py", line 44, in step
+    assert closure is not None, "Sharpness Aware Minimization requires closure, but it was not provided"
+AssertionError: Sharpness Aware Minimization requires closure, but it was not provided
+
+[silver_spectacle] There were unviewed results
+[silver_spectacle] So the display server is still running at: http://localhost:9900
+[silver_spectacle] (use the stop server button to kill it now)
+

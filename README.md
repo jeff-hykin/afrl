@@ -1,4 +1,60 @@
-- first, run train_agent.py to train the actor and critic
-- then, run train_dynamics.py to train the dynamics model
-- finally, run train_afrl.py to train the predictive policy
-- plot the results with plot_results.ipynb
+# Tooling Setup
+
+Everything is detailed in the `documentation/setup.md`!
+
+# Running Code
+
+- Run `python main/run/full.py -- experiment_name:experiment1` to 
+    - train the actor, critic
+    - followed by training the coach
+    - followed by testing them
+    - followed by running analysis, which saves images to the data/visuals folder
+
+
+# Customizing  Code
+
+As an example, lets change the number of training epochs for the coach model. 
+
+- Take a look at the `info.yaml` file.
+- Find where it has `(default):`
+
+Example look at the `info.yaml` file:
+
+```yaml
+(project):
+    
+    ###stuff###
+    
+    (profiles):
+        
+        ###stuff###
+        
+        (default):
+            
+            ###stuff###
+            
+            coach_settings:
+                number_of_epochs: 100
+```
+
+Lets change the number_of_epochs from `100` to `500` in the command line.
+
+```sh
+python main/run/full.py -- \
+    experiment_name:experiment2 \
+    coach_settings:number_of_epochs:500
+```
+
+Thats all there is too it. Works with lists, strings and more advanced types. <br>
+
+Full example:
+
+```sh
+python main/run/full.py --                            \
+    experiment_name:experiment3                       \
+    env_name:AntBulletEnv-v0                          \
+    agent_settings:model_name:default_sac_2              \
+    coach_settings:loss_function:consistent_coach_loss
+```
+
+#### See more info at [Quik Config Python](https://github.com/jeff-hykin/quik_config_python#command-line-arguments)
